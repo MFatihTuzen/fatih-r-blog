@@ -1,0 +1,44 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Fatih's Blog about R and Statistics",
+    "section": "",
+    "text": "Post With Code\n\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\n\n\nAug 11, 2023\n\n\nHarlow Malloc\n\n\n\n\n\n\n  \n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\n\n\nAug 8, 2023\n\n\nTristan O’Malley\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "Muhammed Fatih TÜZEN",
+    "section": "",
+    "text": "Welcome to my blog about R and Statistics. I believe that it is possible to learn in every moment of life and that success comes from constant work. That’s why I always think it’s valuable to learn something new and share what I’ve learned. I am creating such a blog page to share my knowledge and experience about R and Statistics that I have gained over many years. I think the R programming language is like a full-fledged toolbox for anyone who deals with data. I will try to present the contents of this toolbox as much as I know and as much as I can.\n\nEducation\n19 May University, Samsun, Türkiye, Bachelor of Science (B.S.) in Statistics, 2000 - 2004\nKafkas University, Kars, Türkiye, Master of Science (M.S.) Business, 2010 - 2012\nGazi University, Ankara, Türkiye, Doctor of Philosophy (Ph.D.) in Statistics, 2013 - 2018\n\n\nExperience\nTurkish Statistical Institution, Samsun, Samsun Regional Office, Field Interviewer, Agu 2005 - Dec 2006\nTurkish Statistical Institution, Kars, Kars Regional Office, Statistician, Dec 2006 - Agu 2012\nSocial Security Institution, Ankara, Statistician, Agu 2012 - Oct 2015\nTurkish Statistical Institution, Ankara, Expert, Oct 2015- Present"
+  },
+  {
+    "objectID": "posts/post-with-code/index.html",
+    "href": "posts/post-with-code/index.html",
+    "title": "Post With Code",
+    "section": "",
+    "text": "This is a post with executable code.\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "Welcome To My Blog",
+    "section": "",
+    "text": "This is the first post in a Quarto blog. Welcome!\n\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
+  },
+  {
+    "objectID": "about.html#education",
+    "href": "about.html#education",
+    "title": "Muhammed Fatih TÜZEN",
+    "section": "Education",
+    "text": "Education\n19 May University, Samsun, Türkiye, Bachelor of Science (B.S.) in Statistics, 2000 - 2004\nKafkas University, Kars, Türkiye, Master of Science (M.S.) Business, 2010 - 2012\nGazi University, Ankara, Türkiye, Doctor of Philosophy (Ph.D.) in Statistics, 2013 - 2018"
+  },
+  {
+    "objectID": "about.html#experience",
+    "href": "about.html#experience",
+    "title": "Muhammed Fatih TÜZEN",
+    "section": "Experience",
+    "text": "Experience\nTurkish Statistical Institution, Samsun, Samsun Regional Office, Field Interviewer, Agu 2005 - Dec 2006\nTurkish Statistical Institution, Kars, Kars Regional Office, Statistician, Dec 2006 - Agu 2012\nSocial Security Institution, Ankara, Statistician, Agu 2012 - Oct 2015\nTurkish Statistical Institution, Ankara, Expert, Oct 2015- Present"
+  }
+]
