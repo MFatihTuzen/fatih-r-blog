@@ -1,0 +1,17 @@
+---
+title: "About R Programming"
+author: "M. Fatih Tüzen"
+date: "2023-08-15"
+categories: [R Programming, R, R Studio]
+image: "RStudio-Ball.png"
+---
+
+Hello everyone! For my first post on my blog, I would like to make an introduction about R. Before we start coding with R, it's not a bad idea to know a little about this program and learn what we can do. I will try to answer questions such as why do we need R, how can I install R on my computer, what are the useful resources about R. So, let's get started.
+
+## What is R?
+
+R is an open source integrated software environment that combines data manipulation, programming and graphical representation, as well as many features such as statistical and econometric calculations.
+
+R is derived from the previously developed programming language S.
+
+It was developed by Ross Ihaka & Robert Gentleman and announced in 1993.

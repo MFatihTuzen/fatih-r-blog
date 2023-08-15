@@ -4,7 +4,7 @@
     "href": "index.html",
     "title": "Fatih's Blog about R and Statistics",
     "section": "",
-    "text": "Post With Code\n\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\n\n\nAug 11, 2023\n\n\nHarlow Malloc\n\n\n\n\n\n\n  \n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\n\n\nAug 8, 2023\n\n\nTristan O’Malley\n\n\n\n\n\n\nNo matching items"
+    "text": "About R Programming\n\n\n\n\n\n\n\nR Programming\n\n\nR\n\n\nR Studio\n\n\n\n\n\n\n\n\n\n\n\nAug 15, 2023\n\n\nM. Fatih Tüzen\n\n\n\n\n\n\n  \n\n\n\n\nPost With Code\n\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\n\n\nAug 11, 2023\n\n\nHarlow Malloc\n\n\n\n\n\n\n  \n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\n\n\nAug 8, 2023\n\n\nTristan O’Malley\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "about.html",
@@ -40,5 +40,19 @@
     "title": "Muhammed Fatih TÜZEN",
     "section": "Experience",
     "text": "Experience\nTurkish Statistical Institution, Samsun, Samsun Regional Office, Field Interviewer, Agu 2005 - Dec 2006\nTurkish Statistical Institution, Kars, Kars Regional Office, Statistician, Dec 2006 - Agu 2012\nSocial Security Institution, Ankara, Statistician, Agu 2012 - Oct 2015\nTurkish Statistical Institution, Ankara, Expert, Oct 2015- Present"
+  },
+  {
+    "objectID": "posts/2023-08-15/index.html",
+    "href": "posts/2023-08-15/index.html",
+    "title": "About R Programming",
+    "section": "",
+    "text": "Hello everyone! For my first post on my blog, I would like to make an introduction about R. Before we start coding with R, it’s not a bad idea to know a little about this program and learn what we can do. I will try to answer questions such as why do we need R, how can I install R on my computer, what are the useful resources about R. So, let’s get started."
+  },
+  {
+    "objectID": "posts/2023-08-15/index.html#what-is-r",
+    "href": "posts/2023-08-15/index.html#what-is-r",
+    "title": "About R Programming",
+    "section": "What is R?",
+    "text": "What is R?\nR is an open source integrated software environment that combines data manipulation, programming and graphical representation, as well as many features such as statistical and econometric calculations.\nR is derived from the previously developed programming language S.\nIt was developed by Ross Ihaka & Robert Gentleman and announced in 1993."
   }
 ]
