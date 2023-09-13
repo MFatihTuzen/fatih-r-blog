@@ -3,7 +3,7 @@
     "path": "D:/Akademi ve Veri Bilimi/Data Science/Github/fatih-r-blog/about.qmd",
     "project_path": "about.qmd",
     "type": "quarto_markdown",
-    "hash": "4099961980",
+    "hash": "2626141791",
     "contents": "",
     "dirty": false,
     "created": 1691757611912.0,
@@ -16,16 +16,16 @@
         "Source": "Source",
         "docOutlineVisible": "1",
         "rmdVisualCollapsedChunks": "",
-        "cursorPosition": "0,0",
+        "cursorPosition": "16,0",
         "scrollLine": "0",
-        "rmdVisualModeLocation": "273:0"
+        "rmdVisualModeLocation": "997:100"
     },
     "folds": "",
-    "lastKnownWriteTime": 1691765280,
+    "lastKnownWriteTime": 1694614059,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1691765280045,
+    "last_content_update": 1694614059398,
     "read_only": false,
     "read_only_alternatives": []
 }
