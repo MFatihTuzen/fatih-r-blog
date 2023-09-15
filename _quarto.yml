@@ -3,6 +3,7 @@ project:
 
 website:
   title: "Fatih's Blog about R and Statistics"
+  site-url: https://mfatihtuzen.netlify.app
   navbar:
     right:
       - text: "About"

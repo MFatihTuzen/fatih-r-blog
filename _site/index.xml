@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss  xmlns:atom="http://www.w3.org/2005/Atom" 
+      xmlns:media="http://search.yahoo.com/mrss/" 
+      xmlns:content="http://purl.org/rss/1.0/modules/content/" 
+      xmlns:dc="http://purl.org/dc/elements/1.1/" 
+      version="2.0">
+<channel>
+<title>Fatih&#39;s Blog about R and Statistics</title>
+<link>https://mfatihtuzen.netlify.app/index.html</link>
+<atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
+<description></description>
+<generator>quarto-1.3.361</generator>
+<lastBuildDate>Mon, 14 Aug 2023 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>Whatis R Programming</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2023-08-15_r-intro/index.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>Hello everyone! For my first post on my blog, I would like to make an introduction about R. Before we start coding with R, it’s not a bad idea to know a little about this program and learn what we can do. I will try to answer questions such as why do we need R, how can I install R on my computer, what are the useful resources about R. So, let’s get started.</p>
+<section id="what-is-r" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-r">What is R?</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2023-08-15_r-intro/RStudio-Ball.png" class="img-fluid figure-img" width="350"></p>
+</figure>
+</div>
+<p>R is a programming language and open-source software environment specifically designed for statistical computing and data analysis. It was created by <strong>R</strong>oss Ihaka and <strong>R</strong>obert Gentleman at the University of Auckland, New Zealand, in the early 1990s. R is widely used by statisticians, data analysts, researchers, and data scientists to manipulate, visualize, and analyze data.</p>
+<p>Key features and characteristics of R programming include:</p>
+<ol type="1">
+<li><p><strong>Statistical Analysis:</strong> R provides a wide range of statistical functions and libraries that enable users to perform various statistical analyses, including regression, hypothesis testing, clustering, and more.</p></li>
+<li><p><strong>Data Visualization:</strong> R offers powerful data visualization capabilities through packages like ggplot2, lattice, and base graphics. These packages allow users to create a wide variety of plots and charts to visualize their data.</p></li>
+<li><p><strong>Data Manipulation:</strong> R provides functions and libraries for cleaning, transforming, and manipulating data. The dplyr and tidyr packages are popular choices for data manipulation tasks.</p></li>
+<li><p><strong>Extensibility:</strong> Users can create and share their own functions, packages, and extensions, which contributes to the vibrant and active R community. This extensibility allows R to be adapted to various domains and applications.</p></li>
+<li><p><strong>Data Import and Export:</strong> R supports reading and writing data in various formats, including CSV, Excel, databases, and more. This flexibility makes it easy to work with data from different sources.</p></li>
+<li><p><strong>Interactive Environment:</strong> R provides an interactive environment where users can execute commands, scripts, and analyses step by step. This is particularly useful for exploring data and experimenting with different approaches.</p></li>
+<li><p><strong>Community and Packages:</strong> The R community has developed a vast ecosystem of packages that extend R’s functionality. <a href="https://cran.r-project.org/"><strong>CRAN</strong></a> (Comprehensive R Archive Network) is the central repository for R packages, where users can find and install packages for various tasks.</p></li>
+<li><p><strong>Scripting and Programming:</strong> R is a full-fledged programming language with support for control structures, loops, functions, and other programming constructs. This makes it suitable for both simple data analysis tasks and complex data science projects.</p></li>
+<li><p><strong>Open Source:</strong> R is released under an open-source license, which means that anyone can use, modify, and distribute the software. This openness has contributed to the growth and popularity of R in the data science community.</p></li>
+</ol>
+<p>R is commonly used in academia, research, and industries such as finance, healthcare, marketing, and more. Its flexibility, extensive packages, and active community support make it a valuable tool for a wide range of data-related tasks.</p>
+</section>
+<section id="why-should-i-use-r" class="level2">
+<h2 class="anchored" data-anchor-id="why-should-i-use-r">Why Should I Use R?</h2>
+<p>There are several compelling reasons to consider using R for your data analysis, statistical computing, and programming needs. Here are some key benefits of using R:</p>
+<ol type="1">
+<li><p><strong>Statistical Analysis:</strong> R was specifically designed for statistical analysis and provides a wide range of statistical functions, algorithms, and libraries. It’s an excellent choice for conducting complex statistical analyses, hypothesis testing, regression modeling, and more.</p></li>
+<li><p><strong>Data Visualization:</strong> R offers powerful data visualization capabilities through packages like ggplot2, which allow you to create customized and publication-quality visualizations. Visualizing data is crucial for understanding patterns, trends, and relationships.</p></li>
+<li><p><strong>Rich Ecosystem of Packages:</strong> R has a vibrant and active community that has developed thousands of packages to extend its functionality. These packages cover various domains, from machine learning and data manipulation to text analysis and bioinformatics.</p></li>
+<li><p><strong>Reproducibility:</strong> R promotes reproducible research by allowing you to write scripts that document your data analysis process step by step. This makes it easier to share your work with others and reproduce your results.</p></li>
+<li><p><strong>Community and Resources:</strong> R has a large and supportive community of users and experts who share their knowledge through forums, blogs, and tutorials. This community support can be invaluable when you encounter challenges.</p></li>
+<li><p><strong>Open Source:</strong> R is open-source software, meaning it’s free to use and open for anyone to modify and contribute to. This accessibility has led to its widespread adoption across academia, research, and industries.</p></li>
+<li><p><strong>Flexibility:</strong> R is a versatile programming language that supports both interactive analysis and script-based programming. It’s well-suited for a wide range of tasks, from exploratory data analysis to building complex data science models.</p></li>
+<li><p><strong>Integration with Other Tools:</strong> R can be integrated with other tools and platforms, such as databases, big data frameworks (like Hadoop and Spark), and APIs, allowing you to work with data from various sources.</p></li>
+<li><p><strong>Data Manipulation:</strong> Packages like dplyr and tidyr provide powerful tools for efficiently cleaning, transforming, and reshaping data, making data preparation easier and more efficient.</p></li>
+<li><p><strong>Academic and Research Use:</strong> R is widely used in academia and research, making it a valuable skill for students, researchers, and professionals in fields such as statistics, social sciences, and natural sciences.</p></li>
+<li><p><strong>Data Science and Machine Learning:</strong> R has a strong presence in the data science and machine learning communities. Packages like caret, randomForest, and xgboost provide tools for building predictive models.</p></li>
+<li><p><strong>Comprehensive Documentation:</strong> R provides comprehensive documentation and help resources, including function documentation, manuals, and online guides.</p></li>
+</ol>
+<p>Ultimately, the decision to use R depends on your specific needs, your familiarity with the language, and the types of analyses and projects you’re involved in. If you’re working with data analysis, statistics, or data science, R can be a powerful tool that empowers you to explore, analyze, and visualize data effectively.</p>
+</section>
+<section id="useful-resources-for-r-programming" class="level2">
+<h2 class="anchored" data-anchor-id="useful-resources-for-r-programming">Useful Resources for R Programming</h2>
+<p>There are numerous useful resources available for learning and mastering R programming. Whether you’re a beginner or an experienced user, these resources can help you enhance your R skills. My intention is to share resources that I think are useful and some of which I use myself, rather than advertising some people or organizations. Here’s a list of some valuable R programming resources:</p>
+<ol type="1">
+<li><p><strong>Online Courses and Tutorials:</strong></p>
+<ul>
+<li><p><a href="https://www.coursera.org/"><strong>Coursera</strong></a><strong>:</strong> Offers a variety of R programming courses, including “R Programming” by Johns Hopkins University.</p></li>
+<li><p><a href="https://www.edx.org/"><strong>edX</strong></a><strong>:</strong> Provides courses like “Introduction to R for Data Science” by Microsoft.</p></li>
+<li><p><a href="https://www.datacamp.com/"><strong>DataCamp</strong></a><strong>:</strong> Offers interactive R tutorials and courses for all skill levels.</p></li>
+<li><p><a href="https://education.rstudio.com/"><strong>RStudio Education</strong></a><strong>:</strong> Provides free and interactive tutorials on using R and RStudio.</p></li>
+</ul></li>
+<li><p><strong>Books:</strong></p>
+<ul>
+<li><p><a href="https://r4ds.hadley.nz/"><strong>“R for Data Science”</strong></a> by Hadley Wickham, Mine Çetinkaya-Rundel and Garrett Grolemund: A comprehensive guide to using R for data analysis and visualization.</p></li>
+<li><p><a href="https://adv-r.hadley.nz/"><strong>“Advanced R”</strong></a> by Hadley Wickham: Focuses on more advanced programming concepts and techniques in R.</p></li>
+<li><p><a href="https://r-graphics.org/"><strong>“R Graphics Cookbook”</strong></a> by Winston Chang: A guide to creating various types of visualizations using R.</p></li>
+<li><p><a href="https://www.bigbookofr.com/index.html"><strong>“Big Book of R”</strong></a>is an open source web page created by Oscar Baruffa. The page functions as an easy-to-navigate, one-stop shop by categorizing books on many topics prepared within the R programming language.</p></li>
+</ul></li>
+<li><p><strong>Online Communities and Forums:</strong></p>
+<ul>
+<li><p><a href="https://stackoverflow.com/"><strong>Stack Overflow</strong></a><strong>:</strong> A popular Q&amp;A platform where you can ask and answer R programming-related questions.</p></li>
+<li><p><a href="https://community.rstudio.com/"><strong>RStudio Community</strong></a><strong>:</strong> RStudio’s official forum for discussing R and RStudio-related topics.</p></li>
+<li><p><a href="https://www.reddit.com/"><strong>Reddit</strong></a><strong>:</strong> The r/rprogramming and r/rstats subreddits are great places for discussions and sharing R resources.</p></li>
+</ul></li>
+<li><p><strong>Blogs and Websites:</strong></p>
+<ul>
+<li><p><a href="https://www.r-bloggers.com/"><strong>R-bloggers</strong></a><strong>:</strong> Aggregates blog posts from various R bloggers, covering a wide range of topics.</p></li>
+<li><p><a href="https://community.rstudio.com/c/news/rstudio-blog/62"><strong>RStudio Blog</strong></a><strong>:</strong> The official blog of RStudio, featuring articles and tutorials on R and RStudio.</p></li>
+<li><p><a href="https://www.datacamp.com/blog"><strong>DataCamp Community Blog</strong></a><strong>:</strong> DataCamp is an online learning platform, and its community blog features numerous tutorials and articles on R programming, data science, and related topics.</p></li>
+<li><p><a href="https://www.tidyverse.org/blog/"><strong>Tidyverse Blog</strong></a>: If you’re a fan of the tidyverse packages (e.g., dplyr, ggplot2), you’ll find useful tips and updates on their blog.</p></li>
+<li><p><a href="https://github.com/"><strong>Github</strong></a> : GitHub is a web-based platform for version control and collaboration that is widely used by developers and teams for managing and sharing source code and other project-related files. It provides a range of features and tools for software development, including version control, code hosting, collaboration, issue tracking, pull requests, wiki and documentation, integration, community and social features. GitHub is widely used by both individual developers and large organizations for open-source and closed-source projects alike. It has become a central hub for software development, fostering collaboration and code sharing within the global developer community.</p>
+<p>⚠️ Please keep in mind that the availability and popularity of blogs can change, so it’s a good idea to explore these websites and also look for any new blogs or resources that may have emerged since my last update. Additionally, consider following R-related discussions and communities on social media platforms and forums like Stack Overflow for the latest information and discussions related to R programming.</p></li>
+</ul></li>
+<li><p><strong>Packages and Documentation:</strong></p>
+<ul>
+<li><p><a href="https://cran.r-project.org/"><strong>CRAN (Comprehensive R Archive Network)</strong></a><strong>:</strong> The central repository for R packages. You can find packages for various tasks and their documentation here.</p></li>
+<li><p><a href="https://www.rdocumentation.org/"><strong>RDocumentation</strong></a><strong>:</strong> Offers searchable documentation for R packages.</p></li>
+</ul></li>
+</ol>
+<blockquote class="blockquote">
+<p>👉 Remember that learning R programming is an ongoing process, so feel free to explore multiple resources and tailor your learning approach to your needs and interests. Apart from these, you can find many channels, communities or people to follow on YouTube and social media. Of course, artificial intelligence-supported chat engines such as chatGPT and Google Bard, which have become popular recently, are also very useful resources.</p>
+</blockquote>
+</section>
+<section id="installing-r-on-your-machine" class="level2">
+<h2 class="anchored" data-anchor-id="installing-r-on-your-machine">Installing R on your machine</h2>
+<p>In order to install R and RStudio on your computer, follow these steps:</p>
+<p><strong>Installing R:</strong></p>
+<ol type="1">
+<li><p><strong>Download R</strong>: Visit the official <a href="https://cran.r-project.org/mirrors.html">R website</a> and select a CRAN mirror near you.</p></li>
+<li><p><strong>Choose Your Operating System</strong>: Click on the appropriate link for your operating system (Windows, macOS, or Linux).</p>
+<ul>
+<li><p>For <strong>Windows</strong>: Download the “base” distribution.</p></li>
+<li><p>For <strong>macOS</strong>: Download the “pkg” file.</p></li>
+<li><p>For <strong>Linux</strong>: Follow the instructions for your specific distribution (e.g., Ubuntu, Debian, CentOS) provided on the CRAN website.</p></li>
+</ul></li>
+<li><p><strong>Install R</strong>:</p>
+<ul>
+<li><p>For <strong>Windows</strong>: Run the downloaded installer and follow the installation instructions.</p></li>
+<li><p>For <strong>macOS</strong>: Open the downloaded .pkg file and follow the installation instructions.</p></li>
+<li><p>For <strong>Linux</strong>: Follow the installation instructions for your specific Linux distribution.</p></li>
+</ul></li>
+</ol>
+<p>R has now been sucessfully installed on your Windows OS. Open the R GUI to start writing R codes.</p>
+<p><strong>Installing RStudio:</strong></p>
+<ol type="1">
+<li><p><strong>Download RStudio</strong>: Visit the official RStudio website <a href="https://www.rstudio.com/products/rstudio/download/">RStudio website</a> and select the appropriate version of RStudio Desktop for your operating system (Windows, macOS, or Linux).</p></li>
+<li><p><strong>Install RStudio</strong>:</p>
+<ul>
+<li><p>For <strong>Windows</strong>: Run the downloaded installer and follow the installation instructions.</p></li>
+<li><p>For <strong>macOS</strong>: Open the downloaded .dmg file and drag the RStudio application to your Applications folder.</p></li>
+<li><p>For <strong>Linux</strong>: Follow the installation instructions for your specific Linux distribution.</p></li>
+</ul></li>
+</ol>
+<p>RStudio is now successfully installed on your computer.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2023-08-15_r-intro/RStudio.PNG" class="img-fluid figure-img" width="600"></p>
+</figure>
+</div>
+<p>Apart from R and Rstudio, you may also need to install Rtools. Rtools is a collection of software tools that are essential for building and compiling packages in the R programming language on Windows operating systems. Here are several reasons why you might need Rtools:</p>
+<ol type="1">
+<li><p><strong>Package Development</strong>: If you plan to develop R packages, you will need Rtools to compile and build those packages. R packages often contain C, C++, or Fortran code, which needs to be compiled into binary form to work with R.</p></li>
+<li><p><strong>Installing Binary Packages</strong>: Some R packages are only available in binary form on CRAN (Comprehensive R Archive Network). If you want to install these packages, you may need Rtools to help with package installation and compilation.</p></li>
+<li><p><strong>Using devtools</strong>: If you use the <code>devtools</code> package in R to develop or install packages from sources (e.g., GitHub repositories), Rtools is often required for the compilation of code.</p></li>
+<li><p><strong>External Dependencies</strong>: Certain R packages rely on external libraries and tools that are included in Rtools. Without Rtools, these packages may not be able to function correctly.</p></li>
+<li><p><strong>Custom Code</strong>: If you write custom R code that relies on compiled code in C, C++, or Fortran, you will need Rtools to compile and link your custom code with R.</p></li>
+<li><p><strong>Creating RMarkdown Documents</strong>: If you use RMarkdown to create documents that involve code chunks needing compilation, Rtools is required to compile these documents into their final format, such as PDF or HTML.</p></li>
+<li><p><strong>Data Analysis with Specific Packages</strong>: Some specialized packages in R, especially those dealing with high-performance computing or specific domains, may require Rtools as a prerequisite.</p></li>
+<li><p><strong>Building from Source</strong>: If you want to install R itself from source code rather than using a pre-built binary version, Rtools is necessary to compile and build R from source.</p></li>
+</ol>
+<p>In summary, Rtools is crucial for anyone working with R on Windows who intends to compile code, develop packages, or work with packages that rely on compiled code. It provides the necessary toolchain and dependencies for these tasks, ensuring that R functions correctly with code that needs to be compiled.</p>
+<p><strong>Installing RTools</strong></p>
+<ol type="1">
+<li><p>Download R Tools: Visit <a href="https://cran.r-project.org/bin/windows/Rtools/">RTools website</a> and download the RTools installer.</p></li>
+<li><p>After downloading has completed run the installer. Select the default options everywhere.</p></li>
+</ol>
+
+
+</section>
+
+ ]]></description>
+  <category>R Programming</category>
+  <category>R</category>
+  <category>R Studio</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2023-08-15_r-intro/index.html</guid>
+  <pubDate>Mon, 14 Aug 2023 21:00:00 GMT</pubDate>
+  <media:content url="https://mfatihtuzen.netlify.app/posts/2023-08-15_r-intro/RStudio-Ball.png" medium="image" type="image/png" height="144" width="144"/>
+</item>
+</channel>
+</rss>
