@@ -11,6 +11,8 @@ website:
         href: https://github.com/MFatihTuzen
       - icon: linkedin
         href: https://www.linkedin.com/in/fatih-t-2b2a4328/
+      - icon: rss
+        href: blog.xml
 format:
   html:
     theme: flatly

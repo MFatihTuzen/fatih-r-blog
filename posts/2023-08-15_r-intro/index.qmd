@@ -1,7 +1,8 @@
 ---
-title: "About R Programming"
+title: "Whatis R Programming"
 author: "M. Fatih Tüzen"
 date: "2023-08-15"
+date-modified: "2023-09-01"
 categories: [R Programming, R, R Studio]
 image: "RStudio-Ball.png"
 ---
@@ -120,4 +121,70 @@ There are numerous useful resources available for learning and mastering R progr
 
 > 👉 Remember that learning R programming is an ongoing process, so feel free to explore multiple resources and tailor your learning approach to your needs and interests. Apart from these, you can find many channels, communities or people to follow on YouTube and social media. Of course, artificial intelligence-supported chat engines such as chatGPT and Google Bard, which have become popular recently, are also very useful resources.
 
-## What can I do with R?
+## Installing R on your machine
+
+In order to install R and RStudio on your computer, follow these steps:
+
+**Installing R:**
+
+1.  **Download R**: Visit the official [R website](https://cran.r-project.org/mirrors.html) and select a CRAN mirror near you.
+
+2.  **Choose Your Operating System**: Click on the appropriate link for your operating system (Windows, macOS, or Linux).
+
+    -   For **Windows**: Download the "base" distribution.
+
+    -   For **macOS**: Download the "pkg" file.
+
+    -   For **Linux**: Follow the instructions for your specific distribution (e.g., Ubuntu, Debian, CentOS) provided on the CRAN website.
+
+3.  **Install R**:
+
+    -   For **Windows**: Run the downloaded installer and follow the installation instructions.
+
+    -   For **macOS**: Open the downloaded .pkg file and follow the installation instructions.
+
+    -   For **Linux**: Follow the installation instructions for your specific Linux distribution.
+
+R has now been sucessfully installed on your Windows OS. Open the R GUI to start writing R codes.
+
+**Installing RStudio:**
+
+1.  **Download RStudio**: Visit the official RStudio website [RStudio website](https://www.rstudio.com/products/rstudio/download/) and select the appropriate version of RStudio Desktop for your operating system (Windows, macOS, or Linux).
+
+2.  **Install RStudio**:
+
+    -   For **Windows**: Run the downloaded installer and follow the installation instructions.
+
+    -   For **macOS**: Open the downloaded .dmg file and drag the RStudio application to your Applications folder.
+
+    -   For **Linux**: Follow the installation instructions for your specific Linux distribution.
+
+RStudio is now successfully installed on your computer.
+
+![](RStudio.PNG){fig-align="center" width="600"}
+
+Apart from R and Rstudio, you may also need to install Rtools. Rtools is a collection of software tools that are essential for building and compiling packages in the R programming language on Windows operating systems. Here are several reasons why you might need Rtools:
+
+1.  **Package Development**: If you plan to develop R packages, you will need Rtools to compile and build those packages. R packages often contain C, C++, or Fortran code, which needs to be compiled into binary form to work with R.
+
+2.  **Installing Binary Packages**: Some R packages are only available in binary form on CRAN (Comprehensive R Archive Network). If you want to install these packages, you may need Rtools to help with package installation and compilation.
+
+3.  **Using devtools**: If you use the `devtools` package in R to develop or install packages from sources (e.g., GitHub repositories), Rtools is often required for the compilation of code.
+
+4.  **External Dependencies**: Certain R packages rely on external libraries and tools that are included in Rtools. Without Rtools, these packages may not be able to function correctly.
+
+5.  **Custom Code**: If you write custom R code that relies on compiled code in C, C++, or Fortran, you will need Rtools to compile and link your custom code with R.
+
+6.  **Creating RMarkdown Documents**: If you use RMarkdown to create documents that involve code chunks needing compilation, Rtools is required to compile these documents into their final format, such as PDF or HTML.
+
+7.  **Data Analysis with Specific Packages**: Some specialized packages in R, especially those dealing with high-performance computing or specific domains, may require Rtools as a prerequisite.
+
+8.  **Building from Source**: If you want to install R itself from source code rather than using a pre-built binary version, Rtools is necessary to compile and build R from source.
+
+In summary, Rtools is crucial for anyone working with R on Windows who intends to compile code, develop packages, or work with packages that rely on compiled code. It provides the necessary toolchain and dependencies for these tasks, ensuring that R functions correctly with code that needs to be compiled.
+
+**Installing RTools**
+
+1.  Download R Tools: Visit [RTools website](https://cran.r-project.org/bin/windows/Rtools/) and download the RTools installer.
+
+2.  After downloading has completed run the installer. Select the default options everywhere.
