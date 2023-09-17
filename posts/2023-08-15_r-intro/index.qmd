@@ -1,5 +1,5 @@
 ---
-title: "Whatis R Programming"
+title: "A Gentle Introduction to R Programming"
 author: "M. Fatih Tüzen"
 date: "2023-08-15"
 date-modified: "2023-09-01"
@@ -11,7 +11,7 @@ Hello everyone! For my first post on my blog, I would like to make an introducti
 
 ## What is R?
 
-![](RStudio-Ball.png){fig-align="center" width="350"}
+![](RStudio-Ball.png){fig-align="center" width="300"}
 
 R is a programming language and open-source software environment specifically designed for statistical computing and data analysis. It was created by **R**oss Ihaka and **R**obert Gentleman at the University of Auckland, New Zealand, in the early 1990s. R is widely used by statisticians, data analysts, researchers, and data scientists to manipulate, visualize, and analyze data.
 
