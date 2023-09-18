@@ -10,6 +10,8 @@ about:
     - icon: github
       text: Github
       href: https://github.com/MFatihTuzen
+    - text: Email
+      url: "mailto:mfatihtuzen@gmail.com"
 ---
 
 Welcome to my blog about R and Statistics. I believe that it is possible to learn in every moment of life and that success comes from constant work. That's why I always think it's valuable to learn something new and share what I've learned. I am creating such a blog page to share my knowledge and experience about R and Statistics that I have gained over many years. I think the R programming language is like a full-fledged toolbox for anyone who deals with data. I will try to present the contents of this toolbox as much as I know and as much as I can.

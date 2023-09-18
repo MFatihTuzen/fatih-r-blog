@@ -10,3 +10,8 @@ title-block-banner: true
 comments: 
   utterances: 
     repo:  MFatihTuzen/blogComments
+
+# Table of content settings
+toc: true
+toc-depth: 3
+toc-location: left
