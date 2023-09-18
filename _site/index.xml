@@ -92,18 +92,40 @@
 <li><p><a href="https://community.rstudio.com/c/news/rstudio-blog/62"><strong>RStudio Blog</strong></a><strong>:</strong> The official blog of RStudio, featuring articles and tutorials on R and RStudio.</p></li>
 <li><p><a href="https://www.datacamp.com/blog"><strong>DataCamp Community Blog</strong></a><strong>:</strong> DataCamp is an online learning platform, and its community blog features numerous tutorials and articles on R programming, data science, and related topics.</p></li>
 <li><p><a href="https://www.tidyverse.org/blog/"><strong>Tidyverse Blog</strong></a>: If you’re a fan of the tidyverse packages (e.g., dplyr, ggplot2), you’ll find useful tips and updates on their blog.</p></li>
-<li><p><a href="https://github.com/"><strong>Github</strong></a> : GitHub is a web-based platform for version control and collaboration that is widely used by developers and teams for managing and sharing source code and other project-related files. It provides a range of features and tools for software development, including version control, code hosting, collaboration, issue tracking, pull requests, wiki and documentation, integration, community and social features. GitHub is widely used by both individual developers and large organizations for open-source and closed-source projects alike. It has become a central hub for software development, fostering collaboration and code sharing within the global developer community.</p>
-<p>⚠️ Please keep in mind that the availability and popularity of blogs can change, so it’s a good idea to explore these websites and also look for any new blogs or resources that may have emerged since my last update. Additionally, consider following R-related discussions and communities on social media platforms and forums like Stack Overflow for the latest information and discussions related to R programming.</p></li>
-</ul></li>
+<li><p><a href="https://github.com/"><strong>Github</strong></a> : GitHub is a web-based platform for version control and collaboration that is widely used by developers and teams for managing and sharing source code and other project-related files. It provides a range of features and tools for software development, including version control, code hosting, collaboration, issue tracking, pull requests, wiki and documentation, integration, community and social features. GitHub is widely used by both individual developers and large organizations for open-source and closed-source projects alike. It has become a central hub for software development, fostering collaboration and code sharing within the global developer community.</p></li>
+</ul>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Please keep in mind that the availability and popularity of blogs can change, so it’s a good idea to explore these websites and also look for any new blogs or resources that may have emerged since my last update. Additionally, consider following R-related discussions and communities on social media platforms and forums like Stack Overflow for the latest information and discussions related to R programming.</p>
+</div>
+</div></li>
 <li><p><strong>Packages and Documentation:</strong></p>
 <ul>
 <li><p><a href="https://cran.r-project.org/"><strong>CRAN (Comprehensive R Archive Network)</strong></a><strong>:</strong> The central repository for R packages. You can find packages for various tasks and their documentation here.</p></li>
 <li><p><a href="https://www.rdocumentation.org/"><strong>RDocumentation</strong></a><strong>:</strong> Offers searchable documentation for R packages.</p></li>
-</ul></li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Remember that learning R programming is an ongoing process, so feel free to explore multiple resources and tailor your learning approach to your needs and interests. Apart from these, you can find many channels, communities or people to follow on YouTube and social media. Of course, artificial intelligence-supported chat engines such as chatGPT and Google Bard, which have become popular recently, are also very useful resources.</p>
+</div>
+</div></li>
 </ol>
-<blockquote class="blockquote">
-<p>👉 Remember that learning R programming is an ongoing process, so feel free to explore multiple resources and tailor your learning approach to your needs and interests. Apart from these, you can find many channels, communities or people to follow on YouTube and social media. Of course, artificial intelligence-supported chat engines such as chatGPT and Google Bard, which have become popular recently, are also very useful resources.</p>
-</blockquote>
 </section>
 <section id="installing-r-on-your-machine" class="level2">
 <h2 class="anchored" data-anchor-id="installing-r-on-your-machine">Installing R on your machine</h2>

@@ -10,7 +10,8 @@ about:
     - icon: github
       text: Github
       href: https://github.com/MFatihTuzen
-    - text: Email
+    - icon: envelope-at-fill
+      text: Email
       url: "mailto:mfatihtuzen@gmail.com"
 ---
 
