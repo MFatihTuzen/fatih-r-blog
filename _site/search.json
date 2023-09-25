@@ -1,19 +1,5 @@
 [
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "Muhammed Fatih TÜZEN",
-    "section": "",
-    "text": "Welcome to my blog about R and Statistics. I believe that it is possible to learn in every moment of life and that success comes from constant work. That’s why I always think it’s valuable to learn something new and share what I’ve learned. I am creating such a blog page to share my knowledge and experience about R and Statistics that I have gained over many years. I think the R programming language is like a full-fledged toolbox for anyone who deals with data. I will try to present the contents of this toolbox as much as I know and as much as I can.\n\nEducation\nGazi University, Ankara, Türkiye, Doctor of Philosophy (Ph.D.) in Statistics, 2013 - 2018\nKafkas University, Kars, Türkiye, Master of Science (M.S.) in Business, 2010 - 2012\n19 May University, Samsun, Türkiye, Bachelor of Science (B.S.) in Statistics, 2000 - 2004\n\n\nExperience\nTurkish Statistical Institution, Ankara, Expert, Oct 2015- Present\nSocial Security Institution, Ankara, Statistician, Agu 2012 - Oct 2015\nTurkish Statistical Institution, Kars, Kars Regional Office, Statistician, Dec 2006 - Agu 2012\nTurkish Statistical Institution, Samsun, Samsun Regional Office, Field Interviewer, Agu 2005 - Dec 2006"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Fatih's Blog about R and Statistics",
-    "section": "",
-    "text": "Order By\n       Default\n         \n          Title\n        \n         \n          Date - Oldest\n        \n         \n          Date - Newest\n        \n         \n          Author\n        \n     \n  \n    \n      \n      \n    \n\n\n\n\n  \n\n\n\n\nA Gentle Introduction to R Programming\n\n\n\n\n\n\n\nR Programming\n\n\nR\n\n\nR Studio\n\n\n\n\n\n\n\n\n\n\n\nAug 15, 2023\n\n\nM. Fatih Tüzen\n\n\n\n\n\n\nNo matching items"
-  },
-  {
     "objectID": "posts/2023-08-15_r-intro/index.html",
     "href": "posts/2023-08-15_r-intro/index.html",
     "title": "A Gentle Introduction to R Programming",
@@ -47,5 +33,19 @@
     "title": "A Gentle Introduction to R Programming",
     "section": "Installing R on your machine",
     "text": "Installing R on your machine\nIn order to install R and RStudio on your computer, follow these steps:\nInstalling R:\n\nDownload R: Visit the official R website and select a CRAN mirror near you.\nChoose Your Operating System: Click on the appropriate link for your operating system (Windows, macOS, or Linux).\n\nFor Windows: Download the “base” distribution.\nFor macOS: Download the “pkg” file.\nFor Linux: Follow the instructions for your specific distribution (e.g., Ubuntu, Debian, CentOS) provided on the CRAN website.\n\nInstall R:\n\nFor Windows: Run the downloaded installer and follow the installation instructions.\nFor macOS: Open the downloaded .pkg file and follow the installation instructions.\nFor Linux: Follow the installation instructions for your specific Linux distribution.\n\n\nR has now been sucessfully installed on your Windows OS. Open the R GUI to start writing R codes.\nInstalling RStudio:\n\nDownload RStudio: Visit the official RStudio website RStudio website and select the appropriate version of RStudio Desktop for your operating system (Windows, macOS, or Linux).\nInstall RStudio:\n\nFor Windows: Run the downloaded installer and follow the installation instructions.\nFor macOS: Open the downloaded .dmg file and drag the RStudio application to your Applications folder.\nFor Linux: Follow the installation instructions for your specific Linux distribution.\n\n\nRStudio is now successfully installed on your computer.\n\n\n\n\n\nApart from R and Rstudio, you may also need to install Rtools. Rtools is a collection of software tools that are essential for building and compiling packages in the R programming language on Windows operating systems. Here are several reasons why you might need Rtools:\n\nPackage Development: If you plan to develop R packages, you will need Rtools to compile and build those packages. R packages often contain C, C++, or Fortran code, which needs to be compiled into binary form to work with R.\nInstalling Binary Packages: Some R packages are only available in binary form on CRAN (Comprehensive R Archive Network). If you want to install these packages, you may need Rtools to help with package installation and compilation.\nUsing devtools: If you use the devtools package in R to develop or install packages from sources (e.g., GitHub repositories), Rtools is often required for the compilation of code.\nExternal Dependencies: Certain R packages rely on external libraries and tools that are included in Rtools. Without Rtools, these packages may not be able to function correctly.\nCustom Code: If you write custom R code that relies on compiled code in C, C++, or Fortran, you will need Rtools to compile and link your custom code with R.\nCreating RMarkdown Documents: If you use RMarkdown to create documents that involve code chunks needing compilation, Rtools is required to compile these documents into their final format, such as PDF or HTML.\nData Analysis with Specific Packages: Some specialized packages in R, especially those dealing with high-performance computing or specific domains, may require Rtools as a prerequisite.\nBuilding from Source: If you want to install R itself from source code rather than using a pre-built binary version, Rtools is necessary to compile and build R from source.\n\nIn summary, Rtools is crucial for anyone working with R on Windows who intends to compile code, develop packages, or work with packages that rely on compiled code. It provides the necessary toolchain and dependencies for these tasks, ensuring that R functions correctly with code that needs to be compiled.\nInstalling RTools\n\nDownload R Tools: Visit RTools website and download the RTools installer.\nAfter downloading has completed run the installer. Select the default options everywhere."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "Muhammed Fatih TÜZEN",
+    "section": "",
+    "text": "Welcome to my blog about R and Statistics. I believe that it is possible to learn in every moment of life and that success comes from constant work. That’s why I always think it’s valuable to learn something new and share what I’ve learned. I am creating such a blog page to share my knowledge and experience about R and Statistics that I have gained over many years. I think the R programming language is like a full-fledged toolbox for anyone who deals with data. I will try to present the contents of this toolbox as much as I know and as much as I can.\n\nEducation\nGazi University, Ankara, Türkiye, Doctor of Philosophy (Ph.D.) in Statistics, 2013 - 2018\nKafkas University, Kars, Türkiye, Master of Science (M.S.) in Business, 2010 - 2012\n19 May University, Samsun, Türkiye, Bachelor of Science (B.S.) in Statistics, 2000 - 2004\n\n\nExperience\nTurkish Statistical Institution, Ankara, Expert, Oct 2015- Present\nSocial Security Institution, Ankara, Statistician, Agu 2012 - Oct 2015\nTurkish Statistical Institution, Kars, Kars Regional Office, Statistician, Dec 2006 - Agu 2012\nTurkish Statistical Institution, Samsun, Samsun Regional Office, Field Interviewer, Agu 2005 - Dec 2006"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Fatih's Blog about R and Statistics",
+    "section": "",
+    "text": "Order By\n       Default\n         \n          Title\n        \n         \n          Date - Oldest\n        \n         \n          Date - Newest\n        \n         \n          Author\n        \n     \n  \n    \n      \n      \n    \n\n\n\n\n  \n\n\n\n\nA Gentle Introduction to R Programming\n\n\n\n\n\n\n\nR Programming\n\n\nR\n\n\nR Studio\n\n\n\n\n\n\n\n\n\n\n\nAug 15, 2023\n\n\nM. Fatih Tüzen\n\n\n\n\n\n\nNo matching items"
   }
 ]
