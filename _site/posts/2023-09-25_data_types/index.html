@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="M. Fatih Tüzen">
+<meta name="dcterms.date" content="2023-09-26">
+
+<title>Fatih’s Blog about R and Statistics - Understanding Data Types in R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Fatih’s Blog about R and Statistics</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/MFatihTuzen" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/fatih-t-2b2a4328/" rel="" target=""><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml" rel="" target=""><i class="bi bi-rss" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Understanding Data Types in R</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">R Programming</div>
+                <div class="quarto-category">data types</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>M. Fatih Tüzen </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">September 26, 2023</p>
+      </div>
+    </div>
+    
+      <div>
+      <div class="quarto-title-meta-heading">Modified</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date-modified">September 26, 2023</p>
+      </div>
+    </div>
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><strong>Introduction</strong></a></li>
+  <li><a href="#data-types-in-r" id="toc-data-types-in-r" class="nav-link" data-scroll-target="#data-types-in-r"><strong>Data Types in R</strong></a>
+  <ul class="collapse">
+  <li><a href="#numeric" id="toc-numeric" class="nav-link" data-scroll-target="#numeric"><strong>Numeric</strong></a></li>
+  <li><a href="#integers" id="toc-integers" class="nav-link" data-scroll-target="#integers">Integers</a></li>
+  <li><a href="#character" id="toc-character" class="nav-link" data-scroll-target="#character"><strong>Character</strong></a></li>
+  <li><a href="#logical" id="toc-logical" class="nav-link" data-scroll-target="#logical"><strong>Logical</strong></a></li>
+  <li><a href="#date-and-time" id="toc-date-and-time" class="nav-link" data-scroll-target="#date-and-time"><strong>Date and Time</strong></a></li>
+  <li><a href="#complex" id="toc-complex" class="nav-link" data-scroll-target="#complex"><strong>Complex</strong></a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction"><strong>Introduction</strong></h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="blocks.jpg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+<p>Learning R programming is akin to constructing a sturdy building. You need a powerful foundation to support the structure. Just as a building’s foundation dictates its strength and stability, a strong understanding of data types and data structures is essential when working with R. Data types and data structures are fundamental concepts in any programming language, and R is no exception. R offers a rich set of data types and versatile data structures that enable you to work with data efficiently and effectively. In this post, we will explore the critical concepts of data types and data structures in R programming and emphasizing their foundational importance. We’ll delve into the primary data structures used to organize and manipulate data, all illustrated with practical examples.</p>
+</section>
+<section id="data-types-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="data-types-in-r"><strong>Data Types in R</strong></h2>
+<p>R provides several data types that allow you to represent different kinds of information. Here are some of the key data types in R:</p>
+<section id="numeric" class="level3">
+<h3 class="anchored" data-anchor-id="numeric"><strong>Numeric</strong></h3>
+<p>The numeric data type represents real numbers. It includes both integers and floating-point numbers. In R, both the “numeric” and “double” data types essentially represent numeric values, but there is a subtle difference in how they are stored internally and how they handle decimal precision. Let’s delve into the specifics of each:</p>
+<p><strong>Numeric Data Type:</strong></p>
+<ul>
+<li><p>The “numeric” data type in R is the more general term used for any numerical data, including both integers and floating-point numbers (doubles).</p></li>
+<li><p>It is typically used when you don’t need to specify a particular type, and R will automatically assign the “numeric” data type to variables containing numbers.</p></li>
+<li><p>Numeric values can include integers, such as <strong><code>1</code></strong>, <strong><code>42</code></strong>, or <strong><code>1000</code></strong>, but they can also include decimal values, such as <strong><code>3.14</code></strong> or <strong><code>-0.005</code></strong>.</p></li>
+<li><p>Numeric variables can have values with varying levels of precision depending on the specific number. For example, integers are represented precisely, while floating-point numbers might have slight inaccuracies due to the limitations of binary representation.</p></li>
+<li><p>Numeric data is stored as 64-bit floating-point numbers (doubles) by default in R, which means they can represent a wide range of values with decimal places. However, this storage method may result in very small rounding errors when performing certain operations.</p></li>
+</ul>
+<p>To define a single number:, you can do the following:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>num_var <span class="ot">&lt;-</span> <span class="fl">3.14</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Double Data Type:</strong></p>
+<ul>
+<li><p>The “double” data type in R specifically refers to double-precision floating-point numbers. It is a subset of the “numeric” data type.</p></li>
+<li><p>Double-precision means that these numbers are stored in a 64-bit format, providing high precision for decimal values.</p></li>
+<li><p>While the “numeric” data type can include both integers and doubles, the “double” data type is used when you want to explicitly specify that a variable should be stored as a 64-bit double-precision floating-point number.</p></li>
+<li><p>Using “double” can be beneficial in cases where precision is critical, such as scientific computations or when working with very large or very small numbers.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>double_var <span class="ot">&lt;-</span> <span class="fl">3.14</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In fact, we gave the same example for both data types. So how do we tell the difference then? To learn the class of objects in R, there are two functions: <strong><code>class()</code></strong> and <strong><code>typeof()</code></strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(num_var)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "numeric"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(double_var)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "numeric"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">typeof</span>(num_var)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "double"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">typeof</span>(double_var)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "double"</code></pre>
+</div>
+</div>
+<p>The two functions produced different results. While the result of class function is numeric, for the same number the result of type of is double. In R, both the <strong><code>class()</code></strong> and <strong><code>typeof()</code></strong> functions are used to inspect the data type or structure of objects, but they serve different purposes and provide different levels of information about the objects. Here’s a breakdown of the differences between these two functions:</p>
+<p><strong><code>class()</code>:</strong></p>
+<ul>
+<li><p>The <strong><code>class()</code></strong> function in R is used to determine the class or type of an object in terms of its high-level data structure. It tells you how R treats the object from a user’s perspective, which is often more meaningful for data analysis and manipulation.</p></li>
+<li><p>The <strong><code>class()</code></strong> function returns a character vector containing one or more class names associated with the object. It can return multiple class names when dealing with more complex objects that inherit properties from multiple classes.</p></li>
+<li><p>For example, if you have a data frame called <strong><code>my_df</code></strong>, you can use <strong><code>class(my_df)</code></strong> to determine that it has the class “data.frame.”</p></li>
+<li><p>The <strong><code>class()</code></strong> function is especially useful for understanding the semantics and behaviors associated with R objects. It helps you identify whether an object is a vector, matrix, data frame, factor, etc.</p></li>
+</ul>
+<p><strong><code>typeof()</code>:</strong></p>
+<ul>
+<li><p>The <strong><code>typeof()</code></strong> function in R is used to determine the fundamental data type of an object at a lower level. It provides information about the internal representation of the data.</p></li>
+<li><p>The <strong><code>typeof()</code></strong> function returns a character string representing the basic data type of the object. Common results include “double” for numeric data, “integer” for integers, “character” for character strings, and so on.</p></li>
+<li><p>Unlike the <strong><code>class()</code></strong> function, which reflects how the object behaves, <strong><code>typeof()</code></strong> reflects how the object is stored in memory.</p></li>
+<li><p>The <strong><code>typeof()</code></strong> function is more low-level and is often used for programming and memory management purposes. It can be useful in situations where you need to distinguish between different internal representations of data, such as knowing whether an object is stored as a double-precision floating-point number or an integer.</p></li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The key difference between <strong><code>class()</code></strong> and <strong><code>typeof()</code></strong> in R is their level of abstraction. <strong><code>class()</code></strong> provides a high-level view of an object’s data structure and behavior, while <strong><code>typeof()</code></strong> provides a low-level view of its fundamental data type in terms of how it’s stored in memory. Depending on your needs, you may use one or both of these functions to gain insights into your R objects.</p>
+</div>
+</div>
+<p>In summary, the main difference between the “numeric” and “double” data types in R is that “numeric” is a broader category encompassing both integers and doubles, while “double” explicitly specifies a double-precision floating-point number. For most general purposes, you can use the “numeric” data type without worrying about the specifics of storage precision. However, if you require precise control over decimal precision, you can use “double” to ensure that variables are stored as 64-bit double-precision numbers.</p>
+</section>
+<section id="integers" class="level3">
+<h3 class="anchored" data-anchor-id="integers">Integers</h3>
+<p>In mathematics, integers are whole numbers that do not have a fractional or decimal part. They include both positive and negative whole numbers, as well as zero. In R, integers are represented as a distinct data type called “integer.”</p>
+<p>Here are some examples of integers in R:</p>
+<ul>
+<li><p>Positive integers: 1, 42, 1000</p></li>
+<li><p>Negative integers: -5, -27, -100</p></li>
+<li><p>Zero: 0</p></li>
+</ul>
+<p>You can create integer variables in R using the <strong><code>as.integer()</code></strong> function or by simply assigning a whole number to a variable. Let’s look at examples of both methods:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Using as.integer()</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="dv">5</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">typeof</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "integer"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Direct assignment</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> 10L  <span class="co"># The 'L' suffix denotes an integer</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">typeof</span>(y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "integer"</code></pre>
+</div>
+</div>
+<p>In the second example, we added an ‘L’ suffix to the number to explicitly specify that it should be treated as an integer. While this suffix is optional, it can help clarify your code.</p>
+<p>Integers in R have several key characteristics:</p>
+<ol type="1">
+<li><p><strong>Exact Representation:</strong> Integers are represented exactly in R without any loss of precision. Unlike double-precision floating-point numbers, which may have limited precision for very large or very small numbers, integers can represent whole numbers precisely.</p></li>
+<li><p><strong>Conversion:</strong> You can convert other data types to integers using the <strong><code>as.integer()</code></strong> function. For instance, you can convert a double to an integer, which effectively rounds the number down to the nearest whole number.</p></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>double_number <span class="ot">&lt;-</span> <span class="fl">3.99</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>integer_result <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(double_number)  <span class="co"># Rounds down to 3</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>integer_result</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
+</div>
+</div>
+</section>
+<section id="character" class="level3">
+<h3 class="anchored" data-anchor-id="character"><strong>Character</strong></h3>
+<p>In computing, character data types (often referred to as “strings”) are used to represent sequences of characters, which can include letters, numbers, symbols, and even spaces. In R, character data types are used for handling text-based information, such as names, descriptions, and textual data extracted from various sources.</p>
+<p>In R, you can create character variables by enclosing text within either single quotes (<strong><code>'</code></strong>) or double quotes (<strong><code>"</code></strong>). It’s essential to use matching quotes at the beginning and end of the text to define character data correctly. Here are examples of creating character variables:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Using single quotes</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>my_name <span class="ot">&lt;-</span> <span class="st">'Fatih'</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Using double quotes</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>favorite_fruit <span class="ot">&lt;-</span> <span class="st">"Banana"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>R doesn’t distinguish between single quotes and double quotes when defining character data; you can choose either, based on your preference.</p>
+</div>
+</div>
+<p>To convert something to a character you can use the&nbsp;<code>as.character()</code>&nbsp;function. Also it is possible to convert a character to a numeric.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fl">1.234</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(a)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "numeric"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(<span class="fu">as.character</span>(a)) <span class="co"># convert to character</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "character"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="st">"1.234"</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(b)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "character"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(<span class="fu">as.numeric</span>(b)) <span class="co"># convert to numeric</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "numeric"</code></pre>
+</div>
+</div>
+<p>Character data types in R possess the following characteristics:</p>
+<ol type="1">
+<li><p><strong>Textual Representation:</strong> Characters represent text-based information, allowing you to work with words, sentences, paragraphs, or any sequence of characters.</p></li>
+<li><p><strong>Immutable:</strong> Once created, character data cannot be modified directly. You can create modified versions of character data through string manipulation functions, but the original character data remains unchanged.</p></li>
+<li><p><strong>String Manipulation:</strong> R offers a wealth of string manipulation functions that enable you to perform operations like concatenation, substring extraction, replacement, and formatting on character data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Concatenating two strings</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>greeting <span class="ot">&lt;-</span> <span class="st">"Hello, "</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>name <span class="ot">&lt;-</span> <span class="st">"Fatih"</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>full_greeting <span class="ot">&lt;-</span> <span class="fu">paste</span>(greeting, name)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>full_greeting</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Hello,  Fatih"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting a substring</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="st">"R Programming"</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>sub_text <span class="ot">&lt;-</span> <span class="fu">substr</span>(text, <span class="at">start =</span> <span class="dv">1</span>, <span class="at">stop =</span> <span class="dv">1</span>)  <span class="co"># Extracts the first character</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>sub_text</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "R"</code></pre>
+</div>
+</div></li>
+<li><p><strong>Text-Based Operations:</strong> Character data types are invaluable for working with textual data, including cleaning and preprocessing text, tokenization, and natural language processing (NLP) tasks.</p></li>
+</ol>
+<p>Character data types are indispensable for numerous tasks in R:</p>
+<ol type="1">
+<li><p><strong>Data Cleaning:</strong> When working with datasets, character data is used for cleaning and standardizing text fields, ensuring uniformity in data.</p></li>
+<li><p><strong>Data Extraction:</strong> Character data is often used to extract specific information from text, such as parsing dates, email addresses, or URLs from unstructured text.</p></li>
+<li><p><strong>Text Analysis:</strong> In the field of natural language processing, character data plays a central role in text analysis, sentiment analysis, and text classification.</p></li>
+<li><p><strong>String Manipulation:</strong> When dealing with data transformation and manipulation, character data is used to create new variables or modify existing ones based on specific patterns or criteria.</p></li>
+</ol>
+<p>Character data types in R are essential for handling text-based information and conducting various data analysis tasks. They provide the means to represent, manipulate, and analyze textual data, making them a crucial component of any data scientist’s toolkit. Understanding how to create, manipulate, and work with character data is fundamental to effectively process and analyze text-based information in R programming.</p>
+</section>
+<section id="logical" class="level3">
+<h3 class="anchored" data-anchor-id="logical"><strong>Logical</strong></h3>
+<p>Logical data types in R, also known as Boolean data types, are used to represent binary or Boolean values: true or false. These data types are fundamental for evaluating conditions, making decisions, and controlling the flow of program execution.</p>
+<p>In R, logical values are denoted by two reserved keywords: <strong><code>TRUE</code></strong> (representing true) and <strong><code>FALSE</code></strong> (representing false). Logical data types are primarily used in comparisons, conditional statements, and logical operations.</p>
+<p>You can create logical variables in R in several ways:</p>
+<ol type="1">
+<li><p><strong>Direct Assignment:</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>is_raining <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>is_raining</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>is_sunny <span class="ot">&lt;-</span> <span class="cn">FALSE</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>is_sunny</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(is_raining)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "logical"</code></pre>
+</div>
+</div></li>
+<li><p><strong>Comparison Operators:</strong></p>
+<p>Logical values often arise from comparisons using operators like <strong><code>&lt;</code></strong>, <strong><code>&lt;=</code></strong>, <strong><code>&gt;</code></strong>, <strong><code>&gt;=</code></strong>, <strong><code>==</code></strong>, and <strong><code>!=</code></strong>. The result of a comparison operation is a logical value.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>temperature <span class="ot">&lt;-</span> <span class="dv">25</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>is_hot <span class="ot">&lt;-</span> temperature <span class="sc">&gt;</span> <span class="dv">30</span>  <span class="co"># Evaluates to FALSE</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>is_hot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+</div></li>
+<li><p><strong>Logical Functions:</strong></p>
+<p>R provides logical functions like <strong><code>logical()</code></strong>, <strong><code>isTRUE()</code></strong>, <strong><code>isFALSE()</code></strong>, <strong><code>any()</code></strong> and <strong><code>all()</code></strong> that can be used to create logical values.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>is_even <span class="ot">&lt;-</span> <span class="fu">logical</span>(<span class="dv">1</span>)  <span class="co"># Creates a logical vector with one TRUE value</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>is_even</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>all_positive <span class="ot">&lt;-</span> <span class="fu">all</span>(<span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">TRUE</span>, <span class="cn">TRUE</span>))  <span class="co"># Checks if all values are TRUE</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>all_positive</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>any_positive <span class="ot">&lt;-</span> <span class="fu">any</span>(<span class="fu">c</span>(<span class="cn">TRUE</span>,<span class="cn">FALSE</span>)) <span class="co">#checks whether any of the vector’s elements are TRUE</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>any_positive</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>c <span class="ot">&lt;-</span> <span class="dv">4</span> <span class="sc">&gt;</span> <span class="dv">3</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">isTRUE</span>(c) <span class="co"># cheks if a variable is TRUE</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="sc">!</span><span class="fu">isTRUE</span>(c) <span class="co"># cheks if a variable is FALSE</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+</div></li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The ! operator indicates negation, so the above expression could be translated as is c not TRUE. <strong><code>!isTRUE(c)</code></strong> is equivalent to <strong><code>isFALSE(c)</code></strong>.</p>
+</div>
+</div>
+<p>Logical data types in R have the following characteristics:</p>
+<ol type="1">
+<li><p><strong>Binary Representation:</strong> Logical values can only take two values: <strong><code>TRUE</code></strong> or <strong><code>FALSE</code></strong>. These values are often used to express the truth or falsity of a statement or condition.</p></li>
+<li><p><strong>Conditional Evaluation:</strong> Logical values are integral to conditional statements like <strong><code>if</code></strong>, <strong><code>else</code></strong>, and <strong><code>else if</code></strong>. They determine which branch of code to execute based on the truth or falsity of a condition.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (is_raining) {</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Don't forget your umbrella!</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Enjoy the sunshine!</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Don't forget your umbrella!</code></pre>
+</div>
+</div></li>
+<li><p><strong>Logical Operations:</strong> Logical data types can be combined using logical operators such as <strong><code>&amp;</code></strong> (AND), <strong><code>|</code></strong> (OR), and <strong><code>!</code></strong> (NOT) to create more complex conditions.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="dv">3</span> <span class="sc">&lt;</span> <span class="dv">5</span> <span class="sc">&amp;</span> <span class="dv">8</span> <span class="sc">&gt;</span> <span class="dv">7</span> <span class="co"># If TRUE in both cases, the result returns TRUE</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="dv">3</span> <span class="sc">&lt;</span> <span class="dv">5</span> <span class="sc">&amp;</span> <span class="dv">6</span> <span class="sc">&gt;</span> <span class="dv">7</span> <span class="co"># If one case is FALSE and the other case is TRUE, the result is FALSE.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="dv">6</span> <span class="sc">&lt;</span> <span class="dv">5</span> <span class="sc">&amp;</span> <span class="dv">6</span> <span class="sc">&gt;</span> <span class="dv">7</span> <span class="co"># If FALSE in both cases, the result returns FALSE</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>(<span class="dv">5</span><span class="sc">==</span><span class="dv">4</span>) <span class="sc">|</span> (<span class="dv">3</span><span class="sc">!=</span><span class="dv">4</span>) <span class="co"># If either condition is TRUE,returns TRUE</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+</div></li>
+</ol>
+<p>Logical data types are widely used in various aspects of R programming and data analysis:</p>
+<ol type="1">
+<li><p><strong>Conditional Execution:</strong> Logical values are crucial for writing code that executes specific blocks or statements conditionally based on the evaluation of logical expressions.</p></li>
+<li><p><strong>Filtering Data:</strong> Logical vectors are used to filter rows or elements in data frames, matrices, or vectors based on specified conditions.</p></li>
+<li><p><strong>Validation:</strong> Logical data types are employed for data validation and quality control, ensuring that data meets certain criteria or constraints.</p></li>
+<li><p><strong>Boolean Indexing:</strong> Logical indexing allows you to access elements in data structures based on logical conditions.</p></li>
+</ol>
+<p>Logical data types in R, represented by the <strong><code>TRUE</code></strong> and <strong><code>FALSE</code></strong> values, are fundamental for making decisions, controlling program flow, and evaluating conditions. They enable you to express binary choices and create complex logical expressions using logical operators. Understanding how to create, manipulate, and utilize logical data types is essential for effective programming and data analysis in R, as they play a central role in decision-making processes and conditional execution.</p>
+</section>
+<section id="date-and-time" class="level3">
+<h3 class="anchored" data-anchor-id="date-and-time"><strong>Date and Time</strong></h3>
+<p>In R, date and time data are represented using several data types, including:</p>
+<ol type="1">
+<li><p><strong>Date</strong>: The <strong><code>Date</code></strong> class in R is used to represent calendar dates. It is suitable for storing information like birthdays, data collection timestamps, and events associated with specific days.</p></li>
+<li><p><strong>POSIXct</strong>: The <strong><code>POSIXct</code></strong> class represents date and time values as the number of seconds since the UNIX epoch (January 1, 1970). It provides high precision and is suitable for timestamp data when sub-second accuracy is required.</p></li>
+<li><p><strong>POSIXlt</strong>: The <strong><code>POSIXlt</code></strong> class is similar to <strong><code>POSIXct</code></strong> but stores date and time information as a list of components, including year, month, day, hour, minute, and second. It offers human-readable representations but is less memory-efficient than <strong><code>POSIXct</code></strong>.</p></li>
+</ol>
+<p>You can create date and time objects in R using various functions and formats:</p>
+<ol type="1">
+<li><p><strong>Date Objects</strong>: The <strong><code>as.Date()</code></strong> function is used to convert character strings or numeric values into date objects.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a Date object</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>my_date <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="st">"2023-09-26"</span>)</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(my_date)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Date"</code></pre>
+</div>
+</div></li>
+<li><p><strong>POSIXct Objects</strong>: The <strong><code>as.POSIXct()</code></strong> function converts character strings or numeric values into POSIXct objects. Timestamps can be represented in various formats.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a POSIXct object</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>timestamp <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="st">"2023-09-26 14:01:00"</span>, <span class="at">format =</span> <span class="st">"%Y-%m-%d %H:%M:%S"</span>)</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>timestamp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023-09-26 14:01:00 +03"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(timestamp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "POSIXct" "POSIXt" </code></pre>
+</div>
+</div></li>
+<li><p><strong>Sys.time()</strong>: The <strong><code>Sys.time()</code></strong> function returns the current system time as a POSIXct object, which is often used for timestamping data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the current system time</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>current_time <span class="ot">&lt;-</span> <span class="fu">Sys.time</span>()</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>current_time</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023-09-26 14:37:11 +03"</code></pre>
+</div>
+</div></li>
+</ol>
+<p>Date and time data types in R exhibit the following characteristics:</p>
+<ol type="1">
+<li><p><strong>Granularity</strong>: R allows you to work with dates and times at various levels of granularity, from years and months down to fractions of a second. This flexibility enables precise temporal analysis.</p></li>
+<li><p><strong>Arithmetic Operations</strong>: You can perform arithmetic operations with date and time objects, such as calculating the difference between two timestamps or adding a duration to a date.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the difference between two timestamps</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>duration <span class="ot">&lt;-</span> current_time <span class="sc">-</span> timestamp</span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>duration</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Time difference of 36.19123 mins</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add 3 days to a date</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>new_date <span class="ot">&lt;-</span> my_date <span class="sc">+</span> <span class="dv">3</span></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>new_date</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023-09-29"</code></pre>
+</div>
+</div></li>
+<li><p><strong>Formatting and Parsing</strong>: R provides functions for formatting date and time objects as character strings and parsing character strings into date and time objects.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Formatting a date as a character string</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>formatted_date <span class="ot">&lt;-</span> <span class="fu">format</span>(my_date, <span class="at">format =</span> <span class="st">"%Y/%m/%d"</span>)</span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>formatted_date</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023/09/26"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Parsing a character string into a date object</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>parsed_date <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="st">"2023-09-26"</span>, <span class="at">format =</span> <span class="st">"%Y-%m-%d"</span>)</span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>parsed_date</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023-09-26"</code></pre>
+</div>
+</div></li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you want to learn details about widely avaliable formats, you can visit the help page of <strong><code>strptime()</code></strong> function.</p>
+</div>
+</div>
+<p>Date and time data types are integral to various data analysis and programming tasks in R:</p>
+<ol type="1">
+<li><p><strong>Time Series Analysis</strong>: Time series data, consisting of sequential data points recorded at regular intervals, are commonly analyzed in R for forecasting, trend analysis, and anomaly detection.</p></li>
+<li><p><strong>Data Aggregation</strong>: Date and time data enable you to group and aggregate data by time intervals, such as daily, monthly, or yearly summaries.</p></li>
+<li><p><strong>Event Tracking</strong>: Tracking and analyzing events with specific timestamps is essential for understanding patterns and trends in data.</p></li>
+<li><p><strong>Data Visualization</strong>: Effective visualization of temporal data helps in conveying insights and trends to stakeholders.</p></li>
+<li><p><strong>Data Filtering and Subsetting</strong>: Date and time objects are used to filter and subset data based on time criteria, allowing for focused analysis.</p></li>
+</ol>
+<p>Date and time data types in R are indispensable tools for handling temporal information in data analysis and programming tasks. Whether you’re working with time series data, event tracking, or simply timestamping your data, R’s extensive support for date and time operations makes it a powerful choice for temporal analysis. Understanding how to create, manipulate, and leverage date and time data is essential for effective data analysis and modeling in R, as it allows you to uncover valuable insights from temporal patterns and trends.</p>
+</section>
+<section id="complex" class="level3">
+<h3 class="anchored" data-anchor-id="complex"><strong>Complex</strong></h3>
+<p>Complex numbers are an extension of real numbers, introducing the concept of an imaginary unit denoted by <strong><code>i</code></strong> or <strong><code>j</code></strong>. A complex number is typically expressed in the form <strong><code>a + bi</code></strong>, where <strong><code>a</code></strong> represents the real part, <strong><code>b</code></strong> the imaginary part, and <strong><code>i</code></strong> the imaginary unit.</p>
+<p>In R, you can create complex numbers using the <strong><code>complex()</code></strong> function or simply by combining a real and imaginary part with the <strong><code>+</code></strong> operator.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating complex numbers</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>z1 <span class="ot">&lt;-</span> <span class="fu">complex</span>(<span class="at">real =</span> <span class="dv">3</span>, <span class="at">imaginary =</span> <span class="dv">2</span>)</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>z1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3+2i</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(z1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "complex"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>z2 <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">+</span> 4i</span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>z2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1+4i</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(z2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "complex"</code></pre>
+</div>
+</div>
+<p>Complex numbers in R are often used in mathematical modeling, engineering, physics, signal processing, and various scientific disciplines where calculations involve imaginary and complex values.</p>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>In R programming, understanding data types and data structures is essential for effective data manipulation and analysis. Whether you’re working with numeric data, text, logical values, or complex structures, R provides the necessary tools to handle a wide range of data types. By mastering these data types, you’ll be better equipped to tackle data-related tasks, from data cleaning and preprocessing to statistical analysis and visualization. Whether you’re a data scientist, analyst, or programmer, a strong foundation in R’s data types is a valuable asset for your data-driven projects.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="MFatihTuzen/blogComments" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

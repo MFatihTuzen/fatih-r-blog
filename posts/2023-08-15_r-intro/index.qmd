@@ -3,7 +3,7 @@ title: "A Gentle Introduction to R Programming"
 author: "M. Fatih Tüzen"
 date: "2023-08-15"
 date-modified: "2023-09-01"
-categories: [R Programming, R, R Studio]
+categories: [R Programming, R Studio]
 image: "RStudio-Ball.png"
 ---
 

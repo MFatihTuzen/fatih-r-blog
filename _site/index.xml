@@ -10,7 +10,841 @@
 <atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Fatih&#39;s Blog about R and Statistics</description>
 <generator>quarto-1.3.450</generator>
-<lastBuildDate>Mon, 14 Aug 2023 21:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 25 Sep 2023 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>Understanding Data Types in R</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2023-09-25_data_types/index.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction"><strong>Introduction</strong></h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2023-09-25_data_types/blocks.jpg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+<p>Learning R programming is akin to constructing a sturdy building. You need a powerful foundation to support the structure. Just as a building’s foundation dictates its strength and stability, a strong understanding of data types and data structures is essential when working with R. Data types and data structures are fundamental concepts in any programming language, and R is no exception. R offers a rich set of data types and versatile data structures that enable you to work with data efficiently and effectively. In this post, we will explore the critical concepts of data types and data structures in R programming and emphasizing their foundational importance. We’ll delve into the primary data structures used to organize and manipulate data, all illustrated with practical examples.</p>
+</section>
+<section id="data-types-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="data-types-in-r"><strong>Data Types in R</strong></h2>
+<p>R provides several data types that allow you to represent different kinds of information. Here are some of the key data types in R:</p>
+<section id="numeric" class="level3">
+<h3 class="anchored" data-anchor-id="numeric"><strong>Numeric</strong></h3>
+<p>The numeric data type represents real numbers. It includes both integers and floating-point numbers. In R, both the “numeric” and “double” data types essentially represent numeric values, but there is a subtle difference in how they are stored internally and how they handle decimal precision. Let’s delve into the specifics of each:</p>
+<p><strong>Numeric Data Type:</strong></p>
+<ul>
+<li><p>The “numeric” data type in R is the more general term used for any numerical data, including both integers and floating-point numbers (doubles).</p></li>
+<li><p>It is typically used when you don’t need to specify a particular type, and R will automatically assign the “numeric” data type to variables containing numbers.</p></li>
+<li><p>Numeric values can include integers, such as <strong><code>1</code></strong>, <strong><code>42</code></strong>, or <strong><code>1000</code></strong>, but they can also include decimal values, such as <strong><code>3.14</code></strong> or <strong><code>-0.005</code></strong>.</p></li>
+<li><p>Numeric variables can have values with varying levels of precision depending on the specific number. For example, integers are represented precisely, while floating-point numbers might have slight inaccuracies due to the limitations of binary representation.</p></li>
+<li><p>Numeric data is stored as 64-bit floating-point numbers (doubles) by default in R, which means they can represent a wide range of values with decimal places. However, this storage method may result in very small rounding errors when performing certain operations.</p></li>
+</ul>
+<p>To define a single number:, you can do the following:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1">num_var <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3.14</span></span></code></pre></div>
+</div>
+<p><strong>Double Data Type:</strong></p>
+<ul>
+<li><p>The “double” data type in R specifically refers to double-precision floating-point numbers. It is a subset of the “numeric” data type.</p></li>
+<li><p>Double-precision means that these numbers are stored in a 64-bit format, providing high precision for decimal values.</p></li>
+<li><p>While the “numeric” data type can include both integers and doubles, the “double” data type is used when you want to explicitly specify that a variable should be stored as a 64-bit double-precision floating-point number.</p></li>
+<li><p>Using “double” can be beneficial in cases where precision is critical, such as scientific computations or when working with very large or very small numbers.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">double_var <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3.14</span></span></code></pre></div>
+</div>
+<p>In fact, we gave the same example for both data types. So how do we tell the difference then? To learn the class of objects in R, there are two functions: <strong><code>class()</code></strong> and <strong><code>typeof()</code></strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">class</span>(num_var)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "numeric"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">class</span>(double_var)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "numeric"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">typeof</span>(num_var)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "double"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">typeof</span>(double_var)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "double"</code></pre>
+</div>
+</div>
+<p>The two functions produced different results. While the result of class function is numeric, for the same number the result of type of is double. In R, both the <strong><code>class()</code></strong> and <strong><code>typeof()</code></strong> functions are used to inspect the data type or structure of objects, but they serve different purposes and provide different levels of information about the objects. Here’s a breakdown of the differences between these two functions:</p>
+<p><strong><code>class()</code>:</strong></p>
+<ul>
+<li><p>The <strong><code>class()</code></strong> function in R is used to determine the class or type of an object in terms of its high-level data structure. It tells you how R treats the object from a user’s perspective, which is often more meaningful for data analysis and manipulation.</p></li>
+<li><p>The <strong><code>class()</code></strong> function returns a character vector containing one or more class names associated with the object. It can return multiple class names when dealing with more complex objects that inherit properties from multiple classes.</p></li>
+<li><p>For example, if you have a data frame called <strong><code>my_df</code></strong>, you can use <strong><code>class(my_df)</code></strong> to determine that it has the class “data.frame.”</p></li>
+<li><p>The <strong><code>class()</code></strong> function is especially useful for understanding the semantics and behaviors associated with R objects. It helps you identify whether an object is a vector, matrix, data frame, factor, etc.</p></li>
+</ul>
+<p><strong><code>typeof()</code>:</strong></p>
+<ul>
+<li><p>The <strong><code>typeof()</code></strong> function in R is used to determine the fundamental data type of an object at a lower level. It provides information about the internal representation of the data.</p></li>
+<li><p>The <strong><code>typeof()</code></strong> function returns a character string representing the basic data type of the object. Common results include “double” for numeric data, “integer” for integers, “character” for character strings, and so on.</p></li>
+<li><p>Unlike the <strong><code>class()</code></strong> function, which reflects how the object behaves, <strong><code>typeof()</code></strong> reflects how the object is stored in memory.</p></li>
+<li><p>The <strong><code>typeof()</code></strong> function is more low-level and is often used for programming and memory management purposes. It can be useful in situations where you need to distinguish between different internal representations of data, such as knowing whether an object is stored as a double-precision floating-point number or an integer.</p></li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The key difference between <strong><code>class()</code></strong> and <strong><code>typeof()</code></strong> in R is their level of abstraction. <strong><code>class()</code></strong> provides a high-level view of an object’s data structure and behavior, while <strong><code>typeof()</code></strong> provides a low-level view of its fundamental data type in terms of how it’s stored in memory. Depending on your needs, you may use one or both of these functions to gain insights into your R objects.</p>
+</div>
+</div>
+<p>In summary, the main difference between the “numeric” and “double” data types in R is that “numeric” is a broader category encompassing both integers and doubles, while “double” explicitly specifies a double-precision floating-point number. For most general purposes, you can use the “numeric” data type without worrying about the specifics of storage precision. However, if you require precise control over decimal precision, you can use “double” to ensure that variables are stored as 64-bit double-precision numbers.</p>
+</section>
+<section id="integers" class="level3">
+<h3 class="anchored" data-anchor-id="integers">Integers</h3>
+<p>In mathematics, integers are whole numbers that do not have a fractional or decimal part. They include both positive and negative whole numbers, as well as zero. In R, integers are represented as a distinct data type called “integer.”</p>
+<p>Here are some examples of integers in R:</p>
+<ul>
+<li><p>Positive integers: 1, 42, 1000</p></li>
+<li><p>Negative integers: -5, -27, -100</p></li>
+<li><p>Zero: 0</p></li>
+</ul>
+<p>You can create integer variables in R using the <strong><code>as.integer()</code></strong> function or by simply assigning a whole number to a variable. Let’s look at examples of both methods:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Using as.integer()</span></span>
+<span id="cb11-2">x <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.integer</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb11-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">typeof</span>(x)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "integer"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Direct assignment</span></span>
+<span id="cb13-2">y <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> 10L  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The 'L' suffix denotes an integer</span></span>
+<span id="cb13-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">typeof</span>(y)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "integer"</code></pre>
+</div>
+</div>
+<p>In the second example, we added an ‘L’ suffix to the number to explicitly specify that it should be treated as an integer. While this suffix is optional, it can help clarify your code.</p>
+<p>Integers in R have several key characteristics:</p>
+<ol type="1">
+<li><p><strong>Exact Representation:</strong> Integers are represented exactly in R without any loss of precision. Unlike double-precision floating-point numbers, which may have limited precision for very large or very small numbers, integers can represent whole numbers precisely.</p></li>
+<li><p><strong>Conversion:</strong> You can convert other data types to integers using the <strong><code>as.integer()</code></strong> function. For instance, you can convert a double to an integer, which effectively rounds the number down to the nearest whole number.</p></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1">double_number <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3.99</span></span>
+<span id="cb15-2">integer_result <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.integer</span>(double_number)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Rounds down to 3</span></span>
+<span id="cb15-3">integer_result</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
+</div>
+</div>
+</section>
+<section id="character" class="level3">
+<h3 class="anchored" data-anchor-id="character"><strong>Character</strong></h3>
+<p>In computing, character data types (often referred to as “strings”) are used to represent sequences of characters, which can include letters, numbers, symbols, and even spaces. In R, character data types are used for handling text-based information, such as names, descriptions, and textual data extracted from various sources.</p>
+<p>In R, you can create character variables by enclosing text within either single quotes (<strong><code>'</code></strong>) or double quotes (<strong><code>"</code></strong>). It’s essential to use matching quotes at the beginning and end of the text to define character data correctly. Here are examples of creating character variables:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Using single quotes</span></span>
+<span id="cb17-2">my_name <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Fatih'</span></span>
+<span id="cb17-3"></span>
+<span id="cb17-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Using double quotes</span></span>
+<span id="cb17-5">favorite_fruit <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Banana"</span></span></code></pre></div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>R doesn’t distinguish between single quotes and double quotes when defining character data; you can choose either, based on your preference.</p>
+</div>
+</div>
+<p>To convert something to a character you can use the&nbsp;<code>as.character()</code>&nbsp;function. Also it is possible to convert a character to a numeric.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1">a <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.234</span></span>
+<span id="cb18-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">class</span>(a)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "numeric"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">class</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.character</span>(a)) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># convert to character</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "character"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1">b <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"1.234"</span></span>
+<span id="cb22-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">class</span>(b)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "character"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">class</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.numeric</span>(b)) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># convert to numeric</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "numeric"</code></pre>
+</div>
+</div>
+<p>Character data types in R possess the following characteristics:</p>
+<ol type="1">
+<li><p><strong>Textual Representation:</strong> Characters represent text-based information, allowing you to work with words, sentences, paragraphs, or any sequence of characters.</p></li>
+<li><p><strong>Immutable:</strong> Once created, character data cannot be modified directly. You can create modified versions of character data through string manipulation functions, but the original character data remains unchanged.</p></li>
+<li><p><strong>String Manipulation:</strong> R offers a wealth of string manipulation functions that enable you to perform operations like concatenation, substring extraction, replacement, and formatting on character data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Concatenating two strings</span></span>
+<span id="cb26-2">greeting <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Hello, "</span></span>
+<span id="cb26-3">name <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Fatih"</span></span>
+<span id="cb26-4">full_greeting <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste</span>(greeting, name)</span>
+<span id="cb26-5">full_greeting</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Hello,  Fatih"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extracting a substring</span></span>
+<span id="cb28-2">text <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"R Programming"</span></span>
+<span id="cb28-3">sub_text <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">substr</span>(text, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">start =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">stop =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extracts the first character</span></span>
+<span id="cb28-4">sub_text</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "R"</code></pre>
+</div>
+</div></li>
+<li><p><strong>Text-Based Operations:</strong> Character data types are invaluable for working with textual data, including cleaning and preprocessing text, tokenization, and natural language processing (NLP) tasks.</p></li>
+</ol>
+<p>Character data types are indispensable for numerous tasks in R:</p>
+<ol type="1">
+<li><p><strong>Data Cleaning:</strong> When working with datasets, character data is used for cleaning and standardizing text fields, ensuring uniformity in data.</p></li>
+<li><p><strong>Data Extraction:</strong> Character data is often used to extract specific information from text, such as parsing dates, email addresses, or URLs from unstructured text.</p></li>
+<li><p><strong>Text Analysis:</strong> In the field of natural language processing, character data plays a central role in text analysis, sentiment analysis, and text classification.</p></li>
+<li><p><strong>String Manipulation:</strong> When dealing with data transformation and manipulation, character data is used to create new variables or modify existing ones based on specific patterns or criteria.</p></li>
+</ol>
+<p>Character data types in R are essential for handling text-based information and conducting various data analysis tasks. They provide the means to represent, manipulate, and analyze textual data, making them a crucial component of any data scientist’s toolkit. Understanding how to create, manipulate, and work with character data is fundamental to effectively process and analyze text-based information in R programming.</p>
+</section>
+<section id="logical" class="level3">
+<h3 class="anchored" data-anchor-id="logical"><strong>Logical</strong></h3>
+<p>Logical data types in R, also known as Boolean data types, are used to represent binary or Boolean values: true or false. These data types are fundamental for evaluating conditions, making decisions, and controlling the flow of program execution.</p>
+<p>In R, logical values are denoted by two reserved keywords: <strong><code>TRUE</code></strong> (representing true) and <strong><code>FALSE</code></strong> (representing false). Logical data types are primarily used in comparisons, conditional statements, and logical operations.</p>
+<p>You can create logical variables in R in several ways:</p>
+<ol type="1">
+<li><p><strong>Direct Assignment:</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1">is_raining <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span></span>
+<span id="cb30-2">is_raining</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb32" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1">is_sunny <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span></span>
+<span id="cb32-2">is_sunny</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">class</span>(is_raining)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "logical"</code></pre>
+</div>
+</div></li>
+<li><p><strong>Comparison Operators:</strong></p>
+<p>Logical values often arise from comparisons using operators like <strong><code>&lt;</code></strong>, <strong><code>&lt;=</code></strong>, <strong><code>&gt;</code></strong>, <strong><code>&gt;=</code></strong>, <strong><code>==</code></strong>, and <strong><code>!=</code></strong>. The result of a comparison operation is a logical value.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1">temperature <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span></span>
+<span id="cb36-2">is_hot <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> temperature <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Evaluates to FALSE</span></span>
+<span id="cb36-3">is_hot</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+</div></li>
+<li><p><strong>Logical Functions:</strong></p>
+<p>R provides logical functions like <strong><code>logical()</code></strong>, <strong><code>isTRUE()</code></strong>, <strong><code>isFALSE()</code></strong>, <strong><code>any()</code></strong> and <strong><code>all()</code></strong> that can be used to create logical values.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1">is_even <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">logical</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Creates a logical vector with one TRUE value</span></span>
+<span id="cb38-2">is_even</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1">all_positive <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">all</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>))  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Checks if all values are TRUE</span></span>
+<span id="cb40-2">all_positive</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1">any_positive <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">any</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>,<span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#checks whether any of the vector’s elements are TRUE</span></span>
+<span id="cb42-2">any_positive</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1">c <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span></span>
+<span id="cb44-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">isTRUE</span>(c) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># cheks if a variable is TRUE</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb46" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">isTRUE</span>(c) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># cheks if a variable is FALSE</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+</div></li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The ! operator indicates negation, so the above expression could be translated as is c not TRUE. <strong><code>!isTRUE(c)</code></strong> is equivalent to <strong><code>isFALSE(c)</code></strong>.</p>
+</div>
+</div>
+<p>Logical data types in R have the following characteristics:</p>
+<ol type="1">
+<li><p><strong>Binary Representation:</strong> Logical values can only take two values: <strong><code>TRUE</code></strong> or <strong><code>FALSE</code></strong>. These values are often used to express the truth or falsity of a statement or condition.</p></li>
+<li><p><strong>Conditional Evaluation:</strong> Logical values are integral to conditional statements like <strong><code>if</code></strong>, <strong><code>else</code></strong>, and <strong><code>else if</code></strong>. They determine which branch of code to execute based on the truth or falsity of a condition.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">if</span> (is_raining) {</span>
+<span id="cb48-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cat</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Don't forget your umbrella!</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb48-3">} <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">else</span> {</span>
+<span id="cb48-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cat</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Enjoy the sunshine!</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb48-5">}</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Don't forget your umbrella!</code></pre>
+</div>
+</div></li>
+<li><p><strong>Logical Operations:</strong> Logical data types can be combined using logical operators such as <strong><code>&amp;</code></strong> (AND), <strong><code>|</code></strong> (OR), and <strong><code>!</code></strong> (NOT) to create more complex conditions.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span> <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># If TRUE in both cases, the result returns TRUE</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb52" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span> <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># If one case is FALSE and the other case is TRUE, the result is FALSE.</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb54" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span> <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># If FALSE in both cases, the result returns FALSE</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb56" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1">(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># If either condition is TRUE,returns TRUE</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+</div></li>
+</ol>
+<p>Logical data types are widely used in various aspects of R programming and data analysis:</p>
+<ol type="1">
+<li><p><strong>Conditional Execution:</strong> Logical values are crucial for writing code that executes specific blocks or statements conditionally based on the evaluation of logical expressions.</p></li>
+<li><p><strong>Filtering Data:</strong> Logical vectors are used to filter rows or elements in data frames, matrices, or vectors based on specified conditions.</p></li>
+<li><p><strong>Validation:</strong> Logical data types are employed for data validation and quality control, ensuring that data meets certain criteria or constraints.</p></li>
+<li><p><strong>Boolean Indexing:</strong> Logical indexing allows you to access elements in data structures based on logical conditions.</p></li>
+</ol>
+<p>Logical data types in R, represented by the <strong><code>TRUE</code></strong> and <strong><code>FALSE</code></strong> values, are fundamental for making decisions, controlling program flow, and evaluating conditions. They enable you to express binary choices and create complex logical expressions using logical operators. Understanding how to create, manipulate, and utilize logical data types is essential for effective programming and data analysis in R, as they play a central role in decision-making processes and conditional execution.</p>
+</section>
+<section id="date-and-time" class="level3">
+<h3 class="anchored" data-anchor-id="date-and-time"><strong>Date and Time</strong></h3>
+<p>In R, date and time data are represented using several data types, including:</p>
+<ol type="1">
+<li><p><strong>Date</strong>: The <strong><code>Date</code></strong> class in R is used to represent calendar dates. It is suitable for storing information like birthdays, data collection timestamps, and events associated with specific days.</p></li>
+<li><p><strong>POSIXct</strong>: The <strong><code>POSIXct</code></strong> class represents date and time values as the number of seconds since the UNIX epoch (January 1, 1970). It provides high precision and is suitable for timestamp data when sub-second accuracy is required.</p></li>
+<li><p><strong>POSIXlt</strong>: The <strong><code>POSIXlt</code></strong> class is similar to <strong><code>POSIXct</code></strong> but stores date and time information as a list of components, including year, month, day, hour, minute, and second. It offers human-readable representations but is less memory-efficient than <strong><code>POSIXct</code></strong>.</p></li>
+</ol>
+<p>You can create date and time objects in R using various functions and formats:</p>
+<ol type="1">
+<li><p><strong>Date Objects</strong>: The <strong><code>as.Date()</code></strong> function is used to convert character strings or numeric values into date objects.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Creating a Date object</span></span>
+<span id="cb58-2">my_date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.Date</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2023-09-26"</span>)</span>
+<span id="cb58-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">class</span>(my_date)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Date"</code></pre>
+</div>
+</div></li>
+<li><p><strong>POSIXct Objects</strong>: The <strong><code>as.POSIXct()</code></strong> function converts character strings or numeric values into POSIXct objects. Timestamps can be represented in various formats.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Creating a POSIXct object</span></span>
+<span id="cb60-2">timestamp <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.POSIXct</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2023-09-26 14:01:00"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">format =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"%Y-%m-%d %H:%M:%S"</span>)</span>
+<span id="cb60-3">timestamp</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023-09-26 14:01:00 +03"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb62" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">class</span>(timestamp)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "POSIXct" "POSIXt" </code></pre>
+</div>
+</div></li>
+<li><p><strong>Sys.time()</strong>: The <strong><code>Sys.time()</code></strong> function returns the current system time as a POSIXct object, which is often used for timestamping data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Get the current system time</span></span>
+<span id="cb64-2">current_time <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Sys.time</span>()</span>
+<span id="cb64-3">current_time</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023-09-26 14:37:11 +03"</code></pre>
+</div>
+</div></li>
+</ol>
+<p>Date and time data types in R exhibit the following characteristics:</p>
+<ol type="1">
+<li><p><strong>Granularity</strong>: R allows you to work with dates and times at various levels of granularity, from years and months down to fractions of a second. This flexibility enables precise temporal analysis.</p></li>
+<li><p><strong>Arithmetic Operations</strong>: You can perform arithmetic operations with date and time objects, such as calculating the difference between two timestamps or adding a duration to a date.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Calculate the difference between two timestamps</span></span>
+<span id="cb66-2"></span>
+<span id="cb66-3">duration <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> current_time <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> timestamp</span>
+<span id="cb66-4">duration</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Time difference of 36.19123 mins</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb68" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Add 3 days to a date</span></span>
+<span id="cb68-2">new_date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> my_date <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span></span>
+<span id="cb68-3">new_date</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023-09-29"</code></pre>
+</div>
+</div></li>
+<li><p><strong>Formatting and Parsing</strong>: R provides functions for formatting date and time objects as character strings and parsing character strings into date and time objects.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Formatting a date as a character string</span></span>
+<span id="cb70-2">formatted_date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">format</span>(my_date, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">format =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"%Y/%m/%d"</span>)</span>
+<span id="cb70-3">formatted_date</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023/09/26"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb72" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Parsing a character string into a date object</span></span>
+<span id="cb72-2">parsed_date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.Date</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2023-09-26"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">format =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"%Y-%m-%d"</span>)</span>
+<span id="cb72-3">parsed_date</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023-09-26"</code></pre>
+</div>
+</div></li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you want to learn details about widely avaliable formats, you can visit the help page of <strong><code>strptime()</code></strong> function.</p>
+</div>
+</div>
+<p>Date and time data types are integral to various data analysis and programming tasks in R:</p>
+<ol type="1">
+<li><p><strong>Time Series Analysis</strong>: Time series data, consisting of sequential data points recorded at regular intervals, are commonly analyzed in R for forecasting, trend analysis, and anomaly detection.</p></li>
+<li><p><strong>Data Aggregation</strong>: Date and time data enable you to group and aggregate data by time intervals, such as daily, monthly, or yearly summaries.</p></li>
+<li><p><strong>Event Tracking</strong>: Tracking and analyzing events with specific timestamps is essential for understanding patterns and trends in data.</p></li>
+<li><p><strong>Data Visualization</strong>: Effective visualization of temporal data helps in conveying insights and trends to stakeholders.</p></li>
+<li><p><strong>Data Filtering and Subsetting</strong>: Date and time objects are used to filter and subset data based on time criteria, allowing for focused analysis.</p></li>
+</ol>
+<p>Date and time data types in R are indispensable tools for handling temporal information in data analysis and programming tasks. Whether you’re working with time series data, event tracking, or simply timestamping your data, R’s extensive support for date and time operations makes it a powerful choice for temporal analysis. Understanding how to create, manipulate, and leverage date and time data is essential for effective data analysis and modeling in R, as it allows you to uncover valuable insights from temporal patterns and trends.</p>
+</section>
+<section id="complex" class="level3">
+<h3 class="anchored" data-anchor-id="complex"><strong>Complex</strong></h3>
+<p>Complex numbers are an extension of real numbers, introducing the concept of an imaginary unit denoted by <strong><code>i</code></strong> or <strong><code>j</code></strong>. A complex number is typically expressed in the form <strong><code>a + bi</code></strong>, where <strong><code>a</code></strong> represents the real part, <strong><code>b</code></strong> the imaginary part, and <strong><code>i</code></strong> the imaginary unit.</p>
+<p>In R, you can create complex numbers using the <strong><code>complex()</code></strong> function or simply by combining a real and imaginary part with the <strong><code>+</code></strong> operator.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Creating complex numbers</span></span>
+<span id="cb74-2">z1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">complex</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">real =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">imaginary =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span>
+<span id="cb74-3">z1</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3+2i</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb76" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">class</span>(z1)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "complex"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb78" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1">z2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> 4i</span>
+<span id="cb78-2">z2</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1+4i</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb80" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">class</span>(z2)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "complex"</code></pre>
+</div>
+</div>
+<p>Complex numbers in R are often used in mathematical modeling, engineering, physics, signal processing, and various scientific disciplines where calculations involve imaginary and complex values.</p>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>In R programming, understanding data types and data structures is essential for effective data manipulation and analysis. Whether you’re working with numeric data, text, logical values, or complex structures, R provides the necessary tools to handle a wide range of data types. By mastering these data types, you’ll be better equipped to tackle data-related tasks, from data cleaning and preprocessing to statistical analysis and visualization. Whether you’re a data scientist, analyst, or programmer, a strong foundation in R’s data types is a valuable asset for your data-driven projects.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>R Programming</category>
+  <category>data types</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2023-09-25_data_types/index.html</guid>
+  <pubDate>Mon, 25 Sep 2023 21:00:00 GMT</pubDate>
+  <media:content url="https://mfatihtuzen.netlify.app/posts/2023-09-25_data_types/blocks.jpg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>A Gentle Introduction to R Programming</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>
@@ -186,7 +1020,6 @@ Tip
 
  ]]></description>
   <category>R Programming</category>
-  <category>R</category>
   <category>R Studio</category>
   <guid>https://mfatihtuzen.netlify.app/posts/2023-08-15_r-intro/index.html</guid>
   <pubDate>Mon, 14 Aug 2023 21:00:00 GMT</pubDate>
