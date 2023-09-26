@@ -681,7 +681,7 @@ background-color: null;
 font-style: inherit;">Sys.time</span>()</span>
 <span id="cb64-3">current_time</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2023-09-26 14:37:11 +03"</code></pre>
+<pre><code>[1] "2023-09-26 14:54:31 +03"</code></pre>
 </div>
 </div></li>
 </ol>
@@ -701,7 +701,7 @@ background-color: null;
 font-style: inherit;">-</span> timestamp</span>
 <span id="cb66-4">duration</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 36.19123 mins</code></pre>
+<pre><code>Time difference of 53.53242 mins</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb68" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -833,7 +833,7 @@ font-style: inherit;">class</span>(z2)</span></code></pre></div>
 </section>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
-<p>In R programming, understanding data types and data structures is essential for effective data manipulation and analysis. Whether you’re working with numeric data, text, logical values, or complex structures, R provides the necessary tools to handle a wide range of data types. By mastering these data types, you’ll be better equipped to tackle data-related tasks, from data cleaning and preprocessing to statistical analysis and visualization. Whether you’re a data scientist, analyst, or programmer, a strong foundation in R’s data types is a valuable asset for your data-driven projects.</p>
+<p>In R programming, understanding data types is essential for effective data manipulation and analysis. Whether you’re working with numeric data, text, logical values, or complex structures, R provides the necessary tools to handle a wide range of data types. By mastering these data types, you’ll be better equipped to tackle data-related tasks, from data cleaning and preprocessing to statistical analysis and visualization. Whether you’re a data scientist, analyst, or programmer, a strong foundation in R’s data types is a valuable asset for your data-driven projects.</p>
 
 
 </section>
