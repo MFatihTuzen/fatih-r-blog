@@ -25,6 +25,7 @@
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="https://mfatihtuzen.netlify.app/posts/2023-10-03_vectors/atom.jpg" width="526" height="363" class="figure-img"></p>
+<figcaption class="figure-caption">https://www.thoughtco.com/most-basic-building-block-of-matter-608358</figcaption>
 </figure>
 </div>
 <p>In the realm of R programming, vectors serve as the fundamental building blocks that underpin virtually every data analysis and manipulation task. Much like atoms are the smallest units of matter, vectors are the fundamental units of data in R. In this article, we will delve into the world of vectors in R programming, exploring their significance, applications, and some of the most commonly used functions that make them indispensable.</p>
@@ -44,18 +45,160 @@
 <li><p><strong>Interoperability</strong>: Vectors can be easily converted into other data structures, such as matrices or data frames, enhancing data manipulation capabilities.</p></li>
 </ol>
 </section>
-<section id="most-used-functions-with-vectors" class="level2">
-<h2 class="anchored" data-anchor-id="most-used-functions-with-vectors"><strong>Most Used Functions with Vectors</strong></h2>
-<p>Let’s explore some commonly used functions when working with vectors in R.</p>
-<section id="c" class="level3">
-<h3 class="anchored" data-anchor-id="c"><strong><code>c()</code></strong></h3>
-<p><strong><code>c()</code></strong> function (short for “combine” or “concatenate”) is used for creating a new vector or combining multiple values or vectors into a single vector. It allows you to create a vector by listing its elements within the function.</p>
-<p><strong>1. Combining Numeric Values:</strong></p>
+<section id="subsetting-and-indexing-vectors" class="level2">
+<h2 class="anchored" data-anchor-id="subsetting-and-indexing-vectors">Subsetting and Indexing Vectors</h2>
+<p>Subsetting and indexing are essential operations in R that allow you to access specific elements or subsets of elements from a vector. Subsetting refers to the process of selecting a portion of a vector based on specific conditions or positions. Indexing, on the other hand, refers to specifying the position or positions of the elements you want to access within the vector.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Square brackets (<strong><code>[ ]</code></strong>) is used to access and subset elements in vectors and other data structures like lists and matrices. It allows you to extract specific elements or subsets of elements from a vector.</p>
+</div>
+</div>
+<p>Let’s explore these concepts with interesting examples.</p>
+<section id="subsetting-vectors" class="level3">
+<h3 class="anchored" data-anchor-id="subsetting-vectors"><strong>Subsetting Vectors</strong></h3>
+<p><strong>Subsetting by Index</strong></p>
+<p>You can subset a vector by specifying the index positions of the elements you want to access.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># Creating a numeric vector</span></span>
-<span id="cb1-2">numeric_vector <span class="ot" style="color: #003B4F;
+font-style: inherit;"># Create a numeric vector</span></span>
+<span id="cb1-2">my_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span>)</span>
+<span id="cb1-3"></span>
+<span id="cb1-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Subset the second and fourth elements</span></span>
+<span id="cb1-5">subset <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> my_vector[<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>)]</span>
+<span id="cb1-6"></span>
+<span id="cb1-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb1-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(subset)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 20 40</code></pre>
+</div>
+</div>
+<p><strong>Subsetting by Condition</strong></p>
+<p>You can subset a vector based on a condition using logical vectors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a numeric vector</span></span>
+<span id="cb3-2">my_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span>)</span>
+<span id="cb3-3"></span>
+<span id="cb3-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Subset values greater than 30</span></span>
+<span id="cb3-5">subset <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> my_vector[my_vector <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>]</span>
+<span id="cb3-6"></span>
+<span id="cb3-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb3-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(subset)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 40 50</code></pre>
+</div>
+</div>
+</section>
+<section id="indexing-vectors" class="level3">
+<h3 class="anchored" data-anchor-id="indexing-vectors"><strong>Indexing Vectors</strong></h3>
+<p><strong>Single Index</strong></p>
+<p>Access a single element by specifying its index.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a character vector</span></span>
+<span id="cb5-2">fruits <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cherry"</span>)</span>
+<span id="cb5-3"></span>
+<span id="cb5-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Access the second element</span></span>
+<span id="cb5-5">fruit <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> fruits[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>]</span>
+<span id="cb5-6"></span>
+<span id="cb5-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb5-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(fruit)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "banana"</code></pre>
+</div>
+</div>
+<p><strong>Multiple Indices</strong></p>
+<p>Access multiple elements by specifying multiple indices.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a numeric vector</span></span>
+<span id="cb7-2">numbers <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -70,7 +213,103 @@ background-color: null;
 font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">5</span>)</span>
-<span id="cb1-3"><span class="fu" style="color: #4758AB;
+<span id="cb7-3"></span>
+<span id="cb7-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Access the first and fourth elements</span></span>
+<span id="cb7-5">subset <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> numbers[<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>)]</span>
+<span id="cb7-6"></span>
+<span id="cb7-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb7-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(subset)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 4</code></pre>
+</div>
+</div>
+<p><strong>Negative Indexing</strong></p>
+<p>Exclude elements by specifying negative indices.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a numeric vector</span></span>
+<span id="cb9-2">numbers <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb9-3"></span>
+<span id="cb9-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Exclude the second element</span></span>
+<span id="cb9-5">subset <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> numbers[<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>]</span>
+<span id="cb9-6"></span>
+<span id="cb9-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb9-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(subset)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 3 4 5</code></pre>
+</div>
+</div>
+<p>These examples demonstrate how to subset and index vectors in R, allowing you to access specific elements or subsets of elements based on conditions, positions, or logical criteria. These operations are fundamental in data analysis and manipulation tasks in R.</p>
+</section>
+</section>
+<section id="most-used-functions-with-vectors" class="level2">
+<h2 class="anchored" data-anchor-id="most-used-functions-with-vectors"><strong>Most Used Functions with Vectors</strong></h2>
+<p>Let’s explore some commonly used functions when working with vectors in R.</p>
+<section id="c" class="level3">
+<h3 class="anchored" data-anchor-id="c"><strong><code>c()</code></strong></h3>
+<p><strong><code>c()</code></strong> function (short for “combine” or “concatenate”) is used for creating a new vector or combining multiple values or vectors into a single vector. It allows you to create a vector by listing its elements within the function.</p>
+<p><strong>1. Combining Numeric Values:</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Creating a numeric vector</span></span>
+<span id="cb11-2">numeric_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb11-3"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(numeric_vector)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -79,10 +318,10 @@ font-style: inherit;">print</span>(numeric_vector)</span></code></pre></div>
 </div>
 <p><strong>2. Combining Character Strings:</strong></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Creating a character vector</span></span>
-<span id="cb3-2">character_vector <span class="ot" style="color: #003B4F;
+<span id="cb13-2">character_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -93,7 +332,7 @@ background-color: null;
 font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"cherry"</span>)</span>
-<span id="cb3-3"><span class="fu" style="color: #4758AB;
+<span id="cb13-3"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(character_vector)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -102,13 +341,13 @@ font-style: inherit;">print</span>(character_vector)</span></code></pre></div>
 </div>
 <p><strong>3. Combining Different Data Types (Implicit Coercion):</strong></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Combining numeric and character values</span></span>
-<span id="cb5-2"><span class="co" style="color: #5E5E5E;
+<span id="cb15-2"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Numeric values are coerced to character.</span></span>
-<span id="cb5-3">mixed_vector <span class="ot" style="color: #003B4F;
+<span id="cb15-3">mixed_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -121,7 +360,7 @@ background-color: null;
 font-style: inherit;">3</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"four"</span>)</span>
-<span id="cb5-4"><span class="fu" style="color: #4758AB;
+<span id="cb15-4"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">class</span>(mixed_vector)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -130,13 +369,13 @@ font-style: inherit;">class</span>(mixed_vector)</span></code></pre></div>
 </div>
 <p><strong>4. Combining Vectors Recursively:</strong></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Creating nested vectors and combining them recursively</span></span>
-<span id="cb7-2"><span class="co" style="color: #5E5E5E;
+<span id="cb17-2"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># The nested vectors are flattened into a single vector.</span></span>
-<span id="cb7-3">nested_vector <span class="ot" style="color: #003B4F;
+<span id="cb17-3">nested_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -161,7 +400,7 @@ background-color: null;
 font-style: inherit;">6</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">7</span>)))</span>
-<span id="cb7-4"><span class="fu" style="color: #4758AB;
+<span id="cb17-4"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(nested_vector)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -174,7 +413,7 @@ font-style: inherit;">print</span>(nested_vector)</span></code></pre></div>
 <p>In R, the <strong><code>seq()</code></strong> function is used to generate sequences of numbers or other objects. It allows you to create a sequence of values with specified starting and ending points, increments, and other parameters. The <strong><code>seq()</code></strong> function is quite versatile and can be used to generate sequences of integers, real numbers, or even character strings.</p>
 <p>Here is the basic syntax of the <strong><code>seq()</code></strong> function:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">seq</span>(from, to, <span class="at" style="color: #657422;
 background-color: null;
@@ -203,10 +442,10 @@ font-style: inherit;">NULL</span>)</span></code></pre></div>
 <li><strong>Generating a Sequence of Integers</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a sequence of integers from 1 to 10</span></span>
-<span id="cb10-2"><span class="fu" style="color: #4758AB;
+<span id="cb20-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
 background-color: null;
@@ -221,10 +460,10 @@ font-style: inherit;">10</span>)</span></code></pre></div>
 <li><strong>Generating a Sequence of Real Numbers with a Specified Increment</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a sequence of real numbers from 0 to 1 with an increment of 0.2</span></span>
-<span id="cb12-2"><span class="fu" style="color: #4758AB;
+<span id="cb22-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
 background-color: null;
@@ -243,10 +482,10 @@ font-style: inherit;">0.2</span>)</span></code></pre></div>
 <li><strong>Generating a Sequence with a Specified Length</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a sequence of 5 values from 2 to 10</span></span>
-<span id="cb14-2"><span class="fu" style="color: #4758AB;
+<span id="cb24-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
 background-color: null;
@@ -265,10 +504,10 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 <li><strong>Generating a Sequence in Reverse Order</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a sequence of integers from 10 to 1 in reverse order</span></span>
-<span id="cb16-2"><span class="fu" style="color: #4758AB;
+<span id="cb26-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
 background-color: null;
@@ -286,7 +525,7 @@ font-style: inherit;">1</span>)</span></code></pre></div>
 <p>In R, the <strong><code>rep()</code></strong> function is used to replicate or repeat values to create vectors or arrays of repeated elements. It allows you to duplicate a value or a set of values a specified number of times to form a larger vector or matrix. The <strong><code>rep()</code></strong> function is quite flexible and can be used to repeat both individual elements and entire vectors or lists.</p>
 <p>Here’s the basic syntax of the <strong><code>rep()</code></strong> function:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rep</span>(x, times, each, length.out)</span></code></pre></div>
 </div>
@@ -301,10 +540,10 @@ font-style: inherit;">rep</span>(x, times, each, length.out)</span></code></pre>
 <li><strong>Replicating a Single Value</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Repeat the value 3, four times</span></span>
-<span id="cb19-2"><span class="fu" style="color: #4758AB;
+<span id="cb29-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rep</span>(<span class="dv" style="color: #AD0000;
 background-color: null;
@@ -321,10 +560,10 @@ font-style: inherit;">4</span>)</span></code></pre></div>
 <li><strong>Replicating Elements of a Vector</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a vector</span></span>
-<span id="cb21-2">my_vector <span class="ot" style="color: #003B4F;
+<span id="cb31-2">my_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -335,11 +574,11 @@ background-color: null;
 font-style: inherit;">"B"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"C"</span>)</span>
-<span id="cb21-3"></span>
-<span id="cb21-4"><span class="co" style="color: #5E5E5E;
+<span id="cb31-3"></span>
+<span id="cb31-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Repeat each element of the vector 2 times</span></span>
-<span id="cb21-5"><span class="fu" style="color: #4758AB;
+<span id="cb31-5"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rep</span>(my_vector, <span class="at" style="color: #657422;
 background-color: null;
@@ -354,10 +593,10 @@ font-style: inherit;">2</span>)</span></code></pre></div>
 <li><strong>Replicating Elements of a Vector with Different Frequencies</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Repeat each element of the vector with different frequencies</span></span>
-<span id="cb23-2"><span class="fu" style="color: #4758AB;
+<span id="cb33-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rep</span>(<span class="fu" style="color: #4758AB;
 background-color: null;
@@ -386,10 +625,10 @@ font-style: inherit;">4</span>))</span></code></pre></div>
 <li><strong>Controlling the Length of the Result</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Repeat the values from 1 to 3 to create a vector of length 10</span></span>
-<span id="cb25-2"><span class="fu" style="color: #4758AB;
+<span id="cb35-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rep</span>(<span class="dv" style="color: #AD0000;
 background-color: null;
@@ -413,7 +652,7 @@ font-style: inherit;">10</span>)</span></code></pre></div>
 <p>In R, the <strong><code>length()</code></strong> function is used to determine the number of elements in a vector. It returns an integer value representing the length of the vector. The <strong><code>length()</code></strong> function is straightforward to use and provides a quick way to check the number of elements in a vector.</p>
 <p>Here’s the basic syntax of the <strong><code>length()</code></strong> function for vectors:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb37" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">length</span>(x)</span></code></pre></div>
 </div>
@@ -422,10 +661,10 @@ font-style: inherit;">length</span>(x)</span></code></pre></div>
 </ul>
 <p>Here’s an example of how to use the <strong><code>length()</code></strong> function with vectors:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb38" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a numeric vector</span></span>
-<span id="cb28-2">numeric_vector <span class="ot" style="color: #003B4F;
+<span id="cb38-2">numeric_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -440,11 +679,11 @@ background-color: null;
 font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">5</span>)</span>
-<span id="cb28-3"></span>
-<span id="cb28-4"><span class="co" style="color: #5E5E5E;
+<span id="cb38-3"></span>
+<span id="cb38-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Use the length() function to find the length of the vector</span></span>
-<span id="cb28-5"><span class="fu" style="color: #4758AB;
+<span id="cb38-5"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">length</span>(numeric_vector)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -458,7 +697,7 @@ font-style: inherit;">length</span>(numeric_vector)</span></code></pre></div>
 <p>The <strong><code>unique()</code></strong> function is used to extract the unique elements from a vector, returning a new vector containing only the distinct values found in the original vector. It is a convenient way to identify and remove duplicate values from a vector.</p>
 <p>Here’s the basic syntax of the <strong><code>unique()</code></strong> function:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb40" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">unique</span>(x)</span></code></pre></div>
 </div>
@@ -467,10 +706,10 @@ font-style: inherit;">unique</span>(x)</span></code></pre></div>
 </ul>
 <p>Here’s an example of how to use the <strong><code>unique()</code></strong> function with a vector:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a vector with duplicate values</span></span>
-<span id="cb31-2">my_vector <span class="ot" style="color: #003B4F;
+<span id="cb41-2">my_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -489,11 +728,11 @@ background-color: null;
 font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">5</span>)</span>
-<span id="cb31-3"></span>
-<span id="cb31-4"><span class="co" style="color: #5E5E5E;
+<span id="cb41-3"></span>
+<span id="cb41-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Use the unique() function to extract unique elements</span></span>
-<span id="cb31-5"><span class="fu" style="color: #4758AB;
+<span id="cb41-5"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">unique</span>(my_vector)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -508,7 +747,7 @@ font-style: inherit;">unique</span>(my_vector)</span></code></pre></div>
 <p>The <strong><code>duplicated()</code></strong> function in R is a handy tool for identifying and working with duplicate elements in a vector. It returns a logical vector of the same length as the input vector, indicating whether each element in the vector is duplicated or not. You can also use the <strong><code>fromLast</code></strong> argument to control the direction of the search for duplicates.</p>
 <p>Here’s the detailed syntax of the <strong><code>duplicated()</code></strong> function:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb43" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">duplicated</span>(x, <span class="at" style="color: #657422;
 background-color: null;
@@ -525,10 +764,10 @@ font-style: inherit;">FALSE</span>)</span></code></pre></div>
 <li><strong>Identifying Duplicate Values</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb44" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a vector with duplicate values</span></span>
-<span id="cb34-2">my_vector <span class="ot" style="color: #003B4F;
+<span id="cb44-2">my_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -547,32 +786,32 @@ background-color: null;
 font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">5</span>)</span>
-<span id="cb34-3"></span>
-<span id="cb34-4"><span class="co" style="color: #5E5E5E;
+<span id="cb44-3"></span>
+<span id="cb44-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Use the duplicated() function to identify duplicate elements</span></span>
-<span id="cb34-5">duplicates <span class="ot" style="color: #003B4F;
+<span id="cb44-5">duplicates <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">duplicated</span>(my_vector)</span>
-<span id="cb34-6"></span>
-<span id="cb34-7"><span class="co" style="color: #5E5E5E;
+<span id="cb44-6"></span>
+<span id="cb44-7"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Print the result</span></span>
-<span id="cb34-8"><span class="fu" style="color: #4758AB;
+<span id="cb44-8"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(duplicates)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE FALSE  TRUE FALSE FALSE  TRUE FALSE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb36" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb46" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Get the values that are duplicated</span></span>
-<span id="cb36-2">duplicated_values <span class="ot" style="color: #003B4F;
+<span id="cb46-2">duplicated_values <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> my_vector[duplicates]</span>
-<span id="cb36-3"><span class="fu" style="color: #4758AB;
+<span id="cb46-3"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(duplicated_values)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -580,25 +819,12 @@ font-style: inherit;">print</span>(duplicated_values)</span></code></pre></div>
 </div>
 </div>
 <p>In this example, <strong><code>duplicates</code></strong> is a logical vector indicating whether each element in <strong><code>my_vector</code></strong> is duplicated. <strong><code>TRUE</code></strong> indicates duplication, and <strong><code>FALSE</code></strong> indicates uniqueness. We then extract the duplicated values using indexing.</p>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Important
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>I use , square brackets (<strong><code>[ ]</code></strong>) to get the unique values of the vector. Square brackets is used to access and subset elements in vectors and other data structures like lists and matrices. It allows you to extract specific elements or subsets of elements from a vector.</p>
-</div>
-</div>
 <p><strong>Identifying Duplicates from the Last Occurrence</strong></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb38" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb48" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a vector with duplicate values</span></span>
-<span id="cb38-2">my_vector <span class="ot" style="color: #003B4F;
+<span id="cb48-2">my_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -617,11 +843,11 @@ background-color: null;
 font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">5</span>)</span>
-<span id="cb38-3"></span>
-<span id="cb38-4"><span class="co" style="color: #5E5E5E;
+<span id="cb48-3"></span>
+<span id="cb48-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Use the duplicated() function to identify duplicates from the last occurrence</span></span>
-<span id="cb38-5">duplicates_last <span class="ot" style="color: #003B4F;
+<span id="cb48-5">duplicates_last <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -630,23 +856,23 @@ background-color: null;
 font-style: inherit;">fromLast =</span> <span class="cn" style="color: #8f5902;
 background-color: null;
 font-style: inherit;">TRUE</span>)</span>
-<span id="cb38-6"></span>
-<span id="cb38-7"><span class="co" style="color: #5E5E5E;
+<span id="cb48-6"></span>
+<span id="cb48-7"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Print the result</span></span>
-<span id="cb38-8"><span class="fu" style="color: #4758AB;
+<span id="cb48-8"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(duplicates_last)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb40" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb50" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Get the values that are duplicated from the last occurrence</span></span>
-<span id="cb40-2">duplicated_values_last <span class="ot" style="color: #003B4F;
+<span id="cb50-2">duplicated_values_last <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> my_vector[duplicates_last]</span>
-<span id="cb40-3"><span class="fu" style="color: #4758AB;
+<span id="cb50-3"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(duplicated_values_last)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -658,10 +884,10 @@ font-style: inherit;">print</span>(duplicated_values_last)</span></code></pre></
 <li><strong>Removing Duplicate Values from a Vector</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb42" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb52" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a vector with duplicate values</span></span>
-<span id="cb42-2">my_vector <span class="ot" style="color: #003B4F;
+<span id="cb52-2">my_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -680,22 +906,22 @@ background-color: null;
 font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">5</span>)</span>
-<span id="cb42-3"></span>
-<span id="cb42-4"><span class="co" style="color: #5E5E5E;
+<span id="cb52-3"></span>
+<span id="cb52-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Use the `!` operator to negate the duplicated values and get unique values</span></span>
-<span id="cb42-5">unique_values <span class="ot" style="color: #003B4F;
+<span id="cb52-5">unique_values <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> my_vector[<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">duplicated</span>(my_vector)]</span>
-<span id="cb42-6"></span>
-<span id="cb42-7"><span class="co" style="color: #5E5E5E;
+<span id="cb52-6"></span>
+<span id="cb52-7"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Print the unique values</span></span>
-<span id="cb42-8"><span class="fu" style="color: #4758AB;
+<span id="cb52-8"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(unique_values)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -707,10 +933,10 @@ font-style: inherit;">print</span>(unique_values)</span></code></pre></div>
 <li><strong>Identifying Duplicates in a Character Vector</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb44" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb54" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a character vector with duplicate strings</span></span>
-<span id="cb44-2">my_strings <span class="ot" style="color: #003B4F;
+<span id="cb54-2">my_strings <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -725,32 +951,32 @@ background-color: null;
 font-style: inherit;">"cherry"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"banana"</span>)</span>
-<span id="cb44-3"></span>
-<span id="cb44-4"><span class="co" style="color: #5E5E5E;
+<span id="cb54-3"></span>
+<span id="cb54-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Use the duplicated() function to identify duplicate strings</span></span>
-<span id="cb44-5">duplicates_strings <span class="ot" style="color: #003B4F;
+<span id="cb54-5">duplicates_strings <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">duplicated</span>(my_strings)</span>
-<span id="cb44-6"></span>
-<span id="cb44-7"><span class="co" style="color: #5E5E5E;
+<span id="cb54-6"></span>
+<span id="cb54-7"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Print the result</span></span>
-<span id="cb44-8"><span class="fu" style="color: #4758AB;
+<span id="cb54-8"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(duplicates_strings)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE FALSE  TRUE FALSE  TRUE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb46" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb56" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Get the duplicated strings</span></span>
-<span id="cb46-2">duplicated_strings <span class="ot" style="color: #003B4F;
+<span id="cb56-2">duplicated_strings <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> my_strings[duplicates_strings]</span>
-<span id="cb46-3"><span class="fu" style="color: #4758AB;
+<span id="cb56-3"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(duplicated_strings)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -765,7 +991,7 @@ font-style: inherit;">print</span>(duplicated_strings)</span></code></pre></div>
 <p>the <strong><code>sort()</code></strong> function is used to sort the elements of a vector in either ascending or descending order. It is a fundamental function for arranging and organizing data. The <strong><code>sort()</code></strong> function can be applied to various types of vectors, including numeric, character, and factor vectors.</p>
 <p>Here’s the basic syntax of the <strong><code>sort()</code></strong> function:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb48" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb58" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">sort</span>(x, <span class="at" style="color: #657422;
 background-color: null;
@@ -782,10 +1008,10 @@ font-style: inherit;">FALSE</span>)</span></code></pre></div>
 <li><strong>Sorting a Numeric Vector in Ascending Order</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb49" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb59" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a numeric vector</span></span>
-<span id="cb49-2">numeric_vector <span class="ot" style="color: #003B4F;
+<span id="cb59-2">numeric_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -800,20 +1026,20 @@ background-color: null;
 font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">3</span>)</span>
-<span id="cb49-3"></span>
-<span id="cb49-4"><span class="co" style="color: #5E5E5E;
+<span id="cb59-3"></span>
+<span id="cb59-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Sort the vector in ascending order</span></span>
-<span id="cb49-5">sorted_vector <span class="ot" style="color: #003B4F;
+<span id="cb59-5">sorted_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">sort</span>(numeric_vector)</span>
-<span id="cb49-6"></span>
-<span id="cb49-7"><span class="co" style="color: #5E5E5E;
+<span id="cb59-6"></span>
+<span id="cb59-7"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Print the result</span></span>
-<span id="cb49-8"><span class="fu" style="color: #4758AB;
+<span id="cb59-8"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -825,10 +1051,10 @@ font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
 <li><strong>Sorting a Character Vector in Alphabetical Order</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb51" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb61" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a character vector</span></span>
-<span id="cb51-2">character_vector <span class="ot" style="color: #003B4F;
+<span id="cb61-2">character_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -843,20 +1069,20 @@ background-color: null;
 font-style: inherit;">"date"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"grape"</span>)</span>
-<span id="cb51-3"></span>
-<span id="cb51-4"><span class="co" style="color: #5E5E5E;
+<span id="cb61-3"></span>
+<span id="cb61-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Sort the vector in alphabetical order</span></span>
-<span id="cb51-5">sorted_vector <span class="ot" style="color: #003B4F;
+<span id="cb61-5">sorted_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">sort</span>(character_vector)</span>
-<span id="cb51-6"></span>
-<span id="cb51-7"><span class="co" style="color: #5E5E5E;
+<span id="cb61-6"></span>
+<span id="cb61-7"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Print the result</span></span>
-<span id="cb51-8"><span class="fu" style="color: #4758AB;
+<span id="cb61-8"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -868,10 +1094,10 @@ font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
 <li><strong>Sorting in Descending Order</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb53" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb63" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a numeric vector</span></span>
-<span id="cb53-2">numeric_vector <span class="ot" style="color: #003B4F;
+<span id="cb63-2">numeric_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -886,11 +1112,11 @@ background-color: null;
 font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">3</span>)</span>
-<span id="cb53-3"></span>
-<span id="cb53-4"><span class="co" style="color: #5E5E5E;
+<span id="cb63-3"></span>
+<span id="cb63-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Sort the vector in descending order</span></span>
-<span id="cb53-5">sorted_vector <span class="ot" style="color: #003B4F;
+<span id="cb63-5">sorted_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -899,11 +1125,11 @@ background-color: null;
 font-style: inherit;">decreasing =</span> <span class="cn" style="color: #8f5902;
 background-color: null;
 font-style: inherit;">TRUE</span>)</span>
-<span id="cb53-6"></span>
-<span id="cb53-7"><span class="co" style="color: #5E5E5E;
+<span id="cb63-6"></span>
+<span id="cb63-7"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Print the result</span></span>
-<span id="cb53-8"><span class="fu" style="color: #4758AB;
+<span id="cb63-8"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -929,10 +1155,10 @@ Note
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb55" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb65" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a factor vector</span></span>
-<span id="cb55-2">factor_vector <span class="ot" style="color: #003B4F;
+<span id="cb65-2">factor_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -949,20 +1175,20 @@ background-color: null;
 font-style: inherit;">"low"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"high"</span>))</span>
-<span id="cb55-3"></span>
-<span id="cb55-4"><span class="co" style="color: #5E5E5E;
+<span id="cb65-3"></span>
+<span id="cb65-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Sort the factor vector in alphabetical order</span></span>
-<span id="cb55-5">sorted_vector <span class="ot" style="color: #003B4F;
+<span id="cb65-5">sorted_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">sort</span>(factor_vector)</span>
-<span id="cb55-6"></span>
-<span id="cb55-7"><span class="co" style="color: #5E5E5E;
+<span id="cb65-6"></span>
+<span id="cb65-7"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Print the result</span></span>
-<span id="cb55-8"><span class="fu" style="color: #4758AB;
+<span id="cb65-8"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -975,10 +1201,10 @@ Levels: high low medium</code></pre>
 <li><strong>Sorting with Indexing</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb57" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb67" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a numeric vector</span></span>
-<span id="cb57-2">numeric_vector <span class="ot" style="color: #003B4F;
+<span id="cb67-2">numeric_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -993,23 +1219,23 @@ background-color: null;
 font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">3</span>)</span>
-<span id="cb57-3"></span>
-<span id="cb57-4"><span class="co" style="color: #5E5E5E;
+<span id="cb67-3"></span>
+<span id="cb67-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Sort the vector in ascending order and store the index order</span></span>
-<span id="cb57-5">sorted_indices <span class="ot" style="color: #003B4F;
+<span id="cb67-5">sorted_indices <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">order</span>(numeric_vector)</span>
-<span id="cb57-6">sorted_vector <span class="ot" style="color: #003B4F;
+<span id="cb67-6">sorted_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> numeric_vector[sorted_indices]</span>
-<span id="cb57-7"></span>
-<span id="cb57-8"><span class="co" style="color: #5E5E5E;
+<span id="cb67-7"></span>
+<span id="cb67-8"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Print the result</span></span>
-<span id="cb57-9"><span class="fu" style="color: #4758AB;
+<span id="cb67-9"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1024,7 +1250,7 @@ font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
 <p>The <strong><code>which()</code></strong> function is used to identify the indices of elements in a vector that satisfy a specified condition. It returns a vector of indices where the condition is <strong><code>TRUE</code></strong>.</p>
 <p>Here’s the basic syntax of the <strong><code>which()</code></strong> function:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb59" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb69" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">which</span>(x, <span class="at" style="color: #657422;
 background-color: null;
@@ -1041,10 +1267,10 @@ font-style: inherit;">FALSE</span>)</span></code></pre></div>
 <li><strong>Finding Indices of Elements Greater Than a Threshold</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb60" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb70" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a numeric vector</span></span>
-<span id="cb60-2">my_vector <span class="ot" style="color: #003B4F;
+<span id="cb70-2">my_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -1059,11 +1285,11 @@ background-color: null;
 font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">8</span>)</span>
-<span id="cb60-3"></span>
-<span id="cb60-4"><span class="co" style="color: #5E5E5E;
+<span id="cb70-3"></span>
+<span id="cb70-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Find indices where values are greater than 8</span></span>
-<span id="cb60-5">indices_greater_than_8 <span class="ot" style="color: #003B4F;
+<span id="cb70-5">indices_greater_than_8 <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -1072,11 +1298,11 @@ background-color: null;
 font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">8</span>)</span>
-<span id="cb60-6"></span>
-<span id="cb60-7"><span class="co" style="color: #5E5E5E;
+<span id="cb70-6"></span>
+<span id="cb70-7"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Print the result</span></span>
-<span id="cb60-8"><span class="fu" style="color: #4758AB;
+<span id="cb70-8"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(indices_greater_than_8)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1088,10 +1314,10 @@ font-style: inherit;">print</span>(indices_greater_than_8)</span></code></pre></
 <li><strong>Finding Indices of Missing Values (NA)</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb62" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb72" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a vector with missing values (NA)</span></span>
-<span id="cb62-2">my_vector <span class="ot" style="color: #003B4F;
+<span id="cb72-2">my_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -1106,22 +1332,22 @@ background-color: null;
 font-style: inherit;">NA</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">8</span>)</span>
-<span id="cb62-3"></span>
-<span id="cb62-4"><span class="co" style="color: #5E5E5E;
+<span id="cb72-3"></span>
+<span id="cb72-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Find indices of missing values</span></span>
-<span id="cb62-5">indices_of_na <span class="ot" style="color: #003B4F;
+<span id="cb72-5">indices_of_na <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">which</span>(<span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">is.na</span>(my_vector))</span>
-<span id="cb62-6"></span>
-<span id="cb62-7"><span class="co" style="color: #5E5E5E;
+<span id="cb72-6"></span>
+<span id="cb72-7"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Print the result</span></span>
-<span id="cb62-8"><span class="fu" style="color: #4758AB;
+<span id="cb72-8"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(indices_of_na)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1146,10 +1372,10 @@ Tip
 <li><strong>Finding Indices of Specific Values</strong></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb64" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb74" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a character vector</span></span>
-<span id="cb64-2">my_vector <span class="ot" style="color: #003B4F;
+<span id="cb74-2">my_vector <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -1164,11 +1390,11 @@ background-color: null;
 font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"apple"</span>)</span>
-<span id="cb64-3"></span>
-<span id="cb64-4"><span class="co" style="color: #5E5E5E;
+<span id="cb74-3"></span>
+<span id="cb74-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Find indices where values are "banana"</span></span>
-<span id="cb64-5">indices_banana <span class="ot" style="color: #003B4F;
+<span id="cb74-5">indices_banana <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -1177,11 +1403,11 @@ background-color: null;
 font-style: inherit;">==</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"banana"</span>)</span>
-<span id="cb64-6"></span>
-<span id="cb64-7"><span class="co" style="color: #5E5E5E;
+<span id="cb74-6"></span>
+<span id="cb74-7"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Print the result</span></span>
-<span id="cb64-8"><span class="fu" style="color: #4758AB;
+<span id="cb74-8"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">print</span>(indices_banana)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1190,6 +1416,222 @@ font-style: inherit;">print</span>(indices_banana)</span></code></pre></div>
 </div>
 <p>Here, <strong><code>indices_banana</code></strong> contains the indices where elements in <strong><code>my_vector</code></strong> are equal to “banana.”</p>
 <p>The <strong><code>which()</code></strong> function is versatile and can be used for various purposes, such as identifying specific elements, locating missing values, and finding indices based on custom conditions. It’s a valuable tool for data analysis and manipulation in R.</p>
+</section>
+<section id="paste" class="level3">
+<h3 class="anchored" data-anchor-id="paste"><code>paste()</code></h3>
+<p>The <strong><code>paste()</code></strong> function is used to concatenate (combine) character vectors element-wise into a single character vector. It allows you to join strings or character elements together with the option to specify a separator or collapse them without any separator. The basic syntax of the <strong><code>paste()</code></strong> function is as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste</span>(..., <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sep =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" "</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">collapse =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>)</span></code></pre></div>
+</div>
+<ul>
+<li><p><strong><code>...</code></strong>: One or more character vectors or objects to be combined.</p></li>
+<li><p><strong><code>sep</code></strong>: A character string that specifies the separator to be used between the concatenated elements. The default is a space.</p></li>
+<li><p><strong><code>collapse</code></strong>: An optional character string that specifies a separator to be used when collapsing the concatenated elements into a single string. If <strong><code>collapse</code></strong> is not specified, the result will be a character vector.</p></li>
+</ul>
+<p>Now, let’s explore the <strong><code>paste()</code></strong> function with some interesting examples:</p>
+<ol type="1">
+<li><strong>Concatenating Character Vectors with Default Separator</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create two character vectors</span></span>
+<span id="cb77-2">first_names <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"John"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Alice"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Bob"</span>)</span>
+<span id="cb77-3">last_names <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Doe"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Smith"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Johnson"</span>)</span>
+<span id="cb77-4"></span>
+<span id="cb77-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use paste() to concatenate them with the default separator (space)</span></span>
+<span id="cb77-6">full_names <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste</span>(first_names, last_names)</span>
+<span id="cb77-7"></span>
+<span id="cb77-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb77-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(full_names)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "John Doe"    "Alice Smith" "Bob Johnson"</code></pre>
+</div>
+</div>
+<p>In this example, the <strong><code>paste()</code></strong> function concatenates <strong><code>first_names</code></strong> and <strong><code>last_names</code></strong> with the default separator, which is a space.</p>
+<ol start="2" type="1">
+<li><strong>Specifying a Custom Separator</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a character vector</span></span>
+<span id="cb79-2">fruits <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cherry"</span>)</span>
+<span id="cb79-3"></span>
+<span id="cb79-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use paste() with a custom separator (comma and space)</span></span>
+<span id="cb79-5">fruits_list <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste</span>(fruits, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">collapse =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">", "</span>)</span>
+<span id="cb79-6"></span>
+<span id="cb79-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb79-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(fruits_list)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "apple, banana, cherry"</code></pre>
+</div>
+</div>
+<p>Here, we concatenate the elements in the <strong><code>fruits</code></strong> vector with a custom separator, which is a comma followed by a space.</p>
+<ol start="3" type="1">
+<li><strong>Combining Numeric and Character Values</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb81" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a numeric vector and a character vector</span></span>
+<span id="cb81-2">prices <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span>
+<span id="cb81-3">fruits <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cherry"</span>)</span>
+<span id="cb81-4"></span>
+<span id="cb81-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use paste() to combine them</span></span>
+<span id="cb81-6">item_description <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste</span>(prices, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"USD -"</span>, fruits)</span>
+<span id="cb81-7"></span>
+<span id="cb81-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb81-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(item_description)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "10 USD - apple" "5 USD - banana" "3 USD - cherry"</code></pre>
+</div>
+</div>
+<p>In this example, we combine numeric values from the <strong><code>prices</code></strong> vector with character values from the <strong><code>fruits</code></strong> vector using <strong><code>paste()</code></strong>.</p>
+<ol start="4" type="1">
+<li><strong>Collapsing a Character Vector</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb83" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a character vector</span></span>
+<span id="cb83-2">sentence <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"This"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"is"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"an"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"example"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sentence"</span>)</span>
+<span id="cb83-3"></span>
+<span id="cb83-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use paste() to collapse the vector into a single string</span></span>
+<span id="cb83-5">collapsed_sentence <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste</span>(sentence, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">collapse =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" "</span>)</span>
+<span id="cb83-6"></span>
+<span id="cb83-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb83-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(collapsed_sentence)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "This is an example sentence"</code></pre>
+</div>
+</div>
+<p>Here, we use <strong><code>paste()</code></strong> to collapse the elements of the <strong><code>sentence</code></strong> vector into a single string with spaces between words.</p>
+<p>The <strong><code>paste()</code></strong> function is versatile and useful for various data manipulation tasks, such as creating custom labels, formatting output, and constructing complex strings from component parts. It allows you to combine character vectors in a flexible way.</p>
 </section>
 </section>
 <section id="conclusion" class="level2">
