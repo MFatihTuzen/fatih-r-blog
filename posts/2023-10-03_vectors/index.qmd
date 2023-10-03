@@ -1,0 +1,529 @@
+---
+title: "Exploring Vectors in R Programming: The Fundamental Building Blocks"
+author: "M. Fatih Tüzen"
+date: "2023-10-03"
+date-modified: "2023-10-03"
+categories: [R Programming, data types, vectors]
+image: "atom.jpg"
+---
+
+## **Introduction**
+
+![](atom.jpg){fig-align="center" width="526" height="363"}
+
+In the realm of R programming, vectors serve as the fundamental building blocks that underpin virtually every data analysis and manipulation task. Much like atoms are the smallest units of matter, vectors are the fundamental units of data in R. In this article, we will delve into the world of vectors in R programming, exploring their significance, applications, and some of the most commonly used functions that make them indispensable.
+
+## **What is a Vector?**
+
+In R, a vector is a fundamental data structure that can hold multiple elements of the same data type. These elements can be numbers, characters, logical values, or other types of data. Vectors are one-dimensional, meaning they consist of a single sequence of values. These vectors can be considered as the atomic units of data storage in R, forming the basis for more complex data structures like matrices, data frames, and lists. In essence, vectors are the elemental containers for data elements.
+
+## **Importance of Vectors**
+
+Vectors play a pivotal role in R programming for several reasons:
+
+1.  **Efficient Data Storage**: Vectors efficiently store homogeneous data, saving memory and computational resources.
+
+2.  **Vectorized Operations**: One of the most powerful aspects of R is its ability to perform operations on entire vectors efficiently, a concept known as vectorization. R is designed for vectorized operations, meaning you can perform operations on entire vectors without the need for explicit loops. This makes code concise and faster.
+
+3.  **Compatibility**: Most R functions are designed to work with vectors, making them compatible with many data analysis and statistical techniques.
+
+4.  **Simplicity**: Using vectors simplifies code and promotes a more intuitive and readable coding style.
+
+5.  **Interoperability**: Vectors can be easily converted into other data structures, such as matrices or data frames, enhancing data manipulation capabilities.
+
+## **Most Used Functions with Vectors**
+
+Let's explore some commonly used functions when working with vectors in R.
+
+###  **`c()`**
+
+**`c()`** function (short for "combine" or "concatenate") is used for creating a new vector or combining multiple values or vectors into a single vector. It allows you to create a vector by listing its elements within the function.
+
+**1. Combining Numeric Values:**
+
+```{r}
+
+# Creating a numeric vector
+numeric_vector <- c(1, 2, 3, 4, 5)
+print(numeric_vector)
+
+```
+
+**2. Combining Character Strings:**
+
+```{r}
+
+# Creating a character vector
+character_vector <- c("apple", "banana", "cherry")
+print(character_vector)
+
+```
+
+**3. Combining Different Data Types (Implicit Coercion):**
+
+```{r}
+
+# Combining numeric and character values
+# Numeric values are coerced to character.
+mixed_vector <- c(1, "two", 3, "four")
+class(mixed_vector)
+
+```
+
+**4. Combining Vectors Recursively:**
+
+```{r}
+
+# Creating nested vectors and combining them recursively
+# The nested vectors are flattened into a single vector.
+nested_vector <- c(1, c(2, 3), c(4, 5, c(6, 7)))
+print(nested_vector)
+```
+
+### **`seq()`**
+
+In R, the **`seq()`** function is used to generate sequences of numbers or other objects. It allows you to create a sequence of values with specified starting and ending points, increments, and other parameters. The **`seq()`** function is quite versatile and can be used to generate sequences of integers, real numbers, or even character strings.
+
+Here is the basic syntax of the **`seq()`** function:
+
+```{r}
+#| eval: false
+seq(from, to, by = (to - from)/(length.out - 1), length.out = NULL)
+```
+
+-   **`from`**: The starting point of the sequence.
+
+-   **`to`**: The ending point of the sequence.
+
+-   **`by`**: The interval between values in the sequence. It is an optional parameter. If not specified, R calculates it based on the **`from`**, **`to`**, and **`length.out`** parameters.
+
+-   **`length.out`**: The desired length of the sequence. It is an optional parameter. If provided, R calculates the **`by`** parameter based on the desired length.
+
+Here are some examples to illustrate how to use the **`seq()`** function:
+
+1.  **Generating a Sequence of Integers**
+
+```{r}
+
+# Create a sequence of integers from 1 to 10
+seq(1, 10)
+```
+
+2.  **Generating a Sequence of Real Numbers with a Specified Increment**
+
+```{r}
+
+# Create a sequence of real numbers from 0 to 1 with an increment of 0.2
+seq(0, 1, by = 0.2)
+```
+
+3.  **Generating a Sequence with a Specified Length**
+
+```{r}
+
+# Create a sequence of 5 values from 2 to 10
+seq(2, 10, length.out = 5)
+```
+
+4.  **Generating a Sequence in Reverse Order**
+
+```{r}
+
+# Create a sequence of integers from 10 to 1 in reverse order
+seq(10, 1)
+```
+
+The **`seq()`** function is very useful for creating sequences of values that you can use for various purposes, such as creating sequences for plotting, generating data for simulations, or defining custom sequences for indexing elements in vectors or data frames.
+
+### `rep()`
+
+In R, the **`rep()`** function is used to replicate or repeat values to create vectors or arrays of repeated elements. It allows you to duplicate a value or a set of values a specified number of times to form a larger vector or matrix. The **`rep()`** function is quite flexible and can be used to repeat both individual elements and entire vectors or lists.
+
+Here's the basic syntax of the **`rep()`** function:
+
+```{r}
+#| eval: false
+rep(x, times, each, length.out)
+```
+
+-   **`x`**: The value(s) or vector(s) that you want to repeat.
+
+-   **`times`**: An integer specifying how many times **`x`** should be repeated. If you provide a vector for **`x`**, each element of the vector will be repeated **`times`** times.
+
+-   **`each`**: An integer specifying how many times each element of **`x`** (if it's a vector) should be repeated before moving on to the next element. This is an optional parameter.
+
+-   **`length.out`**: An integer specifying the desired length of the result. This is an optional parameter, and it can be used instead of **`times`** and **`each`** to determine the number of repetitions.
+
+Here are some examples to illustrate how to use the **`rep()`** function:
+
+1.  **Replicating a Single Value**
+
+```{r}
+# Repeat the value 3, four times
+rep(3, times = 4)
+
+```
+
+2.  **Replicating Elements of a Vector**
+
+```{r}
+# Create a vector
+my_vector <- c("A", "B", "C")
+
+# Repeat each element of the vector 2 times
+rep(my_vector, each = 2)
+```
+
+3.  **Replicating Elements of a Vector with Different Frequencies**
+
+```{r}
+# Repeat each element of the vector with different frequencies
+rep(c("A", "B", "C"), times = c(3, 2, 4))
+```
+
+4.  **Controlling the Length of the Result**
+
+```{r}
+# Repeat the values from 1 to 3 to create a vector of length 10
+rep(1:3, length.out = 10)
+
+```
+
+The **`rep()`** function is useful for tasks like creating data for simulations, repeating elements for plotting, and constructing vectors and matrices with specific patterns or repetitions.
+
+### `length()`
+
+In R, the **`length()`** function is used to determine the number of elements in a vector. It returns an integer value representing the length of the vector. The **`length()`** function is straightforward to use and provides a quick way to check the number of elements in a vector.
+
+Here's the basic syntax of the **`length()`** function for vectors:
+
+```{r}
+#| eval: false
+length(x)
+```
+
+-   **`x`**: The vector for which you want to find the length.
+
+Here's an example of how to use the **`length()`** function with vectors:
+
+```{r}
+# Create a numeric vector
+numeric_vector <- c(1, 2, 3, 4, 5)
+
+# Use the length() function to find the length of the vector
+length(numeric_vector)
+```
+
+The **`length()`** function is particularly useful when you need to perform operations or make decisions based on the size or length of a vector. It is commonly used in control structures like loops to ensure that you iterate through the entire vector or to dynamically adjust the length of vectors in your code.
+
+### `unique()`
+
+The **`unique()`** function is used to extract the unique elements from a vector, returning a new vector containing only the distinct values found in the original vector. It is a convenient way to identify and remove duplicate values from a vector.
+
+Here's the basic syntax of the **`unique()`** function:
+
+```{r}
+#| eval: false
+unique(x)
+```
+
+-   **`x`**: The vector from which you want to extract unique elements.
+
+Here's an example of how to use the **`unique()`** function with a vector:
+
+```{r}
+# Create a vector with duplicate values
+my_vector <- c(1, 2, 2, 3, 4, 4, 5)
+
+# Use the unique() function to extract unique elements
+unique(my_vector)
+```
+
+In this example, the **`unique()`** function is applied to the **`my_vector`**, and it returns a new vector containing only the unique values, removing duplicates. The order of the unique values in the result is the same as their order of appearance in the original vector.
+
+The **`unique()`** function is particularly useful when dealing with data preprocessing or data cleaning tasks, where you need to identify and handle duplicate values in a dataset. It's also helpful when you want to generate a list of unique categories or distinct values from a categorical variable.
+
+### `duplicated()`
+
+The **`duplicated()`** function in R is a handy tool for identifying and working with duplicate elements in a vector. It returns a logical vector of the same length as the input vector, indicating whether each element in the vector is duplicated or not. You can also use the **`fromLast`** argument to control the direction of the search for duplicates.
+
+Here's the detailed syntax of the **`duplicated()`** function:
+
+```{r}
+#| eval: false
+duplicated(x, fromLast = FALSE)
+```
+
+-   **`x`**: The vector in which you want to identify duplicate elements.
+
+-   **`fromLast`**: An optional logical parameter (default is **`FALSE`**). If set to **`TRUE`**, it considers duplicates from the last occurrence of each element instead of the first.
+
+Now, let's dive into some interesting examples to understand how the **`duplicated()`** function works:
+
+1.  **Identifying Duplicate Values**
+
+```{r}
+
+# Create a vector with duplicate values
+my_vector <- c(1, 2, 2, 3, 4, 4, 5)
+
+# Use the duplicated() function to identify duplicate elements
+duplicates <- duplicated(my_vector)
+
+# Print the result
+print(duplicates)
+
+# Get the values that are duplicated
+duplicated_values <- my_vector[duplicates]
+print(duplicated_values)
+```
+
+In this example, **`duplicates`** is a logical vector indicating whether each element in **`my_vector`** is duplicated. **`TRUE`** indicates duplication, and **`FALSE`** indicates uniqueness. We then extract the duplicated values using indexing.
+
+::: callout-important
+I use , square brackets (**`[ ]`**) to get the unique values of the vector. Square brackets is used to access and subset elements in vectors and other data structures like lists and matrices. It allows you to extract specific elements or subsets of elements from a vector.
+:::
+
+**Identifying Duplicates from the Last Occurrence**
+
+```{r}
+# Create a vector with duplicate values
+my_vector <- c(1, 2, 2, 3, 4, 4, 5)
+
+# Use the duplicated() function to identify duplicates from the last occurrence
+duplicates_last <- duplicated(my_vector, fromLast = TRUE)
+
+# Print the result
+print(duplicates_last)
+
+# Get the values that are duplicated from the last occurrence
+duplicated_values_last <- my_vector[duplicates_last]
+print(duplicated_values_last)
+
+
+```
+
+By setting **`fromLast = TRUE`**, we identify duplicates based on their last occurrence in the vector.
+
+3.  **Removing Duplicate Values from a Vector**
+
+```{r}
+
+# Create a vector with duplicate values
+my_vector <- c(1, 2, 2, 3, 4, 4, 5)
+
+# Use the `!` operator to negate the duplicated values and get unique values
+unique_values <- my_vector[!duplicated(my_vector)]
+
+# Print the unique values
+print(unique_values)
+
+
+
+```
+
+In this example, we use the **`!`** operator to negate the result of **`duplicated()`** to get unique values in the vector.
+
+4.  **Identifying Duplicates in a Character Vector**
+
+```{r}
+
+# Create a character vector with duplicate strings
+my_strings <- c("apple", "banana", "apple", "cherry", "banana")
+
+# Use the duplicated() function to identify duplicate strings
+duplicates_strings <- duplicated(my_strings)
+
+# Print the result
+print(duplicates_strings)
+
+# Get the duplicated strings
+duplicated_strings <- my_strings[duplicates_strings]
+print(duplicated_strings)
+
+
+```
+
+The **`duplicated()`** function can also be used with character vectors to identify duplicate strings.
+
+These examples illustrate how the **`duplicated()`** function can be used to identify and work with duplicate elements in a vector, which is useful for data cleaning, analysis, and other data manipulation tasks in R.
+
+### `sort()`
+
+the **`sort()`** function is used to sort the elements of a vector in either ascending or descending order. It is a fundamental function for arranging and organizing data. The **`sort()`** function can be applied to various types of vectors, including numeric, character, and factor vectors.
+
+Here's the basic syntax of the **`sort()`** function:
+
+```{r}
+#| eval: false
+sort(x, decreasing = FALSE)
+```
+
+-   **`x`**: The vector that you want to sort.
+
+-   **`decreasing`**: An optional logical parameter (default is **`FALSE`**). If set to **`TRUE`**, the vector is sorted in descending order; if **`FALSE`**, it's sorted in ascending order.
+
+Now, let's explore the **`sort()`** function with some interesting examples:
+
+1.  **Sorting a Numeric Vector in Ascending Order**
+
+```{r}
+
+# Create a numeric vector
+numeric_vector <- c(5, 2, 8, 1, 3)
+
+# Sort the vector in ascending order
+sorted_vector <- sort(numeric_vector)
+
+# Print the result
+print(sorted_vector)
+
+```
+
+In this example, **`sorted_vector`** contains the elements of **`numeric_vector`** sorted in ascending order.
+
+2.  **Sorting a Character Vector in Alphabetical Order**
+
+```{r}
+# Create a character vector
+character_vector <- c("apple", "banana", "cherry", "date", "grape")
+
+# Sort the vector in alphabetical order
+sorted_vector <- sort(character_vector)
+
+# Print the result
+print(sorted_vector)
+```
+
+Here, **`sorted_vector`** contains the elements of **`character_vector`** sorted in alphabetical order.
+
+3.  **Sorting in Descending Order**
+
+```{r}
+# Create a numeric vector
+numeric_vector <- c(5, 2, 8, 1, 3)
+
+# Sort the vector in descending order
+sorted_vector <- sort(numeric_vector, decreasing = TRUE)
+
+# Print the result
+print(sorted_vector)
+```
+
+By setting **`decreasing = TRUE`**, we sort **`numeric_vector`** in descending order.
+
+4.  **Sorting a Factor Vector**
+
+In R, a "factor" is a data type that represents categorical or discrete data. Factors are used to store and manage categorical variables in a more efficient and meaningful way. Categorical variables are variables that take on a limited, fixed set of values or levels, such as "yes" or "no," "low," "medium," or "high," or "red," "green," or "blue." In R, Factors are created using the **`factor()`** function.
+
+::: callout-note
+I am planning to write a post about the factors soon.
+:::
+
+```{r}
+
+# Create a factor vector
+factor_vector <- factor(c("high", "low", "medium", "low", "high"))
+
+# Sort the factor vector in alphabetical order
+sorted_vector <- sort(factor_vector)
+
+# Print the result
+print(sorted_vector)
+```
+
+The **`sort()`** function can also be used with factor vectors, where it sorts the levels in alphabetical order.
+
+5.  **Sorting with Indexing**
+
+```{r}
+
+# Create a numeric vector
+numeric_vector <- c(5, 2, 8, 1, 3)
+
+# Sort the vector in ascending order and store the index order
+sorted_indices <- order(numeric_vector)
+sorted_vector <- numeric_vector[sorted_indices]
+
+# Print the result
+print(sorted_vector)
+```
+
+In this example, we use the **`order()`** function to obtain the index order needed to sort **`numeric_vector`** in ascending order. We then use this index order for sorting the vector.
+
+The **`sort()`** function is a versatile tool for sorting vectors in R, and it is a fundamental part of data analysis and manipulation. It can be applied to various data types, and you can control the sorting order with the **`decreasing`** parameter.
+
+### `which()`
+
+The **`which()`** function is used to identify the indices of elements in a vector that satisfy a specified condition. It returns a vector of indices where the condition is **`TRUE`**.
+
+Here's the basic syntax of the **`which()`** function:
+
+```{r}
+#| eval: false
+which(x, arr.ind = FALSE)
+```
+
+-   **`x`**: The vector in which you want to find indices based on a condition.
+
+-   **`arr.ind`**: An optional logical parameter (default is **`FALSE`**). If set to **`TRUE`**, the function returns an array of indices with dimensions corresponding to **`x`**. This is typically used when **`x`** is a multi-dimensional array.
+
+Now, let's explore the **`which()`** function with some interesting examples:
+
+1.  **Finding Indices of Elements Greater Than a Threshold**
+
+```{r}
+# Create a numeric vector
+my_vector <- c(10, 5, 15, 3, 8)
+
+# Find indices where values are greater than 8
+indices_greater_than_8 <- which(my_vector > 8)
+
+# Print the result
+print(indices_greater_than_8)
+```
+
+In this example, **`indices_greater_than_8`** contains the indices where elements in **`my_vector`** are greater than 8.
+
+2.  **Finding Indices of Missing Values (NA)**
+
+```{r}
+# Create a vector with missing values (NA)
+my_vector <- c(2, NA, 5, NA, 8)
+
+# Find indices of missing values
+indices_of_na <- which(is.na(my_vector))
+
+# Print the result
+print(indices_of_na)
+```
+
+Here, **`indices_of_na`** contains the indices where **`my_vector`** has missing values (NA).
+
+::: callout-tip
+The **`is.na()`** function in R is used to identify missing values (NAs) in a vector or a data frame. It returns a logical vector or data frame of the same shape as the input, where each element is **`TRUE`** if the corresponding element in the input is **`NA`**, and **`FALSE`** otherwise.
+:::
+
+3.   **Finding Indices of Specific Values**
+
+```{r}
+
+# Create a character vector
+my_vector <- c("apple", "banana", "cherry", "banana", "apple")
+
+# Find indices where values are "banana"
+indices_banana <- which(my_vector == "banana")
+
+# Print the result
+print(indices_banana)
+```
+
+Here, **`indices_banana`** contains the indices where elements in **`my_vector`** are equal to "banana."
+
+The **`which()`** function is versatile and can be used for various purposes, such as identifying specific elements, locating missing values, and finding indices based on custom conditions. It's a valuable tool for data analysis and manipulation in R.
+
+## Conclusion
+
+Of course, there are many functions that can be used with vectors and other data structures. You can even create your own functions when you learn how to write functions. I tried to explain some basic and frequently used functions here in order not to make the post too long.
+
+In conclusion, vectors are the fundamental building blocks of data in R programming, akin to atoms in the world of matter. They are versatile, efficient, and indispensable for a wide range of data analysis tasks. By understanding their importance and mastering the use of vector-related functions, you can unlock the full potential of R for your data manipulation and analysis endeavors.

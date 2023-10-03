@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/2023-10-03_vectors/index.html",
       "/posts/2023-09-25_data_types/index.html",
       "/posts/2023-08-15_r-intro/index.html"
     ]

@@ -10,7 +10,1204 @@
 <atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Fatih&#39;s Blog about R and Statistics</description>
 <generator>quarto-1.3.450</generator>
-<lastBuildDate>Mon, 25 Sep 2023 21:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 02 Oct 2023 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>Exploring Vectors in R Programming: The Fundamental Building Blocks</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2023-10-03_vectors/index.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction"><strong>Introduction</strong></h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2023-10-03_vectors/atom.jpg" width="526" height="363" class="figure-img"></p>
+</figure>
+</div>
+<p>In the realm of R programming, vectors serve as the fundamental building blocks that underpin virtually every data analysis and manipulation task. Much like atoms are the smallest units of matter, vectors are the fundamental units of data in R. In this article, we will delve into the world of vectors in R programming, exploring their significance, applications, and some of the most commonly used functions that make them indispensable.</p>
+</section>
+<section id="what-is-a-vector" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-a-vector"><strong>What is a Vector?</strong></h2>
+<p>In R, a vector is a fundamental data structure that can hold multiple elements of the same data type. These elements can be numbers, characters, logical values, or other types of data. Vectors are one-dimensional, meaning they consist of a single sequence of values. These vectors can be considered as the atomic units of data storage in R, forming the basis for more complex data structures like matrices, data frames, and lists. In essence, vectors are the elemental containers for data elements.</p>
+</section>
+<section id="importance-of-vectors" class="level2">
+<h2 class="anchored" data-anchor-id="importance-of-vectors"><strong>Importance of Vectors</strong></h2>
+<p>Vectors play a pivotal role in R programming for several reasons:</p>
+<ol type="1">
+<li><p><strong>Efficient Data Storage</strong>: Vectors efficiently store homogeneous data, saving memory and computational resources.</p></li>
+<li><p><strong>Vectorized Operations</strong>: One of the most powerful aspects of R is its ability to perform operations on entire vectors efficiently, a concept known as vectorization. R is designed for vectorized operations, meaning you can perform operations on entire vectors without the need for explicit loops. This makes code concise and faster.</p></li>
+<li><p><strong>Compatibility</strong>: Most R functions are designed to work with vectors, making them compatible with many data analysis and statistical techniques.</p></li>
+<li><p><strong>Simplicity</strong>: Using vectors simplifies code and promotes a more intuitive and readable coding style.</p></li>
+<li><p><strong>Interoperability</strong>: Vectors can be easily converted into other data structures, such as matrices or data frames, enhancing data manipulation capabilities.</p></li>
+</ol>
+</section>
+<section id="most-used-functions-with-vectors" class="level2">
+<h2 class="anchored" data-anchor-id="most-used-functions-with-vectors"><strong>Most Used Functions with Vectors</strong></h2>
+<p>Let’s explore some commonly used functions when working with vectors in R.</p>
+<section id="c" class="level3">
+<h3 class="anchored" data-anchor-id="c"><strong><code>c()</code></strong></h3>
+<p><strong><code>c()</code></strong> function (short for “combine” or “concatenate”) is used for creating a new vector or combining multiple values or vectors into a single vector. It allows you to create a vector by listing its elements within the function.</p>
+<p><strong>1. Combining Numeric Values:</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Creating a numeric vector</span></span>
+<span id="cb1-2">numeric_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(numeric_vector)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 2 3 4 5</code></pre>
+</div>
+</div>
+<p><strong>2. Combining Character Strings:</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Creating a character vector</span></span>
+<span id="cb3-2">character_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cherry"</span>)</span>
+<span id="cb3-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(character_vector)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "apple"  "banana" "cherry"</code></pre>
+</div>
+</div>
+<p><strong>3. Combining Different Data Types (Implicit Coercion):</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Combining numeric and character values</span></span>
+<span id="cb5-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Numeric values are coerced to character.</span></span>
+<span id="cb5-3">mixed_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"two"</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"four"</span>)</span>
+<span id="cb5-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">class</span>(mixed_vector)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "character"</code></pre>
+</div>
+</div>
+<p><strong>4. Combining Vectors Recursively:</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Creating nested vectors and combining them recursively</span></span>
+<span id="cb7-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The nested vectors are flattened into a single vector.</span></span>
+<span id="cb7-3">nested_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>)))</span>
+<span id="cb7-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(nested_vector)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 2 3 4 5 6 7</code></pre>
+</div>
+</div>
+</section>
+<section id="seq" class="level3">
+<h3 class="anchored" data-anchor-id="seq"><strong><code>seq()</code></strong></h3>
+<p>In R, the <strong><code>seq()</code></strong> function is used to generate sequences of numbers or other objects. It allows you to create a sequence of values with specified starting and ending points, increments, and other parameters. The <strong><code>seq()</code></strong> function is quite versatile and can be used to generate sequences of integers, real numbers, or even character strings.</p>
+<p>Here is the basic syntax of the <strong><code>seq()</code></strong> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(from, to, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> (to <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> from)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span>(length.out <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">length.out =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>)</span></code></pre></div>
+</div>
+<ul>
+<li><p><strong><code>from</code></strong>: The starting point of the sequence.</p></li>
+<li><p><strong><code>to</code></strong>: The ending point of the sequence.</p></li>
+<li><p><strong><code>by</code></strong>: The interval between values in the sequence. It is an optional parameter. If not specified, R calculates it based on the <strong><code>from</code></strong>, <strong><code>to</code></strong>, and <strong><code>length.out</code></strong> parameters.</p></li>
+<li><p><strong><code>length.out</code></strong>: The desired length of the sequence. It is an optional parameter. If provided, R calculates the <strong><code>by</code></strong> parameter based on the desired length.</p></li>
+</ul>
+<p>Here are some examples to illustrate how to use the <strong><code>seq()</code></strong> function:</p>
+<ol type="1">
+<li><strong>Generating a Sequence of Integers</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a sequence of integers from 1 to 10</span></span>
+<span id="cb10-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1]  1  2  3  4  5  6  7  8  9 10</code></pre>
+</div>
+</div>
+<ol start="2" type="1">
+<li><strong>Generating a Sequence of Real Numbers with a Specified Increment</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a sequence of real numbers from 0 to 1 with an increment of 0.2</span></span>
+<span id="cb12-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.0 0.2 0.4 0.6 0.8 1.0</code></pre>
+</div>
+</div>
+<ol start="3" type="1">
+<li><strong>Generating a Sequence with a Specified Length</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a sequence of 5 values from 2 to 10</span></span>
+<span id="cb14-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">length.out =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  2  4  6  8 10</code></pre>
+</div>
+</div>
+<ol start="4" type="1">
+<li><strong>Generating a Sequence in Reverse Order</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a sequence of integers from 10 to 1 in reverse order</span></span>
+<span id="cb16-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] 10  9  8  7  6  5  4  3  2  1</code></pre>
+</div>
+</div>
+<p>The <strong><code>seq()</code></strong> function is very useful for creating sequences of values that you can use for various purposes, such as creating sequences for plotting, generating data for simulations, or defining custom sequences for indexing elements in vectors or data frames.</p>
+</section>
+<section id="rep" class="level3">
+<h3 class="anchored" data-anchor-id="rep"><code>rep()</code></h3>
+<p>In R, the <strong><code>rep()</code></strong> function is used to replicate or repeat values to create vectors or arrays of repeated elements. It allows you to duplicate a value or a set of values a specified number of times to form a larger vector or matrix. The <strong><code>rep()</code></strong> function is quite flexible and can be used to repeat both individual elements and entire vectors or lists.</p>
+<p>Here’s the basic syntax of the <strong><code>rep()</code></strong> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(x, times, each, length.out)</span></code></pre></div>
+</div>
+<ul>
+<li><p><strong><code>x</code></strong>: The value(s) or vector(s) that you want to repeat.</p></li>
+<li><p><strong><code>times</code></strong>: An integer specifying how many times <strong><code>x</code></strong> should be repeated. If you provide a vector for <strong><code>x</code></strong>, each element of the vector will be repeated <strong><code>times</code></strong> times.</p></li>
+<li><p><strong><code>each</code></strong>: An integer specifying how many times each element of <strong><code>x</code></strong> (if it’s a vector) should be repeated before moving on to the next element. This is an optional parameter.</p></li>
+<li><p><strong><code>length.out</code></strong>: An integer specifying the desired length of the result. This is an optional parameter, and it can be used instead of <strong><code>times</code></strong> and <strong><code>each</code></strong> to determine the number of repetitions.</p></li>
+</ul>
+<p>Here are some examples to illustrate how to use the <strong><code>rep()</code></strong> function:</p>
+<ol type="1">
+<li><strong>Replicating a Single Value</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Repeat the value 3, four times</span></span>
+<span id="cb19-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">times =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3 3 3 3</code></pre>
+</div>
+</div>
+<ol start="2" type="1">
+<li><strong>Replicating Elements of a Vector</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a vector</span></span>
+<span id="cb21-2">my_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C"</span>)</span>
+<span id="cb21-3"></span>
+<span id="cb21-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Repeat each element of the vector 2 times</span></span>
+<span id="cb21-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(my_vector, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">each =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "A" "A" "B" "B" "C" "C"</code></pre>
+</div>
+</div>
+<ol start="3" type="1">
+<li><strong>Replicating Elements of a Vector with Different Frequencies</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Repeat each element of the vector with different frequencies</span></span>
+<span id="cb23-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C"</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">times =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "A" "A" "A" "B" "B" "C" "C" "C" "C"</code></pre>
+</div>
+</div>
+<ol start="4" type="1">
+<li><strong>Controlling the Length of the Result</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Repeat the values from 1 to 3 to create a vector of length 10</span></span>
+<span id="cb25-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">length.out =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] 1 2 3 1 2 3 1 2 3 1</code></pre>
+</div>
+</div>
+<p>The <strong><code>rep()</code></strong> function is useful for tasks like creating data for simulations, repeating elements for plotting, and constructing vectors and matrices with specific patterns or repetitions.</p>
+</section>
+<section id="length" class="level3">
+<h3 class="anchored" data-anchor-id="length"><code>length()</code></h3>
+<p>In R, the <strong><code>length()</code></strong> function is used to determine the number of elements in a vector. It returns an integer value representing the length of the vector. The <strong><code>length()</code></strong> function is straightforward to use and provides a quick way to check the number of elements in a vector.</p>
+<p>Here’s the basic syntax of the <strong><code>length()</code></strong> function for vectors:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(x)</span></code></pre></div>
+</div>
+<ul>
+<li><strong><code>x</code></strong>: The vector for which you want to find the length.</li>
+</ul>
+<p>Here’s an example of how to use the <strong><code>length()</code></strong> function with vectors:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a numeric vector</span></span>
+<span id="cb28-2">numeric_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb28-3"></span>
+<span id="cb28-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use the length() function to find the length of the vector</span></span>
+<span id="cb28-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(numeric_vector)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 5</code></pre>
+</div>
+</div>
+<p>The <strong><code>length()</code></strong> function is particularly useful when you need to perform operations or make decisions based on the size or length of a vector. It is commonly used in control structures like loops to ensure that you iterate through the entire vector or to dynamically adjust the length of vectors in your code.</p>
+</section>
+<section id="unique" class="level3">
+<h3 class="anchored" data-anchor-id="unique"><code>unique()</code></h3>
+<p>The <strong><code>unique()</code></strong> function is used to extract the unique elements from a vector, returning a new vector containing only the distinct values found in the original vector. It is a convenient way to identify and remove duplicate values from a vector.</p>
+<p>Here’s the basic syntax of the <strong><code>unique()</code></strong> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unique</span>(x)</span></code></pre></div>
+</div>
+<ul>
+<li><strong><code>x</code></strong>: The vector from which you want to extract unique elements.</li>
+</ul>
+<p>Here’s an example of how to use the <strong><code>unique()</code></strong> function with a vector:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a vector with duplicate values</span></span>
+<span id="cb31-2">my_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb31-3"></span>
+<span id="cb31-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use the unique() function to extract unique elements</span></span>
+<span id="cb31-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unique</span>(my_vector)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 2 3 4 5</code></pre>
+</div>
+</div>
+<p>In this example, the <strong><code>unique()</code></strong> function is applied to the <strong><code>my_vector</code></strong>, and it returns a new vector containing only the unique values, removing duplicates. The order of the unique values in the result is the same as their order of appearance in the original vector.</p>
+<p>The <strong><code>unique()</code></strong> function is particularly useful when dealing with data preprocessing or data cleaning tasks, where you need to identify and handle duplicate values in a dataset. It’s also helpful when you want to generate a list of unique categories or distinct values from a categorical variable.</p>
+</section>
+<section id="duplicated" class="level3">
+<h3 class="anchored" data-anchor-id="duplicated"><code>duplicated()</code></h3>
+<p>The <strong><code>duplicated()</code></strong> function in R is a handy tool for identifying and working with duplicate elements in a vector. It returns a logical vector of the same length as the input vector, indicating whether each element in the vector is duplicated or not. You can also use the <strong><code>fromLast</code></strong> argument to control the direction of the search for duplicates.</p>
+<p>Here’s the detailed syntax of the <strong><code>duplicated()</code></strong> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">duplicated</span>(x, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fromLast =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span></code></pre></div>
+</div>
+<ul>
+<li><p><strong><code>x</code></strong>: The vector in which you want to identify duplicate elements.</p></li>
+<li><p><strong><code>fromLast</code></strong>: An optional logical parameter (default is <strong><code>FALSE</code></strong>). If set to <strong><code>TRUE</code></strong>, it considers duplicates from the last occurrence of each element instead of the first.</p></li>
+</ul>
+<p>Now, let’s dive into some interesting examples to understand how the <strong><code>duplicated()</code></strong> function works:</p>
+<ol type="1">
+<li><strong>Identifying Duplicate Values</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a vector with duplicate values</span></span>
+<span id="cb34-2">my_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb34-3"></span>
+<span id="cb34-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use the duplicated() function to identify duplicate elements</span></span>
+<span id="cb34-5">duplicates <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">duplicated</span>(my_vector)</span>
+<span id="cb34-6"></span>
+<span id="cb34-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb34-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(duplicates)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE FALSE  TRUE FALSE FALSE  TRUE FALSE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Get the values that are duplicated</span></span>
+<span id="cb36-2">duplicated_values <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> my_vector[duplicates]</span>
+<span id="cb36-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(duplicated_values)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2 4</code></pre>
+</div>
+</div>
+<p>In this example, <strong><code>duplicates</code></strong> is a logical vector indicating whether each element in <strong><code>my_vector</code></strong> is duplicated. <strong><code>TRUE</code></strong> indicates duplication, and <strong><code>FALSE</code></strong> indicates uniqueness. We then extract the duplicated values using indexing.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>I use , square brackets (<strong><code>[ ]</code></strong>) to get the unique values of the vector. Square brackets is used to access and subset elements in vectors and other data structures like lists and matrices. It allows you to extract specific elements or subsets of elements from a vector.</p>
+</div>
+</div>
+<p><strong>Identifying Duplicates from the Last Occurrence</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a vector with duplicate values</span></span>
+<span id="cb38-2">my_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb38-3"></span>
+<span id="cb38-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use the duplicated() function to identify duplicates from the last occurrence</span></span>
+<span id="cb38-5">duplicates_last <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">duplicated</span>(my_vector, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fromLast =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb38-6"></span>
+<span id="cb38-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb38-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(duplicates_last)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Get the values that are duplicated from the last occurrence</span></span>
+<span id="cb40-2">duplicated_values_last <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> my_vector[duplicates_last]</span>
+<span id="cb40-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(duplicated_values_last)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2 4</code></pre>
+</div>
+</div>
+<p>By setting <strong><code>fromLast = TRUE</code></strong>, we identify duplicates based on their last occurrence in the vector.</p>
+<ol start="3" type="1">
+<li><strong>Removing Duplicate Values from a Vector</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a vector with duplicate values</span></span>
+<span id="cb42-2">my_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb42-3"></span>
+<span id="cb42-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use the `!` operator to negate the duplicated values and get unique values</span></span>
+<span id="cb42-5">unique_values <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> my_vector[<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">duplicated</span>(my_vector)]</span>
+<span id="cb42-6"></span>
+<span id="cb42-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the unique values</span></span>
+<span id="cb42-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(unique_values)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 2 3 4 5</code></pre>
+</div>
+</div>
+<p>In this example, we use the <strong><code>!</code></strong> operator to negate the result of <strong><code>duplicated()</code></strong> to get unique values in the vector.</p>
+<ol start="4" type="1">
+<li><strong>Identifying Duplicates in a Character Vector</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a character vector with duplicate strings</span></span>
+<span id="cb44-2">my_strings <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cherry"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"banana"</span>)</span>
+<span id="cb44-3"></span>
+<span id="cb44-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use the duplicated() function to identify duplicate strings</span></span>
+<span id="cb44-5">duplicates_strings <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">duplicated</span>(my_strings)</span>
+<span id="cb44-6"></span>
+<span id="cb44-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb44-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(duplicates_strings)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE FALSE  TRUE FALSE  TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb46" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Get the duplicated strings</span></span>
+<span id="cb46-2">duplicated_strings <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> my_strings[duplicates_strings]</span>
+<span id="cb46-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(duplicated_strings)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "apple"  "banana"</code></pre>
+</div>
+</div>
+<p>The <strong><code>duplicated()</code></strong> function can also be used with character vectors to identify duplicate strings.</p>
+<p>These examples illustrate how the <strong><code>duplicated()</code></strong> function can be used to identify and work with duplicate elements in a vector, which is useful for data cleaning, analysis, and other data manipulation tasks in R.</p>
+</section>
+<section id="sort" class="level3">
+<h3 class="anchored" data-anchor-id="sort"><code>sort()</code></h3>
+<p>the <strong><code>sort()</code></strong> function is used to sort the elements of a vector in either ascending or descending order. It is a fundamental function for arranging and organizing data. The <strong><code>sort()</code></strong> function can be applied to various types of vectors, including numeric, character, and factor vectors.</p>
+<p>Here’s the basic syntax of the <strong><code>sort()</code></strong> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sort</span>(x, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">decreasing =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span></code></pre></div>
+</div>
+<ul>
+<li><p><strong><code>x</code></strong>: The vector that you want to sort.</p></li>
+<li><p><strong><code>decreasing</code></strong>: An optional logical parameter (default is <strong><code>FALSE</code></strong>). If set to <strong><code>TRUE</code></strong>, the vector is sorted in descending order; if <strong><code>FALSE</code></strong>, it’s sorted in ascending order.</p></li>
+</ul>
+<p>Now, let’s explore the <strong><code>sort()</code></strong> function with some interesting examples:</p>
+<ol type="1">
+<li><strong>Sorting a Numeric Vector in Ascending Order</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a numeric vector</span></span>
+<span id="cb49-2">numeric_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span>
+<span id="cb49-3"></span>
+<span id="cb49-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Sort the vector in ascending order</span></span>
+<span id="cb49-5">sorted_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sort</span>(numeric_vector)</span>
+<span id="cb49-6"></span>
+<span id="cb49-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb49-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 2 3 5 8</code></pre>
+</div>
+</div>
+<p>In this example, <strong><code>sorted_vector</code></strong> contains the elements of <strong><code>numeric_vector</code></strong> sorted in ascending order.</p>
+<ol start="2" type="1">
+<li><strong>Sorting a Character Vector in Alphabetical Order</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a character vector</span></span>
+<span id="cb51-2">character_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cherry"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"date"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"grape"</span>)</span>
+<span id="cb51-3"></span>
+<span id="cb51-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Sort the vector in alphabetical order</span></span>
+<span id="cb51-5">sorted_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sort</span>(character_vector)</span>
+<span id="cb51-6"></span>
+<span id="cb51-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb51-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "apple"  "banana" "cherry" "date"   "grape" </code></pre>
+</div>
+</div>
+<p>Here, <strong><code>sorted_vector</code></strong> contains the elements of <strong><code>character_vector</code></strong> sorted in alphabetical order.</p>
+<ol start="3" type="1">
+<li><strong>Sorting in Descending Order</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a numeric vector</span></span>
+<span id="cb53-2">numeric_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span>
+<span id="cb53-3"></span>
+<span id="cb53-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Sort the vector in descending order</span></span>
+<span id="cb53-5">sorted_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sort</span>(numeric_vector, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">decreasing =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb53-6"></span>
+<span id="cb53-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb53-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 8 5 3 2 1</code></pre>
+</div>
+</div>
+<p>By setting <strong><code>decreasing = TRUE</code></strong>, we sort <strong><code>numeric_vector</code></strong> in descending order.</p>
+<ol start="4" type="1">
+<li><strong>Sorting a Factor Vector</strong></li>
+</ol>
+<p>In R, a “factor” is a data type that represents categorical or discrete data. Factors are used to store and manage categorical variables in a more efficient and meaningful way. Categorical variables are variables that take on a limited, fixed set of values or levels, such as “yes” or “no,” “low,” “medium,” or “high,” or “red,” “green,” or “blue.” In R, Factors are created using the <strong><code>factor()</code></strong> function.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>I am planning to write a post about the factors soon.</p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a factor vector</span></span>
+<span id="cb55-2">factor_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"high"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"low"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"medium"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"low"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"high"</span>))</span>
+<span id="cb55-3"></span>
+<span id="cb55-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Sort the factor vector in alphabetical order</span></span>
+<span id="cb55-5">sorted_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sort</span>(factor_vector)</span>
+<span id="cb55-6"></span>
+<span id="cb55-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb55-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] high   high   low    low    medium
+Levels: high low medium</code></pre>
+</div>
+</div>
+<p>The <strong><code>sort()</code></strong> function can also be used with factor vectors, where it sorts the levels in alphabetical order.</p>
+<ol start="5" type="1">
+<li><strong>Sorting with Indexing</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a numeric vector</span></span>
+<span id="cb57-2">numeric_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span>
+<span id="cb57-3"></span>
+<span id="cb57-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Sort the vector in ascending order and store the index order</span></span>
+<span id="cb57-5">sorted_indices <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">order</span>(numeric_vector)</span>
+<span id="cb57-6">sorted_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> numeric_vector[sorted_indices]</span>
+<span id="cb57-7"></span>
+<span id="cb57-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb57-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 2 3 5 8</code></pre>
+</div>
+</div>
+<p>In this example, we use the <strong><code>order()</code></strong> function to obtain the index order needed to sort <strong><code>numeric_vector</code></strong> in ascending order. We then use this index order for sorting the vector.</p>
+<p>The <strong><code>sort()</code></strong> function is a versatile tool for sorting vectors in R, and it is a fundamental part of data analysis and manipulation. It can be applied to various data types, and you can control the sorting order with the <strong><code>decreasing</code></strong> parameter.</p>
+</section>
+<section id="which" class="level3">
+<h3 class="anchored" data-anchor-id="which"><code>which()</code></h3>
+<p>The <strong><code>which()</code></strong> function is used to identify the indices of elements in a vector that satisfy a specified condition. It returns a vector of indices where the condition is <strong><code>TRUE</code></strong>.</p>
+<p>Here’s the basic syntax of the <strong><code>which()</code></strong> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">which</span>(x, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">arr.ind =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span></code></pre></div>
+</div>
+<ul>
+<li><p><strong><code>x</code></strong>: The vector in which you want to find indices based on a condition.</p></li>
+<li><p><strong><code>arr.ind</code></strong>: An optional logical parameter (default is <strong><code>FALSE</code></strong>). If set to <strong><code>TRUE</code></strong>, the function returns an array of indices with dimensions corresponding to <strong><code>x</code></strong>. This is typically used when <strong><code>x</code></strong> is a multi-dimensional array.</p></li>
+</ul>
+<p>Now, let’s explore the <strong><code>which()</code></strong> function with some interesting examples:</p>
+<ol type="1">
+<li><strong>Finding Indices of Elements Greater Than a Threshold</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a numeric vector</span></span>
+<span id="cb60-2">my_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>)</span>
+<span id="cb60-3"></span>
+<span id="cb60-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Find indices where values are greater than 8</span></span>
+<span id="cb60-5">indices_greater_than_8 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">which</span>(my_vector <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>)</span>
+<span id="cb60-6"></span>
+<span id="cb60-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb60-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(indices_greater_than_8)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 3</code></pre>
+</div>
+</div>
+<p>In this example, <strong><code>indices_greater_than_8</code></strong> contains the indices where elements in <strong><code>my_vector</code></strong> are greater than 8.</p>
+<ol start="2" type="1">
+<li><strong>Finding Indices of Missing Values (NA)</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a vector with missing values (NA)</span></span>
+<span id="cb62-2">my_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>)</span>
+<span id="cb62-3"></span>
+<span id="cb62-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Find indices of missing values</span></span>
+<span id="cb62-5">indices_of_na <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">which</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(my_vector))</span>
+<span id="cb62-6"></span>
+<span id="cb62-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb62-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(indices_of_na)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2 4</code></pre>
+</div>
+</div>
+<p>Here, <strong><code>indices_of_na</code></strong> contains the indices where <strong><code>my_vector</code></strong> has missing values (NA).</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The <strong><code>is.na()</code></strong> function in R is used to identify missing values (NAs) in a vector or a data frame. It returns a logical vector or data frame of the same shape as the input, where each element is <strong><code>TRUE</code></strong> if the corresponding element in the input is <strong><code>NA</code></strong>, and <strong><code>FALSE</code></strong> otherwise.</p>
+</div>
+</div>
+<ol start="3" type="1">
+<li><strong>Finding Indices of Specific Values</strong></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a character vector</span></span>
+<span id="cb64-2">my_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cherry"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"apple"</span>)</span>
+<span id="cb64-3"></span>
+<span id="cb64-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Find indices where values are "banana"</span></span>
+<span id="cb64-5">indices_banana <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">which</span>(my_vector <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"banana"</span>)</span>
+<span id="cb64-6"></span>
+<span id="cb64-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Print the result</span></span>
+<span id="cb64-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(indices_banana)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2 4</code></pre>
+</div>
+</div>
+<p>Here, <strong><code>indices_banana</code></strong> contains the indices where elements in <strong><code>my_vector</code></strong> are equal to “banana.”</p>
+<p>The <strong><code>which()</code></strong> function is versatile and can be used for various purposes, such as identifying specific elements, locating missing values, and finding indices based on custom conditions. It’s a valuable tool for data analysis and manipulation in R.</p>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>Of course, there are many functions that can be used with vectors and other data structures. You can even create your own functions when you learn how to write functions. I tried to explain some basic and frequently used functions here in order not to make the post too long.</p>
+<p>In conclusion, vectors are the fundamental building blocks of data in R programming, akin to atoms in the world of matter. They are versatile, efficient, and indispensable for a wide range of data analysis tasks. By understanding their importance and mastering the use of vector-related functions, you can unlock the full potential of R for your data manipulation and analysis endeavors.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>R Programming</category>
+  <category>data types</category>
+  <category>vectors</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2023-10-03_vectors/index.html</guid>
+  <pubDate>Mon, 02 Oct 2023 21:00:00 GMT</pubDate>
+  <media:content url="https://mfatihtuzen.netlify.app/posts/2023-10-03_vectors/atom.jpg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>Understanding Data Types in R</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>
