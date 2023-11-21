@@ -10,7 +10,1000 @@
 <atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Fatih&#39;s Blog about R and Statistics</description>
 <generator>quarto-1.3.450</generator>
-<lastBuildDate>Mon, 02 Oct 2023 21:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 19 Nov 2023 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>Understanding Matrices in R Programming</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2023-11-20_matrices/index.html</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction"><strong>Introduction</strong></h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="https://www.vectorstock.com/royalty-free-vector/green-matrix-numbers-cyberspace-with-vector-24906241"><img src="https://mfatihtuzen.netlify.app/posts/2023-11-20_matrices/matrix.jpg" class="img-fluid figure-img"></a></p>
+<figcaption class="figure-caption">https://www.vectorstock.com/royalty-free-vector/green-matrix-numbers-cyberspace-with-vector-24906241</figcaption>
+</figure>
+</div>
+<p>Matrices are an essential data structure in R programming that allows for the manipulation and analysis of data in a two-dimensional format. Understanding their creation, manipulation, and linear algebra operations is crucial for handling complex data effectively. They provide a convenient way to store and work with data that can be represented as rows and columns. In this post, we will delve into the basics of creating, manipulating, and operating on matrices in R. Especially, we discuss how to perform basic algebraic operations such as matrix multiplication, transpose, finding eigenvalues. We also cover data wrangling operations such as matrix subsetting and column- and rowwise aggregation.</p>
+</section>
+<section id="creating-matrices-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="creating-matrices-in-r">Creating Matrices in R</h2>
+<p>Matrices can be created and analyzed in a few different ways in R. One way is to create the matrix yourself. There are a few different ways you can do this.</p>
+<p>The <code>matrix(a, nrow = b, ncol = c)</code> command in R creates a matrix that repeats the element a in a matrix with b rows and c columns. A matrix can be manually created by using the <code>c()</code> command as well.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Creating a matrix including only 1's that are 2 by 3</span></span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncol =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2] [,3]
+[1,]    1    1    1
+[2,]    1    1    1</code></pre>
+</div>
+</div>
+<p>If you want to create the following matrix:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AA=%5Cbegin%7Bbmatrix%7D%0A1&amp;2&amp;3%5C%5C%0A3&amp;6&amp;8%5C%5C%0A7&amp;8&amp;4%0A%5Cend%7Bbmatrix%7D%0A"></p>
+<p>you would do it like this:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">A <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">byrow =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb3-2">A</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2] [,3]
+[1,]    1    2    3
+[2,]    3    6    8
+[3,]    7    8    4</code></pre>
+</div>
+</div>
+<p>It converted an atomic vector of length nine to a matrix with three rows. The number of columns was determined automatically (<code>ncol=3</code>&nbsp;could have been passed to get the same result). The option&nbsp;<code>byrow = TRUE</code>&nbsp;means that the rows of the matrix will be filled first. By default, the elements of the input vector are read column by column.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2] [,3]
+[1,]    1    3    7
+[2,]    2    6    8
+[3,]    3    8    4</code></pre>
+</div>
+</div>
+<p>Matrices can also be created by concatenating multiple vectors. <strong><code>rbind</code></strong> performs row-based bottom-to-bottom concatenation, while <strong><code>cbind</code></strong> performs column-based side-by-side concatenation.</p>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Caution
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Here it is important to make sure that the vectors have the same dimensions.</p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">v1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb7-2">v2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb7-3">v3 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>)</span>
+<span id="cb7-4">v4 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb7-5">m1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cbind</span>(v1, v2, v3, v4)</span>
+<span id="cb7-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(m1)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     v1 v2 v3 v4
+[1,]  3  4  2  4
+[2,]  4  8  2  7
+[3,]  6  4  5  5
+[4,]  8  7  4  2
+[5,]  5  1  6  5</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dim</span>(m1)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 5 4</code></pre>
+</div>
+</div>
+<p>In this example, 4 vectors with 5 observations are merged side by side with <strong><code>cbind</code></strong>. This results in a 5x4 matrix, which we call m1.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1">m2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rbind</span>(v1, v2, v3, v4)</span>
+<span id="cb11-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(m2)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   [,1] [,2] [,3] [,4] [,5]
+v1    3    4    6    8    5
+v2    4    8    4    7    1
+v3    2    2    5    4    6
+v4    4    7    5    2    5</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dim</span>(m2)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4 5</code></pre>
+</div>
+</div>
+<p>With this example, 4 vectors are merged one below the other with <strong><code>rbind</code></strong>. As a result, a matrix of size 4x5, which we call m2, is obtained. We used <strong><code>dim</code></strong> function to learn dimension of matrices.</p>
+</section>
+<section id="accessing-and-modifying-elements" class="level2">
+<h2 class="anchored" data-anchor-id="accessing-and-modifying-elements"><strong>Accessing and Modifying Elements</strong></h2>
+<p>Accessing and modifying elements in a matrix is straightforward. Use the row and column indices to access specific elements and assign new values to modify elements.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Accessing the element in the second row and third column</span></span>
+<span id="cb15-2">m1[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>] </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>v3 
+ 2 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Modifying the element at the specified position</span></span>
+<span id="cb17-2">m1[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>  </span>
+<span id="cb17-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(m1)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     v1 v2 v3 v4
+[1,]  3  4  2  4
+[2,]  4  8 10  7
+[3,]  6  4  5  5
+[4,]  8  7  4  2
+[5,]  5  1  6  5</code></pre>
+</div>
+</div>
+<p>Also, rows and columns of matrices can be named by using <strong><code>colnames</code></strong> and <strong><code>rownames</code></strong> functions.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Naming columns with the first 4 letters</span></span>
+<span id="cb19-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">colnames</span>(m1) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> LETTERS[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>] </span>
+<span id="cb19-3">m1 </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     A B  C D
+[1,] 3 4  2 4
+[2,] 4 8 10 7
+[3,] 6 4  5 5
+[4,] 8 7  4 2
+[5,] 5 1  6 5</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Naming rows with the last 5 letters</span></span>
+<span id="cb21-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rownames</span>(m1) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tail</span>(LETTERS,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>) </span>
+<span id="cb21-3">m1</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  A B  C D
+V 3 4  2 4
+W 4 8 10 7
+X 6 4  5 5
+Y 8 7  4 2
+Z 5 1  6 5</code></pre>
+</div>
+</div>
+</section>
+<section id="mathematical-operations" class="level2">
+<h2 class="anchored" data-anchor-id="mathematical-operations"><strong>Mathematical Operations</strong></h2>
+<p>Vectorised functions such as <strong>round</strong>, <strong>sqrt</strong>, <strong>abs</strong>, <strong>log</strong>,<strong>exp</strong> etc., operate on each matrix element.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1">A <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.15</span>,<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span>
+<span id="cb23-2">A</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2] [,3]
+[1,] 0.15 0.45 0.75
+[2,] 0.30 0.60 0.90</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sqrt</span>(A) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># gets square root of every element in A</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          [,1]      [,2]      [,3]
+[1,] 0.3872983 0.6708204 0.8660254
+[2,] 0.5477226 0.7745967 0.9486833</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(A, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># rounds every element in A</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2] [,3]
+[1,]  0.1  0.4  0.8
+[2,]  0.3  0.6  0.9</code></pre>
+</div>
+</div>
+<p>Mathematical operations such as addition and subtraction can be performed on two or more matrices with the same dimensions. The operation performed here is elementwise.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1">A <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>,<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span>
+<span id="cb29-2">B <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>,<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span>
+<span id="cb29-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(A)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]
+[1,]    1    3
+[2,]    2    4</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(B)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]
+[1,]    5    7
+[2,]    6    8</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1">A <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> B  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># elementwise addition</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]
+[1,]    6   10
+[2,]    8   12</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1">A <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> B  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># elementwise multiplication</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]
+[1,]    5   21
+[2,]   12   32</code></pre>
+</div>
+</div>
+<p>They are simply the addition and multiplication of the corresponding elements of two given matrices. Also we can we can apply matrix-scalar operations. For example in the next example we squared every element in A.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1">A<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># the 2nd power of the A</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]
+[1,]    1    9
+[2,]    4   16</code></pre>
+</div>
+</div>
+</section>
+<section id="aggregating-rows-and-columns" class="level2">
+<h2 class="anchored" data-anchor-id="aggregating-rows-and-columns"><strong>Aggregating rows and columns</strong></h2>
+<p>When we call an aggregation function on a matrix, it will reduce all elements to a single number.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(A) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># get arithmetic mean of A</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.5</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">min</span>(A) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># minimum of A</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+</div>
+<p>We can also calculate sum or mean of each row/columns by using <strong><code>rowMeans</code></strong>, <strong><code>rowSums</code></strong>, <strong><code>colMeans</code></strong> and <strong><code>colSums</code></strong>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rowSums</span>(A) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># sum of rows</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4 6</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb45" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rowMeans</span>(A) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># mean of rows</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2 3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">colSums</span>(A) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># sum of columns</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3 7</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb49" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">colMeans</span>(A) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># mean of columns</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.5 3.5</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>R provides the <strong><code>apply()</code></strong> function to apply functions to each row or column of a matrix. The arguments of the <strong><code>apply()</code></strong> function include the matrix, the margin (1 for rows, 2 for columns), and the function to be applied. The <strong><code>apply</code></strong> function can be used to summarise individual rows or columns in a matrix. So we call any aggregation function with <code>apply</code>.</p>
+<ul>
+<li><p><strong><code>apply</code></strong><code>(A, 1, f)</code> applies a given function <strong>f</strong> on each <em>row</em> of a matrix <code>A</code> (over the first axis),</p></li>
+<li><p><strong><code>apply</code></strong><code>(A, 2, f)</code> applies <strong>f</strong> on each <em>column</em> of <code>A</code> (over the second axis).</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Applying functions to matrices</span></span>
+<span id="cb51-2">row_sums <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">apply</span>(A, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, sum)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Applying sum function to each row (margin = 1)</span></span>
+<span id="cb51-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(row_sums)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4 6</code></pre>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="matrix-operations" class="level2">
+<h2 class="anchored" data-anchor-id="matrix-operations">Matrix Operations</h2>
+<section id="transpose-of-matrix" class="level3">
+<h3 class="anchored" data-anchor-id="transpose-of-matrix">Transpose of Matrix</h3>
+<p>The <strong>transpose</strong> of matrix, mathematically denoted with <img src="https://latex.codecogs.com/png.latex?A%5ET"> is available by using <strong><code>t()</code></strong> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1">A</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]
+[1,]    1    3
+[2,]    2    4</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb55" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">t</span>(A) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># transpose of A</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]
+[1,]    1    2
+[2,]    3    4</code></pre>
+</div>
+</div>
+</section>
+<section id="matrix-calculation" class="level3">
+<h3 class="anchored" data-anchor-id="matrix-calculation">Matrix Calculation</h3>
+<p>When multiplying two matrices A and B, the number of columns in matrix A must be equal to the number of rows in matrix B. If A is of size m x n and B is of size n x p, then their product AB will be of size m x p.&nbsp;The individual elements of the resulting matrix are calculated by taking dot products of rows from matrix A and columns from matrix B.</p>
+<p>In R <strong><code>*</code></strong> performs elementwise multiplication. For what we call the (algebraic) matrix multiplication, we use the <strong><code>%*%</code></strong> operator. It can only be performed on two matrices of compatible sizes: the number of columns in the left matrix must match the number of rows in the right operand.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1">A <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span> ,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># create 2 by 3 matrix</span></span>
+<span id="cb57-2">B <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span> ,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># create 3 by 2 matrix</span></span>
+<span id="cb57-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(A)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2] [,3]
+[1,]    1    5    4
+[2,]    3    3    9</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb59" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(B)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]
+[1,]    6    7
+[2,]    2    8
+[3,]    4    4</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb61" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1">A <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%*%</span> B <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># we get 2 by 2 matrix</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]
+[1,]   32   63
+[2,]   60   81</code></pre>
+</div>
+</div>
+</section>
+<section id="determinant-of-matrix" class="level3">
+<h3 class="anchored" data-anchor-id="determinant-of-matrix">Determinant of Matrix</h3>
+<p>The determinant of a square matrix is a scalar value that represents some important properties of the matrix. In R programming, the <strong><code>det()</code></strong> function is used to calculate the determinant of a square matrix.</p>
+<p><strong>Understanding Determinant:</strong></p>
+<ol type="1">
+<li><p><strong>Square Matrices</strong>: The determinant is a property specific to square matrices, meaning the number of rows must equal the number of columns.</p></li>
+<li><p><strong>Geometric Interpretation</strong>: For a 2x2 matrix <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7B%7D%5Cleft%5B%5Cbegin%7Barray%7D%7Brrr%7Da%20&amp;%20b%20%5C%5Cc%20&amp;%20d%20%5Cend%7Barray%7D%5Cright%5D"> the determinant <img src="https://latex.codecogs.com/png.latex?ad-bc"> represents the scaling factor of the area spanned by vectors formed by the columns of the matrix. For higher-dimensional matrices, the determinant has a similar geometric interpretation related to volume and scaling in higher dimensions.</p></li>
+<li><p><strong>Invertibility</strong>: A matrix is invertible (has an inverse) if and only if its determinant is non-zero. If the determinant is zero, the matrix is singular and does not have an inverse.</p></li>
+</ol>
+<p>In R, the <strong><code>det()</code></strong> function computes the determinant of a square matrix.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a square matrix</span></span>
+<span id="cb63-2">A <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncol =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span>
+<span id="cb63-3"></span>
+<span id="cb63-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compute the determinant of the matrix</span></span>
+<span id="cb63-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">det</span>(A)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -2</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>It’s essential to note a few considerations:</p>
+<ul>
+<li><p><strong>Numerical Stability</strong>: Computing determinants of large matrices or matrices close to singularity (having a determinant close to zero) can lead to numerical instability due to rounding errors.</p></li>
+<li><p><strong>Complexity</strong>: The computational complexity of determinant calculation increases rapidly with matrix size, especially for algorithms like cofactor expansion or LU decomposition used internally.</p></li>
+<li><p><strong>Use in Linear Algebra</strong>: Determinants play a vital role in linear algebra, being used in solving systems of linear equations, calculating inverses of matrices, and understanding transformations and eigenvalues.</p></li>
+<li><p><strong>Singular Matrices</strong>: If the determinant of a square matrix is zero, it signifies that the matrix is singular and not invertible.</p></li>
+</ul>
+</div>
+</div>
+<p>Here’s an example that checks the determinant and its relation to matrix invertibility:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Check the determinant and invertibility of a matrix</span></span>
+<span id="cb65-2">det_A <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">det</span>(A)</span>
+<span id="cb65-3"></span>
+<span id="cb65-4"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">if</span> (det_A <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>) {</span>
+<span id="cb65-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Matrix is invertible."</span>)</span>
+<span id="cb65-6">} <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">else</span> {</span>
+<span id="cb65-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Matrix is singular, not invertible."</span>)</span>
+<span id="cb65-8">}</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Matrix is invertible."</code></pre>
+</div>
+</div>
+<p>Understanding determinants is crucial in various mathematical applications, especially in linear algebra and systems of equations, as they provide valuable information about the properties of matrices and their behavior in transformations and computations.</p>
+</section>
+<section id="inverse-of-matrix" class="level3">
+<h3 class="anchored" data-anchor-id="inverse-of-matrix">Inverse of Matrix</h3>
+<p><strong><code>solve()</code></strong> function is used to compute the inverse of a square matrix. The inverse of a matrix <img src="https://latex.codecogs.com/png.latex?A"> is denoted as <img src="https://latex.codecogs.com/png.latex?A%5E%7B-1%7D"> and has the property that when multiplied by the original matrix <strong><code>A</code></strong>, it yields the identity matrix <strong><code>I</code></strong>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(A)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]
+[1,]    1    3
+[2,]    2    4</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb69" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compute the inverse of the matrix</span></span>
+<span id="cb69-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">solve</span>(A)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]
+[1,]   -2  1.5
+[2,]    1 -0.5</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>It’s important to note a few things about matrix inversion:</p>
+<ol type="1">
+<li><p><strong>Square Matrices</strong>: The matrix must be square (i.e., the number of rows equals the number of columns) to have an inverse. Inverting a non-square matrix is not possible.</p></li>
+<li><p><strong>Determinant Non-Zero</strong>: The matrix must have a non-zero determinant for its inverse to exist. If the determinant is zero, the matrix is singular, and its inverse cannot be computed.</p></li>
+<li><p><strong>Errors and Numerical Stability</strong>: Inverting matrices can be sensitive to numerical precision and errors, especially for matrices that are close to singular or ill-conditioned. Rounding errors can affect the accuracy of the computed inverse.</p></li>
+</ol>
+<p>In practice, it’s essential to check the properties of the matrix, such as its determinant, before attempting to compute its inverse, especially when dealing with real-world data, as numerical issues can lead to unreliable results.</p>
+</div>
+</div>
+<p>Here’s an example that checks the determinant before computing the inverse:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Check the determinant before inverting the matrix</span></span>
+<span id="cb71-2">det_A <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">det</span>(A)</span>
+<span id="cb71-3"></span>
+<span id="cb71-4"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">if</span> (det_A <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>) {</span>
+<span id="cb71-5">  inverse_matrix_A <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">solve</span>(A)</span>
+<span id="cb71-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(inverse_matrix_A)</span>
+<span id="cb71-7">} <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">else</span> {</span>
+<span id="cb71-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Matrix is singular, inverse does not exist."</span>)</span>
+<span id="cb71-9">}</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]
+[1,]   -2  1.5
+[2,]    1 -0.5</code></pre>
+</div>
+</div>
+<p>Understanding matrix inversion is crucial in various fields like machine learning, optimization, and solving systems of linear equations, as it allows for the transformation of equations or operations involving matrices to simplify computations. However, always ensure that the matrix you’re working with satisfies the conditions for invertibility to avoid computational errors.</p>
+</section>
+<section id="eigenvalues-and-eigenvectors" class="level3">
+<h3 class="anchored" data-anchor-id="eigenvalues-and-eigenvectors">Eigenvalues and Eigenvectors</h3>
+<p>In R programming, eigenvalues and eigenvectors are fundamental concepts often computed using the <strong><code>eigen()</code></strong> function. These are important in various fields, including linear algebra, data analysis, signal processing, and machine learning.</p>
+<p><strong>Eigenvalues:</strong> They are scalar values that represent how a linear transformation (represented by a square matrix) behaves along its eigenvectors. For a square matrix A, an eigenvalue (<img src="https://latex.codecogs.com/png.latex?%5Clambda">) and its corresponding eigenvector (<img src="https://latex.codecogs.com/png.latex?v">) satisfy the equation <img src="https://latex.codecogs.com/png.latex?Av=%5Clambda%20v">. It essentially means that when the matrix A operates on the eigenvector <img src="https://latex.codecogs.com/png.latex?v">, the resulting vector is a scaled version of the original eigenvector <img src="https://latex.codecogs.com/png.latex?v">, scaled by the eigenvalue <img src="https://latex.codecogs.com/png.latex?%5Clambda">.</p>
+<p>In R, you can compute eigenvalues using the <strong><code>eigen()</code></strong> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a sample matrix</span></span>
+<span id="cb73-2">A <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">byrow =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb73-3"></span>
+<span id="cb73-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compute eigenvalues and eigenvectors</span></span>
+<span id="cb73-5">eig <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">eigen</span>(A)</span>
+<span id="cb73-6"></span>
+<span id="cb73-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Access eigenvalues</span></span>
+<span id="cb73-8">eigenvalues <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> eig<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>values</span>
+<span id="cb73-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(eigenvalues)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  4.372281 -1.372281</code></pre>
+</div>
+</div>
+<p><strong>Eigenvectors:</strong> They are non-zero vectors that are transformed only by a scalar factor when a linear transformation (represented by a matrix) is applied. Each eigenvalue has an associated eigenvector. Eigenvectors are important because they describe the directions along which the transformation represented by the matrix has a simple behavior, often stretching or compressing without changing direction.</p>
+<p>In R, after computing the eigenvalues using <strong><code>eigen()</code></strong>, you can access the corresponding eigenvectors using:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Access eigenvectors</span></span>
+<span id="cb75-2">eigenvectors <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> eig<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>vectors</span>
+<span id="cb75-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(eigenvectors)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          [,1]       [,2]
+[1,] 0.9831134 -0.3488887
+[2,] 0.1829974  0.9371642</code></pre>
+</div>
+</div>
+<p>These eigenvalues and eigenvectors play a significant role in various applications, including principal component analysis (PCA), diagonalization of matrices, solving systems of differential equations, and more. They provide crucial insights into the behavior and characteristics of linear transformations represented by matrices.</p>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion"><strong>Conclusion</strong></h2>
+<p>Matrices are indeed useful and statisticians are used to working with them. However, in my daily work I try to use matrices as needed and prefer an approach based on data frames, because working with data frames makes it easier to use R’s advanced functional programming language capabilities. I plan to publish a post on data frames in the future, and in the conclusion of this post I would like to discuss the advantages and disadvantages of both matrices and data frames.</p>
+<p>In R programming, matrices and data frames serve different purposes, each with its own set of advantages and limitations.</p>
+<p><strong>Matrices:</strong></p>
+<p><em>Pros:</em></p>
+<ol type="1">
+<li><p><strong>Efficient for Numeric Operations:</strong> Matrices are optimized for numerical computations. If you’re working primarily with numeric data and need to perform matrix algebra, calculations tend to be faster with matrices compared to data frames.</p></li>
+<li><p><strong>Homogeneous Data:</strong> Matrices are homogeneous, meaning they store elements of the same data type (numeric, character, logical, etc.) throughout. This consistency simplifies some computations and analyses.</p></li>
+<li><p><strong>Mathematical Operations:</strong> Matrices are designed for linear algebra operations. Functions like matrix multiplication, transposition, and eigenvalue/eigenvector calculations are native to matrices in R.</p></li>
+</ol>
+<p><em>Cons:</em></p>
+<ol type="1">
+<li><p><strong>Lack of Flexibility:</strong> Matrices are restrictive when it comes to handling heterogeneous data or combining different data types within the same structure. They can only hold a single data type.</p></li>
+<li><p><strong>Row and Column Names:</strong> Matrices do not inherently support row or column names, which might be necessary for better data representation and interpretation.</p></li>
+</ol>
+<p><strong>Data Frames:</strong></p>
+<p><em>Pros:</em></p>
+<ol type="1">
+<li><p><strong>Heterogeneous Data:</strong> Data frames can store different types of data (numeric, character, factor, etc.) within the same structure. This flexibility allows for handling diverse datasets efficiently.</p></li>
+<li><p><strong>Row and Column Names:</strong> Data frames support row and column names, making it easier to reference specific rows or columns and improving data readability.</p></li>
+<li><p><strong>Data Manipulation and Analysis:</strong> R’s data manipulation libraries (e.g., dplyr, tidyr) are optimized for data frames. They offer a wide range of functions and operations tailored for efficient data manipulation, summarization, and analysis.</p></li>
+</ol>
+<p><em>Cons:</em></p>
+<ol type="1">
+<li><p><strong>Performance:</strong> Compared to matrices, data frames might have slower performance for numerical computations involving large datasets due to their heterogeneous nature and additional data structure overhead.</p></li>
+<li><p><strong>Overhead for Numeric Operations:</strong> While data frames are versatile for handling different types of data, when it comes to pure numeric computations or linear algebra operations, they might be less efficient than matrices.</p></li>
+</ol>
+<p>In summary, the choice between matrices and data frames in R depends on the nature of the data and the intended operations. If you’re working mainly with numeric data and require linear algebra operations, matrices might be more efficient. By understanding their creation, manipulation, operations, and application in advanced techniques like PCA, you can effectively handle complex data structures and perform sophisticated computations with ease. On the other hand, if you’re dealing with heterogeneous data and need more flexibility in data manipulation and analysis, data frames are a better choice. Often, data frames are preferred for general-purpose data handling and analysis due to their versatility, despite potential performance trade-offs for specific numerical operations.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>R Programming</category>
+  <category>data types</category>
+  <category>matrices</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2023-11-20_matrices/index.html</guid>
+  <pubDate>Sun, 19 Nov 2023 21:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Exploring Vectors in R Programming: The Fundamental Building Blocks</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>
