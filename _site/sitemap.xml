@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://mfatihtuzen.netlify.app/posts/2023-11-20_matrices/index.html</loc>
-    <lastmod>2023-11-21T07:56:11.794Z</lastmod>
-  </url>
-  <url>
-    <loc>https://mfatihtuzen.netlify.app/posts/2023-09-25_data_types/index.html</loc>
-    <lastmod>2023-11-21T07:56:09.574Z</lastmod>
-  </url>
-  <url>
-    <loc>https://mfatihtuzen.netlify.app/index.html</loc>
-    <lastmod>2023-11-21T07:56:07.826Z</lastmod>
-  </url>
-  <url>
-    <loc>https://mfatihtuzen.netlify.app/about.html</loc>
-    <lastmod>2023-11-21T07:56:07.044Z</lastmod>
-  </url>
-  <url>
-    <loc>https://mfatihtuzen.netlify.app/posts/2023-08-15_r-intro/index.html</loc>
-    <lastmod>2023-11-21T07:56:08.506Z</lastmod>
+    <loc>https://mfatihtuzen.netlify.app/posts/2023-12-19_lists/index.html</loc>
+    <lastmod>2023-12-19T14:46:01.701Z</lastmod>
   </url>
   <url>
     <loc>https://mfatihtuzen.netlify.app/posts/2023-10-03_vectors/index.html</loc>
-    <lastmod>2023-11-21T07:56:10.826Z</lastmod>
+    <lastmod>2023-12-19T14:45:59.998Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mfatihtuzen.netlify.app/posts/2023-08-15_r-intro/index.html</loc>
+    <lastmod>2023-12-19T14:45:57.733Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mfatihtuzen.netlify.app/about.html</loc>
+    <lastmod>2023-12-19T14:45:56.236Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mfatihtuzen.netlify.app/index.html</loc>
+    <lastmod>2023-12-19T14:45:57.056Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mfatihtuzen.netlify.app/posts/2023-09-25_data_types/index.html</loc>
+    <lastmod>2023-12-19T14:45:58.764Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mfatihtuzen.netlify.app/posts/2023-11-20_matrices/index.html</loc>
+    <lastmod>2023-12-19T14:46:00.936Z</lastmod>
   </url>
 </urlset>
