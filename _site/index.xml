@@ -828,16 +828,16 @@ lm(formula = y ~ x, data = train_data)
 
 Coefficients:
 (Intercept)            x  
-     0.3844       1.9945  
+      1.143        1.757  
 
 
 $predictions
        1        2        3        4        5 
-22.32433 24.31887 26.31340 28.30793 30.30247 
+20.46940 22.22637 23.98334 25.74031 27.49729 
 
 $coefficients
 (Intercept)           x 
-  0.3844495   1.9945346 </code></pre>
+   1.142713    1.756972 </code></pre>
 </div>
 </div>
 <p>In this example, <strong><code>model_results</code></strong> is a list containing the fitted model object, predictions on the test data, and coefficients of the linear regression model.</p>

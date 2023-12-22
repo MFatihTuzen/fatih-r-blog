@@ -1,5 +1,7 @@
 project:
   type: website
+  
+from: markdown+emoji
 
 website:
   title: "Fatih's Blog about R and Statistics"
