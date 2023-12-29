@@ -5,10 +5,10 @@
       xmlns:dc="http://purl.org/dc/elements/1.1/" 
       version="2.0">
 <channel>
-<title>Fatih&#39;s Blog about R and Statistics</title>
+<title>A Statistician&#39;s R Notebook</title>
 <link>https://mfatihtuzen.netlify.app/index.html</link>
 <atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
-<description>Fatih&#39;s Blog about R and Statistics</description>
+<description>Blog posts about R and Statistics</description>
 <generator>quarto-1.3.450</generator>
 <lastBuildDate>Thu, 28 Dec 2023 21:00:00 GMT</lastBuildDate>
 <item>

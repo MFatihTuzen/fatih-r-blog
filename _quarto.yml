@@ -4,9 +4,9 @@ project:
 from: markdown+emoji
 
 website:
-  title: "Fatih's Blog about R and Statistics"
+  title: "A Statistician's R Notebook"
   site-url: https://mfatihtuzen.netlify.app
-  description: "Fatih's Blog about R and Statistics"
+  description: "Blog posts about R and Statistics"
   navbar:
     right:
       - text: "About"

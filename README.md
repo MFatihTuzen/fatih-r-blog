@@ -1,4 +1,4 @@
-# R and Statistics Blog
+# A Statistician's R Notebook
 
 ## About
 
@@ -6,16 +6,14 @@ Welcome to my R and Statistics blog! This repository hosts a collection of artic
 
 ## Blog Categories
 
-- R Programming
-- Descriptive Statistics
-- Inferential Statistics
-- Regression Analysis
-- Data Visualization
-- Statistical Analysis
-- Time Series
-- Multivariate Statistics
-- ...
+-   R Programming
+-   Descriptive Statistics
+-   Inferential Statistics
+-   Regression Analysis
+-   Data Visualization
+-   Statistical Analysis
+-   Time Series
+-   Multivariate Statistics
+-   ...
 
 My purpose is to provide valuable resources and knowledge to help you excel in these fields. Happy coding and exploring the world of statistics with R!
-
- 
