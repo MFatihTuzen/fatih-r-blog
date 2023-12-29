@@ -178,7 +178,7 @@ students["3", "Name"]
 
 ```
 
-###  **Logical Indexing**
+### **Logical Indexing**
 
 Logical conditions can be used to subset data. Logical indexing in R involves using logical conditions to extract specific elements or subsets of data that satisfy certain criteria. It's a powerful technique applicable to data frames, matrices, and vectors, allowing for flexible data selection based on conditions.
 
