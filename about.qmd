@@ -6,7 +6,7 @@ about:
   links:
     - icon: linkedin
       text: LinkedIn
-      href: https://www.linkedin.com/in/fatih-t-2b2a4328/
+      href: https://www.linkedin.com/in/dr-m-fatih-t-2b2a4328/
     - icon: github
       text: Github
       href: https://github.com/MFatihTuzen
