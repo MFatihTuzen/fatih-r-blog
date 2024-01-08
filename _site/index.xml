@@ -239,10 +239,10 @@ background-color: null;
 font-style: inherit;">print</span>(df)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Name Age Score
-1   Alice  20    76
-2     Bob  25    86
-3 Charlie  30    89
-4   David  35    86</code></pre>
+1   Alice  20    98
+2     Bob  25    71
+3 Charlie  30    79
+4   David  35    76</code></pre>
 </div>
 </div>
 </section>
