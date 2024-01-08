@@ -17,6 +17,16 @@ website:
         href: https://www.linkedin.com/in/dr-m-fatih-t-2b2a4328/
       - icon: rss
         href: index.xml
+      - text: "BlogRoll"
+        menu:
+          - text: R-bloggers
+            href: https://www.r-bloggers.com/
+          - text: R-Studio Community
+            href: https://community.rstudio.com/
+          - text: R weekly
+            href: https://rweekly.org/
+          - text: Github R Topics
+            href: https://github.com/topics/r
   page-footer:
     right: "This page is built with [Quarto](https://quarto.org/)."
     left: "&copy; 2023, M. Fatih Tüzen"
