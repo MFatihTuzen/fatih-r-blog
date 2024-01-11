@@ -406,22 +406,22 @@ Call:
 lm(formula = spending ~ income_factor + education_factor)
 
 Residuals:
-     Min       1Q   Median       3Q      Max 
--241.590 -124.443   -4.319  122.152  236.438 
+    Min      1Q  Median      3Q     Max 
+-253.05 -119.84   12.95  123.96  256.66 
 
 Coefficients:
                               Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)                    326.644     31.092  10.506   &lt;2e-16 ***
-income_factorLow                11.647     39.006   0.299    0.766    
-income_factorMedium             25.897     33.367   0.776    0.440    
-education_factorHigh School     29.050     36.983   0.785    0.434    
-education_factorUndergraduate    7.322     34.206   0.214    0.831    
+(Intercept)                    350.209     28.875  12.128   &lt;2e-16 ***
+income_factorLow                -2.320     40.076  -0.058    0.954    
+income_factorMedium            -11.708     34.580  -0.339    0.736    
+education_factorHigh School      8.104     37.451   0.216    0.829    
+education_factorUndergraduate   25.009     35.632   0.702    0.484    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 146.1 on 95 degrees of freedom
-Multiple R-squared:  0.01289,   Adjusted R-squared:  -0.02868 
-F-statistic:  0.31 on 4 and 95 DF,  p-value: 0.8706</code></pre>
+Residual standard error: 149.6 on 95 degrees of freedom
+Multiple R-squared:  0.006845,  Adjusted R-squared:  -0.03497 
+F-statistic: 0.1637 on 4 and 95 DF,  p-value: 0.9562</code></pre>
 </div>
 </div>
 <p>The output summary of the model will now provide information about the impact of both income levels and education levels on spending:</p>
@@ -492,27 +492,25 @@ level, NA generated</code></pre>
 <p>When creating visual representations of data, such as bar plots or pie charts, factors provide a structured foundation. They ensure that the categories are appropriately arranged and labeled, allowing for accurate communication of insights.</p>
 <p>Let’s create a simple bar plot using the <strong><code>ggplot2</code></strong> library, showcasing the distribution of product categories:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample data: product categories</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample data: product categories</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>categories <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"Electronics"</span>, <span class="st">"Clothing"</span>, <span class="st">"Food"</span>),</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">size =</span> <span class="dv">20</span> ,</span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>category_factor <span class="ot">&lt;-</span> <span class="fu">factor</span>(categories)</span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a bar plot with factors using ggplot2</span></span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a data frame for ggplot</span></span>
-<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">category =</span> category_factor)</span>
-<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a bar plot</span></span>
-<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data, <span class="fu">aes</span>(<span class="at">x =</span> category, <span class="at">fill =</span> category)) <span class="sc">+</span></span>
-<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
-<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Product Categories"</span>, </span>
-<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Category"</span>, </span>
-<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>categories <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"Electronics"</span>, <span class="st">"Clothing"</span>, <span class="st">"Food"</span>),</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">size =</span> <span class="dv">20</span> ,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>category_factor <span class="ot">&lt;-</span> <span class="fu">factor</span>(categories)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a bar plot with factors using ggplot2</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a data frame for ggplot</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">category =</span> category_factor)</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a bar plot</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data, <span class="fu">aes</span>(<span class="at">x =</span> category, <span class="at">fill =</span> category)) <span class="sc">+</span></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Product Categories"</span>, </span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Category"</span>, </span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -521,6 +519,14 @@ level, NA generated</code></pre>
 </div>
 </div>
 </div>
+<p>In this example:</p>
+<ol type="1">
+<li><p>We have a sample dataset representing different product categories.</p></li>
+<li><p>The variable <strong><code>category_factor</code></strong> is a factor representing these categories.</p></li>
+<li><p>We use <strong><code>ggplot2</code></strong> to create a bar plot, mapping the factor levels to the x-axis and fill color.</p></li>
+</ol>
+<p>When you run the code, you’ll generate a bar plot that effectively visualizes the distribution of product categories. The factor ensures that the categories are properly ordered and labeled, providing a clear representation of the data.</p>
+<p>In data analysis, effective visualization is often the key to conveying insights to stakeholders. By leveraging factors in graphical representations, R users enhance the clarity and interpretability of their visualizations. This is particularly valuable when dealing with categorical data, where the correct representation of levels is essential for accurate communication.</p>
 </section>
 </section>
 <section id="conclusion" class="level2">

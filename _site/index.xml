@@ -438,22 +438,22 @@ Call:
 lm(formula = spending ~ income_factor + education_factor)
 
 Residuals:
-     Min       1Q   Median       3Q      Max 
--241.590 -124.443   -4.319  122.152  236.438 
+    Min      1Q  Median      3Q     Max 
+-253.05 -119.84   12.95  123.96  256.66 
 
 Coefficients:
                               Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)                    326.644     31.092  10.506   &lt;2e-16 ***
-income_factorLow                11.647     39.006   0.299    0.766    
-income_factorMedium             25.897     33.367   0.776    0.440    
-education_factorHigh School     29.050     36.983   0.785    0.434    
-education_factorUndergraduate    7.322     34.206   0.214    0.831    
+(Intercept)                    350.209     28.875  12.128   &lt;2e-16 ***
+income_factorLow                -2.320     40.076  -0.058    0.954    
+income_factorMedium            -11.708     34.580  -0.339    0.736    
+education_factorHigh School      8.104     37.451   0.216    0.829    
+education_factorUndergraduate   25.009     35.632   0.702    0.484    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 146.1 on 95 degrees of freedom
-Multiple R-squared:  0.01289,   Adjusted R-squared:  -0.02868 
-F-statistic:  0.31 on 4 and 95 DF,  p-value: 0.8706</code></pre>
+Residual standard error: 149.6 on 95 degrees of freedom
+Multiple R-squared:  0.006845,  Adjusted R-squared:  -0.03497 
+F-statistic: 0.1637 on 4 and 95 DF,  p-value: 0.9562</code></pre>
 </div>
 </div>
 <p>The output summary of the model will now provide information about the impact of both income levels and education levels on spending:</p>
@@ -604,15 +604,11 @@ level, NA generated</code></pre>
 <p>When creating visual representations of data, such as bar plots or pie charts, factors provide a structured foundation. They ensure that the categories are appropriately arranged and labeled, allowing for accurate communication of insights.</p>
 <p>Let’s create a simple bar plot using the <strong><code>ggplot2</code></strong> library, showcasing the distribution of product categories:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(ggplot2)</span>
-<span id="cb24-2"></span>
-<span id="cb24-3"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Sample data: product categories</span></span>
-<span id="cb24-4"></span>
-<span id="cb24-5">categories <span class="ot" style="color: #003B4F;
+<span id="cb24-2"></span>
+<span id="cb24-3">categories <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -625,44 +621,44 @@ background-color: null;
 font-style: inherit;">"Clothing"</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Food"</span>),</span>
-<span id="cb24-6">                     <span class="at" style="color: #657422;
+<span id="cb24-4">                     <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">20</span> ,</span>
-<span id="cb24-7">                     <span class="at" style="color: #657422;
+<span id="cb24-5">                     <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">replace =</span> <span class="cn" style="color: #8f5902;
 background-color: null;
 font-style: inherit;">TRUE</span>)</span>
-<span id="cb24-8">category_factor <span class="ot" style="color: #003B4F;
+<span id="cb24-6">category_factor <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">factor</span>(categories)</span>
-<span id="cb24-9"></span>
-<span id="cb24-10"><span class="co" style="color: #5E5E5E;
+<span id="cb24-7"></span>
+<span id="cb24-8"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Creating a bar plot with factors using ggplot2</span></span>
-<span id="cb24-11"><span class="fu" style="color: #4758AB;
+<span id="cb24-9"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">library</span>(ggplot2)</span>
-<span id="cb24-12"></span>
-<span id="cb24-13"><span class="co" style="color: #5E5E5E;
+<span id="cb24-10"></span>
+<span id="cb24-11"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Creating a data frame for ggplot</span></span>
-<span id="cb24-14">data <span class="ot" style="color: #003B4F;
+<span id="cb24-12">data <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">category =</span> category_factor)</span>
-<span id="cb24-15"></span>
-<span id="cb24-16"><span class="co" style="color: #5E5E5E;
+<span id="cb24-13"></span>
+<span id="cb24-14"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Creating a bar plot</span></span>
-<span id="cb24-17"><span class="fu" style="color: #4758AB;
+<span id="cb24-15"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>(data, <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -673,24 +669,24 @@ background-color: null;
 font-style: inherit;">fill =</span> category)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb24-18">  <span class="fu" style="color: #4758AB;
+<span id="cb24-16">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_bar</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb24-19">  <span class="fu" style="color: #4758AB;
+<span id="cb24-17">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Distribution of Product Categories"</span>, </span>
-<span id="cb24-20">       <span class="at" style="color: #657422;
+<span id="cb24-18">       <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Category"</span>, </span>
-<span id="cb24-21">       <span class="at" style="color: #657422;
+<span id="cb24-19">       <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
 background-color: null;
@@ -703,6 +699,14 @@ font-style: inherit;">"Count"</span>)</span></code></pre></div>
 </div>
 </div>
 </div>
+<p>In this example:</p>
+<ol type="1">
+<li><p>We have a sample dataset representing different product categories.</p></li>
+<li><p>The variable <strong><code>category_factor</code></strong> is a factor representing these categories.</p></li>
+<li><p>We use <strong><code>ggplot2</code></strong> to create a bar plot, mapping the factor levels to the x-axis and fill color.</p></li>
+</ol>
+<p>When you run the code, you’ll generate a bar plot that effectively visualizes the distribution of product categories. The factor ensures that the categories are properly ordered and labeled, providing a clear representation of the data.</p>
+<p>In data analysis, effective visualization is often the key to conveying insights to stakeholders. By leveraging factors in graphical representations, R users enhance the clarity and interpretability of their visualizations. This is particularly valuable when dealing with categorical data, where the correct representation of levels is essential for accurate communication.</p>
 </section>
 </section>
 <section id="conclusion" class="level2">
@@ -3304,12 +3308,13 @@ font-style: inherit;">print</span>(eigenvectors)</span></code></pre></div>
 
 
 
+
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction"><strong>Introduction</strong></h2>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://mfatihtuzen.netlify.app/posts/2023-10-03_vectors/atom.jpg" width="526" height="363" class="figure-img"></p>
-<figcaption class="figure-caption">https://www.thoughtco.com/most-basic-building-block-of-matter-608358</figcaption>
+<p><img src="https://mfatihtuzen.netlify.app/posts/2023-10-03_vectors/atom.jpg" class="quarto-figure quarto-figure-center figure-img" width="526" height="363"></p>
+<figcaption>https://www.thoughtco.com/most-basic-building-block-of-matter-608358</figcaption>
 </figure>
 </div>
 <p>In the realm of R programming, vectors serve as the fundamental building blocks that underpin virtually every data analysis and manipulation task. Much like atoms are the smallest units of matter, vectors are the fundamental units of data in R. In this article, we will delve into the world of vectors in R programming, exploring their significance, applications, and some of the most commonly used functions that make them indispensable.</p>
@@ -4932,7 +4937,6 @@ font-style: inherit;">print</span>(collapsed_sentence)</span></code></pre></div>
   <category>vectors</category>
   <guid>https://mfatihtuzen.netlify.app/posts/2023-10-03_vectors/</guid>
   <pubDate>Mon, 02 Oct 2023 21:00:00 GMT</pubDate>
-  <media:content url="https://mfatihtuzen.netlify.app/posts/2023-10-03_vectors/atom.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
   <title>Understanding Data Types in R</title>
