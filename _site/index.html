@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.4.538">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -49,7 +49,13 @@ ul.task-list li input[type="checkbox"] {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -58,6 +64,7 @@ ul.task-list li input[type="checkbox"] {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -96,16 +103,43 @@ ul.task-list li input[type="checkbox"] {
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
 <link rel="stylesheet" href="styles.css">
-<link rel="alternate" type="application/rss+xml" title="A Statistician's R Notebook" href="index.xml"></head>
+<link rel="alternate" type="application/rss+xml" title="A Statistician's R Notebook" href="index.xml" data-external="1"></head>
 
 <body class="nav-fixed">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">A Statistician’s R Notebook</span>
     </a>
@@ -117,52 +151,52 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./about.html" rel="" target="">
- <span class="menu-text">About</span></a>
+    <a class="nav-link" href="./about.html"> 
+<span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/MFatihTuzen" rel="" target=""><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/MFatihTuzen"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://www.linkedin.com/in/dr-m-fatih-t-2b2a4328/" rel="" target=""><i class="bi bi-linkedin" role="img">
+    <a class="nav-link" href="https://www.linkedin.com/in/dr-m-fatih-t-2b2a4328/"> <i class="bi bi-linkedin" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="./index.xml" rel="" target=""><i class="bi bi-rss" role="img">
+    <a class="nav-link" href="./index.xml"> <i class="bi bi-rss" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-blogroll" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-blogroll" role="button" data-bs-toggle="dropdown" aria-expanded="false">
  <span class="menu-text">BlogRoll</span>
     </a>
     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-blogroll">    
         <li>
-    <a class="dropdown-item" href="https://www.r-bloggers.com/" rel="" target="">
+    <a class="dropdown-item" href="https://www.r-bloggers.com/">
  <span class="dropdown-text">R-bloggers</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="https://community.rstudio.com/" rel="" target="">
+    <a class="dropdown-item" href="https://community.rstudio.com/">
  <span class="dropdown-text">R-Studio Community</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="https://rweekly.org/" rel="" target="">
+    <a class="dropdown-item" href="https://rweekly.org/">
  <span class="dropdown-text">R weekly</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="https://github.com/topics/r" rel="" target="">
+    <a class="dropdown-item" href="https://github.com/topics/r">
  <span class="dropdown-text">Github R Topics</span></a>
   </li>  
     </ul>
   </li>
 </ul>
-            <div class="quarto-navbar-tools">
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
-          </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -172,9 +206,10 @@ ul.task-list li input[type="checkbox"] {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(6)</span></div><div class="category" data-category="R Programming">R Programming <span class="quarto-category-count">(6)</span></div><div class="category" data-category="R Studio">R Studio <span class="quarto-category-count">(1)</span></div><div class="category" data-category="data types">data types <span class="quarto-category-count">(5)</span></div><div class="category" data-category="dataframe">dataframe <span class="quarto-category-count">(1)</span></div><div class="category" data-category="lists">lists <span class="quarto-category-count">(1)</span></div><div class="category" data-category="matrices">matrices <span class="quarto-category-count">(1)</span></div><div class="category" data-category="tibble">tibble <span class="quarto-category-count">(1)</span></div><div class="category" data-category="vectors">vectors <span class="quarto-category-count">(1)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(7)</span></div><div class="category" data-category="R Programming">R Programming <span class="quarto-category-count">(7)</span></div><div class="category" data-category="R Studio">R Studio <span class="quarto-category-count">(1)</span></div><div class="category" data-category="categorical data">categorical data <span class="quarto-category-count">(1)</span></div><div class="category" data-category="data types">data types <span class="quarto-category-count">(6)</span></div><div class="category" data-category="dataframe">dataframe <span class="quarto-category-count">(1)</span></div><div class="category" data-category="factor">factor <span class="quarto-category-count">(1)</span></div><div class="category" data-category="lists">lists <span class="quarto-category-count">(1)</span></div><div class="category" data-category="matrices">matrices <span class="quarto-category-count">(1)</span></div><div class="category" data-category="tibble">tibble <span class="quarto-category-count">(1)</span></div><div class="category" data-category="vectors">vectors <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+
 
 
 
@@ -209,19 +244,61 @@ ul.task-list li input[type="checkbox"] {
     </div>
 </div>
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="R Programming,data types,dataframe,tibble" data-listing-date-sort="1703797200000" data-listing-file-modified-sort="1703854119609" data-listing-date-modified-sort="1703797200000" data-listing-reading-time-sort="8">
+<div class="quarto-post image-right" data-index="0" data-categories="R Programming,data types,factor,categorical data" data-listing-date-sort="1704920400000" data-listing-file-modified-sort="1704979388156" data-listing-date-modified-sort="1704920400000" data-listing-reading-time-sort="10" data-listing-word-count-sort="1945">
 <div class="thumbnail">
-<p><a href="./posts/2023-12-29_dataframes/index.html"> <p class="card-img-top"><img src="posts\2023-12-29_dataframes\dataframe.png"  class="thumbnail-image card-img"/></p> </a></p>
+<p><a href="./posts/2024-01-11_factors/index.html" class="no-external"></a></p><a href="./posts/2024-01-11_factors/index.html" class="no-external">
+<p class="card-img-top"><img src="posts\2024-01-11_factors\nominal_ordinal_binary.png" alt="https://allisonhorst.com/everything-else"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/2024-01-11_factors/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-12-29_dataframes/index.html">
 <h3 class="no-anchor listing-title">
-Unraveling DataFrames in R: A Comprehensive Guide
+<a href="./posts/2024-01-11_factors/index.html" class="no-external">Cracking the Code of Categorical Data: A Guide to Factors in R</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2024-01-11_factors/index.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
+R Programming
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('data types'); return false;">
+data types
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('factor'); return false;">
+factor
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('categorical data'); return false;">
+categorical data
+</div>
+</div>
+<div class="listing-description">
+<a href="./posts/2024-01-11_factors/index.html" class="no-external">R programming is a versatile language known for its powerful statistical and data manipulation capabilities. One often-overlooked feature that plays a crucial role in…</a>
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/2024-01-11_factors/index.html" class="no-external">
+<div class="listing-date">
+Jan 11, 2024
+</div>
+<div class="listing-author">
+M. Fatih Tüzen
 </div>
 </a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="1" data-categories="R Programming,data types,dataframe,tibble" data-listing-date-sort="1703797200000" data-listing-file-modified-sort="1703854119609" data-listing-date-modified-sort="1703797200000" data-listing-reading-time-sort="8" data-listing-word-count-sort="1584">
+<div class="thumbnail">
+<p><a href="./posts/2023-12-29_dataframes/index.html" class="no-external"></a></p><a href="./posts/2023-12-29_dataframes/index.html" class="no-external">
+<p class="card-img-top"><img src="posts\2023-12-29_dataframes\dataframe.png"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/2023-12-29_dataframes/index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2023-12-29_dataframes/index.html" class="no-external">Unraveling DataFrames in R: A Comprehensive Guide</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2023-12-29_dataframes/index.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
 R Programming
@@ -236,14 +313,12 @@ dataframe
 tibble
 </div>
 </div>
-<a href="./posts/2023-12-29_dataframes/index.html">
 <div class="listing-description">
-In R, a data frame is a fundamental data structure used for storing data in a tabular format, similar to a spreadsheet or a database table. It’s a collection of vectors of…
+<a href="./posts/2023-12-29_dataframes/index.html" class="no-external">In R, a data frame is a fundamental data structure used for storing data in a tabular format, similar to a spreadsheet or a database table. It’s a collection of vectors of…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-12-29_dataframes/index.html">
+<a href="./posts/2023-12-29_dataframes/index.html" class="no-external">
 <div class="listing-date">
 Dec 29, 2023
 </div>
@@ -253,19 +328,19 @@ M. Fatih Tüzen
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="1" data-categories="R Programming,data types,lists" data-listing-date-sort="1702933200000" data-listing-file-modified-sort="1702995937944" data-listing-date-modified-sort="1703019600000" data-listing-reading-time-sort="8">
+<div class="quarto-post image-right" data-index="2" data-categories="R Programming,data types,lists" data-listing-date-sort="1702933200000" data-listing-file-modified-sort="1702995937944" data-listing-date-modified-sort="1703019600000" data-listing-reading-time-sort="8" data-listing-word-count-sort="1567">
 <div class="thumbnail">
-<p><a href="./posts/2023-12-19_lists/index.html"> <p class="card-img-top"><img src="posts\2023-12-19_lists\basket.jpg"  class="thumbnail-image card-img"/></p> </a></p>
+<p><a href="./posts/2023-12-19_lists/index.html" class="no-external"></a></p><a href="./posts/2023-12-19_lists/index.html" class="no-external">
+<p class="card-img-top"><img src="posts\2023-12-19_lists\basket.jpg"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/2023-12-19_lists/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-12-19_lists/index.html">
 <h3 class="no-anchor listing-title">
-Understanding Lists in R Programming
+<a href="./posts/2023-12-19_lists/index.html" class="no-external">Understanding Lists in R Programming</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-12-19_lists/index.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
 R Programming
@@ -277,14 +352,12 @@ data types
 lists
 </div>
 </div>
-<a href="./posts/2023-12-19_lists/index.html">
 <div class="listing-description">
-R, a powerful statistical programming language, offers various data structures, and among them, <strong>lists</strong> stand out for their versatility and flexibility. Lists are collections of elements that can store different data types, making them highly useful for managing complex data.…
+<a href="./posts/2023-12-19_lists/index.html" class="no-external">R, a powerful statistical programming language, offers various data structures, and among them, <strong>lists</strong> stand out for their versatility and flexibility. Lists are collections…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-12-19_lists/index.html">
+<a href="./posts/2023-12-19_lists/index.html" class="no-external">
 <div class="listing-date">
 Dec 19, 2023
 </div>
@@ -294,19 +367,19 @@ M. Fatih Tüzen
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="2" data-categories="R Programming,data types,matrices" data-listing-date-sort="1700427600000" data-listing-file-modified-sort="1700553142754" data-listing-date-modified-sort="1700427600000" data-listing-reading-time-sort="12">
+<div class="quarto-post image-right" data-index="3" data-categories="R Programming,data types,matrices" data-listing-date-sort="1700427600000" data-listing-file-modified-sort="1700553142754" data-listing-date-modified-sort="1700427600000" data-listing-reading-time-sort="12" data-listing-word-count-sort="2358">
 <div class="thumbnail">
-<p><a href="./posts/2023-11-20_matrices/index.html"> <p class="card-img-top"><img src="posts\2023-11-20_matrices\matrix.jpg"  class="thumbnail-image card-img"/></p> </a></p>
+<p><a href="./posts/2023-11-20_matrices/index.html" class="no-external"></a></p><a href="./posts/2023-11-20_matrices/index.html" class="no-external">
+<p class="card-img-top"><img src="posts\2023-11-20_matrices\matrix.jpg"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/2023-11-20_matrices/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-11-20_matrices/index.html">
 <h3 class="no-anchor listing-title">
-Understanding Matrices in R Programming
+<a href="./posts/2023-11-20_matrices/index.html" class="no-external">Understanding Matrices in R Programming</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-11-20_matrices/index.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
 R Programming
@@ -318,14 +391,12 @@ data types
 matrices
 </div>
 </div>
-<a href="./posts/2023-11-20_matrices/index.html">
 <div class="listing-description">
-Matrices are an essential data structure in R programming that allows for the manipulation and analysis of data in a two-dimensional format. Understanding their creation…
+<a href="./posts/2023-11-20_matrices/index.html" class="no-external">Matrices are an essential data structure in R programming that allows for the manipulation and analysis of data in a two-dimensional format. Understanding their creation…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-11-20_matrices/index.html">
+<a href="./posts/2023-11-20_matrices/index.html" class="no-external">
 <div class="listing-date">
 Nov 20, 2023
 </div>
@@ -335,19 +406,19 @@ M. Fatih Tüzen
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="3" data-categories="R Programming,data types,vectors" data-listing-date-sort="1696280400000" data-listing-file-modified-sort="1696410994559" data-listing-date-modified-sort="1696280400000" data-listing-reading-time-sort="17">
+<div class="quarto-post image-right" data-index="4" data-categories="R Programming,data types,vectors" data-listing-date-sort="1696280400000" data-listing-file-modified-sort="1696410994559" data-listing-date-modified-sort="1696280400000" data-listing-reading-time-sort="17" data-listing-word-count-sort="3323">
 <div class="thumbnail">
-<p><a href="./posts/2023-10-03_vectors/index.html"> <img src="./posts/2023-10-03_vectors/atom.jpg" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2023-10-03_vectors/index.html" class="no-external"></a></p><a href="./posts/2023-10-03_vectors/index.html" class="no-external">
+<p><img src="./posts/2023-10-03_vectors/atom.jpg" class="thumbnail-image"></p>
+</a><p><a href="./posts/2023-10-03_vectors/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-10-03_vectors/index.html">
 <h3 class="no-anchor listing-title">
-Exploring Vectors in R Programming: The Fundamental Building Blocks
+<a href="./posts/2023-10-03_vectors/index.html" class="no-external">Exploring Vectors in R Programming: The Fundamental Building Blocks</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-10-03_vectors/index.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
 R Programming
@@ -359,14 +430,12 @@ data types
 vectors
 </div>
 </div>
-<a href="./posts/2023-10-03_vectors/index.html">
 <div class="listing-description">
-In the realm of R programming, vectors serve as the fundamental building blocks that underpin virtually every data analysis and manipulation task. Much like atoms are the…
+<a href="./posts/2023-10-03_vectors/index.html" class="no-external">In the realm of R programming, vectors serve as the fundamental building blocks that underpin virtually every data analysis and manipulation task. Much like atoms are the…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-10-03_vectors/index.html">
+<a href="./posts/2023-10-03_vectors/index.html" class="no-external">
 <div class="listing-date">
 Oct 3, 2023
 </div>
@@ -376,19 +445,19 @@ M. Fatih Tüzen
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="4" data-categories="R Programming,data types" data-listing-date-sort="1695675600000" data-listing-file-modified-sort="1695728433746" data-listing-date-modified-sort="1695675600000" data-listing-reading-time-sort="17">
+<div class="quarto-post image-right" data-index="5" data-categories="R Programming,data types" data-listing-date-sort="1695675600000" data-listing-file-modified-sort="1695728433746" data-listing-date-modified-sort="1695675600000" data-listing-reading-time-sort="17" data-listing-word-count-sort="3352">
 <div class="thumbnail">
-<p><a href="./posts/2023-09-25_data_types/index.html"> <img src="./posts/2023-09-25_data_types/blocks.jpg" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2023-09-25_data_types/index.html" class="no-external"></a></p><a href="./posts/2023-09-25_data_types/index.html" class="no-external">
+<p><img src="./posts/2023-09-25_data_types/blocks.jpg" class="thumbnail-image"></p>
+</a><p><a href="./posts/2023-09-25_data_types/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-09-25_data_types/index.html">
 <h3 class="no-anchor listing-title">
-Understanding Data Types in R
+<a href="./posts/2023-09-25_data_types/index.html" class="no-external">Understanding Data Types in R</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-09-25_data_types/index.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
 R Programming
@@ -397,14 +466,12 @@ R Programming
 data types
 </div>
 </div>
-<a href="./posts/2023-09-25_data_types/index.html">
 <div class="listing-description">
-Learning R programming is akin to constructing a sturdy building. You need a powerful foundation to support the structure. Just as a building’s foundation dictates its…
+<a href="./posts/2023-09-25_data_types/index.html" class="no-external">Learning R programming is akin to constructing a sturdy building. You need a powerful foundation to support the structure. Just as a building’s foundation dictates its…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-09-25_data_types/index.html">
+<a href="./posts/2023-09-25_data_types/index.html" class="no-external">
 <div class="listing-date">
 Sep 26, 2023
 </div>
@@ -414,19 +481,19 @@ M. Fatih Tüzen
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="5" data-categories="R Programming,R Studio" data-listing-date-sort="1692046800000" data-listing-file-modified-sort="1695728092984" data-listing-date-modified-sort="1693515600000" data-listing-reading-time-sort="12">
+<div class="quarto-post image-right" data-index="6" data-categories="R Programming,R Studio" data-listing-date-sort="1692046800000" data-listing-file-modified-sort="1695728092984" data-listing-date-modified-sort="1693515600000" data-listing-reading-time-sort="12" data-listing-word-count-sort="2303">
 <div class="thumbnail">
-<p><a href="./posts/2023-08-15_r-intro/index.html"> <img src="./posts/2023-08-15_r-intro/RStudio-Ball.png" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2023-08-15_r-intro/index.html" class="no-external"></a></p><a href="./posts/2023-08-15_r-intro/index.html" class="no-external">
+<p><img src="./posts/2023-08-15_r-intro/RStudio-Ball.png" class="thumbnail-image"></p>
+</a><p><a href="./posts/2023-08-15_r-intro/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-08-15_r-intro/index.html">
 <h3 class="no-anchor listing-title">
-A Gentle Introduction to R Programming
+<a href="./posts/2023-08-15_r-intro/index.html" class="no-external">A Gentle Introduction to R Programming</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-08-15_r-intro/index.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
 R Programming
@@ -435,14 +502,12 @@ R Programming
 R Studio
 </div>
 </div>
-<a href="./posts/2023-08-15_r-intro/index.html">
 <div class="listing-description">
-Hello everyone! For my first post on my blog, I would like to make an introduction about R. Before we start coding with R, it’s not a bad idea to know a little about this…
+<a href="./posts/2023-08-15_r-intro/index.html" class="no-external">Hello everyone! For my first post on my blog, I would like to make an introduction about R. Before we start coding with R, it’s not a bad idea to know a little about this…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-08-15_r-intro/index.html">
+<a href="./posts/2023-08-15_r-intro/index.html" class="no-external">
 <div class="listing-date">
 Aug 15, 2023
 </div>
@@ -498,6 +563,33 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       } else {
         el.classList.add('notransition');
       }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
     }
   }
   const toggleColorMode = (alternate) => {
@@ -566,13 +658,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return localAlternateSentinel;
     }
   }
-  let localAlternateSentinel = 'default';
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
   // Dark / light mode switch
   window.quartoToggleColorScheme = () => {
     // Read the current dark / light value 
     let toAlternate = !hasAlternateSentinel();
     toggleColorMode(toAlternate);
     setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
   };
   // Ensure there is a toggle, if there isn't float one in the top right
   if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
@@ -651,10 +745,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -664,8 +757,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -678,6 +780,120 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      return note.innerHTML;
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -721,6 +937,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -746,6 +963,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -808,13 +1051,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
-    <div class="nav-footer-left">© 2023, M. Fatih Tüzen</div>   
+    <div class="nav-footer-left">
+<p>© 2023, M. Fatih Tüzen</p>
+</div>   
     <div class="nav-footer-center">
       &nbsp;
     </div>
-    <div class="nav-footer-right">This page is built with <a href="https://quarto.org/">Quarto</a>.</div>
+    <div class="nav-footer-right">
+<p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
   </div>
 </footer>
+
 
 
 

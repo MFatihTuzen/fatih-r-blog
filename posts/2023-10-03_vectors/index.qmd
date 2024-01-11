@@ -4,7 +4,6 @@ author: "M. Fatih Tüzen"
 date: "2023-10-03"
 date-modified: "2023-10-03"
 categories: [R Programming, data types, vectors]
-image: "atom.jpg"
 ---
 
 ## **Introduction**
