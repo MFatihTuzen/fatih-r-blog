@@ -438,22 +438,22 @@ Call:
 lm(formula = spending ~ income_factor + education_factor)
 
 Residuals:
-    Min      1Q  Median      3Q     Max 
--253.05 -119.84   12.95  123.96  256.66 
+     Min       1Q   Median       3Q      Max 
+-266.742  -94.137    3.141  109.846  231.419 
 
 Coefficients:
                               Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)                    350.209     28.875  12.128   &lt;2e-16 ***
-income_factorLow                -2.320     40.076  -0.058    0.954    
-income_factorMedium            -11.708     34.580  -0.339    0.736    
-education_factorHigh School      8.104     37.451   0.216    0.829    
-education_factorUndergraduate   25.009     35.632   0.702    0.484    
+(Intercept)                    344.574     30.261  11.387   &lt;2e-16 ***
+income_factorLow                21.075     34.726   0.607    0.545    
+income_factorMedium              6.272     32.714   0.192    0.848    
+education_factorHigh School    -30.034     33.748  -0.890    0.376    
+education_factorUndergraduate   23.426     32.801   0.714    0.477    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 149.6 on 95 degrees of freedom
-Multiple R-squared:  0.006845,  Adjusted R-squared:  -0.03497 
-F-statistic: 0.1637 on 4 and 95 DF,  p-value: 0.9562</code></pre>
+Residual standard error: 136.7 on 95 degrees of freedom
+Multiple R-squared:  0.02952,   Adjusted R-squared:  -0.01134 
+F-statistic: 0.7224 on 4 and 95 DF,  p-value: 0.5788</code></pre>
 </div>
 </div>
 <p>The output summary of the model will now provide information about the impact of both income levels and education levels on spending:</p>

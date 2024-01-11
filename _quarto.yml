@@ -25,6 +25,8 @@ website:
             href: https://community.rstudio.com/
           - text: R weekly
             href: https://rweekly.org/
+          - text: Allison Horst
+            href: https://allisonhorst.com/allison-horst
           - text: Github R Topics
             href: https://github.com/topics/r
   page-footer:
