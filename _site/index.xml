@@ -10,7 +10,1177 @@
 <atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Blog posts about R and Statistics</description>
 <generator>quarto-1.4.538</generator>
-<lastBuildDate>Wed, 10 Jan 2024 21:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 22 Jan 2024 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>R Function Writing 101:A Journey Through Syntax, Best Practices, and More</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2024-01-22_functions/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction"><strong>Introduction</strong></h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2024-01-22_functions/gears.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>R is a powerful and versatile programming language widely used in data analysis, statistics, and visualization. One of the key features that make R so flexible is its ability to create functions. Functions in R allow you to encapsulate a set of instructions into a reusable and modular block of code, promoting code organization and efficiency. Much like a well-engineered machine, where gears work together seamlessly, functions provide the backbone for modular, efficient, and structured code. As we delve into the syntax, best practices, and hands-on examples, envision the gears turning in unison, each function contributing to the overall functionality of your programs. In this blog post, we will delve into the world of writing functions in R, exploring the syntax, best practices, and showcasing interesting examples.</p>
+</section>
+<section id="basics-of-writing-functions-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="basics-of-writing-functions-in-r"><strong>Basics of Writing Functions in R</strong></h2>
+<p><strong>Syntax:</strong></p>
+<p>In R, a basic function has the following syntax:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1">my_function <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(arg1, arg2, ...) {</span>
+<span id="cb1-2">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Function body</span></span>
+<span id="cb1-3">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Perform operations using arg1, arg2, ...</span></span>
+<span id="cb1-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(result)</span>
+<span id="cb1-5">}</span></code></pre></div>
+</div>
+<ul>
+<li><p><strong><code>my_function</code></strong>: The name you assign to your function.</p></li>
+<li><p><strong><code>arg1, arg2, ...</code></strong>: Arguments passed to the function.</p></li>
+<li><p><strong><code>return(result)</code></strong>: The result that the function will produce.</p></li>
+</ul>
+<p><strong>Example:</strong></p>
+<p>Let’s create a simple function that adds two numbers:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define a function named 'square'</span></span>
+<span id="cb2-2">square <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(x) {</span>
+<span id="cb2-3">  result <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> x<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span>
+<span id="cb2-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(result)</span>
+<span id="cb2-5">}</span>
+<span id="cb2-6"></span>
+<span id="cb2-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Usage of the function</span></span>
+<span id="cb2-8">squared_value <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">square</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>)</span>
+<span id="cb2-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(squared_value)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 16</code></pre>
+</div>
+</div>
+<p>Now, let’s break down the components of this example:</p>
+<ol type="1">
+<li><p><strong>Function Definition:</strong></p>
+<ul>
+<li><strong><code>square</code></strong> is the name assigned to the function.</li>
+</ul></li>
+<li><p><strong>Parameter:</strong></p>
+<ul>
+<li><strong><code>x</code></strong> is the single parameter or argument that the function expects. It represents the number you want to square.</li>
+</ul></li>
+<li><p><strong>Function Body:</strong></p>
+<ul>
+<li>The body of the function is enclosed in curly braces <strong><code>{}</code></strong>. Inside, <strong><code>result &lt;- x^2</code></strong> calculates the square of <strong><code>x</code></strong>.</li>
+</ul></li>
+<li><p><strong>Return Statement:</strong></p>
+<ul>
+<li><strong><code>return(result)</code></strong> specifies that the calculated square is the output of the function.</li>
+</ul></li>
+<li><p><strong>Usage:</strong></p>
+<ul>
+<li><strong><code>square(4)</code></strong> is an example of calling the function with the value 4. The result is stored in the variable <strong><code>squared_value</code></strong>.</li>
+</ul></li>
+<li><p><strong>Print Output:</strong></p>
+<ul>
+<li><strong><code>print(squared_value)</code></strong> prints the result to the console, and the output is <strong><code>16</code></strong>.</li>
+</ul></li>
+</ol>
+<p>This function takes a single argument, squares it, and returns the result. You can customize and use this type of function to perform specific operations on individual values, making your code more modular and readable.</p>
+</section>
+<section id="advanced-function-features" class="level2">
+<h2 class="anchored" data-anchor-id="advanced-function-features"><strong>Advanced Function Features</strong></h2>
+<section id="default-arguments" class="level3">
+<h3 class="anchored" data-anchor-id="default-arguments"><strong>Default Arguments</strong></h3>
+<p>“Default Arguments” refers to a feature in R functions that allows you to specify default values for function parameters. Default arguments provide a predefined value for a parameter in case the user does not explicitly provide a value when calling the function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">power_function <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(x, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">exponent =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) {</span>
+<span id="cb4-2">  result <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> x <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span> exponent</span>
+<span id="cb4-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(result)</span>
+<span id="cb4-4">}</span></code></pre></div>
+</div>
+<p>In this example, we define a function called <strong><code>power_function</code></strong> that takes two parameters: <strong><code>x</code></strong> and <strong><code>exponent</code></strong>. Here’s a step-by-step explanation:</p>
+<ol type="1">
+<li><p><strong>Function Definition:</strong></p>
+<ul>
+<li><strong><code>power_function</code></strong> is the name of the function.</li>
+</ul></li>
+<li><p><strong>Parameters:</strong></p>
+<ul>
+<li><strong><code>x</code></strong> and <strong><code>exponent</code></strong> are the parameters (or arguments) that the function accepts.</li>
+</ul></li>
+<li><p><strong>Default Value:</strong></p>
+<ul>
+<li><strong><code>exponent = 2</code></strong> indicates that if the user does not provide a value for <strong><code>exponent</code></strong> when calling the function, it will default to 2.</li>
+</ul></li>
+<li><p><strong>Function Body:</strong></p>
+<ul>
+<li>The function body is enclosed in curly braces <strong><code>{}</code></strong> and contains the code that the function will execute.</li>
+</ul></li>
+<li><p><strong>Calculation:</strong></p>
+<ul>
+<li>Inside the function body, <strong><code>result &lt;- x ^ exponent</code></strong> calculates the result by raising <strong><code>x</code></strong> to the power of <strong><code>exponent</code></strong>.</li>
+</ul></li>
+<li><p><strong>Return Statement:</strong></p>
+<ul>
+<li><strong><code>return(result)</code></strong> specifies that the calculated result will be the output of the function.</li>
+</ul></li>
+</ol>
+<p>Now, let’s see how this function can be used:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Usage</span></span>
+<span id="cb5-2">power_of_3 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">power_function</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span>
+<span id="cb5-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(power_of_3) </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 9</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">power_of_3_cubed <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">power_function</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span>
+<span id="cb7-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(power_of_3_cubed) </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 27</code></pre>
+</div>
+</div>
+<p>Here, we demonstrate two usages of the <strong><code>power_function</code></strong>:</p>
+<ol type="1">
+<li><p><strong>Without Providing <code>exponent</code>:</strong></p>
+<ul>
+<li><strong><code>power_function(3)</code></strong> uses the default value of <strong><code>exponent = 2</code></strong>, resulting in <strong><code>3 ^ 2</code></strong>, which is 9.</li>
+</ul></li>
+<li><p><strong>Providing a Custom <code>exponent</code>:</strong></p>
+<ul>
+<li><strong><code>power_function(3, 3)</code></strong> explicitly provides a value for <strong><code>exponent</code></strong>, resulting in <strong><code>3 ^ 3</code></strong>, which is 27.</li>
+</ul></li>
+</ol>
+<p>In summary, the default argument (<strong><code>exponent = 2</code></strong>) makes the function more flexible by providing a sensible default value for the <strong><code>exponent</code></strong> parameter, but users can override it by supplying their own value when needed.</p>
+</section>
+<section id="variable-arguments" class="level3">
+<h3 class="anchored" data-anchor-id="variable-arguments">Variable <strong>Arguments</strong></h3>
+<p>In R, the <strong><code>...</code></strong> (ellipsis) allows you to work with a variable number of arguments in a function, offering flexibility and convenience. This magical feature empowers you to create functions that can handle different inputs without explicitly defining each one.</p>
+<p><strong>Properties of <code>...</code>:</strong></p>
+<ul>
+<li><p><strong>Variable Number of Arguments:</strong></p>
+<ul>
+<li><strong><code>...</code></strong> allows you to accept an arbitrary number of arguments in your function.</li>
+</ul></li>
+<li><p><strong>Passing Arguments to Other Functions:</strong></p>
+<ul>
+<li>You can pass the ellipsis (<strong><code>...</code></strong>) to other functions within your function, making it extremely versatile.</li>
+</ul></li>
+</ul>
+<p>Let’s break down the code example:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">sum_all <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(...) {</span>
+<span id="cb9-2">  numbers <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(...)</span>
+<span id="cb9-3">  result <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(numbers)</span>
+<span id="cb9-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(result)</span>
+<span id="cb9-5">}</span></code></pre></div>
+</div>
+<p>Here’s a step-by-step explanation of the code:</p>
+<ol type="1">
+<li><p><strong>Function Definition:</strong></p>
+<ul>
+<li><strong><code>sum_all</code></strong> is the name of the function.</li>
+</ul></li>
+<li><p><strong>Variable Arguments:</strong></p>
+<ul>
+<li><strong><code>...</code></strong> is used as a placeholder for a variable number of arguments. It allows the function to accept any number of arguments.</li>
+</ul></li>
+<li><p><strong>Combining Arguments into a Vector:</strong></p>
+<ul>
+<li><strong><code>numbers &lt;- c(...)</code></strong> combines all the arguments passed to the function into a vector named <strong><code>numbers</code></strong>.</li>
+</ul></li>
+<li><p><strong>Summation:</strong></p>
+<ul>
+<li><strong><code>result &lt;- sum(numbers)</code></strong> calculates the sum of all the numbers in the vector.</li>
+</ul></li>
+<li><p><strong>Return Statement:</strong></p>
+<ul>
+<li><strong><code>return(result)</code></strong> specifies that the calculated sum will be the output of the function.</li>
+</ul></li>
+</ol>
+<p>Now, let’s see how this function can be used:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Usage</span></span>
+<span id="cb10-2">total_sum1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum_all</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb10-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(total_sum1)  </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 15</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1">total_sum2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum_all</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>)</span>
+<span id="cb12-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(total_sum2) </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 60</code></pre>
+</div>
+</div>
+<p>In the usage examples:</p>
+<ul>
+<li><p><strong><code>sum_all(1, 2, 3, 4, 5)</code></strong> passes five arguments to the function, and the sum is calculated as <strong><code>1 + 2 + 3 + 4 + 5</code></strong>, resulting in 15.</p></li>
+<li><p><strong><code>sum_all(10, 20, 30)</code></strong> passes three arguments, and the sum is calculated as <strong><code>10 + 20 + 30</code></strong>, resulting in 60.</p></li>
+</ul>
+<p>This function allows flexibility by accepting any number of arguments, making it suitable for scenarios where the user may need to sum a dynamic set of values. The ellipsis (<strong><code>...</code></strong>) serves as a convenient mechanism for handling variable arguments in R functions.</p>
+</section>
+<section id="multiple-arguments-in-r-functions" class="level3">
+<h3 class="anchored" data-anchor-id="multiple-arguments-in-r-functions">Multiple Arguments in R Functions</h3>
+<p>Using multiple arguments when writing a function in the R programming language means accepting and working with more than one input parameter.. In R, functions can be defined to take multiple arguments, allowing for greater flexibility and customization when calling the function with different sets of data.</p>
+<p>Here’s a general structure of a function with multiple arguments in R:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1">my_function <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(arg1, arg2, ...) {</span>
+<span id="cb14-2">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Function body</span></span>
+<span id="cb14-3">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Perform operations using arg1, arg2, ...</span></span>
+<span id="cb14-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(result)</span>
+<span id="cb14-5">}</span></code></pre></div>
+</div>
+<p>Let’s break down the components:</p>
+<ul>
+<li><p><strong><code>my_function</code></strong>: The name you assign to your function.</p></li>
+<li><p><strong><code>arg1, arg2, ...</code></strong>: Parameters or arguments passed to the function.</p></li>
+<li><p><strong><code>...</code></strong>: The ellipsis (<strong><code>...</code></strong>) represents variable arguments, allowing the function to accept a variable number of parameters.</p></li>
+</ul>
+<p>Here’s a more concrete example:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1">calculate_sum <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(x, y) {</span>
+<span id="cb15-2">  result <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> x <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> y</span>
+<span id="cb15-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(result)</span>
+<span id="cb15-4">}</span>
+<span id="cb15-5"></span>
+<span id="cb15-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Usage</span></span>
+<span id="cb15-7">sum_result <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">calculate_sum</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb15-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(sum_result) </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 8</code></pre>
+</div>
+</div>
+<p>In this example, the <strong><code>calculate_sum</code></strong> function takes two arguments (<strong><code>x</code></strong> and <strong><code>y</code></strong>) and returns their sum. You can call the function with different values for <strong><code>x</code></strong> and <strong><code>y</code></strong> to obtain different results.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Usage</span></span>
+<span id="cb17-2">result1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">calculate_sum</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>)</span>
+<span id="cb17-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(result1)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 25</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1">result2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">calculate_sum</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>)</span>
+<span id="cb19-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(result2)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
+</div>
+</div>
+<p>This flexibility in handling multiple arguments makes R functions versatile and adaptable to various tasks. You can design functions to perform complex operations or calculations by allowing users to input different sets of data through multiple parameters.</p>
+</section>
+</section>
+<section id="more-examples" class="level2">
+<h2 class="anchored" data-anchor-id="more-examples">More Examples</h2>
+<section id="mean-of-a-numeric-vector" class="level3">
+<h3 class="anchored" data-anchor-id="mean-of-a-numeric-vector"><strong>Mean of a Numeric Vector</strong></h3>
+<p>Let’s create a simple function that calculates the mean of a numeric vector in R. The function will take a numeric vector as its argument and return the mean value.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define a function named 'calculate_mean'</span></span>
+<span id="cb21-2">calculate_mean <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(numbers) {</span>
+<span id="cb21-3">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Check if 'numbers' is numeric</span></span>
+<span id="cb21-4">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">if</span> (<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.numeric</span>(numbers)) {</span>
+<span id="cb21-5">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">stop</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Input must be a numeric vector."</span>)</span>
+<span id="cb21-6">  }</span>
+<span id="cb21-7"></span>
+<span id="cb21-8">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Calculate the mean</span></span>
+<span id="cb21-9">  result <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(numbers)</span>
+<span id="cb21-10">  </span>
+<span id="cb21-11">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Return the mean</span></span>
+<span id="cb21-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(result)</span>
+<span id="cb21-13">}</span>
+<span id="cb21-14"></span>
+<span id="cb21-15"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Usage of the function</span></span>
+<span id="cb21-16">numeric_vector <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span>
+<span id="cb21-17">mean_result <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">calculate_mean</span>(numeric_vector)</span>
+<span id="cb21-18"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(mean_result)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 6</code></pre>
+</div>
+</div>
+<p>In this function we also check the input validation. <strong><code>if (!is.numeric(numbers))</code></strong> checks if the input vector is numeric. If not, an error message is displayed using <strong><code>stop()</code></strong>.</p>
+</section>
+<section id="calculate-exponential-growth" class="level3">
+<h3 class="anchored" data-anchor-id="calculate-exponential-growth"><strong>Calculate Exponential Growth</strong></h3>
+<p>Let’s create a function to calculate the exponential growth of a quantity over time. Exponential growth is a mathematical concept where a quantity increases by a fixed percentage rate over a given period.</p>
+<p>Here’s an example of how you might write a function in R to calculate exponential growth:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define a function to calculate exponential growth</span></span>
+<span id="cb23-2">calculate_exponential_growth <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(initial_value, growth_rate, time_period) {</span>
+<span id="cb23-3">  final_value <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> initial_value <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> growth_rate)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span>time_period</span>
+<span id="cb23-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(final_value)</span>
+<span id="cb23-5">}</span>
+<span id="cb23-6"></span>
+<span id="cb23-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Usage of the function</span></span>
+<span id="cb23-8">initial_value <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Initial quantity</span></span>
+<span id="cb23-9">growth_rate <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.05</span>    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 5% growth rate</span></span>
+<span id="cb23-10">time_period <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>       <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 3 years</span></span>
+<span id="cb23-11"></span>
+<span id="cb23-12">final_result <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">calculate_exponential_growth</span>(initial_value, growth_rate, time_period)</span>
+<span id="cb23-13"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(final_result)  </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1157.625</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong></p>
+<ul>
+<li><p>The function <strong><code>calculate_exponential_growth</code></strong> takes three parameters: <strong><code>initial_value</code></strong> (the starting quantity), <strong><code>growth_rate</code></strong> (the percentage growth rate per period), and <strong><code>time_period</code></strong> (the number of periods).</p></li>
+<li><p>Inside the function, it calculates the final value after the given time period using the formula for exponential growth:</p></li>
+</ul>
+<p><img src="https://latex.codecogs.com/png.latex?%0AFinal%20Value%20=%20Initial%20Value%5Ctimes%20(1+Growth%20Rate)%5E%7BTimePeriod%7D%20%20%20%20%0A"></p>
+<ul>
+<li><p>The calculated final value is stored in the variable <strong><code>final_value</code></strong>.</p></li>
+<li><p>The function returns the final value.</p></li>
+</ul>
+<p><strong>In the usage example:</strong></p>
+<ul>
+<li><p>The initial quantity is set to 1000.</p></li>
+<li><p>The growth rate is set to 5% (0.05).</p></li>
+<li><p>The time period is set to 3 years.</p></li>
+<li><p>The function is called with these values, and the result is printed to the console.</p></li>
+</ul>
+<p>This is just one example of how you might use a function to calculate exponential growth. Depending on your specific requirements, you can modify the function and parameters to suit different scenarios.</p>
+</section>
+<section id="calculate-compound-interest" class="level3">
+<h3 class="anchored" data-anchor-id="calculate-compound-interest">Calculate Compound Interest</h3>
+<p>Suppose that we want to create a function to calculate compound interest over time. Compound interest is a financial concept where interest is calculated not only on the initial principal amount but also on the accumulated interest from previous periods. The formula for compound interest is often expressed as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AA=%20P%5Ctimes(1+%5Cfrac%7Br%7D%7Bn%7D)%5E%7Bnt%7D%0A"></p>
+<p>where:</p>
+<ul>
+<li><p><img src="https://latex.codecogs.com/png.latex?A"> is the amount of money accumulated after <img src="https://latex.codecogs.com/png.latex?n"> years, including interest.</p></li>
+<li><p><img src="https://latex.codecogs.com/png.latex?P"> is the principal amount (initial investment).</p></li>
+<li><p><img src="https://latex.codecogs.com/png.latex?r"> is the annual interest rate (as a decimal).</p></li>
+<li><p><img src="https://latex.codecogs.com/png.latex?n"> is the number of times that interest is compounded per unit <img src="https://latex.codecogs.com/png.latex?t"> (usually per year).</p></li>
+<li><p><img src="https://latex.codecogs.com/png.latex?t"> is the time the money is invested or borrowed for, in years.</p></li>
+</ul>
+<p>Here’s an example of how you might write a function in R to calculate compound interest:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define a function to calculate compound interest</span></span>
+<span id="cb25-2">calculate_compound_interest <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(principal, rate, time, compounding_frequency) {</span>
+<span id="cb25-3">  amount <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> principal <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> rate<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span>compounding_frequency)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span>(compounding_frequency<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>time)</span>
+<span id="cb25-4">  interest <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> amount <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> principal</span>
+<span id="cb25-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(interest)</span>
+<span id="cb25-6">}</span>
+<span id="cb25-7"></span>
+<span id="cb25-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Usage of the function</span></span>
+<span id="cb25-9">initial_principal <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Initial investment</span></span>
+<span id="cb25-10">annual_interest_rate <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.05</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 5% annual interest rate</span></span>
+<span id="cb25-11">investment_time <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 3 years</span></span>
+<span id="cb25-12">compounding_frequency <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Monthly compounding</span></span>
+<span id="cb25-13"></span>
+<span id="cb25-14">compound_interest_result <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">calculate_compound_interest</span>(initial_principal, annual_interest_rate, investment_time, compounding_frequency)</span>
+<span id="cb25-15"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(compound_interest_result)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 161.4722</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong></p>
+<ul>
+<li><p>The function <strong><code>calculate_compound_interest</code></strong> takes four parameters: <strong><code>principal</code></strong> (the initial investment), <strong><code>rate</code></strong> (the annual interest rate), <strong><code>time</code></strong> (the time the money is invested for, in years), and <strong><code>compounding_frequency</code></strong> (the number of times interest is compounded per year).</p></li>
+<li><p>Inside the function, it calculates the amount using the compound interest formula.</p></li>
+<li><p>It then calculates the interest earned by subtracting the initial principal from the final amount.</p></li>
+<li><p>The function returns the calculated compound interest.</p></li>
+</ul>
+<p><strong>In the usage example:</strong></p>
+<ul>
+<li><p>The initial investment is set to $1000.</p></li>
+<li><p>The annual interest rate is set to 5% (0.05).</p></li>
+<li><p>The investment time is set to 3 years.</p></li>
+<li><p>Interest is compounded monthly (12 times per year).</p></li>
+<li><p>The function is called with these values, and the result (compound interest) is printed to the console.</p></li>
+</ul>
+<p>This example illustrates how you can use a function to calculate compound interest for a given investment scenario. Adjust the parameters based on your specific financial context.</p>
+</section>
+<section id="custom-plotting-function" class="level3">
+<h3 class="anchored" data-anchor-id="custom-plotting-function">Custom Plotting Function</h3>
+<p>Let’s enhance the custom plotting function using the ellipsis (<strong><code>...</code></strong>) to allow for additional customization parameters. The ellipsis allows you to pass a variable number of arguments to the function, providing more flexibility.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define a custom plotting function with ellipsis</span></span>
+<span id="cb27-2">custom_plot <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(x_values, y_values, ..., <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot_type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"line"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Custom Plot"</span>) {</span>
+<span id="cb27-3">  plot_title <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Custom Plot: "</span>, title)</span>
+<span id="cb27-4">  </span>
+<span id="cb27-5">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">if</span> (plot_type <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"line"</span>) {</span>
+<span id="cb27-6">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(x_values, y_values, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"l"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"blue"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">main =</span> plot_title, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xlab =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"X-axis"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ylab =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Y-axis"</span>, ...)</span>
+<span id="cb27-7">  } <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">else</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">if</span> (plot_type <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"scatter"</span>) {</span>
+<span id="cb27-8">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(x_values, y_values, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">main =</span> plot_title, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xlab =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"X-axis"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ylab =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Y-axis"</span>, ...)</span>
+<span id="cb27-9">  } <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">else</span> {</span>
+<span id="cb27-10">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">warning</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Invalid plot type. Defaulting to line plot."</span>)</span>
+<span id="cb27-11">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(x_values, y_values, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"l"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"blue"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">main =</span> plot_title, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xlab =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"X-axis"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ylab =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Y-axis"</span>, ...)</span>
+<span id="cb27-12">  }</span>
+<span id="cb27-13">}</span>
+<span id="cb27-14"></span>
+<span id="cb27-15"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Usage of the custom plotting function with ellipsis</span></span>
+<span id="cb27-16">x_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb27-17">y_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span>
+<span id="cb27-18"></span>
+<span id="cb27-19"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a line plot with additional customization (e.g., xlim, ylim)</span></span>
+<span id="cb27-20"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">custom_plot</span>(x_data, y_data, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot_type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"line"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xlim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ylim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Line Plot with Customization"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2024-01-22_functions/index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a scatter plot with additional customization (e.g., pch, cex)</span></span>
+<span id="cb28-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">custom_plot</span>(x_data, y_data, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot_type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"scatter"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pch =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">16</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">cex =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Scatter Plot with Customization"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2024-01-22_functions/index_files/figure-html/unnamed-chunk-13-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Explanation:</p>
+<ul>
+<li><p>The <strong><code>...</code></strong> in the function definition allows for additional parameters to be passed to the <strong><code>plot</code></strong> function.</p></li>
+<li><p>Inside the function, the <strong><code>plot</code></strong> function is called with the <strong><code>...</code></strong> argument, allowing any additional customization options to be applied to the plot.</p></li>
+<li><p>In the usage examples, additional parameters such as <strong><code>xlim</code></strong>, <strong><code>ylim</code></strong>, <strong><code>pch</code></strong>, and <strong><code>cex</code></strong> are passed to customize the appearance of the plots.</p></li>
+</ul>
+<p>Wtih using ellipsis (<strong><code>...</code></strong>) the custom plotting function is more versatile, allowing users to pass any valid plotting parameters to further customize the appearance of the plots. Users can now customize the plots according to their specific needs without modifying the function itself.</p>
+</section>
+</section>
+<section id="best-practices-for-writing-functions" class="level2">
+<h2 class="anchored" data-anchor-id="best-practices-for-writing-functions">Best Practices for Writing Functions</h2>
+<p>Writing functions in R is a fundamental aspect of creating efficient, readable, and maintainable code. As R enthusiasts, developers, and data scientists, adopting best practices for writing functions is crucial to ensure the quality and usability of our codebase. Whether you’re working on a small script or a large-scale project, following established guidelines can greatly enhance the clarity, modularity, and reliability of your functions.</p>
+<p>This section will explore a set of best practices designed to streamline the process of function development in R. From choosing descriptive function names to documenting your code and validating inputs, each practice is geared towards fostering code that is not only functional but also comprehensible to both yourself and others. These practices are aimed at promoting consistency, minimizing errors, and facilitating collaboration by adhering to widely accepted conventions in the R programming community.</p>
+<p>Whether you are a novice R user or an experienced developer, integrating these best practices into your workflow will undoubtedly lead to more efficient and effective code. Let’s embark on a journey to explore the key principles that will elevate your R programming skills and empower you to create functions that are both powerful and user-friendly.</p>
+<p>Here are some key best practices for writing functions in R:</p>
+<ol type="1">
+<li><strong>Use Descriptive Function Names:</strong> Choose clear and descriptive names for your functions that convey their purpose. This makes the code more understandable.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Good example</span></span>
+<span id="cb29-2">calculate_mean <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(data) {</span>
+<span id="cb29-3">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Function body</span></span>
+<span id="cb29-4">}</span>
+<span id="cb29-5"></span>
+<span id="cb29-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Avoid</span></span>
+<span id="cb29-7">fn <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(d) {</span>
+<span id="cb29-8">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Function body</span></span>
+<span id="cb29-9">}</span></code></pre></div>
+</div>
+<ol start="2" type="1">
+<li><strong>Document Your Functions:</strong> Include comments or documentation (using <strong><code>#'</code></strong>) within your function to explain its purpose, input parameters, and expected output. This helps other users (or yourself) understand how to use the function.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Good example</span></span>
+<span id="cb30-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#' Calculate the mean of a numeric vector.</span></span>
+<span id="cb30-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#'</span></span>
+<span id="cb30-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#' @param data Numeric vector for which mean is calculated.</span></span>
+<span id="cb30-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#' @return Mean value.</span></span>
+<span id="cb30-6">calculate_mean <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(data) {</span>
+<span id="cb30-7">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Function body</span></span>
+<span id="cb30-8">}</span></code></pre></div>
+</div>
+<ol start="3" type="1">
+<li><strong>Validate Inputs:</strong> Check the validity of input parameters within your function. Ensure that the inputs meet the expected format and constraints.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Good example</span></span>
+<span id="cb31-2">calculate_mean <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(data) {</span>
+<span id="cb31-3">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">if</span> (<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.numeric</span>(data)) {</span>
+<span id="cb31-4">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">stop</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Input must be a numeric vector."</span>)</span>
+<span id="cb31-5">  }</span>
+<span id="cb31-6">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Function body</span></span>
+<span id="cb31-7">}</span></code></pre></div>
+</div>
+<ol start="4" type="1">
+<li><strong>Avoid Global Variables:</strong> Minimize the use of global variables within your functions. Instead, pass required parameters as arguments to make functions more modular and reusable.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Good example</span></span>
+<span id="cb32-2">calculate_mean <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(data) {</span>
+<span id="cb32-3">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Function body using 'data'</span></span>
+<span id="cb32-4">}</span></code></pre></div>
+</div>
+<ol start="5" type="1">
+<li><strong>Separate Concerns:</strong> Divide your code into modular and focused functions, each addressing a specific concern. This promotes reusability and makes your code more maintainable.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Good example</span></span>
+<span id="cb33-2">calculate_mean <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(data) {</span>
+<span id="cb33-3">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Function body</span></span>
+<span id="cb33-4">}</span>
+<span id="cb33-5"></span>
+<span id="cb33-6">plot_histogram <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(data) {</span>
+<span id="cb33-7">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Function body</span></span>
+<span id="cb33-8">}</span></code></pre></div>
+</div>
+<ol start="6" type="1">
+<li><strong>Avoid Global Side Effects:</strong> Minimize changes to global variables within your functions. Functions should ideally return results rather than modifying global states.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Good example</span></span>
+<span id="cb34-2">calculate_mean <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(data) {</span>
+<span id="cb34-3">  result <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(data)</span>
+<span id="cb34-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(result)</span>
+<span id="cb34-5">}</span></code></pre></div>
+</div>
+<ol start="7" type="1">
+<li><strong>Use Default Argument Values:</strong> Set default values for function arguments when it makes sense. This improves the usability of your functions by allowing users to omit optional arguments.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Good example</span></span>
+<span id="cb35-2">calculate_mean <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(data, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>) {</span>
+<span id="cb35-3">  result <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(data, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> na.rm)</span>
+<span id="cb35-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(result)</span>
+<span id="cb35-5">}</span></code></pre></div>
+</div>
+<ol start="8" type="1">
+<li><strong>Test Your Functions:</strong> Develop test cases to ensure that your functions behave as expected. Testing helps catch bugs early and provides confidence in the reliability of your code.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Good example (using testthat package)</span></span>
+<span id="cb36-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">test_that</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"calculate_mean returns the correct result"</span>, {</span>
+<span id="cb36-3">  data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb36-4">  result <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">calculate_mean</span>(data)</span>
+<span id="cb36-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">expect_equal</span>(result, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span>
+<span id="cb36-6">})</span></code></pre></div>
+</div>
+<p>By following these best practices, you can create functions that are more robust, understandable, and adaptable, contributing to the overall quality of your R code.</p>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion"><strong>Conclusion</strong></h2>
+<p>Mastering the art of writing functions in R is essential for efficient and organized programming. Whether you’re performing simple calculations or tackling complex problems, functions empower you to write cleaner, more maintainable code. By following best practices and exploring diverse examples, you can elevate your R programming skills and unleash the full potential of this versatile language.</p>
+<p>As we reach the conclusion of our exploration, take a moment to appreciate the symphony of gears turning—a reflection of the interconnected brilliance of functions in R. From simple calculations to complex algorithms, each function plays a vital role in the harmony of your code.</p>
+<p>Armed with a deeper understanding of syntax, best practices, and real-world examples, you now possess the tools to craft efficient and organized functions. Like a well-tuned machine, let your code operate smoothly, with each function contributing to the overall success of your programming endeavors.</p>
+<p>Happy coding, and may your gears always turn with precision! 🚀⚙️</p>
+
+
+</section>
+
+ ]]></description>
+  <category>R Programming</category>
+  <category>Functions</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2024-01-22_functions/</guid>
+  <pubDate>Mon, 22 Jan 2024 21:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Cracking the Code of Categorical Data: A Guide to Factors in R</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>
@@ -439,21 +1609,21 @@ lm(formula = spending ~ income_factor + education_factor)
 
 Residuals:
      Min       1Q   Median       3Q      Max 
--266.742  -94.137    3.141  109.846  231.419 
+-246.077 -111.039    4.602  114.327  256.399 
 
 Coefficients:
                               Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)                    344.574     30.261  11.387   &lt;2e-16 ***
-income_factorLow                21.075     34.726   0.607    0.545    
-income_factorMedium              6.272     32.714   0.192    0.848    
-education_factorHigh School    -30.034     33.748  -0.890    0.376    
-education_factorUndergraduate   23.426     32.801   0.714    0.477    
+(Intercept)                    389.887     31.169  12.509   &lt;2e-16 ***
+income_factorLow               -60.107     34.900  -1.722   0.0883 .  
+income_factorMedium            -28.957     34.440  -0.841   0.4026    
+education_factorHigh School    -38.522     35.799  -1.076   0.2846    
+education_factorUndergraduate   -6.563     32.608  -0.201   0.8409    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 136.7 on 95 degrees of freedom
-Multiple R-squared:  0.02952,   Adjusted R-squared:  -0.01134 
-F-statistic: 0.7224 on 4 and 95 DF,  p-value: 0.5788</code></pre>
+Residual standard error: 140.3 on 95 degrees of freedom
+Multiple R-squared:  0.04182,   Adjusted R-squared:  0.001473 
+F-statistic: 1.037 on 4 and 95 DF,  p-value: 0.3926</code></pre>
 </div>
 </div>
 <p>The output summary of the model will now provide information about the impact of both income levels and education levels on spending:</p>
