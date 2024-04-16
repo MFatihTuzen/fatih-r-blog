@@ -9,8 +9,652 @@
 <link>https://mfatihtuzen.netlify.app/</link>
 <atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Blog posts about R and Statistics</description>
-<generator>quarto-1.4.538</generator>
-<lastBuildDate>Mon, 22 Jan 2024 21:00:00 GMT</lastBuildDate>
+<generator>quarto-1.4.551</generator>
+<lastBuildDate>Sun, 14 Apr 2024 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>Exploring Apply, sapply, lapply, and map Functions in R</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2021-04-15_apply_map/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction"><strong>Introduction</strong></h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2021-04-15_apply_map/apply_map.png" class="img-fluid figure-img"></p>
+<figcaption>https://www.tumblr.com/jake-clark/100946716432?source=share</figcaption>
+</figure>
+</div>
+<p>In R programming, Apply functions (<strong><code>apply()</code></strong>, <strong><code>sapply()</code></strong>, <strong><code>lapply()</code></strong>) and the <strong><code>map()</code></strong> function from the purrr package are powerful tools for data manipulation and analysis. In this comprehensive guide, we will delve into the syntax, usage, and examples of each function, including the usage of built-in functions and additional arguments, as well as performance benchmarking.</p>
+</section>
+<section id="understanding-apply-function" class="level2">
+<h2 class="anchored" data-anchor-id="understanding-apply-function">Understanding apply() Function</h2>
+<p>The <code>apply()</code> function in R is used to apply a specified function to the rows or columns of an array. Its syntax is as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">apply</span>(X, MARGIN, FUN, ...)</span></code></pre></div>
+</div>
+<ul>
+<li><p><strong><code>X</code></strong>: The input data, typically an array or matrix.</p></li>
+<li><p><strong><code>MARGIN</code></strong>: A numeric vector indicating which margins should be retained. Use <strong><code>1</code></strong> for rows, <strong><code>2</code></strong> for columns.</p></li>
+<li><p><strong><code>FUN</code></strong>: The function to apply.</p></li>
+<li><p><strong><code>...</code></strong>: Additional arguments to be passed to the function.</p></li>
+</ul>
+<p>Let’s calculate the mean of each row in a matrix using <strong><code>apply()</code></strong>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">matrix_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span>
+<span id="cb2-2">row_means <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">apply</span>(matrix_data, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, mean)</span>
+<span id="cb2-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(row_means)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4 5 6</code></pre>
+</div>
+</div>
+<p>This example computes the mean of each row in the matrix.</p>
+<p>Let’s calculate the standard deviation of each column in a matrix and specify additional arguments (<strong><code>na.rm = TRUE</code></strong>) using <strong><code>apply()</code></strong>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">column_stdev <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">apply</span>(matrix_data, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, sd, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb4-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(column_stdev)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 1 1</code></pre>
+</div>
+</div>
+</section>
+<section id="understanding-sapply-function" class="level2">
+<h2 class="anchored" data-anchor-id="understanding-sapply-function">Understanding sapply() Function</h2>
+<p>The <strong><code>sapply()</code></strong> function is a simplified version of <strong><code>lapply()</code></strong> that returns a vector or matrix. Its syntax is similar to <strong><code>lapply()</code></strong>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sapply</span>(X, FUN, ...)</span></code></pre></div>
+</div>
+<ul>
+<li><p><strong><code>X</code></strong>: The input data, typically a list.</p></li>
+<li><p><strong><code>FUN</code></strong>: The function to apply.</p></li>
+<li><p><strong><code>...</code></strong>: Additional arguments to be passed to the function.</p></li>
+</ul>
+<p>Let’s calculate the sum of each element in a list using <strong><code>sapply()</code></strong>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">num_list <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">a =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">b =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">c =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9</span>)</span>
+<span id="cb7-2">sum_results <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sapply</span>(num_list, sum)</span>
+<span id="cb7-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(sum_results)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> a  b  c 
+ 6 15 24 </code></pre>
+</div>
+</div>
+<p>This example computes the sum of each element in the list.</p>
+<p>Let’s convert each element in a list to uppercase using <strong><code>sapply()</code></strong> and the <strong><code>toupper()</code></strong> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">text_list <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"hello"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"world"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"R"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"programming"</span>)</span>
+<span id="cb9-2">uppercase_text <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sapply</span>(text_list, toupper)</span>
+<span id="cb9-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(uppercase_text)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "HELLO"       "WORLD"       "R"           "PROGRAMMING"</code></pre>
+</div>
+</div>
+<p>Here, <strong><code>sapply()</code></strong> applies the <strong><code>toupper()</code></strong> function to each element in the list, converting them to uppercase.</p>
+</section>
+<section id="understanding-lapply-function" class="level2">
+<h2 class="anchored" data-anchor-id="understanding-lapply-function">Understanding lapply() Function</h2>
+<p>The <strong><code>lapply()</code></strong> function applies a function to each element of a list and returns a list. Its syntax is as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lapply</span>(X, FUN, ...)</span></code></pre></div>
+</div>
+<ul>
+<li><p><strong><code>X</code></strong>: The input data, typically a list.</p></li>
+<li><p><strong><code>FUN</code></strong>: The function to apply.</p></li>
+<li><p><strong><code>...</code></strong>: Additional arguments to be passed to the function.</p></li>
+</ul>
+<p>Let’s apply a custom function to each element of a list using <strong><code>lapply()</code></strong>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1">num_list <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">a =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">b =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">c =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9</span>)</span>
+<span id="cb12-2">custom_function <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(x) <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(x) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span>
+<span id="cb12-3">result_list <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lapply</span>(num_list, custom_function)</span>
+<span id="cb12-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(result_list)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$a
+[1] 12
+
+$b
+[1] 30
+
+$c
+[1] 48</code></pre>
+</div>
+</div>
+<p>In this example, <strong><code>lapply()</code></strong> applies the custom function to each element in the list.</p>
+<p>Let’s extract the vowels from each element in a list of words using <strong><code>lapply()</code></strong> and a custom function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1">word_list <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"orange"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"grape"</span>)</span>
+<span id="cb14-2">vowel_list <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lapply</span>(word_list, <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(word) <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">grep</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"[aeiou]"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">strsplit</span>(word, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>)[[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]], <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">value =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>))</span>
+<span id="cb14-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(vowel_list)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+[1] "a" "e"
+
+[[2]]
+[1] "a" "a" "a"
+
+[[3]]
+[1] "o" "a" "e"
+
+[[4]]
+[1] "a" "e"</code></pre>
+</div>
+</div>
+<p>Here, <strong><code>lapply()</code></strong> applies the custom function to each element in the list, extracting vowels from words.</p>
+</section>
+<section id="understanding-map-function" class="level2">
+<h2 class="anchored" data-anchor-id="understanding-map-function">Understanding map() Function</h2>
+<p>The <strong><code>map()</code></strong> function from the purrr package is similar to <strong><code>lapply()</code></strong> but offers a more consistent syntax and returns a list. Its syntax is as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(.x, .f, ...)</span></code></pre></div>
+</div>
+<ul>
+<li><p><strong><code>.x</code></strong>: The input data, typically a list.</p></li>
+<li><p><strong><code>.f</code></strong>: The function to apply.</p></li>
+<li><p><strong><code>...</code></strong>: Additional arguments to be passed to the function.</p></li>
+</ul>
+<p>Let’s apply a lambda function to each element of a list using <strong><code>map()</code></strong>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(purrr)</span>
+<span id="cb17-2">num_list <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">a =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">b =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">c =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9</span>)</span>
+<span id="cb17-3">mapped_results <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(num_list, <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> .x<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span>
+<span id="cb17-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(mapped_results)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$a
+[1] 1 4 9
+
+$b
+[1] 16 25 36
+
+$c
+[1] 49 64 81</code></pre>
+</div>
+</div>
+<p>In this example, <strong><code>map()</code></strong> applies the lambda function (squared) to each element in the list.</p>
+<p>Let’s calculate the lengths of strings in a list using <strong><code>map()</code></strong> and the <strong><code>nchar()</code></strong> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1">text_list <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"hello"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"world"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"R"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"programming"</span>)</span>
+<span id="cb19-2">string_lengths <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map</span>(text_list, nchar)</span>
+<span id="cb19-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(string_lengths)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+[1] 5
+
+[[2]]
+[1] 5
+
+[[3]]
+[1] 1
+
+[[4]]
+[1] 11</code></pre>
+</div>
+</div>
+<p>Here, <strong><code>map()</code></strong> applies the <strong><code>nchar()</code></strong> function to each element in the list, calculating the length of each string.</p>
+</section>
+<section id="understanding-map-function-variants" class="level2">
+<h2 class="anchored" data-anchor-id="understanding-map-function-variants">Understanding map() Function Variants</h2>
+<p>In addition to the <strong><code>map()</code></strong> function, the purrr package provides several variants that are specialized for different types of output: <strong><code>map_lgl()</code></strong>, <strong><code>map_int()</code></strong>, <strong><code>map_dbl()</code></strong>, and <strong><code>map_chr()</code></strong>. These variants are particularly useful when you expect the output to be of a specific data type, such as logical, integer, double, or character.</p>
+<ul>
+<li><p><strong><code>map_lgl()</code></strong>: This variant is used when the output of the function is expected to be a logical vector.</p></li>
+<li><p><strong><code>map_int()</code></strong>: Use this variant when the output of the function is expected to be an integer vector.</p></li>
+<li><p><strong><code>map_dbl()</code></strong>: This variant is used when the output of the function is expected to be a double vector.</p></li>
+<li><p><strong><code>map_chr()</code></strong>: Use this variant when the output of the function is expected to be a character vector.</p></li>
+</ul>
+<p>These variants provide stricter type constraints compared to the generic <strong><code>map()</code></strong> function, which can be useful for ensuring the consistency of the output type across iterations. They are particularly handy when working with functions that have predictable output types.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(purrr)</span>
+<span id="cb21-2"></span>
+<span id="cb21-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define a list of vectors</span></span>
+<span id="cb21-4">num_list <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">a =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">b =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">c =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9</span>)</span>
+<span id="cb21-5"></span>
+<span id="cb21-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use map_lgl() to check if all elements in each vector are even</span></span>
+<span id="cb21-7">even_check <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map_lgl</span>(num_list, <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(x) <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">all</span>(x <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%%</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>))</span>
+<span id="cb21-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(even_check)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    a     b     c 
+FALSE FALSE FALSE </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use map_int() to compute the sum of each vector</span></span>
+<span id="cb23-2">vector_sums <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map_int</span>(num_list, sum)</span>
+<span id="cb23-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(vector_sums)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> a  b  c 
+ 6 15 24 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use map_dbl() to compute the mean of each vector</span></span>
+<span id="cb25-2">vector_means <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map_dbl</span>(num_list, mean)</span>
+<span id="cb25-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(vector_means)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>a b c 
+2 5 8 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use map_chr() to convert each vector to a character vector</span></span>
+<span id="cb27-2">vector_strings <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map_chr</span>(num_list, toString)</span>
+<span id="cb27-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(vector_strings)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        a         b         c 
+"1, 2, 3" "4, 5, 6" "7, 8, 9" </code></pre>
+</div>
+</div>
+<p>By using these specialized variants, you can ensure that the output of your mapping operation adheres to your specific data type requirements, leading to cleaner and more predictable code.</p>
+</section>
+<section id="performance-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="performance-comparison"><strong>Performance Comparison</strong></h2>
+<p>To compare the performance of these functions, it’s important to note that the execution time may vary depending on the hardware specifications of your computer, the size of the dataset, and the complexity of the operations performed. While one function may perform better in one scenario, it may not be the case in another. Therefore, it’s recommended to benchmark the functions in your specific use case.</p>
+<p>Let’s benchmark the computation of the sum of a large list using different functions:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(microbenchmark)</span>
+<span id="cb29-2"></span>
+<span id="cb29-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a 100 x 100 matrix</span></span>
+<span id="cb29-4">matrix_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10000</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>)</span>
+<span id="cb29-5"></span>
+<span id="cb29-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Use apply() function to compute the sum for each column</span></span>
+<span id="cb29-7">benchmark_results <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">microbenchmark</span>(</span>
+<span id="cb29-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">apply_sum =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">apply</span>(matrix_data, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, sum),</span>
+<span id="cb29-9">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sapply_sum =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sapply</span>(matrix_data, sum),</span>
+<span id="cb29-10">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lapply_sum =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lapply</span>(matrix_data, sum),</span>
+<span id="cb29-11">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">map_sum =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">map_dbl</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.list</span>(matrix_data), sum),  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># We need to convert the matrix to a list for the map function</span></span>
+<span id="cb29-12">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">times =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb29-13">)</span>
+<span id="cb29-14"></span>
+<span id="cb29-15"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(benchmark_results)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Unit: microseconds
+       expr      min       lq     mean   median        uq       max neval
+  apply_sum   96.801  121.951  158.000  137.001  154.3515  1702.500   100
+ sapply_sum 2328.101 2427.501 2906.063 2531.651 2892.5510  6356.501   100
+ lapply_sum 2135.202 2213.351 2518.797 2289.952 2518.1010  4709.301   100
+    map_sum 5148.700 5363.451 6251.749 5720.151 6879.4005 12327.301   100</code></pre>
+</div>
+</div>
+<p><strong><code>apply_sum</code></strong> demonstrates the fastest processing time among the alternatives,. These results suggest that while <strong><code>apply()</code></strong> function offers the fastest processing time, it’s still relatively slow compared to other options. When evaluating these results, it’s crucial to consider factors beyond processing time, such as usability and functionality, to select the most suitable function for your specific needs.</p>
+<p>Overall, the choice of function depends on factors such as speed, ease of use, and compatibility with the data structure. It’s essential to benchmark different alternatives in your specific use case to determine the most suitable function for your needs.</p>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion"><strong>Conclusion</strong></h2>
+<p>Apply functions (<strong><code>apply()</code></strong>, <strong><code>sapply()</code></strong>, <strong><code>lapply()</code></strong>) and the <strong><code>map()</code></strong> function from the purrr package are powerful tools for data manipulation and analysis in R. Each function has its unique features and strengths, making them suitable for various tasks.</p>
+<ul>
+<li><p><strong><code>apply()</code></strong> function is versatile and operates on matrices, allowing for row-wise or column-wise operations. However, its performance may vary depending on the size of the dataset and the nature of the computation.</p></li>
+<li><p><strong><code>sapply()</code></strong> and <strong><code>lapply()</code></strong> functions are convenient for working with lists and provide more optimized implementations compared to <strong><code>apply()</code></strong>. They offer flexibility and ease of use, making them suitable for a wide range of tasks.</p></li>
+<li><p><strong><code>map()</code></strong> function offers a more consistent syntax compared to <strong><code>lapply()</code></strong> and provides additional variants (<strong><code>map_lgl()</code></strong>, <strong><code>map_int()</code></strong>, <strong><code>map_dbl()</code></strong>, <strong><code>map_chr()</code></strong>) for handling specific data types. While it may exhibit slower performance in some cases, its functionality and ease of use make it a valuable tool for functional programming in R.</p></li>
+</ul>
+<p>When choosing the most suitable function for your task, it’s essential to consider factors beyond just performance. Usability, compatibility with data structures, and the nature of the computation should also be taken into account. Additionally, the performance of these functions may vary depending on the hardware specifications of your computer, the size of the dataset, and the complexity of the operations performed. Therefore, it’s recommended to benchmark the functions in your specific use case and evaluate them based on multiple criteria to make an informed decision.</p>
+<p>By mastering these functions and understanding their nuances, you can streamline your data analysis workflows and tackle a wide range of analytical tasks with confidence in R.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>R Programming</category>
+  <category>apply</category>
+  <category>sapply</category>
+  <category>lapply</category>
+  <category>map</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2021-04-15_apply_map/</guid>
+  <pubDate>Sun, 14 Apr 2024 21:00:00 GMT</pubDate>
+</item>
 <item>
   <title>R Function Writing 101:A Journey Through Syntax, Best Practices, and More</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>
