@@ -9,7 +9,7 @@
 <meta name="author" content="M. Fatih Tüzen">
 <meta name="dcterms.date" content="2024-04-15">
 
-<title>A Statistician’s R Notebook - Exploring Apply, sapply, lapply, and map Functions in R</title>
+<title>A Statistician’s R Notebook - Exploring apply, sapply, lapply, and map Functions in R</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -184,7 +184,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Exploring Apply, sapply, lapply, and map Functions in R</h1>
+      <h1 class="title">Exploring apply, sapply, lapply, and map Functions in R</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">R Programming</div>
                 <div class="quarto-category">apply</div>
@@ -494,11 +494,11 @@ FALSE FALSE FALSE </code></pre>
 <span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(benchmark_results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Unit: microseconds
-       expr      min       lq     mean   median        uq       max neval
-  apply_sum   96.801  121.951  158.000  137.001  154.3515  1702.500   100
- sapply_sum 2328.101 2427.501 2906.063 2531.651 2892.5510  6356.501   100
- lapply_sum 2135.202 2213.351 2518.797 2289.952 2518.1010  4709.301   100
-    map_sum 5148.700 5363.451 6251.749 5720.151 6879.4005 12327.301   100</code></pre>
+       expr      min       lq     mean    median       uq       max neval
+  apply_sum   95.301  112.351  140.424  125.4015  140.252  1529.901   100
+ sapply_sum 2309.901 2379.101 2707.471 2454.8015 2654.302  4276.501   100
+ lapply_sum 2142.901 2191.051 2512.500 2269.2010 2418.151  4217.202   100
+    map_sum 5112.401 5231.951 5942.505 5413.8015 6564.451 12283.101   100</code></pre>
 </div>
 </div>
 <p><strong><code>apply_sum</code></strong> demonstrates the fastest processing time among the alternatives,. These results suggest that while <strong><code>apply()</code></strong> function offers the fastest processing time, it’s still relatively slow compared to other options. When evaluating these results, it’s crucial to consider factors beyond processing time, such as usability and functionality, to select the most suitable function for your specific needs.</p>

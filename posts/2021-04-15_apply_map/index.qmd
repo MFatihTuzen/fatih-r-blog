@@ -1,5 +1,5 @@
 ---
-title: "Exploring Apply, sapply, lapply, and map Functions in R"
+title: "Exploring apply, sapply, lapply, and map Functions in R"
 author: "M. Fatih Tüzen"
 date: "2024-04-15"
 date-modified: "2024-04-15"
@@ -87,7 +87,7 @@ print(uppercase_text)
 
 Here, **`sapply()`** applies the **`toupper()`** function to each element in the list, converting them to uppercase.
 
-##  Understanding lapply() Function
+## Understanding lapply() Function
 
 The **`lapply()`** function applies a function to each element of a list and returns a list. Its syntax is as follows:
 
@@ -126,7 +126,7 @@ print(vowel_list)
 
 Here, **`lapply()`** applies the custom function to each element in the list, extracting vowels from words.
 
-##  Understanding map() Function
+## Understanding map() Function
 
 The **`map()`** function from the purrr package is similar to **`lapply()`** but offers a more consistent syntax and returns a list. Its syntax is as follows:
 
