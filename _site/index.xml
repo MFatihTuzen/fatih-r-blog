@@ -14,7 +14,7 @@
 <item>
   <title>Exploring apply, sapply, lapply, and map Functions in R</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>
-  <link>https://mfatihtuzen.netlify.app/posts/2021-04-15_apply_map/</link>
+  <link>https://mfatihtuzen.netlify.app/posts/2024-04-15_apply_map/</link>
   <description><![CDATA[ 
 
 
@@ -25,8 +25,7 @@
 <h2 class="anchored" data-anchor-id="introduction"><strong>Introduction</strong></h2>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://mfatihtuzen.netlify.app/posts/2021-04-15_apply_map/apply_map.png" class="img-fluid figure-img"></p>
-<figcaption>https://www.tumblr.com/jake-clark/100946716432?source=share</figcaption>
+<p><a href="https://www.tumblr.com/jake-clark/100946716432?source=share"><img src="https://mfatihtuzen.netlify.app/posts/2024-04-15_apply_map/apply_map.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></a></p>
 </figure>
 </div>
 <p>In R programming, Apply functions (<strong><code>apply()</code></strong>, <strong><code>sapply()</code></strong>, <strong><code>lapply()</code></strong>) and the <strong><code>map()</code></strong> function from the purrr package are powerful tools for data manipulation and analysis. In this comprehensive guide, we will delve into the syntax, usage, and examples of each function, including the usage of built-in functions and additional arguments, as well as performance benchmarking.</p>
@@ -622,11 +621,11 @@ background-color: null;
 font-style: inherit;">print</span>(benchmark_results)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Unit: microseconds
-       expr      min       lq     mean    median       uq       max neval
-  apply_sum   95.301  112.351  140.424  125.4015  140.252  1529.901   100
- sapply_sum 2309.901 2379.101 2707.471 2454.8015 2654.302  4276.501   100
- lapply_sum 2142.901 2191.051 2512.500 2269.2010 2418.151  4217.202   100
-    map_sum 5112.401 5231.951 5942.505 5413.8015 6564.451 12283.101   100</code></pre>
+       expr    min      lq     mean  median      uq     max neval
+  apply_sum   98.1  122.95  143.123  135.60  153.35   277.8   100
+ sapply_sum 2326.7 2429.75 2941.094 2514.85 2852.55 11218.3   100
+ lapply_sum 2150.6 2247.55 2860.614 2364.90 2930.80  6556.0   100
+    map_sum 5063.5 5342.45 6009.474 5738.35 6788.35  8139.7   100</code></pre>
 </div>
 </div>
 <p><strong><code>apply_sum</code></strong> demonstrates the fastest processing time among the alternatives,. These results suggest that while <strong><code>apply()</code></strong> function offers the fastest processing time, it’s still relatively slow compared to other options. When evaluating these results, it’s crucial to consider factors beyond processing time, such as usability and functionality, to select the most suitable function for your specific needs.</p>
@@ -652,7 +651,7 @@ font-style: inherit;">print</span>(benchmark_results)</span></code></pre></div>
   <category>sapply</category>
   <category>lapply</category>
   <category>map</category>
-  <guid>https://mfatihtuzen.netlify.app/posts/2021-04-15_apply_map/</guid>
+  <guid>https://mfatihtuzen.netlify.app/posts/2024-04-15_apply_map/</guid>
   <pubDate>Sun, 14 Apr 2024 21:00:00 GMT</pubDate>
 </item>
 <item>

@@ -8,7 +8,7 @@ categories: [R Programming, apply, sapply, lapply, map]
 
 ## **Introduction**
 
-![https://www.tumblr.com/jake-clark/100946716432?source=share](/posts/2021-04-15_apply_map/apply_map.png){fig-align="center"}
+[![](/posts/2024-04-15_apply_map/apply_map.png){fig-align="center"}](https://www.tumblr.com/jake-clark/100946716432?source=share)
 
 In R programming, Apply functions (**`apply()`**, **`sapply()`**, **`lapply()`**) and the **`map()`** function from the purrr package are powerful tools for data manipulation and analysis. In this comprehensive guide, we will delve into the syntax, usage, and examples of each function, including the usage of built-in functions and additional arguments, as well as performance benchmarking.
 
