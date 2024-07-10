@@ -10,7 +10,767 @@
 <atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Blog posts about R and Statistics</description>
 <generator>quarto-1.4.551</generator>
-<lastBuildDate>Sun, 14 Apr 2024 21:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 08 Jul 2024 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>Text Data Analysis in R: Understanding grep, grepl, sub, and gsub</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2024-07-09_text_analyze/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2024-07-09_text_analyze/text.png" class="img-fluid figure-img"></p>
+<figcaption>https://carlalexander.ca/beginners-guide-regular-expressions/</figcaption>
+</figure>
+</div>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>In text data analysis, being able to search for patterns, validate their existence, and perform substitutions is crucial. R provides powerful base functions like <code>grep</code>, <code>grepl</code>, <code>sub</code>, and <code>gsub</code> to handle these tasks efficiently. This blog post will delve into how these functions work, using examples ranging from simple to complex, to show how they can be leveraged for text manipulation, classification, and grouping tasks.</p>
+</section>
+<section id="understanding-grep-and-grepl" class="level2">
+<h2 class="anchored" data-anchor-id="understanding-grep-and-grepl">1. Understanding <code>grep</code> and <code>grepl</code></h2>
+<section id="what-is-grep" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-grep">What is <code>grep</code>?</h3>
+<ul>
+<li><p><strong>Functionality:</strong> Searches for matches to a specified pattern in a vector of character strings.</p></li>
+<li><p><strong>Usage:</strong> <code>grep(pattern, x, ...)</code></p></li>
+<li><p><strong>Example:</strong> Searching for specific words or patterns in text.</p></li>
+</ul>
+</section>
+<section id="what-is-grepl" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-grepl">What is <code>grepl</code>?</h3>
+<ul>
+<li><p><strong>Functionality:</strong> Returns a logical vector indicating whether a pattern is found in each element of a character vector.</p></li>
+<li><p><strong>Usage:</strong> <code>grepl(pattern, x, ...)</code></p></li>
+<li><p><strong>Example:</strong> Checking if specific patterns exist in text data.</p></li>
+</ul>
+</section>
+<section id="differences-advantages-and-disadvantages" class="level3">
+<h3 class="anchored" data-anchor-id="differences-advantages-and-disadvantages">Differences, Advantages, and Disadvantages</h3>
+<ul>
+<li><p><strong>Differences:</strong> <code>grep</code> returns indices or values matching the pattern, while <code>grepl</code> returns a logical vector.</p></li>
+<li><p><strong>Advantages:</strong> Fast pattern matching over large datasets.</p></li>
+<li><p><strong>Disadvantages:</strong> Exact matching without inherent flexibility for complex patterns.</p></li>
+</ul>
+</section>
+</section>
+<section id="using-sub-and-gsub-for-text-substitution" class="level2">
+<h2 class="anchored" data-anchor-id="using-sub-and-gsub-for-text-substitution">2. Using <code>sub</code> and <code>gsub</code> for Text Substitution</h2>
+<section id="what-is-sub" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-sub">What is <code>sub</code>?</h3>
+<ul>
+<li><p><strong>Functionality:</strong> Replaces the first occurrence of a pattern in a string.</p></li>
+<li><p><strong>Usage:</strong> <code>sub(pattern, replacement, x, ...)</code></p></li>
+<li><p><strong>Example:</strong> Substituting specific patterns with another string.</p></li>
+</ul>
+</section>
+<section id="what-is-gsub" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-gsub">What is <code>gsub</code>?</h3>
+<ul>
+<li><p><strong>Functionality:</strong> Replaces all occurrences of a pattern in a string.</p></li>
+<li><p><strong>Usage:</strong> <code>gsub(pattern, replacement, x, ...)</code></p></li>
+<li><p><strong>Example:</strong> Global substitution of patterns throughout text data.</p></li>
+</ul>
+</section>
+<section id="differences-advantages-and-disadvantages-1" class="level3">
+<h3 class="anchored" data-anchor-id="differences-advantages-and-disadvantages-1">Differences, Advantages, and Disadvantages</h3>
+<ul>
+<li><p><strong>Differences:</strong> <code>sub</code> replaces only the first occurrence, while <code>gsub</code> replaces all occurrences.</p></li>
+<li><p><strong>Advantages:</strong> Efficient for bulk text replacements.</p></li>
+<li><p><strong>Disadvantages:</strong> Lack of advanced pattern matching features compared to other libraries.</p></li>
+</ul>
+</section>
+</section>
+<section id="practical-examples-with-a-synthetic-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="practical-examples-with-a-synthetic-dataset">3. Practical Examples with a Synthetic Dataset</h2>
+<section id="example-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="example-dataset">Example Dataset</h3>
+<p>For the purposes of this blog post, we’ll create a synthetic dataset. This dataset is a data frame that contains two columns: <code>id</code> and <code>text</code>. Each row represents a unique text entry with a corresponding identifier.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Creating a synthetic data frame</span></span>
+<span id="cb1-2">text_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(</span>
+<span id="cb1-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">id =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>,</span>
+<span id="cb1-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cats are great pets."</span>,</span>
+<span id="cb1-5">           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Dogs are loyal animals."</span>,</span>
+<span id="cb1-6">           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Birds can fly high."</span>,</span>
+<span id="cb1-7">           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Fish swim in water."</span>,</span>
+<span id="cb1-8">           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Horses run fast."</span>,</span>
+<span id="cb1-9">           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Rabbits hop quickly."</span>,</span>
+<span id="cb1-10">           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cows give milk."</span>,</span>
+<span id="cb1-11">           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Sheep have wool."</span>,</span>
+<span id="cb1-12">           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Goats are curious creatures."</span>,</span>
+<span id="cb1-13">           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Lions are the kings of the jungle."</span>,</span>
+<span id="cb1-14">           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Tigers have stripes."</span>,</span>
+<span id="cb1-15">           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Elephants are large animals."</span>,</span>
+<span id="cb1-16">           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Monkeys are very playful."</span>,</span>
+<span id="cb1-17">           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Giraffes have long necks."</span>,</span>
+<span id="cb1-18">           <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Zebras have black and white stripes."</span>)</span>
+<span id="cb1-19">)</span></code></pre></div>
+</div>
+</section>
+<section id="explanation-of-the-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="explanation-of-the-dataset">Explanation of the Dataset</h3>
+<ul>
+<li><p><strong><code>id</code> Column:</strong> This is a simple identifier for each row, ranging from 1 to 15.</p></li>
+<li><p><strong><code>text</code> Column:</strong> This contains various sentences about different animals. Each text string is unique and describes a characteristic or trait of the animal mentioned.</p></li>
+</ul>
+</section>
+<section id="applying-grep-grepl-sub-and-gsub" class="level3">
+<h3 class="anchored" data-anchor-id="applying-grep-grepl-sub-and-gsub">Applying <code>grep</code>, <code>grepl</code>, <code>sub</code>, and <code>gsub</code></h3>
+<section id="example-1-using-grep-to-find-specific-words" class="level4">
+<h4 class="anchored" data-anchor-id="example-1-using-grep-to-find-specific-words">Example 1: Using <code>grep</code> to find specific words</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Find rows containing the word 'are'</span></span>
+<span id="cb2-2">indices <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">grep</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"are"</span>, text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ignore.case =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb2-3">result_grep <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> text_data[indices, ]</span>
+<span id="cb2-4">result_grep</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   id                               text
+1   1               Cats are great pets.
+2   2            Dogs are loyal animals.
+9   9       Goats are curious creatures.
+10 10 Lions are the kings of the jungle.
+12 12       Elephants are large animals.
+13 13          Monkeys are very playful.</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grep("are", text_data$text, ignore.case = TRUE)</code> searches for the word “are” in the <code>text</code> column of <code>text_data</code>, ignoring case, and returns the indices of the matching rows. The resulting rows will be displayed.</p>
+</section>
+<section id="example-2-applying-grepl-for-conditional-checks" class="level4">
+<h4 class="anchored" data-anchor-id="example-2-applying-grepl-for-conditional-checks">Example 2: Applying <code>grepl</code> for conditional checks</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Add a new column indicating if the word 'fly' is present</span></span>
+<span id="cb4-2"></span>
+<span id="cb4-3">text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>contains_fly <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">grepl</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"fly"</span>, text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text)</span>
+<span id="cb4-4">text_data</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   id                                 text contains_fly
+1   1                 Cats are great pets.        FALSE
+2   2              Dogs are loyal animals.        FALSE
+3   3                  Birds can fly high.         TRUE
+4   4                  Fish swim in water.        FALSE
+5   5                     Horses run fast.        FALSE
+6   6                 Rabbits hop quickly.        FALSE
+7   7                      Cows give milk.        FALSE
+8   8                     Sheep have wool.        FALSE
+9   9         Goats are curious creatures.        FALSE
+10 10   Lions are the kings of the jungle.        FALSE
+11 11                 Tigers have stripes.        FALSE
+12 12         Elephants are large animals.        FALSE
+13 13            Monkeys are very playful.        FALSE
+14 14            Giraffes have long necks.        FALSE
+15 15 Zebras have black and white stripes.        FALSE</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grepl("fly", text_data$text)</code> checks each element of the <code>text</code> column for the presence of the word “fly” and returns a logical vector. This vector is then added as a new column <code>contains_fly</code>.</p>
+</section>
+<section id="example-3-using-sub-to-replace-a-pattern-in-text" class="level4">
+<h4 class="anchored" data-anchor-id="example-3-using-sub-to-replace-a-pattern-in-text">Example 3: Using <code>sub</code> to replace a pattern in text</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Replace the first occurrence of 'a' with 'A' in the text column</span></span>
+<span id="cb6-2"></span>
+<span id="cb6-3">text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text_sub <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sub</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" a "</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" A "</span>, text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text)</span>
+<span id="cb6-4">text_data[,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text"</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text_sub"</span>)]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                   text                             text_sub
+1                  Cats are great pets.                 Cats are great pets.
+2               Dogs are loyal animals.              Dogs are loyal animals.
+3                   Birds can fly high.                  Birds can fly high.
+4                   Fish swim in water.                  Fish swim in water.
+5                      Horses run fast.                     Horses run fast.
+6                  Rabbits hop quickly.                 Rabbits hop quickly.
+7                       Cows give milk.                      Cows give milk.
+8                      Sheep have wool.                     Sheep have wool.
+9          Goats are curious creatures.         Goats are curious creatures.
+10   Lions are the kings of the jungle.   Lions are the kings of the jungle.
+11                 Tigers have stripes.                 Tigers have stripes.
+12         Elephants are large animals.         Elephants are large animals.
+13            Monkeys are very playful.            Monkeys are very playful.
+14            Giraffes have long necks.            Giraffes have long necks.
+15 Zebras have black and white stripes. Zebras have black and white stripes.</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>sub(" a ", " A ", text_data$text)</code> replaces the first occurrence of ’ a ’ with ’ A ’ in each element of the <code>text</code> column. The resulting text is stored in a new column <code>text_sub</code>.</p>
+</section>
+<section id="example-4-applying-gsub-for-global-pattern-replacement" class="level4">
+<h4 class="anchored" data-anchor-id="example-4-applying-gsub-for-global-pattern-replacement">Example 4: Applying <code>gsub</code> for global pattern replacement</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Replace all occurrences of 'a' with 'A' in the text column</span></span>
+<span id="cb8-2"></span>
+<span id="cb8-3">text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text_gsub <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">gsub</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" a "</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" A "</span>, text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text)</span>
+<span id="cb8-4">text_data[,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text"</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text_gsub"</span>)]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                   text                            text_gsub
+1                  Cats are great pets.                 Cats are great pets.
+2               Dogs are loyal animals.              Dogs are loyal animals.
+3                   Birds can fly high.                  Birds can fly high.
+4                   Fish swim in water.                  Fish swim in water.
+5                      Horses run fast.                     Horses run fast.
+6                  Rabbits hop quickly.                 Rabbits hop quickly.
+7                       Cows give milk.                      Cows give milk.
+8                      Sheep have wool.                     Sheep have wool.
+9          Goats are curious creatures.         Goats are curious creatures.
+10   Lions are the kings of the jungle.   Lions are the kings of the jungle.
+11                 Tigers have stripes.                 Tigers have stripes.
+12         Elephants are large animals.         Elephants are large animals.
+13            Monkeys are very playful.            Monkeys are very playful.
+14            Giraffes have long necks.            Giraffes have long necks.
+15 Zebras have black and white stripes. Zebras have black and white stripes.</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>gsub(" a ", " A ", text_data$text)</code> replaces all occurrences of ’ a ’ with ’ A ’ in each element of the <code>text</code> column. The resulting text is stored in a new column <code>text_gsub</code>.</p>
+</section>
+</section>
+<section id="example-5-text-based-grouping-and-assignment" class="level3">
+<h3 class="anchored" data-anchor-id="example-5-text-based-grouping-and-assignment">Example 5: Text-based Grouping and Assignment</h3>
+<p>Let’s group the texts based on the presence of the word “bird” and assign a category.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Add a new column 'category' based on the presence of the word 'fly'</span></span>
+<span id="cb10-2"></span>
+<span id="cb10-3">text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>category <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ifelse</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">grepl</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"fly"</span>, text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ignore.case =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>), <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Can Fly"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cannot Fly"</span>)</span>
+<span id="cb10-4">text_data[,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text"</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"category"</span>)]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                   text   category
+1                  Cats are great pets. Cannot Fly
+2               Dogs are loyal animals. Cannot Fly
+3                   Birds can fly high.    Can Fly
+4                   Fish swim in water. Cannot Fly
+5                      Horses run fast. Cannot Fly
+6                  Rabbits hop quickly. Cannot Fly
+7                       Cows give milk. Cannot Fly
+8                      Sheep have wool. Cannot Fly
+9          Goats are curious creatures. Cannot Fly
+10   Lions are the kings of the jungle. Cannot Fly
+11                 Tigers have stripes. Cannot Fly
+12         Elephants are large animals. Cannot Fly
+13            Monkeys are very playful. Cannot Fly
+14            Giraffes have long necks. Cannot Fly
+15 Zebras have black and white stripes. Cannot Fly</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grepl("fly", text_data$text, ignore.case = TRUE)</code> checks for the presence of the word “fly” in each element of the <code>text</code> column, ignoring case. The <code>ifelse</code> function is then used to create a new column <code>category</code>, assigning “Can Fly” if the word is present and “Cannot Fly” otherwise.</p>
+</section>
+<section id="additional-examples" class="level3">
+<h3 class="anchored" data-anchor-id="additional-examples">Additional Examples</h3>
+<section id="example-6-using-grep-to-find-multiple-patterns" class="level4">
+<h4 class="anchored" data-anchor-id="example-6-using-grep-to-find-multiple-patterns">Example 6: Using <code>grep</code> to find multiple patterns</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Find rows containing the words 'great' or 'loyal'</span></span>
+<span id="cb12-2">indices <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">grep</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"great|loyal"</span>, text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ignore.case =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb12-3">text_data[indices,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text"</span>) ]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Cats are great pets."    "Dogs are loyal animals."</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grep("great|loyal", text_data$text, ignore.case = TRUE)</code> searches for the words “great” or “loyal” in the <code>text</code> column, ignoring case, and returns the indices of the matching rows. The resulting rows will be displayed.</p>
+</section>
+<section id="example-7-using-gsub-for-complex-substitutions" class="level4">
+<h4 class="anchored" data-anchor-id="example-7-using-gsub-for-complex-substitutions">Example 7: Using <code>gsub</code> for complex substitutions</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Replace all occurrences of 'animals' with 'creatures' and 'pets' with 'companions'</span></span>
+<span id="cb14-2"></span>
+<span id="cb14-3">text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text_gsub_complex <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">gsub</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"animals"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"creatures"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">gsub</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pets"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"companions"</span>, text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text))</span>
+<span id="cb14-4">text_data[,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text"</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text_gsub_complex"</span>)]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                   text                    text_gsub_complex
+1                  Cats are great pets.           Cats are great companions.
+2               Dogs are loyal animals.            Dogs are loyal creatures.
+3                   Birds can fly high.                  Birds can fly high.
+4                   Fish swim in water.                  Fish swim in water.
+5                      Horses run fast.                     Horses run fast.
+6                  Rabbits hop quickly.                 Rabbits hop quickly.
+7                       Cows give milk.                      Cows give milk.
+8                      Sheep have wool.                     Sheep have wool.
+9          Goats are curious creatures.         Goats are curious creatures.
+10   Lions are the kings of the jungle.   Lions are the kings of the jungle.
+11                 Tigers have stripes.                 Tigers have stripes.
+12         Elephants are large animals.       Elephants are large creatures.
+13            Monkeys are very playful.            Monkeys are very playful.
+14            Giraffes have long necks.            Giraffes have long necks.
+15 Zebras have black and white stripes. Zebras have black and white stripes.</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> The inner <code>gsub</code> replaces all occurrences of ‘pets’ with ‘companions’, and the outer <code>gsub</code> replaces all occurrences of ‘animals’ with ‘creatures’ in each element of the <code>text</code> column. The resulting text is stored in a new column <code>text_gsub_complex</code>.</p>
+</section>
+<section id="example-8-using-grepl-with-multiple-conditions" class="level4">
+<h4 class="anchored" data-anchor-id="example-8-using-grepl-with-multiple-conditions">Example 8: Using <code>grepl</code> with multiple conditions</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Add a new column indicating if the text contains either 'large' or 'playful'</span></span>
+<span id="cb16-2"></span>
+<span id="cb16-3">text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>contains_large_or_playful <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">grepl</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"large|playful"</span>, text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text)</span>
+<span id="cb16-4">text_data[,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text"</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"contains_large_or_playful"</span>)]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                   text contains_large_or_playful
+1                  Cats are great pets.                     FALSE
+2               Dogs are loyal animals.                     FALSE
+3                   Birds can fly high.                     FALSE
+4                   Fish swim in water.                     FALSE
+5                      Horses run fast.                     FALSE
+6                  Rabbits hop quickly.                     FALSE
+7                       Cows give milk.                     FALSE
+8                      Sheep have wool.                     FALSE
+9          Goats are curious creatures.                     FALSE
+10   Lions are the kings of the jungle.                     FALSE
+11                 Tigers have stripes.                     FALSE
+12         Elephants are large animals.                      TRUE
+13            Monkeys are very playful.                      TRUE
+14            Giraffes have long necks.                     FALSE
+15 Zebras have black and white stripes.                     FALSE</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grepl("large|playful", text_data$text)</code> checks each element of the <code>text</code> column for the presence of the words “large” or “playful” and returns a logical vector. This vector is then added as a new column <code>contains_large_or_playful</code>.</p>
+</section>
+</section>
+</section>
+<section id="understanding-regular-expressions" class="level2">
+<h2 class="anchored" data-anchor-id="understanding-regular-expressions">4. Understanding Regular Expressions</h2>
+<p>Regular expressions (regex) are powerful tools used for pattern matching and text manipulation. They allow you to define complex search patterns using a combination of literal characters and special symbols. R’s <code>grep</code>, <code>grepl</code>, <code>sub</code>, and <code>gsub</code> functions all support the use of regular expressions.</p>
+<section id="key-components-of-regular-expressions" class="level3">
+<h3 class="anchored" data-anchor-id="key-components-of-regular-expressions">Key Components of Regular Expressions</h3>
+<ul>
+<li><p><strong>Literal Characters:</strong> These are the basic building blocks of regex. For example, <code>cat</code> matches the string “cat”.</p></li>
+<li><p><strong>Metacharacters:</strong> Special characters with unique meanings, such as <code>^</code>, <code>$</code>, <code>.</code>, <code>*</code>, <code>+</code>, <code>?</code>, <code>|</code>, <code>[]</code>, <code>()</code>, <code>{}</code></p>
+<ul>
+<li><p><code>^</code> matches the start of a string.</p></li>
+<li><p><code>$</code> matches the end of a string.</p></li>
+<li><p><code>.</code> matches any single character except a newline.</p></li>
+<li><p><code>*</code> matches zero or more occurrences of the preceding element.</p></li>
+<li><p><code>+</code> matches one or more occurrences of the preceding element.</p></li>
+<li><p><code>?</code> matches zero or one occurrence of the preceding element.</p></li>
+<li><p><code>|</code> denotes alternation (or).</p></li>
+<li><p><code>[]</code> matches any one of the characters inside the brackets.</p></li>
+<li><p><code>()</code> groups elements together.</p></li>
+<li><p><code>{}</code> specifies a specific number of occurrences.</p></li>
+</ul></li>
+</ul>
+</section>
+<section id="examples-with-regular-expressions" class="level3">
+<h3 class="anchored" data-anchor-id="examples-with-regular-expressions">Examples with Regular Expressions</h3>
+<p>Using the same synthetic dataset, let’s explore how to apply regular expressions with <code>grep</code>, <code>grepl</code>, <code>sub</code>, and <code>gsub</code>.</p>
+<section id="example-1-matching-text-that-starts-with-a-specific-word" class="level4">
+<h4 class="anchored" data-anchor-id="example-1-matching-text-that-starts-with-a-specific-word">Example 1: Matching Text that Starts with a Specific Word</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Find rows where text starts with the word 'Cats'</span></span>
+<span id="cb18-2">indices <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">grep</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"^Cats"</span>, text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text)</span>
+<span id="cb18-3">text_data[indices,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text"</span>)]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Cats are great pets."</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grep("^Cats", text_data$text)</code> uses the <code>^</code> metacharacter to find rows where the text starts with “Cats”.</p>
+</section>
+<section id="example-2-matching-text-that-ends-with-a-specific-word" class="level4">
+<h4 class="anchored" data-anchor-id="example-2-matching-text-that-ends-with-a-specific-word">Example 2: Matching Text that Ends with a Specific Word</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Find rows where text ends with the word 'water.'</span></span>
+<span id="cb20-2">indices <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">grep</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"water</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">.$"</span>, text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text)</span>
+<span id="cb20-3">text_data[indices,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text"</span>)]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Fish swim in water."</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grep("water\\.$", text_data$text)</code> uses the <code>$</code> metacharacter to find rows where the text ends with “water.” The <code>\\.</code> is used to escape the dot character, which is a metacharacter in regex.</p>
+</section>
+<section id="example-3-matching-text-that-contains-a-specific-pattern" class="level4">
+<h4 class="anchored" data-anchor-id="example-3-matching-text-that-contains-a-specific-pattern">Example 3: Matching Text that Contains a Specific Pattern</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Find rows where text contains 'great' followed by any character and 'pets'</span></span>
+<span id="cb22-2">indices <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">grep</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"great.pets"</span>, text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text)</span>
+<span id="cb22-3">text_data[indices,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text"</span>)]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Cats are great pets."</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grep("great.pets", text_data$text)</code> uses the <code>.</code> metacharacter to match any character between “great” and “pets”.</p>
+</section>
+</section>
+<section id="example-4-using-gsub-with-regular-expressions" class="level3">
+<h3 class="anchored" data-anchor-id="example-4-using-gsub-with-regular-expressions">Example 4: Using <code>gsub</code> with Regular Expressions</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Replace all occurrences of words starting with 'C' with 'Animal'</span></span>
+<span id="cb24-2">text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text_gsub_regex <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">gsub</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">bC</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">w+"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Animal"</span>, text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text)</span>
+<span id="cb24-3">text_data[,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text"</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text_gsub_regex"</span>)]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                   text                      text_gsub_regex
+1                  Cats are great pets.               Animal are great pets.
+2               Dogs are loyal animals.              Dogs are loyal animals.
+3                   Birds can fly high.                  Birds can fly high.
+4                   Fish swim in water.                  Fish swim in water.
+5                      Horses run fast.                     Horses run fast.
+6                  Rabbits hop quickly.                 Rabbits hop quickly.
+7                       Cows give milk.                    Animal give milk.
+8                      Sheep have wool.                     Sheep have wool.
+9          Goats are curious creatures.         Goats are curious creatures.
+10   Lions are the kings of the jungle.   Lions are the kings of the jungle.
+11                 Tigers have stripes.                 Tigers have stripes.
+12         Elephants are large animals.         Elephants are large animals.
+13            Monkeys are very playful.            Monkeys are very playful.
+14            Giraffes have long necks.            Giraffes have long necks.
+15 Zebras have black and white stripes. Zebras have black and white stripes.</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>gsub("\\bC\\w+", "Animal", text_data$text)</code> replaces all words starting with ‘C’ (<code>\\b</code> indicates a word boundary, <code>C</code> matches the character ‘C’, and <code>\\w+</code> matches one or more word characters) with “Animal”.</p>
+<section id="example-5-using-grepl-to-check-for-complex-patterns" class="level4">
+<h4 class="anchored" data-anchor-id="example-5-using-grepl-to-check-for-complex-patterns">Example 5: Using <code>grepl</code> to Check for Complex Patterns</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Add a new column indicating if the text contains a word ending with 's'</span></span>
+<span id="cb26-2">text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>contains_s_end <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">grepl</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">b</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">w+s</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">b"</span>, text_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>text)</span>
+<span id="cb26-3">text_data[,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"text"</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"contains_s_end"</span>)]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                   text contains_s_end
+1                  Cats are great pets.           TRUE
+2               Dogs are loyal animals.           TRUE
+3                   Birds can fly high.           TRUE
+4                   Fish swim in water.          FALSE
+5                      Horses run fast.           TRUE
+6                  Rabbits hop quickly.           TRUE
+7                       Cows give milk.           TRUE
+8                      Sheep have wool.          FALSE
+9          Goats are curious creatures.           TRUE
+10   Lions are the kings of the jungle.           TRUE
+11                 Tigers have stripes.           TRUE
+12         Elephants are large animals.           TRUE
+13            Monkeys are very playful.           TRUE
+14            Giraffes have long necks.           TRUE
+15 Zebras have black and white stripes.           TRUE</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grepl("\\b\\w+s\\b", text_data$text)</code> checks each element of the <code>text</code> column for the presence of a word ending with ‘s’. Here, <code>\\b</code> indicates a word boundary, <code>\\w+</code> matches one or more word characters, and <code>s</code> matches the character ‘s’.</p>
+</section>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>The <code>grep</code>, <code>grepl</code>, <code>sub</code>, and <code>gsub</code> functions in R are powerful tools for text data analysis. They allow for efficient searching, pattern matching, and text manipulation, making them essential for any data analyst or data scientist working with textual data. By understanding how to use these functions and leveraging regular expressions, you can perform a wide range of text processing tasks, from simple searches to complex pattern replacements and text-based classifications.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>R Programming</category>
+  <category>grep</category>
+  <category>grepl</category>
+  <category>sub</category>
+  <category>gsub</category>
+  <category>regex</category>
+  <category>text analysis</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2024-07-09_text_analyze/</guid>
+  <pubDate>Mon, 08 Jul 2024 21:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Exploring apply, sapply, lapply, and map Functions in R</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>

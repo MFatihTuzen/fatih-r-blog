@@ -3,7 +3,7 @@ title: ""
 listing:
   contents: posts
   sort: "date desc"
-  type: default
+  type: grid
   categories: true
   sort-ui: true
   filter-ui: true

@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.551">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="M. Fatih Tüzen">
+<meta name="dcterms.date" content="2024-07-09">
+
+<title>A Statistician’s R Notebook - Text Data Analysis in R: Understanding grep, grepl, sub, and gsub</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">A Statistician’s R Notebook</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/MFatihTuzen"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/dr-m-fatih-t-2b2a4328/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-blogroll" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">BlogRoll</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-blogroll">    
+        <li>
+    <a class="dropdown-item" href="https://www.r-bloggers.com/">
+ <span class="dropdown-text">R-bloggers</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://community.rstudio.com/">
+ <span class="dropdown-text">R-Studio Community</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://rweekly.org/">
+ <span class="dropdown-text">R weekly</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://allisonhorst.com/allison-horst">
+ <span class="dropdown-text">Allison Horst</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://github.com/topics/r">
+ <span class="dropdown-text">Github R Topics</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Text Data Analysis in R: Understanding grep, grepl, sub, and gsub</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">R Programming</div>
+                <div class="quarto-category">grep</div>
+                <div class="quarto-category">grepl</div>
+                <div class="quarto-category">sub</div>
+                <div class="quarto-category">gsub</div>
+                <div class="quarto-category">regex</div>
+                <div class="quarto-category">text analysis</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>M. Fatih Tüzen </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">July 9, 2024</p>
+      </div>
+    </div>
+    
+      <div>
+      <div class="quarto-title-meta-heading">Modified</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date-modified">July 9, 2024</p>
+      </div>
+    </div>
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#understanding-grep-and-grepl" id="toc-understanding-grep-and-grepl" class="nav-link" data-scroll-target="#understanding-grep-and-grepl">1. Understanding <code>grep</code> and <code>grepl</code></a>
+  <ul>
+  <li><a href="#what-is-grep" id="toc-what-is-grep" class="nav-link" data-scroll-target="#what-is-grep">What is <code>grep</code>?</a></li>
+  <li><a href="#what-is-grepl" id="toc-what-is-grepl" class="nav-link" data-scroll-target="#what-is-grepl">What is <code>grepl</code>?</a></li>
+  <li><a href="#differences-advantages-and-disadvantages" id="toc-differences-advantages-and-disadvantages" class="nav-link" data-scroll-target="#differences-advantages-and-disadvantages">Differences, Advantages, and Disadvantages</a></li>
+  </ul></li>
+  <li><a href="#using-sub-and-gsub-for-text-substitution" id="toc-using-sub-and-gsub-for-text-substitution" class="nav-link" data-scroll-target="#using-sub-and-gsub-for-text-substitution">2. Using <code>sub</code> and <code>gsub</code> for Text Substitution</a>
+  <ul>
+  <li><a href="#what-is-sub" id="toc-what-is-sub" class="nav-link" data-scroll-target="#what-is-sub">What is <code>sub</code>?</a></li>
+  <li><a href="#what-is-gsub" id="toc-what-is-gsub" class="nav-link" data-scroll-target="#what-is-gsub">What is <code>gsub</code>?</a></li>
+  <li><a href="#differences-advantages-and-disadvantages-1" id="toc-differences-advantages-and-disadvantages-1" class="nav-link" data-scroll-target="#differences-advantages-and-disadvantages-1">Differences, Advantages, and Disadvantages</a></li>
+  </ul></li>
+  <li><a href="#practical-examples-with-a-synthetic-dataset" id="toc-practical-examples-with-a-synthetic-dataset" class="nav-link" data-scroll-target="#practical-examples-with-a-synthetic-dataset">3. Practical Examples with a Synthetic Dataset</a>
+  <ul>
+  <li><a href="#example-dataset" id="toc-example-dataset" class="nav-link" data-scroll-target="#example-dataset">Example Dataset</a></li>
+  <li><a href="#explanation-of-the-dataset" id="toc-explanation-of-the-dataset" class="nav-link" data-scroll-target="#explanation-of-the-dataset">Explanation of the Dataset</a></li>
+  <li><a href="#applying-grep-grepl-sub-and-gsub" id="toc-applying-grep-grepl-sub-and-gsub" class="nav-link" data-scroll-target="#applying-grep-grepl-sub-and-gsub">Applying <code>grep</code>, <code>grepl</code>, <code>sub</code>, and <code>gsub</code></a>
+  <ul>
+  <li><a href="#example-1-using-grep-to-find-specific-words" id="toc-example-1-using-grep-to-find-specific-words" class="nav-link" data-scroll-target="#example-1-using-grep-to-find-specific-words">Example 1: Using <code>grep</code> to find specific words</a></li>
+  <li><a href="#example-2-applying-grepl-for-conditional-checks" id="toc-example-2-applying-grepl-for-conditional-checks" class="nav-link" data-scroll-target="#example-2-applying-grepl-for-conditional-checks">Example 2: Applying <code>grepl</code> for conditional checks</a></li>
+  <li><a href="#example-3-using-sub-to-replace-a-pattern-in-text" id="toc-example-3-using-sub-to-replace-a-pattern-in-text" class="nav-link" data-scroll-target="#example-3-using-sub-to-replace-a-pattern-in-text">Example 3: Using <code>sub</code> to replace a pattern in text</a></li>
+  <li><a href="#example-4-applying-gsub-for-global-pattern-replacement" id="toc-example-4-applying-gsub-for-global-pattern-replacement" class="nav-link" data-scroll-target="#example-4-applying-gsub-for-global-pattern-replacement">Example 4: Applying <code>gsub</code> for global pattern replacement</a></li>
+  </ul></li>
+  <li><a href="#example-5-text-based-grouping-and-assignment" id="toc-example-5-text-based-grouping-and-assignment" class="nav-link" data-scroll-target="#example-5-text-based-grouping-and-assignment">Example 5: Text-based Grouping and Assignment</a></li>
+  <li><a href="#additional-examples" id="toc-additional-examples" class="nav-link" data-scroll-target="#additional-examples">Additional Examples</a>
+  <ul>
+  <li><a href="#example-6-using-grep-to-find-multiple-patterns" id="toc-example-6-using-grep-to-find-multiple-patterns" class="nav-link" data-scroll-target="#example-6-using-grep-to-find-multiple-patterns">Example 6: Using <code>grep</code> to find multiple patterns</a></li>
+  <li><a href="#example-7-using-gsub-for-complex-substitutions" id="toc-example-7-using-gsub-for-complex-substitutions" class="nav-link" data-scroll-target="#example-7-using-gsub-for-complex-substitutions">Example 7: Using <code>gsub</code> for complex substitutions</a></li>
+  <li><a href="#example-8-using-grepl-with-multiple-conditions" id="toc-example-8-using-grepl-with-multiple-conditions" class="nav-link" data-scroll-target="#example-8-using-grepl-with-multiple-conditions">Example 8: Using <code>grepl</code> with multiple conditions</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#understanding-regular-expressions" id="toc-understanding-regular-expressions" class="nav-link" data-scroll-target="#understanding-regular-expressions">4. Understanding Regular Expressions</a>
+  <ul>
+  <li><a href="#key-components-of-regular-expressions" id="toc-key-components-of-regular-expressions" class="nav-link" data-scroll-target="#key-components-of-regular-expressions">Key Components of Regular Expressions</a></li>
+  <li><a href="#examples-with-regular-expressions" id="toc-examples-with-regular-expressions" class="nav-link" data-scroll-target="#examples-with-regular-expressions">Examples with Regular Expressions</a>
+  <ul>
+  <li><a href="#example-1-matching-text-that-starts-with-a-specific-word" id="toc-example-1-matching-text-that-starts-with-a-specific-word" class="nav-link" data-scroll-target="#example-1-matching-text-that-starts-with-a-specific-word">Example 1: Matching Text that Starts with a Specific Word</a></li>
+  <li><a href="#example-2-matching-text-that-ends-with-a-specific-word" id="toc-example-2-matching-text-that-ends-with-a-specific-word" class="nav-link" data-scroll-target="#example-2-matching-text-that-ends-with-a-specific-word">Example 2: Matching Text that Ends with a Specific Word</a></li>
+  <li><a href="#example-3-matching-text-that-contains-a-specific-pattern" id="toc-example-3-matching-text-that-contains-a-specific-pattern" class="nav-link" data-scroll-target="#example-3-matching-text-that-contains-a-specific-pattern">Example 3: Matching Text that Contains a Specific Pattern</a></li>
+  </ul></li>
+  <li><a href="#example-4-using-gsub-with-regular-expressions" id="toc-example-4-using-gsub-with-regular-expressions" class="nav-link" data-scroll-target="#example-4-using-gsub-with-regular-expressions">Example 4: Using <code>gsub</code> with Regular Expressions</a>
+  <ul>
+  <li><a href="#example-5-using-grepl-to-check-for-complex-patterns" id="toc-example-5-using-grepl-to-check-for-complex-patterns" class="nav-link" data-scroll-target="#example-5-using-grepl-to-check-for-complex-patterns">Example 5: Using <code>grepl</code> to Check for Complex Patterns</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="text.png" class="img-fluid figure-img"></p>
+<figcaption>https://carlalexander.ca/beginners-guide-regular-expressions/</figcaption>
+</figure>
+</div>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>In text data analysis, being able to search for patterns, validate their existence, and perform substitutions is crucial. R provides powerful base functions like <code>grep</code>, <code>grepl</code>, <code>sub</code>, and <code>gsub</code> to handle these tasks efficiently. This blog post will delve into how these functions work, using examples ranging from simple to complex, to show how they can be leveraged for text manipulation, classification, and grouping tasks.</p>
+</section>
+<section id="understanding-grep-and-grepl" class="level2">
+<h2 class="anchored" data-anchor-id="understanding-grep-and-grepl">1. Understanding <code>grep</code> and <code>grepl</code></h2>
+<section id="what-is-grep" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-grep">What is <code>grep</code>?</h3>
+<ul>
+<li><p><strong>Functionality:</strong> Searches for matches to a specified pattern in a vector of character strings.</p></li>
+<li><p><strong>Usage:</strong> <code>grep(pattern, x, ...)</code></p></li>
+<li><p><strong>Example:</strong> Searching for specific words or patterns in text.</p></li>
+</ul>
+</section>
+<section id="what-is-grepl" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-grepl">What is <code>grepl</code>?</h3>
+<ul>
+<li><p><strong>Functionality:</strong> Returns a logical vector indicating whether a pattern is found in each element of a character vector.</p></li>
+<li><p><strong>Usage:</strong> <code>grepl(pattern, x, ...)</code></p></li>
+<li><p><strong>Example:</strong> Checking if specific patterns exist in text data.</p></li>
+</ul>
+</section>
+<section id="differences-advantages-and-disadvantages" class="level3">
+<h3 class="anchored" data-anchor-id="differences-advantages-and-disadvantages">Differences, Advantages, and Disadvantages</h3>
+<ul>
+<li><p><strong>Differences:</strong> <code>grep</code> returns indices or values matching the pattern, while <code>grepl</code> returns a logical vector.</p></li>
+<li><p><strong>Advantages:</strong> Fast pattern matching over large datasets.</p></li>
+<li><p><strong>Disadvantages:</strong> Exact matching without inherent flexibility for complex patterns.</p></li>
+</ul>
+</section>
+</section>
+<section id="using-sub-and-gsub-for-text-substitution" class="level2">
+<h2 class="anchored" data-anchor-id="using-sub-and-gsub-for-text-substitution">2. Using <code>sub</code> and <code>gsub</code> for Text Substitution</h2>
+<section id="what-is-sub" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-sub">What is <code>sub</code>?</h3>
+<ul>
+<li><p><strong>Functionality:</strong> Replaces the first occurrence of a pattern in a string.</p></li>
+<li><p><strong>Usage:</strong> <code>sub(pattern, replacement, x, ...)</code></p></li>
+<li><p><strong>Example:</strong> Substituting specific patterns with another string.</p></li>
+</ul>
+</section>
+<section id="what-is-gsub" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-gsub">What is <code>gsub</code>?</h3>
+<ul>
+<li><p><strong>Functionality:</strong> Replaces all occurrences of a pattern in a string.</p></li>
+<li><p><strong>Usage:</strong> <code>gsub(pattern, replacement, x, ...)</code></p></li>
+<li><p><strong>Example:</strong> Global substitution of patterns throughout text data.</p></li>
+</ul>
+</section>
+<section id="differences-advantages-and-disadvantages-1" class="level3">
+<h3 class="anchored" data-anchor-id="differences-advantages-and-disadvantages-1">Differences, Advantages, and Disadvantages</h3>
+<ul>
+<li><p><strong>Differences:</strong> <code>sub</code> replaces only the first occurrence, while <code>gsub</code> replaces all occurrences.</p></li>
+<li><p><strong>Advantages:</strong> Efficient for bulk text replacements.</p></li>
+<li><p><strong>Disadvantages:</strong> Lack of advanced pattern matching features compared to other libraries.</p></li>
+</ul>
+</section>
+</section>
+<section id="practical-examples-with-a-synthetic-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="practical-examples-with-a-synthetic-dataset">3. Practical Examples with a Synthetic Dataset</h2>
+<section id="example-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="example-dataset">Example Dataset</h3>
+<p>For the purposes of this blog post, we’ll create a synthetic dataset. This dataset is a data frame that contains two columns: <code>id</code> and <code>text</code>. Each row represents a unique text entry with a corresponding identifier.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a synthetic data frame</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>text_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">15</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">text =</span> <span class="fu">c</span>(<span class="st">"Cats are great pets."</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Dogs are loyal animals."</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Birds can fly high."</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Fish swim in water."</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Horses run fast."</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Rabbits hop quickly."</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Cows give milk."</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Sheep have wool."</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Goats are curious creatures."</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Lions are the kings of the jungle."</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Tigers have stripes."</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Elephants are large animals."</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Monkeys are very playful."</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Giraffes have long necks."</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Zebras have black and white stripes."</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="explanation-of-the-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="explanation-of-the-dataset">Explanation of the Dataset</h3>
+<ul>
+<li><p><strong><code>id</code> Column:</strong> This is a simple identifier for each row, ranging from 1 to 15.</p></li>
+<li><p><strong><code>text</code> Column:</strong> This contains various sentences about different animals. Each text string is unique and describes a characteristic or trait of the animal mentioned.</p></li>
+</ul>
+</section>
+<section id="applying-grep-grepl-sub-and-gsub" class="level3">
+<h3 class="anchored" data-anchor-id="applying-grep-grepl-sub-and-gsub">Applying <code>grep</code>, <code>grepl</code>, <code>sub</code>, and <code>gsub</code></h3>
+<section id="example-1-using-grep-to-find-specific-words" class="level4">
+<h4 class="anchored" data-anchor-id="example-1-using-grep-to-find-specific-words">Example 1: Using <code>grep</code> to find specific words</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find rows containing the word 'are'</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>indices <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"are"</span>, text_data<span class="sc">$</span>text, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>result_grep <span class="ot">&lt;-</span> text_data[indices, ]</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>result_grep</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   id                               text
+1   1               Cats are great pets.
+2   2            Dogs are loyal animals.
+9   9       Goats are curious creatures.
+10 10 Lions are the kings of the jungle.
+12 12       Elephants are large animals.
+13 13          Monkeys are very playful.</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grep("are", text_data$text, ignore.case = TRUE)</code> searches for the word “are” in the <code>text</code> column of <code>text_data</code>, ignoring case, and returns the indices of the matching rows. The resulting rows will be displayed.</p>
+</section>
+<section id="example-2-applying-grepl-for-conditional-checks" class="level4">
+<h4 class="anchored" data-anchor-id="example-2-applying-grepl-for-conditional-checks">Example 2: Applying <code>grepl</code> for conditional checks</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a new column indicating if the word 'fly' is present</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>text_data<span class="sc">$</span>contains_fly <span class="ot">&lt;-</span> <span class="fu">grepl</span>(<span class="st">"fly"</span>, text_data<span class="sc">$</span>text)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>text_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   id                                 text contains_fly
+1   1                 Cats are great pets.        FALSE
+2   2              Dogs are loyal animals.        FALSE
+3   3                  Birds can fly high.         TRUE
+4   4                  Fish swim in water.        FALSE
+5   5                     Horses run fast.        FALSE
+6   6                 Rabbits hop quickly.        FALSE
+7   7                      Cows give milk.        FALSE
+8   8                     Sheep have wool.        FALSE
+9   9         Goats are curious creatures.        FALSE
+10 10   Lions are the kings of the jungle.        FALSE
+11 11                 Tigers have stripes.        FALSE
+12 12         Elephants are large animals.        FALSE
+13 13            Monkeys are very playful.        FALSE
+14 14            Giraffes have long necks.        FALSE
+15 15 Zebras have black and white stripes.        FALSE</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grepl("fly", text_data$text)</code> checks each element of the <code>text</code> column for the presence of the word “fly” and returns a logical vector. This vector is then added as a new column <code>contains_fly</code>.</p>
+</section>
+<section id="example-3-using-sub-to-replace-a-pattern-in-text" class="level4">
+<h4 class="anchored" data-anchor-id="example-3-using-sub-to-replace-a-pattern-in-text">Example 3: Using <code>sub</code> to replace a pattern in text</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace the first occurrence of 'a' with 'A' in the text column</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>text_data<span class="sc">$</span>text_sub <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">" a "</span>, <span class="st">" A "</span>, text_data<span class="sc">$</span>text)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>text_data[,<span class="fu">c</span>(<span class="st">"text"</span>,<span class="st">"text_sub"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                   text                             text_sub
+1                  Cats are great pets.                 Cats are great pets.
+2               Dogs are loyal animals.              Dogs are loyal animals.
+3                   Birds can fly high.                  Birds can fly high.
+4                   Fish swim in water.                  Fish swim in water.
+5                      Horses run fast.                     Horses run fast.
+6                  Rabbits hop quickly.                 Rabbits hop quickly.
+7                       Cows give milk.                      Cows give milk.
+8                      Sheep have wool.                     Sheep have wool.
+9          Goats are curious creatures.         Goats are curious creatures.
+10   Lions are the kings of the jungle.   Lions are the kings of the jungle.
+11                 Tigers have stripes.                 Tigers have stripes.
+12         Elephants are large animals.         Elephants are large animals.
+13            Monkeys are very playful.            Monkeys are very playful.
+14            Giraffes have long necks.            Giraffes have long necks.
+15 Zebras have black and white stripes. Zebras have black and white stripes.</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>sub(" a ", " A ", text_data$text)</code> replaces the first occurrence of ’ a ’ with ’ A ’ in each element of the <code>text</code> column. The resulting text is stored in a new column <code>text_sub</code>.</p>
+</section>
+<section id="example-4-applying-gsub-for-global-pattern-replacement" class="level4">
+<h4 class="anchored" data-anchor-id="example-4-applying-gsub-for-global-pattern-replacement">Example 4: Applying <code>gsub</code> for global pattern replacement</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace all occurrences of 'a' with 'A' in the text column</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>text_data<span class="sc">$</span>text_gsub <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">" a "</span>, <span class="st">" A "</span>, text_data<span class="sc">$</span>text)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>text_data[,<span class="fu">c</span>(<span class="st">"text"</span>,<span class="st">"text_gsub"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                   text                            text_gsub
+1                  Cats are great pets.                 Cats are great pets.
+2               Dogs are loyal animals.              Dogs are loyal animals.
+3                   Birds can fly high.                  Birds can fly high.
+4                   Fish swim in water.                  Fish swim in water.
+5                      Horses run fast.                     Horses run fast.
+6                  Rabbits hop quickly.                 Rabbits hop quickly.
+7                       Cows give milk.                      Cows give milk.
+8                      Sheep have wool.                     Sheep have wool.
+9          Goats are curious creatures.         Goats are curious creatures.
+10   Lions are the kings of the jungle.   Lions are the kings of the jungle.
+11                 Tigers have stripes.                 Tigers have stripes.
+12         Elephants are large animals.         Elephants are large animals.
+13            Monkeys are very playful.            Monkeys are very playful.
+14            Giraffes have long necks.            Giraffes have long necks.
+15 Zebras have black and white stripes. Zebras have black and white stripes.</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>gsub(" a ", " A ", text_data$text)</code> replaces all occurrences of ’ a ’ with ’ A ’ in each element of the <code>text</code> column. The resulting text is stored in a new column <code>text_gsub</code>.</p>
+</section>
+</section>
+<section id="example-5-text-based-grouping-and-assignment" class="level3">
+<h3 class="anchored" data-anchor-id="example-5-text-based-grouping-and-assignment">Example 5: Text-based Grouping and Assignment</h3>
+<p>Let’s group the texts based on the presence of the word “bird” and assign a category.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a new column 'category' based on the presence of the word 'fly'</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>text_data<span class="sc">$</span>category <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">grepl</span>(<span class="st">"fly"</span>, text_data<span class="sc">$</span>text, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>), <span class="st">"Can Fly"</span>, <span class="st">"Cannot Fly"</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>text_data[,<span class="fu">c</span>(<span class="st">"text"</span>,<span class="st">"category"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                   text   category
+1                  Cats are great pets. Cannot Fly
+2               Dogs are loyal animals. Cannot Fly
+3                   Birds can fly high.    Can Fly
+4                   Fish swim in water. Cannot Fly
+5                      Horses run fast. Cannot Fly
+6                  Rabbits hop quickly. Cannot Fly
+7                       Cows give milk. Cannot Fly
+8                      Sheep have wool. Cannot Fly
+9          Goats are curious creatures. Cannot Fly
+10   Lions are the kings of the jungle. Cannot Fly
+11                 Tigers have stripes. Cannot Fly
+12         Elephants are large animals. Cannot Fly
+13            Monkeys are very playful. Cannot Fly
+14            Giraffes have long necks. Cannot Fly
+15 Zebras have black and white stripes. Cannot Fly</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grepl("fly", text_data$text, ignore.case = TRUE)</code> checks for the presence of the word “fly” in each element of the <code>text</code> column, ignoring case. The <code>ifelse</code> function is then used to create a new column <code>category</code>, assigning “Can Fly” if the word is present and “Cannot Fly” otherwise.</p>
+</section>
+<section id="additional-examples" class="level3">
+<h3 class="anchored" data-anchor-id="additional-examples">Additional Examples</h3>
+<section id="example-6-using-grep-to-find-multiple-patterns" class="level4">
+<h4 class="anchored" data-anchor-id="example-6-using-grep-to-find-multiple-patterns">Example 6: Using <code>grep</code> to find multiple patterns</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find rows containing the words 'great' or 'loyal'</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>indices <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"great|loyal"</span>, text_data<span class="sc">$</span>text, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>text_data[indices,<span class="fu">c</span>(<span class="st">"text"</span>) ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Cats are great pets."    "Dogs are loyal animals."</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grep("great|loyal", text_data$text, ignore.case = TRUE)</code> searches for the words “great” or “loyal” in the <code>text</code> column, ignoring case, and returns the indices of the matching rows. The resulting rows will be displayed.</p>
+</section>
+<section id="example-7-using-gsub-for-complex-substitutions" class="level4">
+<h4 class="anchored" data-anchor-id="example-7-using-gsub-for-complex-substitutions">Example 7: Using <code>gsub</code> for complex substitutions</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace all occurrences of 'animals' with 'creatures' and 'pets' with 'companions'</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>text_data<span class="sc">$</span>text_gsub_complex <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"animals"</span>, <span class="st">"creatures"</span>, <span class="fu">gsub</span>(<span class="st">"pets"</span>, <span class="st">"companions"</span>, text_data<span class="sc">$</span>text))</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>text_data[,<span class="fu">c</span>(<span class="st">"text"</span>,<span class="st">"text_gsub_complex"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                   text                    text_gsub_complex
+1                  Cats are great pets.           Cats are great companions.
+2               Dogs are loyal animals.            Dogs are loyal creatures.
+3                   Birds can fly high.                  Birds can fly high.
+4                   Fish swim in water.                  Fish swim in water.
+5                      Horses run fast.                     Horses run fast.
+6                  Rabbits hop quickly.                 Rabbits hop quickly.
+7                       Cows give milk.                      Cows give milk.
+8                      Sheep have wool.                     Sheep have wool.
+9          Goats are curious creatures.         Goats are curious creatures.
+10   Lions are the kings of the jungle.   Lions are the kings of the jungle.
+11                 Tigers have stripes.                 Tigers have stripes.
+12         Elephants are large animals.       Elephants are large creatures.
+13            Monkeys are very playful.            Monkeys are very playful.
+14            Giraffes have long necks.            Giraffes have long necks.
+15 Zebras have black and white stripes. Zebras have black and white stripes.</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> The inner <code>gsub</code> replaces all occurrences of ‘pets’ with ‘companions’, and the outer <code>gsub</code> replaces all occurrences of ‘animals’ with ‘creatures’ in each element of the <code>text</code> column. The resulting text is stored in a new column <code>text_gsub_complex</code>.</p>
+</section>
+<section id="example-8-using-grepl-with-multiple-conditions" class="level4">
+<h4 class="anchored" data-anchor-id="example-8-using-grepl-with-multiple-conditions">Example 8: Using <code>grepl</code> with multiple conditions</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a new column indicating if the text contains either 'large' or 'playful'</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>text_data<span class="sc">$</span>contains_large_or_playful <span class="ot">&lt;-</span> <span class="fu">grepl</span>(<span class="st">"large|playful"</span>, text_data<span class="sc">$</span>text)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>text_data[,<span class="fu">c</span>(<span class="st">"text"</span>,<span class="st">"contains_large_or_playful"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                   text contains_large_or_playful
+1                  Cats are great pets.                     FALSE
+2               Dogs are loyal animals.                     FALSE
+3                   Birds can fly high.                     FALSE
+4                   Fish swim in water.                     FALSE
+5                      Horses run fast.                     FALSE
+6                  Rabbits hop quickly.                     FALSE
+7                       Cows give milk.                     FALSE
+8                      Sheep have wool.                     FALSE
+9          Goats are curious creatures.                     FALSE
+10   Lions are the kings of the jungle.                     FALSE
+11                 Tigers have stripes.                     FALSE
+12         Elephants are large animals.                      TRUE
+13            Monkeys are very playful.                      TRUE
+14            Giraffes have long necks.                     FALSE
+15 Zebras have black and white stripes.                     FALSE</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grepl("large|playful", text_data$text)</code> checks each element of the <code>text</code> column for the presence of the words “large” or “playful” and returns a logical vector. This vector is then added as a new column <code>contains_large_or_playful</code>.</p>
+</section>
+</section>
+</section>
+<section id="understanding-regular-expressions" class="level2">
+<h2 class="anchored" data-anchor-id="understanding-regular-expressions">4. Understanding Regular Expressions</h2>
+<p>Regular expressions (regex) are powerful tools used for pattern matching and text manipulation. They allow you to define complex search patterns using a combination of literal characters and special symbols. R’s <code>grep</code>, <code>grepl</code>, <code>sub</code>, and <code>gsub</code> functions all support the use of regular expressions.</p>
+<section id="key-components-of-regular-expressions" class="level3">
+<h3 class="anchored" data-anchor-id="key-components-of-regular-expressions">Key Components of Regular Expressions</h3>
+<ul>
+<li><p><strong>Literal Characters:</strong> These are the basic building blocks of regex. For example, <code>cat</code> matches the string “cat”.</p></li>
+<li><p><strong>Metacharacters:</strong> Special characters with unique meanings, such as <code>^</code>, <code>$</code>, <code>.</code>, <code>*</code>, <code>+</code>, <code>?</code>, <code>|</code>, <code>[]</code>, <code>()</code>, <code>{}</code></p>
+<ul>
+<li><p><code>^</code> matches the start of a string.</p></li>
+<li><p><code>$</code> matches the end of a string.</p></li>
+<li><p><code>.</code> matches any single character except a newline.</p></li>
+<li><p><code>*</code> matches zero or more occurrences of the preceding element.</p></li>
+<li><p><code>+</code> matches one or more occurrences of the preceding element.</p></li>
+<li><p><code>?</code> matches zero or one occurrence of the preceding element.</p></li>
+<li><p><code>|</code> denotes alternation (or).</p></li>
+<li><p><code>[]</code> matches any one of the characters inside the brackets.</p></li>
+<li><p><code>()</code> groups elements together.</p></li>
+<li><p><code>{}</code> specifies a specific number of occurrences.</p></li>
+</ul></li>
+</ul>
+</section>
+<section id="examples-with-regular-expressions" class="level3">
+<h3 class="anchored" data-anchor-id="examples-with-regular-expressions">Examples with Regular Expressions</h3>
+<p>Using the same synthetic dataset, let’s explore how to apply regular expressions with <code>grep</code>, <code>grepl</code>, <code>sub</code>, and <code>gsub</code>.</p>
+<section id="example-1-matching-text-that-starts-with-a-specific-word" class="level4">
+<h4 class="anchored" data-anchor-id="example-1-matching-text-that-starts-with-a-specific-word">Example 1: Matching Text that Starts with a Specific Word</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find rows where text starts with the word 'Cats'</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>indices <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"^Cats"</span>, text_data<span class="sc">$</span>text)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>text_data[indices,<span class="fu">c</span>(<span class="st">"text"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Cats are great pets."</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grep("^Cats", text_data$text)</code> uses the <code>^</code> metacharacter to find rows where the text starts with “Cats”.</p>
+</section>
+<section id="example-2-matching-text-that-ends-with-a-specific-word" class="level4">
+<h4 class="anchored" data-anchor-id="example-2-matching-text-that-ends-with-a-specific-word">Example 2: Matching Text that Ends with a Specific Word</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find rows where text ends with the word 'water.'</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>indices <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"water</span><span class="sc">\\</span><span class="st">.$"</span>, text_data<span class="sc">$</span>text)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>text_data[indices,<span class="fu">c</span>(<span class="st">"text"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Fish swim in water."</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grep("water\\.$", text_data$text)</code> uses the <code>$</code> metacharacter to find rows where the text ends with “water.” The <code>\\.</code> is used to escape the dot character, which is a metacharacter in regex.</p>
+</section>
+<section id="example-3-matching-text-that-contains-a-specific-pattern" class="level4">
+<h4 class="anchored" data-anchor-id="example-3-matching-text-that-contains-a-specific-pattern">Example 3: Matching Text that Contains a Specific Pattern</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find rows where text contains 'great' followed by any character and 'pets'</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>indices <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"great.pets"</span>, text_data<span class="sc">$</span>text)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>text_data[indices,<span class="fu">c</span>(<span class="st">"text"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Cats are great pets."</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grep("great.pets", text_data$text)</code> uses the <code>.</code> metacharacter to match any character between “great” and “pets”.</p>
+</section>
+</section>
+<section id="example-4-using-gsub-with-regular-expressions" class="level3">
+<h3 class="anchored" data-anchor-id="example-4-using-gsub-with-regular-expressions">Example 4: Using <code>gsub</code> with Regular Expressions</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace all occurrences of words starting with 'C' with 'Animal'</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>text_data<span class="sc">$</span>text_gsub_regex <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">bC</span><span class="sc">\\</span><span class="st">w+"</span>, <span class="st">"Animal"</span>, text_data<span class="sc">$</span>text)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>text_data[,<span class="fu">c</span>(<span class="st">"text"</span>,<span class="st">"text_gsub_regex"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                   text                      text_gsub_regex
+1                  Cats are great pets.               Animal are great pets.
+2               Dogs are loyal animals.              Dogs are loyal animals.
+3                   Birds can fly high.                  Birds can fly high.
+4                   Fish swim in water.                  Fish swim in water.
+5                      Horses run fast.                     Horses run fast.
+6                  Rabbits hop quickly.                 Rabbits hop quickly.
+7                       Cows give milk.                    Animal give milk.
+8                      Sheep have wool.                     Sheep have wool.
+9          Goats are curious creatures.         Goats are curious creatures.
+10   Lions are the kings of the jungle.   Lions are the kings of the jungle.
+11                 Tigers have stripes.                 Tigers have stripes.
+12         Elephants are large animals.         Elephants are large animals.
+13            Monkeys are very playful.            Monkeys are very playful.
+14            Giraffes have long necks.            Giraffes have long necks.
+15 Zebras have black and white stripes. Zebras have black and white stripes.</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>gsub("\\bC\\w+", "Animal", text_data$text)</code> replaces all words starting with ‘C’ (<code>\\b</code> indicates a word boundary, <code>C</code> matches the character ‘C’, and <code>\\w+</code> matches one or more word characters) with “Animal”.</p>
+<section id="example-5-using-grepl-to-check-for-complex-patterns" class="level4">
+<h4 class="anchored" data-anchor-id="example-5-using-grepl-to-check-for-complex-patterns">Example 5: Using <code>grepl</code> to Check for Complex Patterns</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a new column indicating if the text contains a word ending with 's'</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>text_data<span class="sc">$</span>contains_s_end <span class="ot">&lt;-</span> <span class="fu">grepl</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">b</span><span class="sc">\\</span><span class="st">w+s</span><span class="sc">\\</span><span class="st">b"</span>, text_data<span class="sc">$</span>text)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>text_data[,<span class="fu">c</span>(<span class="st">"text"</span>,<span class="st">"contains_s_end"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                   text contains_s_end
+1                  Cats are great pets.           TRUE
+2               Dogs are loyal animals.           TRUE
+3                   Birds can fly high.           TRUE
+4                   Fish swim in water.          FALSE
+5                      Horses run fast.           TRUE
+6                  Rabbits hop quickly.           TRUE
+7                       Cows give milk.           TRUE
+8                      Sheep have wool.          FALSE
+9          Goats are curious creatures.           TRUE
+10   Lions are the kings of the jungle.           TRUE
+11                 Tigers have stripes.           TRUE
+12         Elephants are large animals.           TRUE
+13            Monkeys are very playful.           TRUE
+14            Giraffes have long necks.           TRUE
+15 Zebras have black and white stripes.           TRUE</code></pre>
+</div>
+</div>
+<p><strong>Explanation:</strong> <code>grepl("\\b\\w+s\\b", text_data$text)</code> checks each element of the <code>text</code> column for the presence of a word ending with ‘s’. Here, <code>\\b</code> indicates a word boundary, <code>\\w+</code> matches one or more word characters, and <code>s</code> matches the character ‘s’.</p>
+</section>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>The <code>grep</code>, <code>grepl</code>, <code>sub</code>, and <code>gsub</code> functions in R are powerful tools for text data analysis. They allow for efficient searching, pattern matching, and text manipulation, making them essential for any data analyst or data scientist working with textual data. By understanding how to use these functions and leveraging regular expressions, you can perform a wide range of text processing tasks, from simple searches to complex pattern replacements and text-based classifications.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/mfatihtuzen\.netlify\.app");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="MFatihTuzen/blogComments" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2023, M. Fatih Tüzen</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

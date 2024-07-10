@@ -80,9 +80,9 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-title','listing-author','listing-date','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
+      searchColumns: ["listing-title","listing-author","listing-date","listing-image","listing-description","listing-categories"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -210,7 +210,7 @@ window.Quarto = {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(9)</span></div><div class="category" data-category="Functions">Functions <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R Programming">R Programming <span class="quarto-category-count">(9)</span></div><div class="category" data-category="R Studio">R Studio <span class="quarto-category-count">(1)</span></div><div class="category" data-category="apply">apply <span class="quarto-category-count">(1)</span></div><div class="category" data-category="categorical data">categorical data <span class="quarto-category-count">(1)</span></div><div class="category" data-category="data types">data types <span class="quarto-category-count">(6)</span></div><div class="category" data-category="dataframe">dataframe <span class="quarto-category-count">(1)</span></div><div class="category" data-category="factor">factor <span class="quarto-category-count">(1)</span></div><div class="category" data-category="lapply">lapply <span class="quarto-category-count">(1)</span></div><div class="category" data-category="lists">lists <span class="quarto-category-count">(1)</span></div><div class="category" data-category="map">map <span class="quarto-category-count">(1)</span></div><div class="category" data-category="matrices">matrices <span class="quarto-category-count">(1)</span></div><div class="category" data-category="sapply">sapply <span class="quarto-category-count">(1)</span></div><div class="category" data-category="tibble">tibble <span class="quarto-category-count">(1)</span></div><div class="category" data-category="vectors">vectors <span class="quarto-category-count">(1)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(10)</span></div><div class="category" data-category="Functions">Functions <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R Programming">R Programming <span class="quarto-category-count">(10)</span></div><div class="category" data-category="R Studio">R Studio <span class="quarto-category-count">(1)</span></div><div class="category" data-category="apply">apply <span class="quarto-category-count">(1)</span></div><div class="category" data-category="categorical data">categorical data <span class="quarto-category-count">(1)</span></div><div class="category" data-category="data types">data types <span class="quarto-category-count">(6)</span></div><div class="category" data-category="dataframe">dataframe <span class="quarto-category-count">(1)</span></div><div class="category" data-category="factor">factor <span class="quarto-category-count">(1)</span></div><div class="category" data-category="grep">grep <span class="quarto-category-count">(1)</span></div><div class="category" data-category="grepl">grepl <span class="quarto-category-count">(1)</span></div><div class="category" data-category="gsub">gsub <span class="quarto-category-count">(1)</span></div><div class="category" data-category="lapply">lapply <span class="quarto-category-count">(1)</span></div><div class="category" data-category="lists">lists <span class="quarto-category-count">(1)</span></div><div class="category" data-category="map">map <span class="quarto-category-count">(1)</span></div><div class="category" data-category="matrices">matrices <span class="quarto-category-count">(1)</span></div><div class="category" data-category="regex">regex <span class="quarto-category-count">(1)</span></div><div class="category" data-category="sapply">sapply <span class="quarto-category-count">(1)</span></div><div class="category" data-category="sub">sub <span class="quarto-category-count">(1)</span></div><div class="category" data-category="text analysis">text analysis <span class="quarto-category-count">(1)</span></div><div class="category" data-category="tibble">tibble <span class="quarto-category-count">(1)</span></div><div class="category" data-category="vectors">vectors <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
 
@@ -221,7 +221,7 @@ window.Quarto = {
 
 
 
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
 <div class="listing-actions-group">
    <div class="input-group input-group-sm quarto-listing-sort">
      <span class="input-group-text"><i class="bi bi-sort-down"></i></span>
@@ -247,20 +247,61 @@ window.Quarto = {
       <input type="text" class="search form-control" placeholder="Filter">
     </div>
 </div>
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="R Programming,apply,sapply,lapply,map" data-listing-date-sort="1713128400000" data-listing-file-modified-sort="1719298077261" data-listing-date-modified-sort="1713128400000" data-listing-reading-time-sort="7" data-listing-word-count-sort="1370">
-<div class="thumbnail">
-<p><a href="./posts/2024-04-15_apply_map/index.html" class="no-external"></a></p><a href="./posts/2024-04-15_apply_map/index.html" class="no-external">
-<p class="card-img-top"><img src="posts\2024-04-15_apply_map\apply_map.png"  class="thumbnail-image card-img"/></p>
-</a><p><a href="./posts/2024-04-15_apply_map/index.html" class="no-external"></a></p>
+<div class="list grid quarto-listing-cols-3">
+<div class="g-col-1" data-index="0" data-categories="R Programming,grep,grepl,sub,gsub,regex,text analysis" data-listing-date-sort="1720472400000" data-listing-file-modified-sort="1720625620662" data-listing-date-modified-sort="1720472400000" data-listing-reading-time-sort="9" data-listing-word-count-sort="1669">
+<a href="./posts/2024-07-09_text_analyze/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top"><img src="posts\2024-07-09_text_analyze\text.png" style="height: 150px;"  class="thumbnail-image card-img"/></p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Text Data Analysis in R: Understanding grep, grepl, sub, and gsub
+</h5>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
+R Programming
 </div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/2024-04-15_apply_map/index.html" class="no-external">Exploring apply, sapply, lapply, and map Functions in R</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/2024-04-15_apply_map/index.html" class="no-external"></a>
+<div class="listing-category" onclick="window.quartoListingCategory('grep'); return false;">
+grep
 </div>
+<div class="listing-category" onclick="window.quartoListingCategory('grepl'); return false;">
+grepl
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('sub'); return false;">
+sub
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('gsub'); return false;">
+gsub
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('regex'); return false;">
+regex
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('text analysis'); return false;">
+text analysis
+</div>
+</div>
+<div class="card-text listing-description">
+In text data analysis, being able to search for patterns, validate their existence, and perform substitutions is crucial. R provides powerful base functions like <code>grep</code>, <code>grepl</code>, <code>…</code><code></code>
+</div>
+<div class="card-attribution card-text-small justify">
+<div class="listing-author">
+M. Fatih Tüzen
+</div>
+<div class="listing-date">
+Jul 9, 2024
+</div>
+</div>
+</div>
+</div>
+</a>
+</div>
+<div class="g-col-1" data-index="1" data-categories="R Programming,apply,sapply,lapply,map" data-listing-date-sort="1713128400000" data-listing-file-modified-sort="1719298077261" data-listing-date-modified-sort="1713128400000" data-listing-reading-time-sort="7" data-listing-word-count-sort="1370">
+<a href="./posts/2024-04-15_apply_map/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top"><img src="posts\2024-04-15_apply_map\apply_map.png" style="height: 150px;"  class="thumbnail-image card-img"/></p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Exploring apply, sapply, lapply, and map Functions in R
+</h5>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
 R Programming
@@ -278,34 +319,29 @@ lapply
 map
 </div>
 </div>
-<div class="listing-description">
-<a href="./posts/2024-04-15_apply_map/index.html" class="no-external">In R programming, Apply functions (<strong><code>apply()</code></strong>, <strong><code>sapply()</code></strong>, <strong><code>lapply()</code></strong>) and the <strong><code>map()</code></strong> function from the purrr package are powerful tools for data manipulation and analysis. In this…</a>
+<div class="card-text listing-description">
+In R programming, Apply functions (<strong><code>apply()</code></strong>, <strong><code>sapply()</code></strong>, <strong><code>lapply()</code></strong>) and the <strong><code>map()</code></strong> function from the purrr package are powerful tools for data manipulation and analysis. In this…
 </div>
-</div>
-<div class="metadata">
-<a href="./posts/2024-04-15_apply_map/index.html" class="no-external">
-<div class="listing-date">
-Apr 15, 2024
-</div>
+<div class="card-attribution card-text-small justify">
 <div class="listing-author">
 M. Fatih Tüzen
 </div>
+<div class="listing-date">
+Apr 15, 2024
+</div>
+</div>
+</div>
+</div>
 </a>
 </div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="R Programming,Functions" data-listing-date-sort="1705957200000" data-listing-file-modified-sort="1706017477251" data-listing-date-modified-sort="1705957200000" data-listing-reading-time-sort="16" data-listing-word-count-sort="3167">
-<div class="thumbnail">
-<p><a href="./posts/2024-01-22_functions/index.html" class="no-external"></a></p><a href="./posts/2024-01-22_functions/index.html" class="no-external">
-<p class="card-img-top"><img src="posts\2024-01-22_functions\gears.jpg"  class="thumbnail-image card-img"/></p>
-</a><p><a href="./posts/2024-01-22_functions/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/2024-01-22_functions/index.html" class="no-external">R Function Writing 101:A Journey Through Syntax, Best Practices, and More</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/2024-01-22_functions/index.html" class="no-external"></a>
-</div>
+<div class="g-col-1" data-index="2" data-categories="R Programming,Functions" data-listing-date-sort="1705957200000" data-listing-file-modified-sort="1706017477251" data-listing-date-modified-sort="1705957200000" data-listing-reading-time-sort="16" data-listing-word-count-sort="3167">
+<a href="./posts/2024-01-22_functions/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top"><img src="posts\2024-01-22_functions\gears.jpg" style="height: 150px;"  class="thumbnail-image card-img"/></p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+R Function Writing 101:A Journey Through Syntax, Best Practices, and More
+</h5>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
 R Programming
@@ -314,34 +350,29 @@ R Programming
 Functions
 </div>
 </div>
-<div class="listing-description">
-<a href="./posts/2024-01-22_functions/index.html" class="no-external">R is a powerful and versatile programming language widely used in data analysis, statistics, and visualization. One of the key features that make R so flexible is its…</a>
+<div class="card-text listing-description">
+R is a powerful and versatile programming language widely used in data analysis, statistics, and visualization. One of the key features that make R so flexible is its…
 </div>
-</div>
-<div class="metadata">
-<a href="./posts/2024-01-22_functions/index.html" class="no-external">
-<div class="listing-date">
-Jan 23, 2024
-</div>
+<div class="card-attribution card-text-small justify">
 <div class="listing-author">
 M. Fatih Tüzen
 </div>
+<div class="listing-date">
+Jan 23, 2024
+</div>
+</div>
+</div>
+</div>
 </a>
 </div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="R Programming,data types,factor,categorical data" data-listing-date-sort="1704920400000" data-listing-file-modified-sort="1704980260753" data-listing-date-modified-sort="1704920400000" data-listing-reading-time-sort="11" data-listing-word-count-sort="2070">
-<div class="thumbnail">
-<p><a href="./posts/2024-01-11_factors/index.html" class="no-external"></a></p><a href="./posts/2024-01-11_factors/index.html" class="no-external">
-<p class="card-img-top"><img src="posts\2024-01-11_factors\nominal_ordinal_binary.png" alt="https://allisonhorst.com/everything-else"  class="thumbnail-image card-img"/></p>
-</a><p><a href="./posts/2024-01-11_factors/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/2024-01-11_factors/index.html" class="no-external">Cracking the Code of Categorical Data: A Guide to Factors in R</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/2024-01-11_factors/index.html" class="no-external"></a>
-</div>
+<div class="g-col-1" data-index="3" data-categories="R Programming,data types,factor,categorical data" data-listing-date-sort="1704920400000" data-listing-file-modified-sort="1704980260753" data-listing-date-modified-sort="1704920400000" data-listing-reading-time-sort="11" data-listing-word-count-sort="2070">
+<a href="./posts/2024-01-11_factors/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top"><img src="posts\2024-01-11_factors\nominal_ordinal_binary.png" alt="https://allisonhorst.com/everything-else" style="height: 150px;"  class="thumbnail-image card-img"/></p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Cracking the Code of Categorical Data: A Guide to Factors in R
+</h5>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
 R Programming
@@ -356,34 +387,29 @@ factor
 categorical data
 </div>
 </div>
-<div class="listing-description">
-<a href="./posts/2024-01-11_factors/index.html" class="no-external">R programming is a versatile language known for its powerful statistical and data manipulation capabilities. One often-overlooked feature that plays a crucial role in…</a>
+<div class="card-text listing-description">
+R programming is a versatile language known for its powerful statistical and data manipulation capabilities. One often-overlooked feature that plays a crucial role in…
 </div>
-</div>
-<div class="metadata">
-<a href="./posts/2024-01-11_factors/index.html" class="no-external">
-<div class="listing-date">
-Jan 11, 2024
-</div>
+<div class="card-attribution card-text-small justify">
 <div class="listing-author">
 M. Fatih Tüzen
 </div>
+<div class="listing-date">
+Jan 11, 2024
+</div>
+</div>
+</div>
+</div>
 </a>
 </div>
-</div>
-<div class="quarto-post image-right" data-index="3" data-categories="R Programming,data types,dataframe,tibble" data-listing-date-sort="1703797200000" data-listing-file-modified-sort="1703854119609" data-listing-date-modified-sort="1703797200000" data-listing-reading-time-sort="8" data-listing-word-count-sort="1584">
-<div class="thumbnail">
-<p><a href="./posts/2023-12-29_dataframes/index.html" class="no-external"></a></p><a href="./posts/2023-12-29_dataframes/index.html" class="no-external">
-<p class="card-img-top"><img src="posts\2023-12-29_dataframes\dataframe.png"  class="thumbnail-image card-img"/></p>
-</a><p><a href="./posts/2023-12-29_dataframes/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/2023-12-29_dataframes/index.html" class="no-external">Unraveling DataFrames in R: A Comprehensive Guide</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/2023-12-29_dataframes/index.html" class="no-external"></a>
-</div>
+<div class="g-col-1" data-index="4" data-categories="R Programming,data types,dataframe,tibble" data-listing-date-sort="1703797200000" data-listing-file-modified-sort="1703854119609" data-listing-date-modified-sort="1703797200000" data-listing-reading-time-sort="8" data-listing-word-count-sort="1584">
+<a href="./posts/2023-12-29_dataframes/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top"><img src="posts\2023-12-29_dataframes\dataframe.png" style="height: 150px;"  class="thumbnail-image card-img"/></p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Unraveling DataFrames in R: A Comprehensive Guide
+</h5>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
 R Programming
@@ -398,34 +424,29 @@ dataframe
 tibble
 </div>
 </div>
-<div class="listing-description">
-<a href="./posts/2023-12-29_dataframes/index.html" class="no-external">In R, a data frame is a fundamental data structure used for storing data in a tabular format, similar to a spreadsheet or a database table. It’s a collection of vectors of…</a>
+<div class="card-text listing-description">
+In R, a data frame is a fundamental data structure used for storing data in a tabular format, similar to a spreadsheet or a database table. It’s a collection of vectors of…
 </div>
-</div>
-<div class="metadata">
-<a href="./posts/2023-12-29_dataframes/index.html" class="no-external">
-<div class="listing-date">
-Dec 29, 2023
-</div>
+<div class="card-attribution card-text-small justify">
 <div class="listing-author">
 M. Fatih Tüzen
 </div>
+<div class="listing-date">
+Dec 29, 2023
+</div>
+</div>
+</div>
+</div>
 </a>
 </div>
-</div>
-<div class="quarto-post image-right" data-index="4" data-categories="R Programming,data types,lists" data-listing-date-sort="1702933200000" data-listing-file-modified-sort="1702995937944" data-listing-date-modified-sort="1703019600000" data-listing-reading-time-sort="8" data-listing-word-count-sort="1567">
-<div class="thumbnail">
-<p><a href="./posts/2023-12-19_lists/index.html" class="no-external"></a></p><a href="./posts/2023-12-19_lists/index.html" class="no-external">
-<p class="card-img-top"><img src="posts\2023-12-19_lists\basket.jpg"  class="thumbnail-image card-img"/></p>
-</a><p><a href="./posts/2023-12-19_lists/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/2023-12-19_lists/index.html" class="no-external">Understanding Lists in R Programming</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/2023-12-19_lists/index.html" class="no-external"></a>
-</div>
+<div class="g-col-1" data-index="5" data-categories="R Programming,data types,lists" data-listing-date-sort="1702933200000" data-listing-file-modified-sort="1702995937944" data-listing-date-modified-sort="1703019600000" data-listing-reading-time-sort="8" data-listing-word-count-sort="1567">
+<a href="./posts/2023-12-19_lists/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top"><img src="posts\2023-12-19_lists\basket.jpg" style="height: 150px;"  class="thumbnail-image card-img"/></p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Understanding Lists in R Programming
+</h5>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
 R Programming
@@ -437,34 +458,29 @@ data types
 lists
 </div>
 </div>
-<div class="listing-description">
-<a href="./posts/2023-12-19_lists/index.html" class="no-external">R, a powerful statistical programming language, offers various data structures, and among them, <strong>lists</strong> stand out for their versatility and flexibility. Lists are collections…</a>
+<div class="card-text listing-description">
+R, a powerful statistical programming language, offers various data structures, and among them, <strong>lists</strong> stand out for their versatility and flexibility. Lists are collections…
 </div>
-</div>
-<div class="metadata">
-<a href="./posts/2023-12-19_lists/index.html" class="no-external">
-<div class="listing-date">
-Dec 19, 2023
-</div>
+<div class="card-attribution card-text-small justify">
 <div class="listing-author">
 M. Fatih Tüzen
 </div>
+<div class="listing-date">
+Dec 19, 2023
+</div>
+</div>
+</div>
+</div>
 </a>
 </div>
-</div>
-<div class="quarto-post image-right" data-index="5" data-categories="R Programming,data types,matrices" data-listing-date-sort="1700427600000" data-listing-file-modified-sort="1700553142754" data-listing-date-modified-sort="1700427600000" data-listing-reading-time-sort="12" data-listing-word-count-sort="2358">
-<div class="thumbnail">
-<p><a href="./posts/2023-11-20_matrices/index.html" class="no-external"></a></p><a href="./posts/2023-11-20_matrices/index.html" class="no-external">
-<p class="card-img-top"><img src="posts\2023-11-20_matrices\matrix.jpg"  class="thumbnail-image card-img"/></p>
-</a><p><a href="./posts/2023-11-20_matrices/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/2023-11-20_matrices/index.html" class="no-external">Understanding Matrices in R Programming</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/2023-11-20_matrices/index.html" class="no-external"></a>
-</div>
+<div class="g-col-1" data-index="6" data-categories="R Programming,data types,matrices" data-listing-date-sort="1700427600000" data-listing-file-modified-sort="1700553142754" data-listing-date-modified-sort="1700427600000" data-listing-reading-time-sort="12" data-listing-word-count-sort="2358">
+<a href="./posts/2023-11-20_matrices/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top"><img src="posts\2023-11-20_matrices\matrix.jpg" style="height: 150px;"  class="thumbnail-image card-img"/></p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Understanding Matrices in R Programming
+</h5>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
 R Programming
@@ -476,34 +492,29 @@ data types
 matrices
 </div>
 </div>
-<div class="listing-description">
-<a href="./posts/2023-11-20_matrices/index.html" class="no-external">Matrices are an essential data structure in R programming that allows for the manipulation and analysis of data in a two-dimensional format. Understanding their creation…</a>
+<div class="card-text listing-description">
+Matrices are an essential data structure in R programming that allows for the manipulation and analysis of data in a two-dimensional format. Understanding their creation…
 </div>
-</div>
-<div class="metadata">
-<a href="./posts/2023-11-20_matrices/index.html" class="no-external">
-<div class="listing-date">
-Nov 20, 2023
-</div>
+<div class="card-attribution card-text-small justify">
 <div class="listing-author">
 M. Fatih Tüzen
 </div>
+<div class="listing-date">
+Nov 20, 2023
+</div>
+</div>
+</div>
+</div>
 </a>
 </div>
-</div>
-<div class="quarto-post image-right" data-index="6" data-categories="R Programming,data types,vectors" data-listing-date-sort="1696280400000" data-listing-file-modified-sort="1704979635062" data-listing-date-modified-sort="1696280400000" data-listing-reading-time-sort="17" data-listing-word-count-sort="3323">
-<div class="thumbnail">
-<p><a href="./posts/2023-10-03_vectors/index.html" class="no-external"></a></p><a href="./posts/2023-10-03_vectors/index.html" class="no-external">
-<p class="card-img-top"><img src="posts\2023-10-03_vectors\atom.jpg"  class="thumbnail-image card-img"/></p>
-</a><p><a href="./posts/2023-10-03_vectors/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/2023-10-03_vectors/index.html" class="no-external">Exploring Vectors in R Programming: The Fundamental Building Blocks</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/2023-10-03_vectors/index.html" class="no-external"></a>
-</div>
+<div class="g-col-1" data-index="7" data-categories="R Programming,data types,vectors" data-listing-date-sort="1696280400000" data-listing-file-modified-sort="1704979635062" data-listing-date-modified-sort="1696280400000" data-listing-reading-time-sort="17" data-listing-word-count-sort="3323">
+<a href="./posts/2023-10-03_vectors/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top"><img src="posts\2023-10-03_vectors\atom.jpg" style="height: 150px;"  class="thumbnail-image card-img"/></p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Exploring Vectors in R Programming: The Fundamental Building Blocks
+</h5>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
 R Programming
@@ -515,34 +526,31 @@ data types
 vectors
 </div>
 </div>
-<div class="listing-description">
-<a href="./posts/2023-10-03_vectors/index.html" class="no-external">In the realm of R programming, vectors serve as the fundamental building blocks that underpin virtually every data analysis and manipulation task. Much like atoms are the…</a>
+<div class="card-text listing-description">
+In the realm of R programming, vectors serve as the fundamental building blocks that underpin virtually every data analysis and manipulation task. Much like atoms are the…
 </div>
-</div>
-<div class="metadata">
-<a href="./posts/2023-10-03_vectors/index.html" class="no-external">
-<div class="listing-date">
-Oct 3, 2023
-</div>
+<div class="card-attribution card-text-small justify">
 <div class="listing-author">
 M. Fatih Tüzen
 </div>
+<div class="listing-date">
+Oct 3, 2023
+</div>
+</div>
+</div>
+</div>
 </a>
 </div>
-</div>
-<div class="quarto-post image-right" data-index="7" data-categories="R Programming,data types" data-listing-date-sort="1695675600000" data-listing-file-modified-sort="1695728433746" data-listing-date-modified-sort="1695675600000" data-listing-reading-time-sort="17" data-listing-word-count-sort="3352">
-<div class="thumbnail">
-<p><a href="./posts/2023-09-25_data_types/index.html" class="no-external"></a></p><a href="./posts/2023-09-25_data_types/index.html" class="no-external">
-<p><img src="./posts/2023-09-25_data_types/blocks.jpg" class="thumbnail-image"></p>
-</a><p><a href="./posts/2023-09-25_data_types/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/2023-09-25_data_types/index.html" class="no-external">Understanding Data Types in R</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/2023-09-25_data_types/index.html" class="no-external"></a>
-</div>
+<div class="g-col-1" data-index="8" data-categories="R Programming,data types" data-listing-date-sort="1695675600000" data-listing-file-modified-sort="1695728433746" data-listing-date-modified-sort="1695675600000" data-listing-reading-time-sort="17" data-listing-word-count-sort="3352">
+<a href="./posts/2023-09-25_data_types/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top">
+<img src="./posts/2023-09-25_data_types/blocks.jpg" class="thumbnail-image card-img" style="height: 150px;">
+</p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Understanding Data Types in R
+</h5>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
 R Programming
@@ -551,34 +559,31 @@ R Programming
 data types
 </div>
 </div>
-<div class="listing-description">
-<a href="./posts/2023-09-25_data_types/index.html" class="no-external">Learning R programming is akin to constructing a sturdy building. You need a powerful foundation to support the structure. Just as a building’s foundation dictates its…</a>
+<div class="card-text listing-description">
+Learning R programming is akin to constructing a sturdy building. You need a powerful foundation to support the structure. Just as a building’s foundation dictates its…
 </div>
-</div>
-<div class="metadata">
-<a href="./posts/2023-09-25_data_types/index.html" class="no-external">
-<div class="listing-date">
-Sep 26, 2023
-</div>
+<div class="card-attribution card-text-small justify">
 <div class="listing-author">
 M. Fatih Tüzen
 </div>
+<div class="listing-date">
+Sep 26, 2023
+</div>
+</div>
+</div>
+</div>
 </a>
 </div>
-</div>
-<div class="quarto-post image-right" data-index="8" data-categories="R Programming,R Studio" data-listing-date-sort="1692046800000" data-listing-file-modified-sort="1695728092984" data-listing-date-modified-sort="1693515600000" data-listing-reading-time-sort="12" data-listing-word-count-sort="2303">
-<div class="thumbnail">
-<p><a href="./posts/2023-08-15_r-intro/index.html" class="no-external"></a></p><a href="./posts/2023-08-15_r-intro/index.html" class="no-external">
-<p><img src="./posts/2023-08-15_r-intro/RStudio-Ball.png" class="thumbnail-image"></p>
-</a><p><a href="./posts/2023-08-15_r-intro/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/2023-08-15_r-intro/index.html" class="no-external">A Gentle Introduction to R Programming</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/2023-08-15_r-intro/index.html" class="no-external"></a>
-</div>
+<div class="g-col-1" data-index="9" data-categories="R Programming,R Studio" data-listing-date-sort="1692046800000" data-listing-file-modified-sort="1695728092984" data-listing-date-modified-sort="1693515600000" data-listing-reading-time-sort="12" data-listing-word-count-sort="2303">
+<a href="./posts/2023-08-15_r-intro/index.html" class="quarto-grid-link">
+<div class="quarto-grid-item card h-100 card-left">
+<p class="card-img-top">
+<img src="./posts/2023-08-15_r-intro/RStudio-Ball.png" class="thumbnail-image card-img" style="height: 150px;">
+</p>
+<div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+A Gentle Introduction to R Programming
+</h5>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('R Programming'); return false;">
 R Programming
@@ -587,20 +592,20 @@ R Programming
 R Studio
 </div>
 </div>
-<div class="listing-description">
-<a href="./posts/2023-08-15_r-intro/index.html" class="no-external">Hello everyone! For my first post on my blog, I would like to make an introduction about R. Before we start coding with R, it’s not a bad idea to know a little about this…</a>
+<div class="card-text listing-description">
+Hello everyone! For my first post on my blog, I would like to make an introduction about R. Before we start coding with R, it’s not a bad idea to know a little about this…
 </div>
-</div>
-<div class="metadata">
-<a href="./posts/2023-08-15_r-intro/index.html" class="no-external">
-<div class="listing-date">
-Aug 15, 2023
-</div>
+<div class="card-attribution card-text-small justify">
 <div class="listing-author">
 M. Fatih Tüzen
 </div>
-</a>
+<div class="listing-date">
+Aug 15, 2023
 </div>
+</div>
+</div>
+</div>
+</a>
 </div>
 </div>
 <div class="listing-no-matching d-none">
