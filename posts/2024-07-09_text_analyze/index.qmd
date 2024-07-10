@@ -1,5 +1,5 @@
 ---
-title: "Text Data Analysis in R: Understanding grep, grepl, sub, and gsub"
+title: "Text Data Analysis in R: Understanding grep, grepl, sub and gsub"
 author: "M. Fatih Tüzen"
 date: "2024-07-09"
 date-modified: "2024-07-09"
