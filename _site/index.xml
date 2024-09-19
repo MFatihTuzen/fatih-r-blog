@@ -10,7 +10,587 @@
 <atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Blog posts about R and Statistics</description>
 <generator>quarto-1.4.551</generator>
-<lastBuildDate>Mon, 08 Jul 2024 21:00:00 GMT</lastBuildDate>
+<lastBuildDate>Wed, 18 Sep 2024 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>Mastering Data Transformation in R with pivot_longer and pivot_wider</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2024-09-19_pivot/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="https://www.pipinghotdata.com/posts/2021-08-27-a-tidyverse-pivot-approach-to-data-preparation-in-r/"><img src="https://mfatihtuzen.netlify.app/posts/2024-09-19_pivot/pivot.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Artwork by: Shannon Pileggi and Allison Horst"></a></p>
+</figure>
+</div>
+<figcaption>Artwork by: Shannon Pileggi and Allison Horst</figcaption>
+</figure>
+</div>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Data analysis requires a deep understanding of how to structure data effectively. Often, datasets are not in the format most suitable for analysis or visualization. That’s where data transformation comes in. Converting data between wide (horizontal) and long (vertical) formats is an essential skill for any data analyst or scientist, ensuring that data is correctly organized for tasks such as statistical modeling, machine learning, or visualization.</p>
+<p>The concept of tidy data plays a crucial role in this process. Tidy data principles advocate for a structure where each variable forms a column and each observation forms a row. This consistent structure facilitates easier and more effective data manipulation, analysis, and visualization. By adhering to these principles, you can ensure that your data is well-organized and suited to various analytical tasks.</p>
+<p>In this post, we’ll dive into data transformation using the <code>tidyr</code> package in R, specifically focusing on the <code>pivot_longer()</code> and <code>pivot_wider()</code> functions. We’ll explore their theoretical background, use cases, and the importance of reshaping data in data science. Additionally, we’ll discuss when and why we should use wide or long formats, and analyze their advantages and disadvantages.</p>
+</section>
+<section id="why-data-transformation-is-essential" class="level2">
+<h2 class="anchored" data-anchor-id="why-data-transformation-is-essential">Why Data Transformation is Essential</h2>
+<p>In data science, structuring data appropriately can be the difference between smooth analysis and frustrating errors. Here’s why reshaping data matters:</p>
+<ul>
+<li><p><strong>Preparation for modeling</strong>: Many machine learning algorithms require data in long format, where each observation is represented by a single row.</p></li>
+<li><p><strong>Improved visualization</strong>: Libraries like <code>ggplot2</code> in R are designed to work best with long data, allowing for more flexible and detailed plots.</p></li>
+<li><p><strong>Data management and reporting</strong>: Certain summary statistics or reports are more intuitive when the data is presented in a wide format, making tables easier to interpret.</p></li>
+</ul>
+<p>Choosing the correct format can optimize both data handling and the clarity of your analysis.</p>
+</section>
+<section id="theoretical-overview" class="level2">
+<h2 class="anchored" data-anchor-id="theoretical-overview">Theoretical Overview</h2>
+<ul>
+<li><p><strong><code>pivot_longer()</code></strong>: Converts wide-format data (where variables are spread across columns) into a long format (where each variable is in a single column). This is particularly useful when you need to simplify your dataset for analysis or visualization.</p></li>
+<li><p><strong><code>pivot_wider()</code></strong>: Converts long-format data (where values are repeated across rows) into wide format, useful when data summarization or comparison across categories is required.</p></li>
+</ul>
+<p><strong>Function Arguments:</strong></p>
+<ul>
+<li><p><code>pivot_longer()</code>:</p>
+<ul>
+<li><p><code>data</code>: The dataset to be transformed.</p></li>
+<li><p><code>cols</code>: Specifies the columns to pivot from wide to long.</p></li>
+<li><p><code>names_to</code>: The name of the new column that will store the pivoted column names.</p></li>
+<li><p><code>values_to</code>: The name of the new column that will store the pivoted values.</p></li>
+<li><p><code>values_drop_na</code>: Drops rows where the pivoted value is <code>NA</code> if set to <code>TRUE</code>.</p></li>
+</ul></li>
+<li><p><code>pivot_wider()</code>:</p>
+<ul>
+<li><p><code>data</code>: The dataset to be transformed.</p></li>
+<li><p><code>names_from</code>: Specifies which column’s values should become the column names in the wide format.</p></li>
+<li><p><code>values_from</code>: The column that contains the values to fill into the new wide-format columns.</p></li>
+<li><p><code>values_fill</code>: A value to fill missing entries when transforming to wide format.</p></li>
+</ul></li>
+</ul>
+</section>
+<section id="advantages-and-disadvantages-of-wide-vs.-long-formats" class="level2">
+<h2 class="anchored" data-anchor-id="advantages-and-disadvantages-of-wide-vs.-long-formats">Advantages and Disadvantages of Wide vs.&nbsp;Long Formats</h2>
+<table class="table">
+<colgroup>
+<col style="width: 49%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Wide Format</strong></th>
+<th><strong>Long Format</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Advantages</strong>: Easier to read for summary tables and simple reports. Can be more efficient for certain statistical summaries (e.g., total sales per month).</td>
+<td><strong>Advantages</strong>: Ideal for detailed analysis and visualization (e.g., time series plots). Allows flexible data manipulation and easier grouping/summarization.</td>
+</tr>
+<tr class="even">
+<td><strong>Disadvantages</strong>: Can become unwieldy with many variables or time points. Not suitable for machine learning or statistical models that expect long data.</td>
+<td><strong>Disadvantages</strong>: Harder to interpret at a glance. May require more computational resources when handling large datasets.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>When to Use Wide Format</strong>: Wide format is best for reporting, as it condenses information into fewer rows and is often more visually intuitive in summary tables.</p>
+<p><strong>When to Use Long Format</strong>: Long format is essential for most analysis, particularly when working with time-series data, categorical data, or preparing data for machine learning algorithms.</p>
+</section>
+<section id="some-examples" class="level2">
+<h2 class="anchored" data-anchor-id="some-examples">Some Examples</h2>
+<section id="basic-data-transformation-using-pivot_longer" class="level3">
+<h3 class="anchored" data-anchor-id="basic-data-transformation-using-pivot_longer">Basic Data Transformation Using <code>pivot_longer()</code></h3>
+<p>Let’s revisit the monthly sales data:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyr)</span>
+<span id="cb1-2">sales_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(</span>
+<span id="cb1-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">product =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C"</span>),</span>
+<span id="cb1-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Jan =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">600</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">300</span>),</span>
+<span id="cb1-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Feb =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">450</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">700</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">320</span>),</span>
+<span id="cb1-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Mar =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">520</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">640</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">310</span>)</span>
+<span id="cb1-7">)</span>
+<span id="cb1-8">sales_data</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  product Jan Feb Mar
+1       A 500 450 520
+2       B 600 700 640
+3       C 300 320 310</code></pre>
+</div>
+</div>
+<p>Using <code>pivot_longer()</code>, we convert it to a long format:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">sales_long <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pivot_longer</span>(sales_data, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">cols =</span> Jan<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>Mar, </span>
+<span id="cb3-2">                           <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">names_to =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"month"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values_to =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sales"</span>)</span>
+<span id="cb3-3">sales_long</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 9 × 3
+  product month sales
+  &lt;chr&gt;   &lt;chr&gt; &lt;dbl&gt;
+1 A       Jan     500
+2 A       Feb     450
+3 A       Mar     520
+4 B       Jan     600
+5 B       Feb     700
+6 B       Mar     640
+7 C       Jan     300
+8 C       Feb     320
+9 C       Mar     310</code></pre>
+</div>
+</div>
+<p>This format is perfect for generating time-series visualizations, analyzing trends, or feeding the data into statistical models that expect a single observation per row.</p>
+</section>
+<section id="reshaping-data-with-pivot_wider" class="level3">
+<h3 class="anchored" data-anchor-id="reshaping-data-with-pivot_wider">Reshaping Data with <code>pivot_wider()</code></h3>
+<p>Now, let’s take the long-format data from Example 1 and use <code>pivot_wider()</code> to convert it back to wide format:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">sales_wide <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pivot_wider</span>(sales_long, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">names_from =</span> month, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values_from =</span> sales)</span>
+<span id="cb5-2">sales_wide</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  product   Jan   Feb   Mar
+  &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 A         500   450   520
+2 B         600   700   640
+3 C         300   320   310</code></pre>
+</div>
+</div>
+<p>This wide format is easier to read when creating summary reports or comparison tables across months.</p>
+</section>
+<section id="handling-complex-data-with-missing-values" class="level3">
+<h3 class="anchored" data-anchor-id="handling-complex-data-with-missing-values">Handling Complex Data with Missing Values</h3>
+<p>Let’s extend the example to include regional sales data with missing values:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">sales_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(</span>
+<span id="cb7-2">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">product =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C"</span>),</span>
+<span id="cb7-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">region =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"North"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"South"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"North"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"South"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"North"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"South"</span>),</span>
+<span id="cb7-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Jan =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>, <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">600</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">580</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">300</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">350</span>),</span>
+<span id="cb7-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Feb =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">450</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">490</span>, <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">700</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">320</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">400</span>)</span>
+<span id="cb7-6">)</span>
+<span id="cb7-7">sales_data</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  product region Jan Feb
+1       A  North 500 450
+2       A  South  NA 490
+3       B  North 600  NA
+4       B  South 580 700
+5       C  North 300 320
+6       C  South 350 400</code></pre>
+</div>
+</div>
+<p>Using <code>pivot_longer()</code>, we can transform this dataset while removing missing values:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">sales_long <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pivot_longer</span>(sales_data, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">cols =</span> Jan<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>Feb, </span>
+<span id="cb9-2">                           <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">names_to =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"month"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values_to =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sales"</span>, </span>
+<span id="cb9-3">                           <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values_drop_na =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb9-4"></span>
+<span id="cb9-5">sales_long</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 4
+   product region month sales
+   &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt; &lt;dbl&gt;
+ 1 A       North  Jan     500
+ 2 A       North  Feb     450
+ 3 A       South  Feb     490
+ 4 B       North  Jan     600
+ 5 B       South  Jan     580
+ 6 B       South  Feb     700
+ 7 C       North  Jan     300
+ 8 C       North  Feb     320
+ 9 C       South  Jan     350
+10 C       South  Feb     400</code></pre>
+</div>
+</div>
+<p>The missing values have been dropped, and the data is now in a form that can be analyzed by month, region, or product.</p>
+</section>
+</section>
+<section id="importance-of-data-transformation-in-visualization" class="level2">
+<h2 class="anchored" data-anchor-id="importance-of-data-transformation-in-visualization">Importance of Data Transformation in Visualization</h2>
+<p>One of the most significant advantages of transforming data into a long format is the ease of visualizing it. Visualization libraries like <code>ggplot2</code> in R often require data to be in long format for producing detailed and layered charts. For instance, the ability to map different variables to the aesthetics of a plot (such as color, size, or shape) is much simpler with long-format data.</p>
+<p>Consider the example of monthly sales data. When the data is in wide format, plotting each product’s sales across months can be cumbersome and limited. However, converting the data into long format allows us to easily generate visualizations that compare sales trends across products and months.</p>
+<p>Here’s an example bar plot illustrating the sales data in long format:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Gerekli paketleri yükle</span></span>
+<span id="cb11-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyr)</span>
+<span id="cb11-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggplot2)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'ggplot2' was built under R version 4.3.3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Veri setini oluştur</span></span>
+<span id="cb13-2">sales_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(</span>
+<span id="cb13-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">product =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C"</span>),</span>
+<span id="cb13-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Jan =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">600</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">300</span>),</span>
+<span id="cb13-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Feb =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">450</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">700</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">320</span>),</span>
+<span id="cb13-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Mar =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">520</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">640</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">310</span>)</span>
+<span id="cb13-7">)</span>
+<span id="cb13-8"></span>
+<span id="cb13-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Veriyi uzun formata dönüştür</span></span>
+<span id="cb13-10">sales_long <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pivot_longer</span>(sales_data, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">cols =</span> Jan<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>Mar, </span>
+<span id="cb13-11">                           <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">names_to =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"month"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values_to =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sales"</span>)</span>
+<span id="cb13-12"></span>
+<span id="cb13-13"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Çubuk grafiği oluştur</span></span>
+<span id="cb13-14"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(sales_long, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> month, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> sales, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> product)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb13-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_bar</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">stat =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"identity"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dodge"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb13-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Sales Data: Long Format Example"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Month"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Sales"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb13-17">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb13-18">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">hjust =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>))</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2024-09-19_pivot/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><p><strong><code>sales_data</code></strong>: A wide-format dataset containing the sales of products across different months.</p></li>
+<li><p><strong><code>pivot_longer()</code></strong>: Used to transform data from a wide format to a long format.</p></li>
+<li><p><strong><code>ggplot()</code></strong>: Used to create a bar plot. The <code>aes()</code> function specifies the axes and coloring (for different products).</p></li>
+<li><p><strong><code>geom_bar()</code></strong>: Draws the bar plot.</p></li>
+<li><p><strong><code>labs()</code></strong>: Adds titles and axis labels.</p></li>
+<li><p><strong><code>theme_minimal()</code></strong>: Applies a minimal theme.</p></li>
+<li><p><strong><code>position = "dodge"</code></strong>: Draws the bars for products side by side.</p></li>
+</ul>
+<p>The generated plot would illustrate how <code>pivot_longer()</code> facilitates better visualizations by organizing data in a manner that allows for flexible plotting.</p>
+<p><strong>Why Visualization Matters</strong>:</p>
+<ul>
+<li><p><strong>Clear Insights</strong>: Long format allows better representation of complex relationships.</p></li>
+<li><p><strong>Flexible Aesthetics</strong>: With long format data, you can map multiple variables to visual properties (like color or size) more easily.</p></li>
+<li><p><strong>Layering Data</strong>: Especially in time-series or categorical data, layering information through visual channels becomes more efficient with long data.</p></li>
+</ul>
+<p>Without reshaping data, creating advanced visualizations for effective storytelling becomes challenging, making data transformation crucial in exploratory data analysis (EDA) and reporting.</p>
+</section>
+<section id="importance-in-data-science" class="level2">
+<h2 class="anchored" data-anchor-id="importance-in-data-science">Importance in Data Science</h2>
+<p>In data science, the ability to reshape data is critical for exploratory data analysis (EDA), feature engineering, and model preparation. Many statistical models and machine learning algorithms expect data in long format, with each observation represented as a row. Converting between formats, especially in the cleaning and pre-processing phase, helps to avoid common errors in analysis, improves the quality of insights, and makes data manipulation more intuitive.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Alternatives <strong>to <code>pivot_longer()</code> and <code>pivot_wider()</code></strong>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>While <code>pivot_longer()</code> and <code>pivot_wider()</code> are part of the <code>tidyr</code> package and are widely used, there are alternative methods for reshaping data in R.</p>
+<p>Historically, functions like <code>gather()</code> and <code>spread()</code> from the <code>tidyr</code> package were used for similar tasks before <code>pivot_longer()</code> and <code>pivot_wider()</code> became available. <code>gather()</code> was used to convert data from a wide format to a long format, while <code>spread()</code> was used to convert data from long to wide format. These functions laid the groundwork for the more flexible and consistent <code>pivot_longer()</code> and <code>pivot_wider()</code>.</p>
+<p>In addition to <code>pivot_longer()</code> and <code>pivot_wider()</code>, there are alternative methods for reshaping data in R. The <code>reshape2</code> package offers <code>melt()</code> and <code>dcast()</code> functions as older but still functional alternatives for reshaping data. Base R also provides the <code>reshape()</code> function, which is more flexible but less intuitive compared to <code>pivot_longer()</code> and <code>pivot_wider()</code>.</p>
+</div>
+</div>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>Data transformation using <code>pivot_longer()</code> and <code>pivot_wider()</code> is fundamental in both everyday analysis and more advanced data science tasks. Choosing the correct data structure—whether wide or long—will optimize your workflow, whether you’re modeling, visualizing, or reporting.</p>
+<p>The concept of tidy data, which emphasizes a consistent structure where each variable forms a column and each observation forms a row, is crucial in leveraging these functions effectively. By adhering to tidy data principles, you can ensure that your data is well-organized, making it easier to apply transformations and perform analyses. Through <code>pivot_longer()</code> and <code>pivot_wider()</code>, you gain flexibility in reshaping your data to meet the specific needs of your project, facilitating better data manipulation, visualization, and insight extraction.</p>
+<p>Understanding when and why to use these transformations, alongside maintaining tidy data practices, will enhance your ability to work with complex datasets and produce meaningful results.</p>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<ol type="1">
+<li><p><a href="https://ggplot2-book.org/">Wickham, H. (2016). <em>ggplot2: Elegant Graphics for Data Analysis</em>. Springer-Verlag.</a></p></li>
+<li><p><a href="https://adv-r.hadley.nz/">Wickham, H. (2019). <em>Advanced R</em>. Chapman and Hall/CRC.</a></p></li>
+<li><p><a href="https://r4ds.hadley.nz/">Wickham, H., Çetinkaya-Rundel, M., &amp; Grolemund, G. (2023). <em>R for data science</em> (2nd ed.). O’Reilly Media.</a></p></li>
+</ol>
+
+
+</section>
+
+ ]]></description>
+  <category>R Programming</category>
+  <category>tidyr</category>
+  <category>pivot_wider</category>
+  <category>pivot_longer</category>
+  <category>data transformation</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2024-09-19_pivot/</guid>
+  <pubDate>Wed, 18 Sep 2024 21:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Text Data Analysis in R: Understanding grep, grepl, sub and gsub</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>
