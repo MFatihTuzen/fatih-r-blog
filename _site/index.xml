@@ -10,7 +10,1575 @@
 <atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Blog posts about R and Statistics</description>
 <generator>quarto-1.4.551</generator>
-<lastBuildDate>Wed, 18 Sep 2024 21:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 29 Sep 2024 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>Mastering Date and Time Data in R with lubridate</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2024-09-30_lubridate/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="https://allisonhorst.com/r-packages-functions"><img src="https://mfatihtuzen.netlify.app/posts/2024-09-30_lubridate/lubridate.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Artwork by: Allison Horst"></a></p>
+</figure>
+</div>
+<figcaption>Artwork by: Allison Horst</figcaption>
+</figure>
+</div>
+<section id="what-is-lubridate" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-lubridate">What is lubridate?</h2>
+<p><strong>lubridate</strong> is a powerful and widely-used package in the <strong>tidyverse</strong> ecosystem, specifically designed for making date-time manipulation in R both easier and more intuitive. It was created to address the common difficulties users face when working with dates and times, which are often stored in a variety of inconsistent formats or require complex arithmetic operations.</p>
+<p>Developed and maintained by the <strong>RStudio</strong> team as part of the tidyverse collection of packages, <strong>lubridate</strong> introduces a simpler syntax for parsing, extracting, and manipulating date-time data, allowing for faster and more accurate operations.</p>
+<p>Key benefits of using <strong>lubridate</strong> include:</p>
+<ul>
+<li><p><strong>Simplified parsing</strong> of dates and times from a wide variety of formats.</p></li>
+<li><p><strong>Easy extraction</strong> of components such as year, month, day, or hour from date-time objects.</p></li>
+<li><p><strong>Seamless handling of time zones</strong>, allowing conversion between different zones with ease.</p></li>
+<li><p><strong>Efficient arithmetic operations</strong> on dates, such as adding or subtracting days, months, or years.</p></li>
+<li><p><strong>Support for durations and intervals</strong>, crucial for working with time spans in real-world applications.</p></li>
+</ul>
+<p>For further documentation, tutorials, and resources, you can explore the <strong>lubridate</strong> official website: <a href="https://lubridate.tidyverse.org" class="uri">https://lubridate.tidyverse.org</a>.</p>
+</section>
+<section id="introduction-to-date-and-time-formats" class="level2">
+<h2 class="anchored" data-anchor-id="introduction-to-date-and-time-formats">Introduction to Date and Time Formats</h2>
+<p>Date and time data are essential in many fields, from finance and biology to web analytics and logistics. However, handling such data can be difficult due to the variety of formats and time zones involved. In R, base functions like <code>as.Date()</code> or <code>strptime()</code> can handle date-time data, but their syntax can be cumbersome when dealing with multiple formats or time zones.</p>
+<p>The <strong>lubridate</strong> package simplifies these tasks by offering intuitive functions that handle date-time data efficiently, helping us avoid many of the common pitfalls associated with date and time manipulation.</p>
+</section>
+<section id="why-do-we-need-lubridate" class="level2">
+<h2 class="anchored" data-anchor-id="why-do-we-need-lubridate">Why Do We Need lubridate?</h2>
+<p>While R provides several built-in functions for date-time manipulation, they can quickly become limited or difficult to use in more complex scenarios. The <strong>lubridate</strong> package provides solutions by:</p>
+<ul>
+<li><p>Offering intuitive functions to parse and format dates.</p></li>
+<li><p>Supporting a variety of date-time formats in a single command.</p></li>
+<li><p>Simplifying the extraction and modification of date-time components (like year, month, or hour).</p></li>
+<li><p>Facilitating the handling of time zones, durations, and intervals.</p></li>
+</ul>
+</section>
+<section id="date-and-time-formats-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="date-and-time-formats-in-r">Date and Time Formats in R</h2>
+<p>In R, dates are typically stored in <code>Date</code> format (which does not include time information), while date-time data is stored in <code>POSIXct</code> or <code>POSIXlt</code> formats. These formats support timestamps and can handle time zones. For example:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1">date_example <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.Date</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-09-30"</span>)</span>
+<span id="cb1-2">date_example</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-30"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">datetime_example <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.POSIXct</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-09-30 14:45:00"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tz =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"UTC"</span>)</span>
+<span id="cb3-2">datetime_example</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-30 14:45:00 UTC"</code></pre>
+</div>
+</div>
+<p>These formats work well for simple tasks but quickly become difficult to manage in more complex scenarios. That’s where <strong>lubridate</strong> steps in.</p>
+</section>
+<section id="common-lubridate-functions-and-their-arguments" class="level2">
+<h2 class="anchored" data-anchor-id="common-lubridate-functions-and-their-arguments">Common lubridate Functions and Their Arguments</h2>
+<section id="parsing-dates-and-times" class="level3">
+<h3 class="anchored" data-anchor-id="parsing-dates-and-times"><strong>Parsing Dates and Times</strong></h3>
+<p>One of the core strengths of <strong>lubridate</strong> is its ability to simplify the parsing of date and time data from various formats. Functions like <code>ymd()</code>, <code>mdy()</code>, <code>dmy()</code>, and their date-time counterparts (<code>ymd_hms()</code>, <code>mdy_hms()</code>, etc.) make it easy to convert strings into R’s <code>Date</code> or <code>POSIXct</code> objects.</p>
+<section id="what-do-the-letters-y-m-d-stand-for" class="level4">
+<h4 class="anchored" data-anchor-id="what-do-the-letters-y-m-d-stand-for">What do the letters <code>y</code>, <code>m</code>, <code>d</code> stand for?</h4>
+<p>The functions are named according to the order in which the date components appear in the input string:</p>
+<ul>
+<li><p><code>y</code> stands for <strong>year</strong></p></li>
+<li><p><code>m</code> stands for <strong>month</strong></p></li>
+<li><p><code>d</code> stands for <strong>day</strong></p></li>
+<li><p><code>h</code>, <code>m</code>, <code>s</code> (used in date-time functions) stand for <strong>hours</strong>, <strong>minutes</strong>, and <strong>seconds</strong></p></li>
+</ul>
+<p>For example:</p>
+<ul>
+<li><p><strong><code>ymd()</code></strong> parses a string where the date components are in the order <strong>year-month-day</strong>.</p></li>
+<li><p><strong><code>mdy()</code></strong> parses a string formatted as <strong>month-day-year</strong>.</p></li>
+<li><p><strong><code>dmy()</code></strong> parses a string in <strong>day-month-year</strong> order.</p></li>
+</ul>
+<!-- -->
+<ul>
+<li>Functions: <code>ymd()</code>, <code>mdy()</code>, <code>dmy()</code>, <code>ymd_hms()</code>, <code>mdy_hms()</code>, <code>dmy_hms()</code></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(lubridate)</span>
+<span id="cb5-2"></span>
+<span id="cb5-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert date strings to Date objects</span></span>
+<span id="cb5-4">date1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-09-30"</span>)</span>
+<span id="cb5-5">date1</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-30"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">date2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dmy</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"30-09-2024"</span>)</span>
+<span id="cb7-2">date2</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-30"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">date3 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mdy</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"09/30/2024"</span>)</span>
+<span id="cb9-2">date3</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-30"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert to date-time</span></span>
+<span id="cb11-2">datetime1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd_hms</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-09-21 14:45:00"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tz =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"UTC"</span>)</span>
+<span id="cb11-3">datetime1</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-21 14:45:00 UTC"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1">datetime2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mdy_hms</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"09/21/2024 02:45:00 PM"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tz =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"America/New_York"</span>)</span>
+<span id="cb13-2">datetime2</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-21 14:45:00 EDT"</code></pre>
+</div>
+</div>
+<p>By using specific functions for different formats (<code>ymd()</code>, <code>mdy()</code>, <code>dmy()</code>), you don’t need to worry about the order of date components. This ensures flexibility and reduces errors when working with various data sources.</p>
+<p>These functions simplify the process by allowing you to focus only on the structure of the input data and not on specifying complex format strings, as would be necessary with base R functions like <code>as.Date()</code> or <code>strptime()</code>.</p>
+</section>
+</section>
+<section id="extracting-date-time-components" class="level3">
+<h3 class="anchored" data-anchor-id="extracting-date-time-components">Extracting Date-Time Components</h3>
+<p>Once you have parsed a date-time object using <strong>lubridate</strong>, you often need to extract or modify specific components, such as the year, month, day, or time. This is essential when analyzing data based on time periods, summarizing by year, or creating time-based features for models.</p>
+<p><strong>Functions to Extract Date-Time Components</strong></p>
+<p>Here are the most commonly used <strong>lubridate</strong> functions to extract specific parts of a date-time object:</p>
+<ul>
+<li><p><strong><code>year()</code></strong>: Extracts or sets the year.</p></li>
+<li><p><strong><code>month()</code></strong>: Extracts or sets the month. This function can also return the month’s name if <code>label = TRUE</code> is used.</p></li>
+<li><p><strong><code>day()</code></strong>: Extracts or sets the day of the month.</p></li>
+<li><p><strong><code>hour()</code></strong>: Extracts or sets the hour (for time-based objects).</p></li>
+<li><p><strong><code>minute()</code></strong>: Extracts or sets the minute.</p></li>
+<li><p><strong><code>second()</code></strong>: Extracts or sets the second.</p></li>
+<li><p><strong><code>wday()</code></strong>: Extracts the day of the week (can return the weekday’s name if <code>label = TRUE</code>).</p></li>
+<li><p><strong><code>yday()</code></strong>: Extracts the day of the year (1–365 or 366 for leap years).</p></li>
+<li><p><strong><code>mday()</code></strong>: Extracts the day of the month.</p></li>
+</ul>
+<p>Let’s work with a parsed date-time object and extract its components:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(lubridate)</span>
+<span id="cb15-2"></span>
+<span id="cb15-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Parsing a date-time object</span></span>
+<span id="cb15-4">datetime <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd_hms</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-09-30 14:45:30"</span>)</span>
+<span id="cb15-5"></span>
+<span id="cb15-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extracting components</span></span>
+<span id="cb15-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">year</span>(datetime)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2024</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">month</span>(datetime) </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 9</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">day</span>(datetime) </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 30</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">hour</span>(datetime) </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 14</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">minute</span>(datetime)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 45</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">second</span>(datetime)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 30</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extracting weekday</span></span>
+<span id="cb27-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">wday</span>(datetime)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">wday</span>(datetime, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] Mon
+Levels: Sun &lt; Mon &lt; Tue &lt; Wed &lt; Thu &lt; Fri &lt; Sat</code></pre>
+</div>
+</div>
+<p>In this example, we extracted different components of the date-time object. The <code>wday()</code> function can return the day of the week either as a number (1 for Sunday, 7 for Saturday) or as a label (the weekday name) when using <code>label = TRUE</code>.</p>
+<p>In addition to extraction, <strong>lubridate</strong> allows you to modify specific components of a date or time without manually manipulating the entire string. This is particularly useful when you need to adjust dates or times in your data for analysis or alignment.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Modifying components</span></span>
+<span id="cb31-2">datetime</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-30 14:45:30 UTC"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">year</span>(datetime) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2025</span></span>
+<span id="cb33-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">month</span>(datetime) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span></span>
+<span id="cb33-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">hour</span>(datetime) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span></span>
+<span id="cb33-4"></span>
+<span id="cb33-5">datetime</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2025-12-30 08:45:30 UTC"</code></pre>
+</div>
+</div>
+<p>In this example, the original date-time <code>2024-09-30 14:45:30</code> was modified to change the year, month, and hour, resulting in a new date-time value of <code>2025-12-21 08:45:30</code>.</p>
+<p><strong>lubridate</strong> allows you to extract and modify months or weekdays by name as well, which is particularly useful when working with human-readable data or when creating reports:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extracting month by name</span></span>
+<span id="cb35-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">month</span>(datetime, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">abbr =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] December
+12 Levels: January &lt; February &lt; March &lt; April &lt; May &lt; June &lt; ... &lt; December</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Changing the month by name</span></span>
+<span id="cb37-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">month</span>(datetime) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span></span>
+<span id="cb37-3">datetime</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2025-07-30 08:45:30 UTC"</code></pre>
+</div>
+</div>
+<p>In this example, <code>label = TRUE</code> and <code>abbr = FALSE</code> give the full name of the month (July) instead of the numeric value or abbreviation. You can also modify the month by name for more human-readable processing.</p>
+<p>For higher-level time units such as weeks and quarters, <strong>lubridate</strong> offers convenient functions:</p>
+<ul>
+<li><p><strong><code>week()</code></strong>: Extracts the week of the year (1–52/53).</p></li>
+<li><p><strong><code>quarter()</code></strong>: Extracts the quarter of the year (1–4).</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extracting the week number</span></span>
+<span id="cb39-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">week</span>(datetime)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 31</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extracting the quarter</span></span>
+<span id="cb41-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">quarter</span>(datetime)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
+</div>
+</div>
+</section>
+<section id="dealing-with-time-zones" class="level3">
+<h3 class="anchored" data-anchor-id="dealing-with-time-zones">Dealing with Time Zones</h3>
+<p>Another significant advantage of <strong>lubridate</strong> is that it handles time zones effectively when extracting date-time components. If you work with global datasets, being able to accurately account for time zones is crucial:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Set a different time zone</span></span>
+<span id="cb43-2">datetime</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2025-07-30 08:45:30 UTC"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb45" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1">datetime_tz <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">with_tz</span>(datetime, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"America/New_York"</span>)</span>
+<span id="cb45-2">datetime_tz</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2025-07-30 04:45:30 EDT"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extract hour in the new time zone</span></span>
+<span id="cb47-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">hour</span>(datetime_tz)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4</code></pre>
+</div>
+</div>
+<p>Here, we changed the time zone to Eastern Daylight Time (EDT) and extracted the hour component, which adjusted to the new time zone.</p>
+</section>
+<section id="creating-durations-periods-and-intervals" class="level3">
+<h3 class="anchored" data-anchor-id="creating-durations-periods-and-intervals"><strong>Creating Durations, Periods, and Intervals</strong></h3>
+<p>In data analysis, we often need to measure time spans, whether to calculate the difference between two dates, schedule recurring events, or model time-based phenomena. <strong>lubridate</strong> offers three powerful time-related concepts to handle these scenarios: <strong>durations</strong>, <strong>periods</strong>, and <strong>intervals</strong>. While they may seem similar, they each serve distinct purposes and behave differently depending on the use case.</p>
+<section id="durations" class="level4">
+<h4 class="anchored" data-anchor-id="durations"><strong>Durations</strong></h4>
+<p>A <strong>duration</strong> is an exact measurement of time, expressed in seconds. Durations are useful when you need precise, unambiguous time differences regardless of calendar variations (such as leap years, varying month lengths, or daylight saving changes).</p>
+<ul>
+<li><strong>Duration syntax</strong>: You can create durations using the <code>dseconds()</code>, <code>dminutes()</code>, <code>dhours()</code>, <code>ddays()</code>, <code>dweeks()</code>, <code>dyears()</code> functions.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Creating a duration of 1 day</span></span>
+<span id="cb49-2">one_day <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ddays</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb49-3">one_day</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "86400s (~1 days)"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb51" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Duration of 2 hours and 30 minutes</span></span>
+<span id="cb51-2">duration_time <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dhours</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dminutes</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>)</span>
+<span id="cb51-3">duration_time</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "9000s (~2.5 hours)"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb53" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Adding a duration to a date</span></span>
+<span id="cb53-2">start_date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-09-30"</span>)</span>
+<span id="cb53-3">end_date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> start_date <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ddays</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>)</span>
+<span id="cb53-4">end_date</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-10-07"</code></pre>
+</div>
+</div>
+<p>In this example, <strong>durations</strong> are defined as fixed time lengths. Adding a duration to a date will move the date forward by the exact number of seconds, regardless of any irregularities in the calendar.</p>
+</section>
+<section id="periods" class="level4">
+<h4 class="anchored" data-anchor-id="periods"><strong>Periods</strong></h4>
+<p>Unlike durations, <strong>periods</strong> are time spans measured in human calendar terms: years, months, days, hours, etc. Periods account for calendar variations, such as leap years and daylight saving time. This makes periods more intuitive for real-world use cases, but less precise in terms of exact seconds.</p>
+<ul>
+<li><strong>Period syntax</strong>: Use <code>years()</code>, <code>months()</code>, <code>weeks()</code>, <code>days()</code>, <code>hours()</code>, <code>minutes()</code>, <code>seconds()</code> functions to create periods.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Creating a period of 2 years, 3 months, and 10 days</span></span>
+<span id="cb55-2">my_period <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">years</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">months</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">days</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span>
+<span id="cb55-3">my_period </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2y 3m 10d 0H 0M 0S"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb57" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Adding the period to a date</span></span>
+<span id="cb57-2">new_date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> start_date <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> my_period</span>
+<span id="cb57-3">new_date</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2027-01-09"</code></pre>
+</div>
+</div>
+<p>In this example, the <strong>period</strong> accounts for differences in calendar length (such as varying days in months). The <code>start_date</code> was <code>2024-09-30</code>, and after adding 2 years, 3 months, and 10 days, the result is <code>2027-01-09</code>.</p>
+</section>
+<section id="intervals" class="level4">
+<h4 class="anchored" data-anchor-id="intervals"><strong>Intervals</strong></h4>
+<p>An <strong>interval</strong> represents the time span between two specific dates or times. It is useful when you want to measure or compare spans between known start and end points. Intervals take into account the exact length of time between two dates, allowing you to calculate durations or periods over that span.</p>
+<ul>
+<li><strong>Interval syntax</strong>: Use the <code>interval()</code> function to create an interval between two dates or date-times.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Creating an interval between two dates</span></span>
+<span id="cb59-2">start_date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-01-01"</span>)</span>
+<span id="cb59-3">end_date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-12-31"</span>)</span>
+<span id="cb59-4">time_interval <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">interval</span>(start_date, end_date)</span>
+<span id="cb59-5">time_interval</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2024-01-01 UTC--2024-12-31 UTC</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb61" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Checking how many days/weeks are in the interval</span></span>
+<span id="cb61-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.duration</span>(time_interval)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "31536000s (~52.14 weeks)"</code></pre>
+</div>
+</div>
+<p>In this example, an <strong>interval</strong> is created between <code>2024-01-01</code> and <code>2024-12-31</code>. The interval accounts for the exact time between the two dates, and using <code>as.duration()</code> allows us to calculate the number of seconds (or days/weeks) in that interval.</p>
+<p>Sometimes you need to combine these time spans to perform calculations or model time-based processes. For example, you might want to measure the duration of an interval and adjust it using a period.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create an interval between two dates</span></span>
+<span id="cb63-2">start_date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-09-01"</span>)</span>
+<span id="cb63-3">end_date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-12-01"</span>)</span>
+<span id="cb63-4">interval_span <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">interval</span>(start_date, end_date)</span>
+<span id="cb63-5">interval_span</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2024-09-01 UTC--2024-12-01 UTC</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb65" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extend the end date by 1 month</span></span>
+<span id="cb65-2">new_end_date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> end_date <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">months</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb65-3"></span>
+<span id="cb65-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a new interval with the updated end date</span></span>
+<span id="cb65-5">extended_interval <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">interval</span>(start_date, new_end_date)</span>
+<span id="cb65-6"></span>
+<span id="cb65-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Display the extended interval</span></span>
+<span id="cb65-8">extended_interval</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2024-09-01 UTC--2025-01-01 UTC</code></pre>
+</div>
+</div>
+<ul>
+<li><p><strong>Original interval</strong>: We first create the interval <code>interval_span</code> between <code>2024-09-01</code> and <code>2024-12-01</code>.</p></li>
+<li><p><strong>Adding 1 month</strong>: Instead of adding the period to the interval directly, we add <code>months(1)</code> to the end date (<code>end_date + months(1)</code>).</p></li>
+<li><p><strong>New interval</strong>: We then create a new interval using the original start date and the updated end date (<code>new_end_date</code>).</p></li>
+</ul>
+</section>
+</section>
+<section id="date-arithmetic" class="level3">
+<h3 class="anchored" data-anchor-id="date-arithmetic">Date Arithmetic</h3>
+<p>Date arithmetic is a fundamental aspect of working with date-time data, especially in data analysis and time series forecasting. The <strong>lubridate</strong> package makes it easy to perform arithmetic operations on date-time objects, enabling users to manipulate dates effectively. This section discusses common date arithmetic operations, including adding and subtracting time intervals, calculating durations, and handling periods.</p>
+<p>You can perform basic arithmetic operations directly on date-time objects. These operations include addition and subtraction of various time intervals.</p>
+<p><strong>Adding Days to a Date:</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define a starting date</span></span>
+<span id="cb67-2">start_date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-01-01"</span>)</span>
+<span id="cb67-3"></span>
+<span id="cb67-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Add 30 days to the starting date</span></span>
+<span id="cb67-5">new_date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> start_date <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">days</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>)</span>
+<span id="cb67-6"></span>
+<span id="cb67-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Display the new date</span></span>
+<span id="cb67-8">new_date</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-01-31"</code></pre>
+</div>
+</div>
+<p>In this example:</p>
+<ul>
+<li><p>We define a starting date using <code>ymd()</code>.</p></li>
+<li><p>We add 30 days to this date using the <code>days()</code> function.</p></li>
+<li><p>The result is a new date that is 30 days later.</p></li>
+</ul>
+<p><strong>Subtracting Days from a Date:</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Subtract 15 days from the starting date</span></span>
+<span id="cb69-2">previous_date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> start_date <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">days</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>)</span>
+<span id="cb69-3"></span>
+<span id="cb69-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Display the previous date</span></span>
+<span id="cb69-5">previous_date</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023-12-17"</code></pre>
+</div>
+</div>
+<p>Here, we demonstrate how to subtract days from a date. This operation can also be performed with other time intervals, such as months, years, hours, etc.</p>
+<p>Date arithmetic is commonly used in various practical applications, such as:</p>
+<ul>
+<li><p><strong>Time Series Analysis</strong>: Analyzing trends over specific periods (e.g., monthly sales growth).</p></li>
+<li><p><strong>Event Planning</strong>: Calculating the duration between events (e.g., project deadlines).</p></li>
+<li><p><strong>Scheduling</strong>: Determining time slots for meetings or tasks based on calendar events.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define task durations</span></span>
+<span id="cb71-2">task_duration <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">hours</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Each task takes 3 hours</span></span>
+<span id="cb71-3">start_time <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd_hms</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-01-01 09:00:00"</span>)</span>
+<span id="cb71-4"></span>
+<span id="cb71-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Schedule three tasks</span></span>
+<span id="cb71-6">schedule <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> start_time <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> task_duration <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span>
+<span id="cb71-7"></span>
+<span id="cb71-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Display the schedule for tasks</span></span>
+<span id="cb71-9">schedule</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-01-01 09:00:00 UTC" "2024-01-01 12:00:00 UTC"
+[3] "2024-01-01 15:00:00 UTC"</code></pre>
+</div>
+</div>
+<p>In this example, we define a 3-hour task duration and schedule three tasks based on the start time, displaying their scheduled times.</p>
+</section>
+</section>
+<section id="using-lubridate-with-time-series-data-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="using-lubridate-with-time-series-data-in-r">Using lubridate with Time Series Data in R</h2>
+<p>In time series analysis, properly handling date and time variables is crucial for ensuring accurate results. <strong>lubridate</strong> simplifies working with dates and times, but it’s also important to know how to integrate it with base R’s time series objects like <code>ts</code> and more flexible formats like date-time data frames.</p>
+<section id="creating-time-series-with-ts-in-r" class="level3">
+<h3 class="anchored" data-anchor-id="creating-time-series-with-ts-in-r"><strong>Creating Time Series with <code>ts()</code> in R</strong></h3>
+<p>Base R’s <code>ts</code> function is typically used to create regular time series objects. Time series data must have a defined frequency (e.g., daily, monthly, quarterly) and a starting point.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Sample data: monthly sales from 2020 to 2022</span></span>
+<span id="cb73-2">sales_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">120</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">150</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">170</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">160</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">130</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">140</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">180</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">200</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">190</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">210</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">220</span>,</span>
+<span id="cb73-3">                <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">230</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">250</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">270</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">300</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">280</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">260</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">290</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">310</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">330</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">340</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">350</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">360</span>)</span>
+<span id="cb73-4"></span>
+<span id="cb73-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Creating a time series object (monthly data starting from Jan 2020)</span></span>
+<span id="cb73-6">ts_sales <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ts</span>(sales_data, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">start =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2020</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">frequency =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)</span>
+<span id="cb73-7">ts_sales</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
+2020 100 120 150 170 160 130 140 180 200 190 210 220
+2021 230 250 270 300 280 260 290 310 330 340 350 360</code></pre>
+</div>
+</div>
+<p>This code creates a time series object representing monthly sales from January 2020 to December 2021.</p>
+<ul>
+<li><p><code>start = c(2020, 1)</code> indicates the time series starts in January 2020.</p></li>
+<li><p><code>frequency = 12</code> specifies that the data is monthly (12 periods per year).</p></li>
+</ul>
+</section>
+<section id="converting-a-ts-object-to-a-data-frame-with-a-date-variable" class="level3">
+<h3 class="anchored" data-anchor-id="converting-a-ts-object-to-a-data-frame-with-a-date-variable"><strong>Converting a <code>ts</code> Object to a Data Frame with a Date Variable</strong></h3>
+<p>When working with time series data, we often need to convert a <code>ts</code> object into a data frame to analyze it along with specific dates. <strong>lubridate</strong> can be used to handle date conversions easily.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert time series to a data frame with date information</span></span>
+<span id="cb75-2">sales_df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(</span>
+<span id="cb75-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">date =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2020-01-01"</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"month"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">length.out =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(ts_sales)),</span>
+<span id="cb75-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sales =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.numeric</span>(ts_sales)</span>
+<span id="cb75-5">)</span>
+<span id="cb75-6"></span>
+<span id="cb75-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Display the resulting data frame</span></span>
+<span id="cb75-8">sales_df</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         date sales
+1  2020-01-01   100
+2  2020-02-01   120
+3  2020-03-01   150
+4  2020-04-01   170
+5  2020-05-01   160
+6  2020-06-01   130
+7  2020-07-01   140
+8  2020-08-01   180
+9  2020-09-01   200
+10 2020-10-01   190
+11 2020-11-01   210
+12 2020-12-01   220
+13 2021-01-01   230
+14 2021-02-01   250
+15 2021-03-01   270
+16 2021-04-01   300
+17 2021-05-01   280
+18 2021-06-01   260
+19 2021-07-01   290
+20 2021-08-01   310
+21 2021-09-01   330
+22 2021-10-01   340
+23 2021-11-01   350
+24 2021-12-01   360</code></pre>
+</div>
+</div>
+<p>In this example, we:</p>
+<ul>
+<li><p>Convert the <code>ts</code> object to a numeric vector (<code>as.numeric(ts_sales)</code>).</p></li>
+<li><p>Use <code>seq()</code> and <strong>lubridate’s</strong> <code>ymd()</code> function to create a sequence of dates starting from <code>"2020-01-01"</code>, incrementing monthly (<code>by = "month"</code>).</p></li>
+<li><p>The result is a data frame with a <code>date</code> column containing actual dates and a <code>sales</code> column with the sales data.</p></li>
+</ul>
+</section>
+<section id="creating-time-series-from-date-time-data" class="level3">
+<h3 class="anchored" data-anchor-id="creating-time-series-from-date-time-data"><strong>Creating Time Series from Date-Time Data</strong></h3>
+<p>Time series data can also be created directly from date-time information, such as daily, hourly, or minute-based data. <strong>lubridate</strong> can be used to efficiently generate or manipulate such time series.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Generate a sequence of daily dates</span></span>
+<span id="cb77-2">daily_dates <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2023-01-01"</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"day"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">length.out =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>)</span>
+<span id="cb77-3"></span>
+<span id="cb77-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a sample dataset with random values for each day</span></span>
+<span id="cb77-5">daily_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(</span>
+<span id="cb77-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">date =</span> daily_dates,</span>
+<span id="cb77-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">value =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">runif</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">min =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">max =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">200</span>)</span>
+<span id="cb77-8">)</span>
+<span id="cb77-9"></span>
+<span id="cb77-10"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># View the first few rows of the dataset</span></span>
+<span id="cb77-11"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(daily_data)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        date    value
+1 2023-01-01 136.9325
+2 2023-01-02 109.0470
+3 2023-01-03 108.7876
+4 2023-01-04 126.0718
+5 2023-01-05 180.9033
+6 2023-01-06 160.2018</code></pre>
+</div>
+</div>
+<p>In this example, we create a time series dataset for daily data:</p>
+<ul>
+<li><p><strong><code>ymd()</code></strong> is used to generate a sequence of daily dates starting from <code>"2023-01-01"</code>.</p></li>
+<li><p><strong><code>runif()</code></strong> generates random values to simulate daily observations.</p></li>
+</ul>
+<p>You can use this type of time series in various analysis techniques, including plotting trends over time or aggregating data by week, month, or year.</p>
+</section>
+<section id="working-with-time-series-intervals" class="level3">
+<h3 class="anchored" data-anchor-id="working-with-time-series-intervals"><strong>Working with Time Series Intervals</strong></h3>
+<p>Sometimes, you need to manipulate time series data by grouping or splitting it into different intervals. <strong>lubridate</strong> makes this task easier by providing intuitive functions to work with intervals, durations, and periods.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(dplyr)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'dplyr' was built under R version 4.3.3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb81" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Sample dataset: daily values over one month</span></span>
+<span id="cb81-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span>
+<span id="cb81-3">time_series_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(</span>
+<span id="cb81-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">date =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2023-01-01"</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"day"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">length.out =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>),</span>
+<span id="cb81-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">value =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">runif</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">min =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">max =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">150</span>)</span>
+<span id="cb81-6">)</span>
+<span id="cb81-7"></span>
+<span id="cb81-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Aggregating the data by week</span></span>
+<span id="cb81-9">weekly_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> time_series_data <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb81-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">week =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">floor_date</span>(date, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"week"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb81-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">group_by</span>(week) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb81-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarize</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">weekly_avg =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(value))</span>
+<span id="cb81-13"></span>
+<span id="cb81-14"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># View the aggregated data</span></span>
+<span id="cb81-15">weekly_data</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 2
+  week       weekly_avg
+  &lt;date&gt;          &lt;dbl&gt;
+1 2023-01-01      105. 
+2 2023-01-08      115. 
+3 2023-01-15       99.5
+4 2023-01-22      119. 
+5 2023-01-29       71.8</code></pre>
+</div>
+</div>
+<p>Here, we use <strong>lubridate’s</strong> <code>floor_date()</code> function to round each date down to the start of its respective week. The data is then grouped by week and summarized to compute the weekly average. This approach can easily be adapted for other time periods like months or quarters using <code>floor_date(date, "month")</code>.</p>
+</section>
+<section id="handling-irregular-time-series" class="level3">
+<h3 class="anchored" data-anchor-id="handling-irregular-time-series"><strong>Handling Irregular Time Series</strong></h3>
+<p>Not all time series data comes in regular intervals (e.g., daily, weekly). For irregular time series, <strong>lubridate</strong> can be used to efficiently handle missing or irregular dates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb83" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Example of irregular dates (missing some days)</span></span>
+<span id="cb83-2">irregular_dates <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2023-01-01"</span>), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2023-01-02"</span>), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2023-01-05"</span>),</span>
+<span id="cb83-3">                     <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2023-01-07"</span>), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2023-01-10"</span>))</span>
+<span id="cb83-4"></span>
+<span id="cb83-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a dataset with missing dates</span></span>
+<span id="cb83-6">irregular_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(</span>
+<span id="cb83-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">date =</span> irregular_dates,</span>
+<span id="cb83-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">value =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">runif</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">min =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">max =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">200</span>)</span>
+<span id="cb83-9">)</span>
+<span id="cb83-10"></span>
+<span id="cb83-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Complete the time series by filling missing dates</span></span>
+<span id="cb83-12">complete_dates <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(</span>
+<span id="cb83-13">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">date =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">min</span>(irregular_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>date), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">max</span>(irregular_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>date), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"day"</span>)</span>
+<span id="cb83-14">)</span>
+<span id="cb83-15"></span>
+<span id="cb83-16"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Join the original data with the complete sequence of dates</span></span>
+<span id="cb83-17">complete_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">merge</span>(complete_dates, irregular_data, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"date"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">all.x =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb83-18"></span>
+<span id="cb83-19"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># View the completed data with missing values</span></span>
+<span id="cb83-20">complete_data</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         date    value
+1  2023-01-01 196.3024
+2  2023-01-02 190.2299
+3  2023-01-03       NA
+4  2023-01-04       NA
+5  2023-01-05 169.0705
+6  2023-01-06       NA
+7  2023-01-07 179.5467
+8  2023-01-08       NA
+9  2023-01-09       NA
+10 2023-01-10 102.4614</code></pre>
+</div>
+</div>
+<p>In this example:</p>
+<ul>
+<li><p><strong>lubridate</strong>’s <code>ymd()</code> is used to handle irregular dates.</p></li>
+<li><p>We fill missing dates by generating a complete sequence of dates (<code>seq()</code>) and merging it with the original data using <code>merge()</code>.</p></li>
+<li><p>Missing values are introduced in the <code>value</code> column for dates that were absent in the original data.</p></li>
+</ul>
+</section>
+<section id="using-time-series-formats-with-lubridate-functions" class="level3">
+<h3 class="anchored" data-anchor-id="using-time-series-formats-with-lubridate-functions"><strong>Using Time Series Formats with <code>lubridate</code> Functions</strong></h3>
+<p>You can combine <strong>lubridate</strong> functions with base R’s <code>ts</code> objects for more flexible time series analysis. For example, extracting specific components from a <code>ts</code> series, such as year, month, or week, can be achieved using <strong>lubridate</strong>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb85" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Converting a ts object to a data frame with dates</span></span>
+<span id="cb85-2">ts_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ts</span>(sales_data, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">start =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2020</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">frequency =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)</span>
+<span id="cb85-3"></span>
+<span id="cb85-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a data frame from the ts object</span></span>
+<span id="cb85-5">df_ts <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(</span>
+<span id="cb85-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">date =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ymd</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2020-01-01"</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"month"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">length.out =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(ts_data)),</span>
+<span id="cb85-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sales =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.numeric</span>(ts_data)</span>
+<span id="cb85-8">)</span>
+<span id="cb85-9"></span>
+<span id="cb85-10"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extract year and month using lubridate</span></span>
+<span id="cb85-11">df_ts <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> df_ts <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb85-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">year =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">year</span>(date), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">month =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">month</span>(date))</span>
+<span id="cb85-13"></span>
+<span id="cb85-14"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># View the data with extracted components</span></span>
+<span id="cb85-15">df_ts</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         date sales year month
+1  2020-01-01   100 2020     1
+2  2020-02-01   120 2020     2
+3  2020-03-01   150 2020     3
+4  2020-04-01   170 2020     4
+5  2020-05-01   160 2020     5
+6  2020-06-01   130 2020     6
+7  2020-07-01   140 2020     7
+8  2020-08-01   180 2020     8
+9  2020-09-01   200 2020     9
+10 2020-10-01   190 2020    10
+11 2020-11-01   210 2020    11
+12 2020-12-01   220 2020    12
+13 2021-01-01   230 2021     1
+14 2021-02-01   250 2021     2
+15 2021-03-01   270 2021     3
+16 2021-04-01   300 2021     4
+17 2021-05-01   280 2021     5
+18 2021-06-01   260 2021     6
+19 2021-07-01   290 2021     7
+20 2021-08-01   310 2021     8
+21 2021-09-01   330 2021     9
+22 2021-10-01   340 2021    10
+23 2021-11-01   350 2021    11
+24 2021-12-01   360 2021    12</code></pre>
+</div>
+</div>
+<p>Here, we convert the <code>ts</code> object into a data frame and use <strong>lubridate</strong>’s <code>year()</code> and <code>month()</code> functions to extract date components, which can be used for further analysis (e.g., grouping by month or year).</p>
+</section>
+</section>
+<section id="solving-real-world-date-time-issues" class="level2">
+<h2 class="anchored" data-anchor-id="solving-real-world-date-time-issues">Solving Real-World Date-Time Issues</h2>
+<p>Handling date-time data in real-world applications often involves dealing with a variety of formats and potential inconsistencies. The <strong>lubridate</strong> package provides powerful functions to parse, manipulate, and format date-time data efficiently. This section focuses on how to use these functions, especially <code>parse_date_time()</code>, to address common date-time challenges.</p>
+<p>When working with datasets, date-time values may not always be in a standard format. For instance, you might encounter dates represented as strings in various formats like <code>"YYYY-MM-DD"</code>, <code>"MM/DD/YYYY"</code>, or even <code>"Month DD, YYYY"</code>. To perform analysis accurately, it’s crucial to convert these strings into proper date-time objects.</p>
+<p>The <code>parse_date_time()</code> function is one of the most versatile functions in the <strong>lubridate</strong> package. It allows you to specify multiple possible formats for parsing a date-time string. This flexibility is especially useful when dealing with datasets from different sources or with inconsistent date formats.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb87" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">parse_date_time</span>(x, orders, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">tz =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"UTC"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">quiet =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span></code></pre></div>
+</div>
+<ul>
+<li><p><strong><code>x</code></strong>: A character vector of date-time strings to be parsed.</p></li>
+<li><p><strong><code>orders</code></strong>: A vector of possible formats for the date-time strings (e.g., <code>"ymd"</code>, <code>"mdy"</code>, etc.).</p></li>
+<li><p><strong><code>tz</code></strong>: The time zone to use (default is <code>"UTC"</code>).</p></li>
+<li><p><strong><code>quiet</code></strong>: If <code>TRUE</code>, suppress warnings.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb88" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Example date-time strings in various formats</span></span>
+<span id="cb88-2">dates <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-01-15"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"01/16/2024"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"March 17, 2024"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"18-04-2024"</span>)</span>
+<span id="cb88-3"></span>
+<span id="cb88-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Parse the dates using parse_date_time</span></span>
+<span id="cb88-5">parsed_dates <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">parse_date_time</span>(dates, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">orders =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ymd"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mdy"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dmy"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B d, Y"</span>))</span>
+<span id="cb88-6"></span>
+<span id="cb88-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Display the parsed dates</span></span>
+<span id="cb88-8">parsed_dates</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-01-15 UTC" "2024-01-16 UTC" "2024-03-17 UTC" "2024-04-18 UTC"</code></pre>
+</div>
+</div>
+<p>In this example:</p>
+<ul>
+<li><p>The <code>dates</code> vector contains strings in various formats.</p></li>
+<li><p>The <code>parse_date_time()</code> function attempts to parse each date according to the specified orders.</p></li>
+<li><p>The output is a vector of parsed date-time objects, all converted to the same format.</p></li>
+</ul>
+</section>
+<section id="alternative-packages-and-comparison-with-lubridate" class="level2">
+<h2 class="anchored" data-anchor-id="alternative-packages-and-comparison-with-lubridate">Alternative Packages and Comparison with <code>lubridate</code></h2>
+<p>Several R packages can handle date-time data, each with its strengths and weaknesses. Below, we discuss these packages, comparing their functionalities with those of the <strong>lubridate</strong> package.</p>
+<section id="base-r-functions" class="level3">
+<h3 class="anchored" data-anchor-id="base-r-functions"><strong>Base R Functions</strong></h3>
+<p><strong>Similarities:</strong></p>
+<ul>
+<li>Both <strong>lubridate</strong> and base R offer essential functions for converting character strings to date or date-time objects (e.g., <code>as.Date()</code>, <code>as.POSIXct()</code>).</li>
+</ul>
+<p><strong>Differences:</strong></p>
+<ul>
+<li>Base R functions require more manual handling of date-time formats, whereas <strong>lubridate</strong> offers a more user-friendly and intuitive syntax for parsing and manipulating dates.</li>
+</ul>
+<p><strong>Advantages of Base R:</strong></p>
+<ul>
+<li><p>No additional package installation is required, making it lightweight.</p></li>
+<li><p>Suitable for basic date-time manipulations.</p></li>
+</ul>
+<p><strong>Disadvantages of Base R:</strong></p>
+<ul>
+<li><p>Limited functionality for complex date-time operations.</p></li>
+<li><p>Syntax can be less intuitive, especially for beginners.</p></li>
+</ul>
+</section>
+<section id="chron-package" class="level3">
+<h3 class="anchored" data-anchor-id="chron-package"><strong><code>chron</code> Package</strong></h3>
+<p><strong>Similarities:</strong></p>
+<ul>
+<li>Both <strong>chron</strong> and <strong>lubridate</strong> provide functionalities for working with dates and times, making it easy to manage these data types.</li>
+</ul>
+<p><strong>Differences:</strong></p>
+<ul>
+<li><strong>chron</strong> is focused more on simpler date-time representations and does not handle time zones as effectively as <strong>lubridate</strong>.</li>
+</ul>
+<p><strong>Advantages of <code>chron</code>:</strong></p>
+<ul>
+<li><p>Straightforward for handling date-time data without complexity.</p></li>
+<li><p>Lightweight and easy to use for simple applications.</p></li>
+</ul>
+<p><strong>Disadvantages of <code>chron</code>:</strong></p>
+<ul>
+<li><p>Lacks advanced features for manipulating dates and times.</p></li>
+<li><p>Limited support for time zones and complex date-time arithmetic.</p></li>
+</ul>
+</section>
+<section id="data.table-package" class="level3">
+<h3 class="anchored" data-anchor-id="data.table-package"><strong><code>data.table</code> Package</strong></h3>
+<p><strong>Similarities:</strong></p>
+<ul>
+<li>Both packages allow for efficient date-time operations, and <strong>data.table</strong> provides functions to convert to date objects (e.g., <code>as.IDate()</code>).</li>
+</ul>
+<p><strong>Differences:</strong></p>
+<ul>
+<li><strong>data.table</strong> is primarily a data manipulation package optimized for speed and performance, whereas <strong>lubridate</strong> focuses specifically on date-time operations.</li>
+</ul>
+<p><strong>Advantages of <code>data.table</code>:</strong></p>
+<ul>
+<li><p>Excellent performance with large datasets.</p></li>
+<li><p>Integrates well with data manipulation tasks, including date-time operations.</p></li>
+</ul>
+<p><strong>Disadvantages of <code>data.table</code>:</strong></p>
+<ul>
+<li><p>More complex syntax, especially for users unfamiliar with data.table conventions.</p></li>
+<li><p>Primarily focused on data manipulation rather than dedicated date-time handling.</p></li>
+</ul>
+</section>
+<section id="zoo-and-xts-packages" class="level3">
+<h3 class="anchored" data-anchor-id="zoo-and-xts-packages"><strong><code>zoo</code> and <code>xts</code> Packages</strong></h3>
+<p><strong>Similarities:</strong></p>
+<ul>
+<li>Both <strong>zoo</strong> and <strong>xts</strong> provide tools for handling time series data and can manage date-time objects effectively.</li>
+</ul>
+<p><strong>Differences:</strong></p>
+<ul>
+<li><strong>lubridate</strong> excels in date-time parsing and manipulation, while <strong>zoo</strong> and <strong>xts</strong> focus more on creating and manipulating time series objects.</li>
+</ul>
+<p><strong>Advantages of <code>zoo</code> and <code>xts</code>:</strong></p>
+<ul>
+<li><p>Specialized for handling irregularly spaced time series.</p></li>
+<li><p>Provides robust tools for time series analysis, including indexing and subsetting.</p></li>
+</ul>
+<p><strong>Disadvantages of <code>zoo</code> and <code>xts</code>:</strong></p>
+<ul>
+<li><p>Not as intuitive for general date-time manipulation tasks.</p></li>
+<li><p>Requires additional knowledge of time series concepts.</p></li>
+</ul>
+</section>
+<section id="advantages-of-lubridate" class="level3">
+<h3 class="anchored" data-anchor-id="advantages-of-lubridate">Advantages of <code>lubridate</code></h3>
+<ol type="1">
+<li><p><strong>User-Friendly Syntax</strong>: <strong>lubridate</strong> offers intuitive functions for parsing, manipulating, and formatting date-time objects, making it accessible to users of all skill levels.</p></li>
+<li><p><strong>Flexible Parsing</strong>: It can automatically recognize and parse multiple date-time formats, reducing the need for manual formatting.</p></li>
+<li><p><strong>Comprehensive Functionality</strong>: Provides a wide range of functions for date-time arithmetic, extracting components, and working with durations, periods, and intervals.</p></li>
+<li><p><strong>Time Zone Handling</strong>: Strong support for working with time zones, making it easy to convert between different zones.</p></li>
+</ol>
+</section>
+<section id="disadvantages-of-lubridate" class="level3">
+<h3 class="anchored" data-anchor-id="disadvantages-of-lubridate">Disadvantages of <code>lubridate</code></h3>
+<ol type="1">
+<li><p><strong>Performance</strong>: For very large datasets, <strong>lubridate</strong> may not be as performant as packages like <strong>data.table</strong> or <strong>xts</strong> due to its more extensive functionality and overhead.</p></li>
+<li><p><strong>Learning Curve</strong>: Although user-friendly, beginners may still face a learning curve when transitioning from basic date-time manipulation in base R to more advanced functionalities in <strong>lubridate</strong>.</p></li>
+<li><p><strong>Dependency</strong>: Requires installation of an additional package, which may not be ideal for all projects or environments.</p></li>
+</ol>
+</section>
+<section id="conclusion" class="level3">
+<h3 class="anchored" data-anchor-id="conclusion">Conclusion</h3>
+<p>The <code>lubridate</code> package is a powerful tool for handling date and time data in R, offering user-friendly functions for parsing, manipulating, and formatting date-time objects. Key features include:</p>
+<ul>
+<li><p><strong>Flexible Parsing</strong>: Functions like <code>ymd()</code>, <code>mdy()</code>, and <code>parse_date_time()</code> make it easy to convert various formats into date-time objects.</p></li>
+<li><p><strong>Component Extraction</strong>: Extracting components such as year, month, and day with functions like <code>year()</code> and <code>month()</code> simplifies detailed analysis.</p></li>
+<li><p><strong>Time Measurements</strong>: Creating durations, periods, and intervals allows for nuanced time calculations, enhancing temporal analysis.</p></li>
+</ul>
+<p>While <code>lubridate</code> excels in usability and flexibility, it’s important to consider its performance limitations with large datasets and the potential learning curve for new users. Comparing it with alternatives like base R, <code>chron</code>, <code>data.table</code>, <code>zoo</code>, and <code>xts</code> reveals that each package has its strengths, but <code>lubridate</code> stands out for its comprehensive approach to date-time manipulation.</p>
+<p>Incorporating <code>lubridate</code> into your R workflow will streamline your date-time processing, enabling more efficient data analysis and deeper insights.</p>
+<p>For more information, refer to the <a href="https://lubridate.tidyverse.org/">official lubridate documentation</a>.</p>
+
+
+</section>
+</section>
+
+ ]]></description>
+  <category>R Programming</category>
+  <category>lubridate</category>
+  <category>time series</category>
+  <category>time manipulation</category>
+  <category>date handling</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2024-09-30_lubridate/</guid>
+  <pubDate>Sun, 29 Sep 2024 21:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Mastering Data Transformation in R with pivot_longer and pivot_wider</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>

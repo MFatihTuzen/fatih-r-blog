@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.551">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="M. Fatih Tüzen">
+<meta name="dcterms.date" content="2024-09-30">
+
+<title>A Statistician’s R Notebook - Mastering Date and Time Data in R with lubridate</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">A Statistician’s R Notebook</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/MFatihTuzen"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/dr-m-fatih-t-2b2a4328/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-blogroll" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">BlogRoll</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-blogroll">    
+        <li>
+    <a class="dropdown-item" href="https://www.r-bloggers.com/">
+ <span class="dropdown-text">R-bloggers</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://community.rstudio.com/">
+ <span class="dropdown-text">R-Studio Community</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://rweekly.org/">
+ <span class="dropdown-text">R weekly</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://allisonhorst.com/allison-horst">
+ <span class="dropdown-text">Allison Horst</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://github.com/topics/r">
+ <span class="dropdown-text">Github R Topics</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Mastering Date and Time Data in R with lubridate</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">R Programming</div>
+                <div class="quarto-category">lubridate</div>
+                <div class="quarto-category">time series</div>
+                <div class="quarto-category">time manipulation</div>
+                <div class="quarto-category">date handling</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>M. Fatih Tüzen </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">September 30, 2024</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#what-is-lubridate" id="toc-what-is-lubridate" class="nav-link active" data-scroll-target="#what-is-lubridate">What is lubridate?</a></li>
+  <li><a href="#introduction-to-date-and-time-formats" id="toc-introduction-to-date-and-time-formats" class="nav-link" data-scroll-target="#introduction-to-date-and-time-formats">Introduction to Date and Time Formats</a></li>
+  <li><a href="#why-do-we-need-lubridate" id="toc-why-do-we-need-lubridate" class="nav-link" data-scroll-target="#why-do-we-need-lubridate">Why Do We Need lubridate?</a></li>
+  <li><a href="#date-and-time-formats-in-r" id="toc-date-and-time-formats-in-r" class="nav-link" data-scroll-target="#date-and-time-formats-in-r">Date and Time Formats in R</a></li>
+  <li><a href="#common-lubridate-functions-and-their-arguments" id="toc-common-lubridate-functions-and-their-arguments" class="nav-link" data-scroll-target="#common-lubridate-functions-and-their-arguments">Common lubridate Functions and Their Arguments</a>
+  <ul>
+  <li><a href="#parsing-dates-and-times" id="toc-parsing-dates-and-times" class="nav-link" data-scroll-target="#parsing-dates-and-times"><strong>Parsing Dates and Times</strong></a>
+  <ul>
+  <li><a href="#what-do-the-letters-y-m-d-stand-for" id="toc-what-do-the-letters-y-m-d-stand-for" class="nav-link" data-scroll-target="#what-do-the-letters-y-m-d-stand-for">What do the letters <code>y</code>, <code>m</code>, <code>d</code> stand for?</a></li>
+  </ul></li>
+  <li><a href="#extracting-date-time-components" id="toc-extracting-date-time-components" class="nav-link" data-scroll-target="#extracting-date-time-components">Extracting Date-Time Components</a></li>
+  <li><a href="#dealing-with-time-zones" id="toc-dealing-with-time-zones" class="nav-link" data-scroll-target="#dealing-with-time-zones">Dealing with Time Zones</a></li>
+  <li><a href="#creating-durations-periods-and-intervals" id="toc-creating-durations-periods-and-intervals" class="nav-link" data-scroll-target="#creating-durations-periods-and-intervals"><strong>Creating Durations, Periods, and Intervals</strong></a>
+  <ul>
+  <li><a href="#durations" id="toc-durations" class="nav-link" data-scroll-target="#durations"><strong>Durations</strong></a></li>
+  <li><a href="#periods" id="toc-periods" class="nav-link" data-scroll-target="#periods"><strong>Periods</strong></a></li>
+  <li><a href="#intervals" id="toc-intervals" class="nav-link" data-scroll-target="#intervals"><strong>Intervals</strong></a></li>
+  </ul></li>
+  <li><a href="#date-arithmetic" id="toc-date-arithmetic" class="nav-link" data-scroll-target="#date-arithmetic">Date Arithmetic</a></li>
+  </ul></li>
+  <li><a href="#using-lubridate-with-time-series-data-in-r" id="toc-using-lubridate-with-time-series-data-in-r" class="nav-link" data-scroll-target="#using-lubridate-with-time-series-data-in-r">Using lubridate with Time Series Data in R</a>
+  <ul>
+  <li><a href="#creating-time-series-with-ts-in-r" id="toc-creating-time-series-with-ts-in-r" class="nav-link" data-scroll-target="#creating-time-series-with-ts-in-r"><strong>Creating Time Series with <code>ts()</code> in R</strong></a></li>
+  <li><a href="#converting-a-ts-object-to-a-data-frame-with-a-date-variable" id="toc-converting-a-ts-object-to-a-data-frame-with-a-date-variable" class="nav-link" data-scroll-target="#converting-a-ts-object-to-a-data-frame-with-a-date-variable"><strong>Converting a <code>ts</code> Object to a Data Frame with a Date Variable</strong></a></li>
+  <li><a href="#creating-time-series-from-date-time-data" id="toc-creating-time-series-from-date-time-data" class="nav-link" data-scroll-target="#creating-time-series-from-date-time-data"><strong>Creating Time Series from Date-Time Data</strong></a></li>
+  <li><a href="#working-with-time-series-intervals" id="toc-working-with-time-series-intervals" class="nav-link" data-scroll-target="#working-with-time-series-intervals"><strong>Working with Time Series Intervals</strong></a></li>
+  <li><a href="#handling-irregular-time-series" id="toc-handling-irregular-time-series" class="nav-link" data-scroll-target="#handling-irregular-time-series"><strong>Handling Irregular Time Series</strong></a></li>
+  <li><a href="#using-time-series-formats-with-lubridate-functions" id="toc-using-time-series-formats-with-lubridate-functions" class="nav-link" data-scroll-target="#using-time-series-formats-with-lubridate-functions"><strong>Using Time Series Formats with <code>lubridate</code> Functions</strong></a></li>
+  </ul></li>
+  <li><a href="#solving-real-world-date-time-issues" id="toc-solving-real-world-date-time-issues" class="nav-link" data-scroll-target="#solving-real-world-date-time-issues">Solving Real-World Date-Time Issues</a></li>
+  <li><a href="#alternative-packages-and-comparison-with-lubridate" id="toc-alternative-packages-and-comparison-with-lubridate" class="nav-link" data-scroll-target="#alternative-packages-and-comparison-with-lubridate">Alternative Packages and Comparison with <code>lubridate</code></a>
+  <ul>
+  <li><a href="#base-r-functions" id="toc-base-r-functions" class="nav-link" data-scroll-target="#base-r-functions"><strong>Base R Functions</strong></a></li>
+  <li><a href="#chron-package" id="toc-chron-package" class="nav-link" data-scroll-target="#chron-package"><strong><code>chron</code> Package</strong></a></li>
+  <li><a href="#data.table-package" id="toc-data.table-package" class="nav-link" data-scroll-target="#data.table-package"><strong><code>data.table</code> Package</strong></a></li>
+  <li><a href="#zoo-and-xts-packages" id="toc-zoo-and-xts-packages" class="nav-link" data-scroll-target="#zoo-and-xts-packages"><strong><code>zoo</code> and <code>xts</code> Packages</strong></a></li>
+  <li><a href="#advantages-of-lubridate" id="toc-advantages-of-lubridate" class="nav-link" data-scroll-target="#advantages-of-lubridate">Advantages of <code>lubridate</code></a></li>
+  <li><a href="#disadvantages-of-lubridate" id="toc-disadvantages-of-lubridate" class="nav-link" data-scroll-target="#disadvantages-of-lubridate">Disadvantages of <code>lubridate</code></a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="https://allisonhorst.com/r-packages-functions"><img src="lubridate.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Artwork by: Allison Horst"></a></p>
+</figure>
+</div>
+<figcaption>Artwork by: Allison Horst</figcaption>
+</figure>
+</div>
+<section id="what-is-lubridate" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-lubridate">What is lubridate?</h2>
+<p><strong>lubridate</strong> is a powerful and widely-used package in the <strong>tidyverse</strong> ecosystem, specifically designed for making date-time manipulation in R both easier and more intuitive. It was created to address the common difficulties users face when working with dates and times, which are often stored in a variety of inconsistent formats or require complex arithmetic operations.</p>
+<p>Developed and maintained by the <strong>RStudio</strong> team as part of the tidyverse collection of packages, <strong>lubridate</strong> introduces a simpler syntax for parsing, extracting, and manipulating date-time data, allowing for faster and more accurate operations.</p>
+<p>Key benefits of using <strong>lubridate</strong> include:</p>
+<ul>
+<li><p><strong>Simplified parsing</strong> of dates and times from a wide variety of formats.</p></li>
+<li><p><strong>Easy extraction</strong> of components such as year, month, day, or hour from date-time objects.</p></li>
+<li><p><strong>Seamless handling of time zones</strong>, allowing conversion between different zones with ease.</p></li>
+<li><p><strong>Efficient arithmetic operations</strong> on dates, such as adding or subtracting days, months, or years.</p></li>
+<li><p><strong>Support for durations and intervals</strong>, crucial for working with time spans in real-world applications.</p></li>
+</ul>
+<p>For further documentation, tutorials, and resources, you can explore the <strong>lubridate</strong> official website: <a href="https://lubridate.tidyverse.org" class="uri">https://lubridate.tidyverse.org</a>.</p>
+</section>
+<section id="introduction-to-date-and-time-formats" class="level2">
+<h2 class="anchored" data-anchor-id="introduction-to-date-and-time-formats">Introduction to Date and Time Formats</h2>
+<p>Date and time data are essential in many fields, from finance and biology to web analytics and logistics. However, handling such data can be difficult due to the variety of formats and time zones involved. In R, base functions like <code>as.Date()</code> or <code>strptime()</code> can handle date-time data, but their syntax can be cumbersome when dealing with multiple formats or time zones.</p>
+<p>The <strong>lubridate</strong> package simplifies these tasks by offering intuitive functions that handle date-time data efficiently, helping us avoid many of the common pitfalls associated with date and time manipulation.</p>
+</section>
+<section id="why-do-we-need-lubridate" class="level2">
+<h2 class="anchored" data-anchor-id="why-do-we-need-lubridate">Why Do We Need lubridate?</h2>
+<p>While R provides several built-in functions for date-time manipulation, they can quickly become limited or difficult to use in more complex scenarios. The <strong>lubridate</strong> package provides solutions by:</p>
+<ul>
+<li><p>Offering intuitive functions to parse and format dates.</p></li>
+<li><p>Supporting a variety of date-time formats in a single command.</p></li>
+<li><p>Simplifying the extraction and modification of date-time components (like year, month, or hour).</p></li>
+<li><p>Facilitating the handling of time zones, durations, and intervals.</p></li>
+</ul>
+</section>
+<section id="date-and-time-formats-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="date-and-time-formats-in-r">Date and Time Formats in R</h2>
+<p>In R, dates are typically stored in <code>Date</code> format (which does not include time information), while date-time data is stored in <code>POSIXct</code> or <code>POSIXlt</code> formats. These formats support timestamps and can handle time zones. For example:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>date_example <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="st">"2024-09-30"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>date_example</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-30"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>datetime_example <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="st">"2024-09-30 14:45:00"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>datetime_example</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-30 14:45:00 UTC"</code></pre>
+</div>
+</div>
+<p>These formats work well for simple tasks but quickly become difficult to manage in more complex scenarios. That’s where <strong>lubridate</strong> steps in.</p>
+</section>
+<section id="common-lubridate-functions-and-their-arguments" class="level2">
+<h2 class="anchored" data-anchor-id="common-lubridate-functions-and-their-arguments">Common lubridate Functions and Their Arguments</h2>
+<section id="parsing-dates-and-times" class="level3">
+<h3 class="anchored" data-anchor-id="parsing-dates-and-times"><strong>Parsing Dates and Times</strong></h3>
+<p>One of the core strengths of <strong>lubridate</strong> is its ability to simplify the parsing of date and time data from various formats. Functions like <code>ymd()</code>, <code>mdy()</code>, <code>dmy()</code>, and their date-time counterparts (<code>ymd_hms()</code>, <code>mdy_hms()</code>, etc.) make it easy to convert strings into R’s <code>Date</code> or <code>POSIXct</code> objects.</p>
+<section id="what-do-the-letters-y-m-d-stand-for" class="level4">
+<h4 class="anchored" data-anchor-id="what-do-the-letters-y-m-d-stand-for">What do the letters <code>y</code>, <code>m</code>, <code>d</code> stand for?</h4>
+<p>The functions are named according to the order in which the date components appear in the input string:</p>
+<ul>
+<li><p><code>y</code> stands for <strong>year</strong></p></li>
+<li><p><code>m</code> stands for <strong>month</strong></p></li>
+<li><p><code>d</code> stands for <strong>day</strong></p></li>
+<li><p><code>h</code>, <code>m</code>, <code>s</code> (used in date-time functions) stand for <strong>hours</strong>, <strong>minutes</strong>, and <strong>seconds</strong></p></li>
+</ul>
+<p>For example:</p>
+<ul>
+<li><p><strong><code>ymd()</code></strong> parses a string where the date components are in the order <strong>year-month-day</strong>.</p></li>
+<li><p><strong><code>mdy()</code></strong> parses a string formatted as <strong>month-day-year</strong>.</p></li>
+<li><p><strong><code>dmy()</code></strong> parses a string in <strong>day-month-year</strong> order.</p></li>
+</ul>
+<!-- -->
+<ul>
+<li>Functions: <code>ymd()</code>, <code>mdy()</code>, <code>dmy()</code>, <code>ymd_hms()</code>, <code>mdy_hms()</code>, <code>dmy_hms()</code></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert date strings to Date objects</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>date1 <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="st">"2024-09-30"</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>date1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-30"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>date2 <span class="ot">&lt;-</span> <span class="fu">dmy</span>(<span class="st">"30-09-2024"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>date2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-30"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>date3 <span class="ot">&lt;-</span> <span class="fu">mdy</span>(<span class="st">"09/30/2024"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>date3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-30"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to date-time</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>datetime1 <span class="ot">&lt;-</span> <span class="fu">ymd_hms</span>(<span class="st">"2024-09-21 14:45:00"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>datetime1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-21 14:45:00 UTC"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>datetime2 <span class="ot">&lt;-</span> <span class="fu">mdy_hms</span>(<span class="st">"09/21/2024 02:45:00 PM"</span>, <span class="at">tz =</span> <span class="st">"America/New_York"</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>datetime2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-21 14:45:00 EDT"</code></pre>
+</div>
+</div>
+<p>By using specific functions for different formats (<code>ymd()</code>, <code>mdy()</code>, <code>dmy()</code>), you don’t need to worry about the order of date components. This ensures flexibility and reduces errors when working with various data sources.</p>
+<p>These functions simplify the process by allowing you to focus only on the structure of the input data and not on specifying complex format strings, as would be necessary with base R functions like <code>as.Date()</code> or <code>strptime()</code>.</p>
+</section>
+</section>
+<section id="extracting-date-time-components" class="level3">
+<h3 class="anchored" data-anchor-id="extracting-date-time-components">Extracting Date-Time Components</h3>
+<p>Once you have parsed a date-time object using <strong>lubridate</strong>, you often need to extract or modify specific components, such as the year, month, day, or time. This is essential when analyzing data based on time periods, summarizing by year, or creating time-based features for models.</p>
+<p><strong>Functions to Extract Date-Time Components</strong></p>
+<p>Here are the most commonly used <strong>lubridate</strong> functions to extract specific parts of a date-time object:</p>
+<ul>
+<li><p><strong><code>year()</code></strong>: Extracts or sets the year.</p></li>
+<li><p><strong><code>month()</code></strong>: Extracts or sets the month. This function can also return the month’s name if <code>label = TRUE</code> is used.</p></li>
+<li><p><strong><code>day()</code></strong>: Extracts or sets the day of the month.</p></li>
+<li><p><strong><code>hour()</code></strong>: Extracts or sets the hour (for time-based objects).</p></li>
+<li><p><strong><code>minute()</code></strong>: Extracts or sets the minute.</p></li>
+<li><p><strong><code>second()</code></strong>: Extracts or sets the second.</p></li>
+<li><p><strong><code>wday()</code></strong>: Extracts the day of the week (can return the weekday’s name if <code>label = TRUE</code>).</p></li>
+<li><p><strong><code>yday()</code></strong>: Extracts the day of the year (1–365 or 366 for leap years).</p></li>
+<li><p><strong><code>mday()</code></strong>: Extracts the day of the month.</p></li>
+</ul>
+<p>Let’s work with a parsed date-time object and extract its components:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Parsing a date-time object</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>datetime <span class="ot">&lt;-</span> <span class="fu">ymd_hms</span>(<span class="st">"2024-09-30 14:45:30"</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting components</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="fu">year</span>(datetime)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2024</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">month</span>(datetime) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 9</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">day</span>(datetime) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 30</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hour</span>(datetime) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 14</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">minute</span>(datetime)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 45</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">second</span>(datetime)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 30</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting weekday</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">wday</span>(datetime)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wday</span>(datetime, <span class="at">label =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] Mon
+Levels: Sun &lt; Mon &lt; Tue &lt; Wed &lt; Thu &lt; Fri &lt; Sat</code></pre>
+</div>
+</div>
+<p>In this example, we extracted different components of the date-time object. The <code>wday()</code> function can return the day of the week either as a number (1 for Sunday, 7 for Saturday) or as a label (the weekday name) when using <code>label = TRUE</code>.</p>
+<p>In addition to extraction, <strong>lubridate</strong> allows you to modify specific components of a date or time without manually manipulating the entire string. This is particularly useful when you need to adjust dates or times in your data for analysis or alignment.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Modifying components</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>datetime</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-30 14:45:30 UTC"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">year</span>(datetime) <span class="ot">&lt;-</span> <span class="dv">2025</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">month</span>(datetime) <span class="ot">&lt;-</span> <span class="dv">12</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hour</span>(datetime) <span class="ot">&lt;-</span> <span class="dv">8</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>datetime</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2025-12-30 08:45:30 UTC"</code></pre>
+</div>
+</div>
+<p>In this example, the original date-time <code>2024-09-30 14:45:30</code> was modified to change the year, month, and hour, resulting in a new date-time value of <code>2025-12-21 08:45:30</code>.</p>
+<p><strong>lubridate</strong> allows you to extract and modify months or weekdays by name as well, which is particularly useful when working with human-readable data or when creating reports:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting month by name</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">month</span>(datetime, <span class="at">label =</span> <span class="cn">TRUE</span>, <span class="at">abbr =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] December
+12 Levels: January &lt; February &lt; March &lt; April &lt; May &lt; June &lt; ... &lt; December</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Changing the month by name</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">month</span>(datetime) <span class="ot">&lt;-</span> <span class="dv">7</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>datetime</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2025-07-30 08:45:30 UTC"</code></pre>
+</div>
+</div>
+<p>In this example, <code>label = TRUE</code> and <code>abbr = FALSE</code> give the full name of the month (July) instead of the numeric value or abbreviation. You can also modify the month by name for more human-readable processing.</p>
+<p>For higher-level time units such as weeks and quarters, <strong>lubridate</strong> offers convenient functions:</p>
+<ul>
+<li><p><strong><code>week()</code></strong>: Extracts the week of the year (1–52/53).</p></li>
+<li><p><strong><code>quarter()</code></strong>: Extracts the quarter of the year (1–4).</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting the week number</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">week</span>(datetime)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 31</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting the quarter</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">quarter</span>(datetime)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
+</div>
+</div>
+</section>
+<section id="dealing-with-time-zones" class="level3">
+<h3 class="anchored" data-anchor-id="dealing-with-time-zones">Dealing with Time Zones</h3>
+<p>Another significant advantage of <strong>lubridate</strong> is that it handles time zones effectively when extracting date-time components. If you work with global datasets, being able to accurately account for time zones is crucial:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set a different time zone</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>datetime</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2025-07-30 08:45:30 UTC"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>datetime_tz <span class="ot">&lt;-</span> <span class="fu">with_tz</span>(datetime, <span class="st">"America/New_York"</span>)</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>datetime_tz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2025-07-30 04:45:30 EDT"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract hour in the new time zone</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hour</span>(datetime_tz)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4</code></pre>
+</div>
+</div>
+<p>Here, we changed the time zone to Eastern Daylight Time (EDT) and extracted the hour component, which adjusted to the new time zone.</p>
+</section>
+<section id="creating-durations-periods-and-intervals" class="level3">
+<h3 class="anchored" data-anchor-id="creating-durations-periods-and-intervals"><strong>Creating Durations, Periods, and Intervals</strong></h3>
+<p>In data analysis, we often need to measure time spans, whether to calculate the difference between two dates, schedule recurring events, or model time-based phenomena. <strong>lubridate</strong> offers three powerful time-related concepts to handle these scenarios: <strong>durations</strong>, <strong>periods</strong>, and <strong>intervals</strong>. While they may seem similar, they each serve distinct purposes and behave differently depending on the use case.</p>
+<section id="durations" class="level4">
+<h4 class="anchored" data-anchor-id="durations"><strong>Durations</strong></h4>
+<p>A <strong>duration</strong> is an exact measurement of time, expressed in seconds. Durations are useful when you need precise, unambiguous time differences regardless of calendar variations (such as leap years, varying month lengths, or daylight saving changes).</p>
+<ul>
+<li><strong>Duration syntax</strong>: You can create durations using the <code>dseconds()</code>, <code>dminutes()</code>, <code>dhours()</code>, <code>ddays()</code>, <code>dweeks()</code>, <code>dyears()</code> functions.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a duration of 1 day</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>one_day <span class="ot">&lt;-</span> <span class="fu">ddays</span>(<span class="dv">1</span>)</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>one_day</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "86400s (~1 days)"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Duration of 2 hours and 30 minutes</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>duration_time <span class="ot">&lt;-</span> <span class="fu">dhours</span>(<span class="dv">2</span>) <span class="sc">+</span> <span class="fu">dminutes</span>(<span class="dv">30</span>)</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>duration_time</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "9000s (~2.5 hours)"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding a duration to a date</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>start_date <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="st">"2024-09-30"</span>)</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>end_date <span class="ot">&lt;-</span> start_date <span class="sc">+</span> <span class="fu">ddays</span>(<span class="dv">7</span>)</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>end_date</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-10-07"</code></pre>
+</div>
+</div>
+<p>In this example, <strong>durations</strong> are defined as fixed time lengths. Adding a duration to a date will move the date forward by the exact number of seconds, regardless of any irregularities in the calendar.</p>
+</section>
+<section id="periods" class="level4">
+<h4 class="anchored" data-anchor-id="periods"><strong>Periods</strong></h4>
+<p>Unlike durations, <strong>periods</strong> are time spans measured in human calendar terms: years, months, days, hours, etc. Periods account for calendar variations, such as leap years and daylight saving time. This makes periods more intuitive for real-world use cases, but less precise in terms of exact seconds.</p>
+<ul>
+<li><strong>Period syntax</strong>: Use <code>years()</code>, <code>months()</code>, <code>weeks()</code>, <code>days()</code>, <code>hours()</code>, <code>minutes()</code>, <code>seconds()</code> functions to create periods.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a period of 2 years, 3 months, and 10 days</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>my_period <span class="ot">&lt;-</span> <span class="fu">years</span>(<span class="dv">2</span>) <span class="sc">+</span> <span class="fu">months</span>(<span class="dv">3</span>) <span class="sc">+</span> <span class="fu">days</span>(<span class="dv">10</span>)</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>my_period </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2y 3m 10d 0H 0M 0S"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding the period to a date</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>new_date <span class="ot">&lt;-</span> start_date <span class="sc">+</span> my_period</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>new_date</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2027-01-09"</code></pre>
+</div>
+</div>
+<p>In this example, the <strong>period</strong> accounts for differences in calendar length (such as varying days in months). The <code>start_date</code> was <code>2024-09-30</code>, and after adding 2 years, 3 months, and 10 days, the result is <code>2027-01-09</code>.</p>
+</section>
+<section id="intervals" class="level4">
+<h4 class="anchored" data-anchor-id="intervals"><strong>Intervals</strong></h4>
+<p>An <strong>interval</strong> represents the time span between two specific dates or times. It is useful when you want to measure or compare spans between known start and end points. Intervals take into account the exact length of time between two dates, allowing you to calculate durations or periods over that span.</p>
+<ul>
+<li><strong>Interval syntax</strong>: Use the <code>interval()</code> function to create an interval between two dates or date-times.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating an interval between two dates</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>start_date <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="st">"2024-01-01"</span>)</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>end_date <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="st">"2024-12-31"</span>)</span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>time_interval <span class="ot">&lt;-</span> <span class="fu">interval</span>(start_date, end_date)</span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>time_interval</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2024-01-01 UTC--2024-12-31 UTC</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Checking how many days/weeks are in the interval</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="fu">as.duration</span>(time_interval)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "31536000s (~52.14 weeks)"</code></pre>
+</div>
+</div>
+<p>In this example, an <strong>interval</strong> is created between <code>2024-01-01</code> and <code>2024-12-31</code>. The interval accounts for the exact time between the two dates, and using <code>as.duration()</code> allows us to calculate the number of seconds (or days/weeks) in that interval.</p>
+<p>Sometimes you need to combine these time spans to perform calculations or model time-based processes. For example, you might want to measure the duration of an interval and adjust it using a period.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create an interval between two dates</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>start_date <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="st">"2024-09-01"</span>)</span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>end_date <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="st">"2024-12-01"</span>)</span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>interval_span <span class="ot">&lt;-</span> <span class="fu">interval</span>(start_date, end_date)</span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a>interval_span</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2024-09-01 UTC--2024-12-01 UTC</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extend the end date by 1 month</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>new_end_date <span class="ot">&lt;-</span> end_date <span class="sc">+</span> <span class="fu">months</span>(<span class="dv">1</span>)</span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a new interval with the updated end date</span></span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>extended_interval <span class="ot">&lt;-</span> <span class="fu">interval</span>(start_date, new_end_date)</span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the extended interval</span></span>
+<span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a>extended_interval</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2024-09-01 UTC--2025-01-01 UTC</code></pre>
+</div>
+</div>
+<ul>
+<li><p><strong>Original interval</strong>: We first create the interval <code>interval_span</code> between <code>2024-09-01</code> and <code>2024-12-01</code>.</p></li>
+<li><p><strong>Adding 1 month</strong>: Instead of adding the period to the interval directly, we add <code>months(1)</code> to the end date (<code>end_date + months(1)</code>).</p></li>
+<li><p><strong>New interval</strong>: We then create a new interval using the original start date and the updated end date (<code>new_end_date</code>).</p></li>
+</ul>
+</section>
+</section>
+<section id="date-arithmetic" class="level3">
+<h3 class="anchored" data-anchor-id="date-arithmetic">Date Arithmetic</h3>
+<p>Date arithmetic is a fundamental aspect of working with date-time data, especially in data analysis and time series forecasting. The <strong>lubridate</strong> package makes it easy to perform arithmetic operations on date-time objects, enabling users to manipulate dates effectively. This section discusses common date arithmetic operations, including adding and subtracting time intervals, calculating durations, and handling periods.</p>
+<p>You can perform basic arithmetic operations directly on date-time objects. These operations include addition and subtraction of various time intervals.</p>
+<p><strong>Adding Days to a Date:</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define a starting date</span></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>start_date <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="st">"2024-01-01"</span>)</span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Add 30 days to the starting date</span></span>
+<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a>new_date <span class="ot">&lt;-</span> start_date <span class="sc">+</span> <span class="fu">days</span>(<span class="dv">30</span>)</span>
+<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the new date</span></span>
+<span id="cb67-8"><a href="#cb67-8" aria-hidden="true" tabindex="-1"></a>new_date</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-01-31"</code></pre>
+</div>
+</div>
+<p>In this example:</p>
+<ul>
+<li><p>We define a starting date using <code>ymd()</code>.</p></li>
+<li><p>We add 30 days to this date using the <code>days()</code> function.</p></li>
+<li><p>The result is a new date that is 30 days later.</p></li>
+</ul>
+<p><strong>Subtracting Days from a Date:</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Subtract 15 days from the starting date</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>previous_date <span class="ot">&lt;-</span> start_date <span class="sc">-</span> <span class="fu">days</span>(<span class="dv">15</span>)</span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the previous date</span></span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>previous_date</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023-12-17"</code></pre>
+</div>
+</div>
+<p>Here, we demonstrate how to subtract days from a date. This operation can also be performed with other time intervals, such as months, years, hours, etc.</p>
+<p>Date arithmetic is commonly used in various practical applications, such as:</p>
+<ul>
+<li><p><strong>Time Series Analysis</strong>: Analyzing trends over specific periods (e.g., monthly sales growth).</p></li>
+<li><p><strong>Event Planning</strong>: Calculating the duration between events (e.g., project deadlines).</p></li>
+<li><p><strong>Scheduling</strong>: Determining time slots for meetings or tasks based on calendar events.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define task durations</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>task_duration <span class="ot">&lt;-</span> <span class="fu">hours</span>(<span class="dv">3</span>)  <span class="co"># Each task takes 3 hours</span></span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>start_time <span class="ot">&lt;-</span> <span class="fu">ymd_hms</span>(<span class="st">"2024-01-01 09:00:00"</span>)</span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Schedule three tasks</span></span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>schedule <span class="ot">&lt;-</span> start_time <span class="sc">+</span> task_duration <span class="sc">*</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">2</span></span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the schedule for tasks</span></span>
+<span id="cb71-9"><a href="#cb71-9" aria-hidden="true" tabindex="-1"></a>schedule</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-01-01 09:00:00 UTC" "2024-01-01 12:00:00 UTC"
+[3] "2024-01-01 15:00:00 UTC"</code></pre>
+</div>
+</div>
+<p>In this example, we define a 3-hour task duration and schedule three tasks based on the start time, displaying their scheduled times.</p>
+</section>
+</section>
+<section id="using-lubridate-with-time-series-data-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="using-lubridate-with-time-series-data-in-r">Using lubridate with Time Series Data in R</h2>
+<p>In time series analysis, properly handling date and time variables is crucial for ensuring accurate results. <strong>lubridate</strong> simplifies working with dates and times, but it’s also important to know how to integrate it with base R’s time series objects like <code>ts</code> and more flexible formats like date-time data frames.</p>
+<section id="creating-time-series-with-ts-in-r" class="level3">
+<h3 class="anchored" data-anchor-id="creating-time-series-with-ts-in-r"><strong>Creating Time Series with <code>ts()</code> in R</strong></h3>
+<p>Base R’s <code>ts</code> function is typically used to create regular time series objects. Time series data must have a defined frequency (e.g., daily, monthly, quarterly) and a starting point.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample data: monthly sales from 2020 to 2022</span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>sales_data <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">120</span>, <span class="dv">150</span>, <span class="dv">170</span>, <span class="dv">160</span>, <span class="dv">130</span>, <span class="dv">140</span>, <span class="dv">180</span>, <span class="dv">200</span>, <span class="dv">190</span>, <span class="dv">210</span>, <span class="dv">220</span>,</span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>                <span class="dv">230</span>, <span class="dv">250</span>, <span class="dv">270</span>, <span class="dv">300</span>, <span class="dv">280</span>, <span class="dv">260</span>, <span class="dv">290</span>, <span class="dv">310</span>, <span class="dv">330</span>, <span class="dv">340</span>, <span class="dv">350</span>, <span class="dv">360</span>)</span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a time series object (monthly data starting from Jan 2020)</span></span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a>ts_sales <span class="ot">&lt;-</span> <span class="fu">ts</span>(sales_data, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">2020</span>, <span class="dv">1</span>), <span class="at">frequency =</span> <span class="dv">12</span>)</span>
+<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a>ts_sales</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
+2020 100 120 150 170 160 130 140 180 200 190 210 220
+2021 230 250 270 300 280 260 290 310 330 340 350 360</code></pre>
+</div>
+</div>
+<p>This code creates a time series object representing monthly sales from January 2020 to December 2021.</p>
+<ul>
+<li><p><code>start = c(2020, 1)</code> indicates the time series starts in January 2020.</p></li>
+<li><p><code>frequency = 12</code> specifies that the data is monthly (12 periods per year).</p></li>
+</ul>
+</section>
+<section id="converting-a-ts-object-to-a-data-frame-with-a-date-variable" class="level3">
+<h3 class="anchored" data-anchor-id="converting-a-ts-object-to-a-data-frame-with-a-date-variable"><strong>Converting a <code>ts</code> Object to a Data Frame with a Date Variable</strong></h3>
+<p>When working with time series data, we often need to convert a <code>ts</code> object into a data frame to analyze it along with specific dates. <strong>lubridate</strong> can be used to handle date conversions easily.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert time series to a data frame with date information</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>sales_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">date =</span> <span class="fu">seq</span>(<span class="fu">ymd</span>(<span class="st">"2020-01-01"</span>), <span class="at">by =</span> <span class="st">"month"</span>, <span class="at">length.out =</span> <span class="fu">length</span>(ts_sales)),</span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">sales =</span> <span class="fu">as.numeric</span>(ts_sales)</span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the resulting data frame</span></span>
+<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a>sales_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         date sales
+1  2020-01-01   100
+2  2020-02-01   120
+3  2020-03-01   150
+4  2020-04-01   170
+5  2020-05-01   160
+6  2020-06-01   130
+7  2020-07-01   140
+8  2020-08-01   180
+9  2020-09-01   200
+10 2020-10-01   190
+11 2020-11-01   210
+12 2020-12-01   220
+13 2021-01-01   230
+14 2021-02-01   250
+15 2021-03-01   270
+16 2021-04-01   300
+17 2021-05-01   280
+18 2021-06-01   260
+19 2021-07-01   290
+20 2021-08-01   310
+21 2021-09-01   330
+22 2021-10-01   340
+23 2021-11-01   350
+24 2021-12-01   360</code></pre>
+</div>
+</div>
+<p>In this example, we:</p>
+<ul>
+<li><p>Convert the <code>ts</code> object to a numeric vector (<code>as.numeric(ts_sales)</code>).</p></li>
+<li><p>Use <code>seq()</code> and <strong>lubridate’s</strong> <code>ymd()</code> function to create a sequence of dates starting from <code>"2020-01-01"</code>, incrementing monthly (<code>by = "month"</code>).</p></li>
+<li><p>The result is a data frame with a <code>date</code> column containing actual dates and a <code>sales</code> column with the sales data.</p></li>
+</ul>
+</section>
+<section id="creating-time-series-from-date-time-data" class="level3">
+<h3 class="anchored" data-anchor-id="creating-time-series-from-date-time-data"><strong>Creating Time Series from Date-Time Data</strong></h3>
+<p>Time series data can also be created directly from date-time information, such as daily, hourly, or minute-based data. <strong>lubridate</strong> can be used to efficiently generate or manipulate such time series.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate a sequence of daily dates</span></span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>daily_dates <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">ymd</span>(<span class="st">"2023-01-01"</span>), <span class="at">by =</span> <span class="st">"day"</span>, <span class="at">length.out =</span> <span class="dv">30</span>)</span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a sample dataset with random values for each day</span></span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a>daily_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">date =</span> daily_dates,</span>
+<span id="cb77-7"><a href="#cb77-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">value =</span> <span class="fu">runif</span>(<span class="dv">30</span>, <span class="at">min =</span> <span class="dv">100</span>, <span class="at">max =</span> <span class="dv">200</span>)</span>
+<span id="cb77-8"><a href="#cb77-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb77-9"><a href="#cb77-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-10"><a href="#cb77-10" aria-hidden="true" tabindex="-1"></a><span class="co"># View the first few rows of the dataset</span></span>
+<span id="cb77-11"><a href="#cb77-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(daily_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        date    value
+1 2023-01-01 136.9325
+2 2023-01-02 109.0470
+3 2023-01-03 108.7876
+4 2023-01-04 126.0718
+5 2023-01-05 180.9033
+6 2023-01-06 160.2018</code></pre>
+</div>
+</div>
+<p>In this example, we create a time series dataset for daily data:</p>
+<ul>
+<li><p><strong><code>ymd()</code></strong> is used to generate a sequence of daily dates starting from <code>"2023-01-01"</code>.</p></li>
+<li><p><strong><code>runif()</code></strong> generates random values to simulate daily observations.</p></li>
+</ul>
+<p>You can use this type of time series in various analysis techniques, including plotting trends over time or aggregating data by week, month, or year.</p>
+</section>
+<section id="working-with-time-series-intervals" class="level3">
+<h3 class="anchored" data-anchor-id="working-with-time-series-intervals"><strong>Working with Time Series Intervals</strong></h3>
+<p>Sometimes, you need to manipulate time series data by grouping or splitting it into different intervals. <strong>lubridate</strong> makes this task easier by providing intuitive functions to work with intervals, durations, and periods.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'dplyr' was built under R version 4.3.3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample dataset: daily values over one month</span></span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a>time_series_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">date =</span> <span class="fu">seq</span>(<span class="fu">ymd</span>(<span class="st">"2023-01-01"</span>), <span class="at">by =</span> <span class="st">"day"</span>, <span class="at">length.out =</span> <span class="dv">30</span>),</span>
+<span id="cb81-5"><a href="#cb81-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">value =</span> <span class="fu">runif</span>(<span class="dv">30</span>, <span class="at">min =</span> <span class="dv">50</span>, <span class="at">max =</span> <span class="dv">150</span>)</span>
+<span id="cb81-6"><a href="#cb81-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb81-7"><a href="#cb81-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-8"><a href="#cb81-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Aggregating the data by week</span></span>
+<span id="cb81-9"><a href="#cb81-9" aria-hidden="true" tabindex="-1"></a>weekly_data <span class="ot">&lt;-</span> time_series_data <span class="sc">|&gt;</span> </span>
+<span id="cb81-10"><a href="#cb81-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">week =</span> <span class="fu">floor_date</span>(date, <span class="st">"week"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb81-11"><a href="#cb81-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(week) <span class="sc">|&gt;</span> </span>
+<span id="cb81-12"><a href="#cb81-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">weekly_avg =</span> <span class="fu">mean</span>(value))</span>
+<span id="cb81-13"><a href="#cb81-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-14"><a href="#cb81-14" aria-hidden="true" tabindex="-1"></a><span class="co"># View the aggregated data</span></span>
+<span id="cb81-15"><a href="#cb81-15" aria-hidden="true" tabindex="-1"></a>weekly_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 2
+  week       weekly_avg
+  &lt;date&gt;          &lt;dbl&gt;
+1 2023-01-01      105. 
+2 2023-01-08      115. 
+3 2023-01-15       99.5
+4 2023-01-22      119. 
+5 2023-01-29       71.8</code></pre>
+</div>
+</div>
+<p>Here, we use <strong>lubridate’s</strong> <code>floor_date()</code> function to round each date down to the start of its respective week. The data is then grouped by week and summarized to compute the weekly average. This approach can easily be adapted for other time periods like months or quarters using <code>floor_date(date, "month")</code>.</p>
+</section>
+<section id="handling-irregular-time-series" class="level3">
+<h3 class="anchored" data-anchor-id="handling-irregular-time-series"><strong>Handling Irregular Time Series</strong></h3>
+<p>Not all time series data comes in regular intervals (e.g., daily, weekly). For irregular time series, <strong>lubridate</strong> can be used to efficiently handle missing or irregular dates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Example of irregular dates (missing some days)</span></span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>irregular_dates <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">ymd</span>(<span class="st">"2023-01-01"</span>), <span class="fu">ymd</span>(<span class="st">"2023-01-02"</span>), <span class="fu">ymd</span>(<span class="st">"2023-01-05"</span>),</span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">ymd</span>(<span class="st">"2023-01-07"</span>), <span class="fu">ymd</span>(<span class="st">"2023-01-10"</span>))</span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a dataset with missing dates</span></span>
+<span id="cb83-6"><a href="#cb83-6" aria-hidden="true" tabindex="-1"></a>irregular_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb83-7"><a href="#cb83-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">date =</span> irregular_dates,</span>
+<span id="cb83-8"><a href="#cb83-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">value =</span> <span class="fu">runif</span>(<span class="dv">5</span>, <span class="at">min =</span> <span class="dv">100</span>, <span class="at">max =</span> <span class="dv">200</span>)</span>
+<span id="cb83-9"><a href="#cb83-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb83-10"><a href="#cb83-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-11"><a href="#cb83-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Complete the time series by filling missing dates</span></span>
+<span id="cb83-12"><a href="#cb83-12" aria-hidden="true" tabindex="-1"></a>complete_dates <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb83-13"><a href="#cb83-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">date =</span> <span class="fu">seq</span>(<span class="fu">min</span>(irregular_data<span class="sc">$</span>date), <span class="fu">max</span>(irregular_data<span class="sc">$</span>date), <span class="at">by =</span> <span class="st">"day"</span>)</span>
+<span id="cb83-14"><a href="#cb83-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb83-15"><a href="#cb83-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-16"><a href="#cb83-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Join the original data with the complete sequence of dates</span></span>
+<span id="cb83-17"><a href="#cb83-17" aria-hidden="true" tabindex="-1"></a>complete_data <span class="ot">&lt;-</span> <span class="fu">merge</span>(complete_dates, irregular_data, <span class="at">by =</span> <span class="st">"date"</span>, <span class="at">all.x =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb83-18"><a href="#cb83-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-19"><a href="#cb83-19" aria-hidden="true" tabindex="-1"></a><span class="co"># View the completed data with missing values</span></span>
+<span id="cb83-20"><a href="#cb83-20" aria-hidden="true" tabindex="-1"></a>complete_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         date    value
+1  2023-01-01 196.3024
+2  2023-01-02 190.2299
+3  2023-01-03       NA
+4  2023-01-04       NA
+5  2023-01-05 169.0705
+6  2023-01-06       NA
+7  2023-01-07 179.5467
+8  2023-01-08       NA
+9  2023-01-09       NA
+10 2023-01-10 102.4614</code></pre>
+</div>
+</div>
+<p>In this example:</p>
+<ul>
+<li><p><strong>lubridate</strong>’s <code>ymd()</code> is used to handle irregular dates.</p></li>
+<li><p>We fill missing dates by generating a complete sequence of dates (<code>seq()</code>) and merging it with the original data using <code>merge()</code>.</p></li>
+<li><p>Missing values are introduced in the <code>value</code> column for dates that were absent in the original data.</p></li>
+</ul>
+</section>
+<section id="using-time-series-formats-with-lubridate-functions" class="level3">
+<h3 class="anchored" data-anchor-id="using-time-series-formats-with-lubridate-functions"><strong>Using Time Series Formats with <code>lubridate</code> Functions</strong></h3>
+<p>You can combine <strong>lubridate</strong> functions with base R’s <code>ts</code> objects for more flexible time series analysis. For example, extracting specific components from a <code>ts</code> series, such as year, month, or week, can be achieved using <strong>lubridate</strong>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Converting a ts object to a data frame with dates</span></span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a>ts_data <span class="ot">&lt;-</span> <span class="fu">ts</span>(sales_data, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">2020</span>, <span class="dv">1</span>), <span class="at">frequency =</span> <span class="dv">12</span>)</span>
+<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a data frame from the ts object</span></span>
+<span id="cb85-5"><a href="#cb85-5" aria-hidden="true" tabindex="-1"></a>df_ts <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb85-6"><a href="#cb85-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">date =</span> <span class="fu">seq</span>(<span class="fu">ymd</span>(<span class="st">"2020-01-01"</span>), <span class="at">by =</span> <span class="st">"month"</span>, <span class="at">length.out =</span> <span class="fu">length</span>(ts_data)),</span>
+<span id="cb85-7"><a href="#cb85-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sales =</span> <span class="fu">as.numeric</span>(ts_data)</span>
+<span id="cb85-8"><a href="#cb85-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb85-9"><a href="#cb85-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-10"><a href="#cb85-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract year and month using lubridate</span></span>
+<span id="cb85-11"><a href="#cb85-11" aria-hidden="true" tabindex="-1"></a>df_ts <span class="ot">&lt;-</span> df_ts <span class="sc">%&gt;%</span></span>
+<span id="cb85-12"><a href="#cb85-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">year</span>(date), <span class="at">month =</span> <span class="fu">month</span>(date))</span>
+<span id="cb85-13"><a href="#cb85-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-14"><a href="#cb85-14" aria-hidden="true" tabindex="-1"></a><span class="co"># View the data with extracted components</span></span>
+<span id="cb85-15"><a href="#cb85-15" aria-hidden="true" tabindex="-1"></a>df_ts</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         date sales year month
+1  2020-01-01   100 2020     1
+2  2020-02-01   120 2020     2
+3  2020-03-01   150 2020     3
+4  2020-04-01   170 2020     4
+5  2020-05-01   160 2020     5
+6  2020-06-01   130 2020     6
+7  2020-07-01   140 2020     7
+8  2020-08-01   180 2020     8
+9  2020-09-01   200 2020     9
+10 2020-10-01   190 2020    10
+11 2020-11-01   210 2020    11
+12 2020-12-01   220 2020    12
+13 2021-01-01   230 2021     1
+14 2021-02-01   250 2021     2
+15 2021-03-01   270 2021     3
+16 2021-04-01   300 2021     4
+17 2021-05-01   280 2021     5
+18 2021-06-01   260 2021     6
+19 2021-07-01   290 2021     7
+20 2021-08-01   310 2021     8
+21 2021-09-01   330 2021     9
+22 2021-10-01   340 2021    10
+23 2021-11-01   350 2021    11
+24 2021-12-01   360 2021    12</code></pre>
+</div>
+</div>
+<p>Here, we convert the <code>ts</code> object into a data frame and use <strong>lubridate</strong>’s <code>year()</code> and <code>month()</code> functions to extract date components, which can be used for further analysis (e.g., grouping by month or year).</p>
+</section>
+</section>
+<section id="solving-real-world-date-time-issues" class="level2">
+<h2 class="anchored" data-anchor-id="solving-real-world-date-time-issues">Solving Real-World Date-Time Issues</h2>
+<p>Handling date-time data in real-world applications often involves dealing with a variety of formats and potential inconsistencies. The <strong>lubridate</strong> package provides powerful functions to parse, manipulate, and format date-time data efficiently. This section focuses on how to use these functions, especially <code>parse_date_time()</code>, to address common date-time challenges.</p>
+<p>When working with datasets, date-time values may not always be in a standard format. For instance, you might encounter dates represented as strings in various formats like <code>"YYYY-MM-DD"</code>, <code>"MM/DD/YYYY"</code>, or even <code>"Month DD, YYYY"</code>. To perform analysis accurately, it’s crucial to convert these strings into proper date-time objects.</p>
+<p>The <code>parse_date_time()</code> function is one of the most versatile functions in the <strong>lubridate</strong> package. It allows you to specify multiple possible formats for parsing a date-time string. This flexibility is especially useful when dealing with datasets from different sources or with inconsistent date formats.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="fu">parse_date_time</span>(x, orders, <span class="at">tz =</span> <span class="st">"UTC"</span>, <span class="at">quiet =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li><p><strong><code>x</code></strong>: A character vector of date-time strings to be parsed.</p></li>
+<li><p><strong><code>orders</code></strong>: A vector of possible formats for the date-time strings (e.g., <code>"ymd"</code>, <code>"mdy"</code>, etc.).</p></li>
+<li><p><strong><code>tz</code></strong>: The time zone to use (default is <code>"UTC"</code>).</p></li>
+<li><p><strong><code>quiet</code></strong>: If <code>TRUE</code>, suppress warnings.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Example date-time strings in various formats</span></span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>dates <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"2024-01-15"</span>, <span class="st">"01/16/2024"</span>, <span class="st">"March 17, 2024"</span>, <span class="st">"18-04-2024"</span>)</span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb88-4"><a href="#cb88-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Parse the dates using parse_date_time</span></span>
+<span id="cb88-5"><a href="#cb88-5" aria-hidden="true" tabindex="-1"></a>parsed_dates <span class="ot">&lt;-</span> <span class="fu">parse_date_time</span>(dates, <span class="at">orders =</span> <span class="fu">c</span>(<span class="st">"ymd"</span>, <span class="st">"mdy"</span>, <span class="st">"dmy"</span>, <span class="st">"B d, Y"</span>))</span>
+<span id="cb88-6"><a href="#cb88-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb88-7"><a href="#cb88-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the parsed dates</span></span>
+<span id="cb88-8"><a href="#cb88-8" aria-hidden="true" tabindex="-1"></a>parsed_dates</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-01-15 UTC" "2024-01-16 UTC" "2024-03-17 UTC" "2024-04-18 UTC"</code></pre>
+</div>
+</div>
+<p>In this example:</p>
+<ul>
+<li><p>The <code>dates</code> vector contains strings in various formats.</p></li>
+<li><p>The <code>parse_date_time()</code> function attempts to parse each date according to the specified orders.</p></li>
+<li><p>The output is a vector of parsed date-time objects, all converted to the same format.</p></li>
+</ul>
+</section>
+<section id="alternative-packages-and-comparison-with-lubridate" class="level2">
+<h2 class="anchored" data-anchor-id="alternative-packages-and-comparison-with-lubridate">Alternative Packages and Comparison with <code>lubridate</code></h2>
+<p>Several R packages can handle date-time data, each with its strengths and weaknesses. Below, we discuss these packages, comparing their functionalities with those of the <strong>lubridate</strong> package.</p>
+<section id="base-r-functions" class="level3">
+<h3 class="anchored" data-anchor-id="base-r-functions"><strong>Base R Functions</strong></h3>
+<p><strong>Similarities:</strong></p>
+<ul>
+<li>Both <strong>lubridate</strong> and base R offer essential functions for converting character strings to date or date-time objects (e.g., <code>as.Date()</code>, <code>as.POSIXct()</code>).</li>
+</ul>
+<p><strong>Differences:</strong></p>
+<ul>
+<li>Base R functions require more manual handling of date-time formats, whereas <strong>lubridate</strong> offers a more user-friendly and intuitive syntax for parsing and manipulating dates.</li>
+</ul>
+<p><strong>Advantages of Base R:</strong></p>
+<ul>
+<li><p>No additional package installation is required, making it lightweight.</p></li>
+<li><p>Suitable for basic date-time manipulations.</p></li>
+</ul>
+<p><strong>Disadvantages of Base R:</strong></p>
+<ul>
+<li><p>Limited functionality for complex date-time operations.</p></li>
+<li><p>Syntax can be less intuitive, especially for beginners.</p></li>
+</ul>
+</section>
+<section id="chron-package" class="level3">
+<h3 class="anchored" data-anchor-id="chron-package"><strong><code>chron</code> Package</strong></h3>
+<p><strong>Similarities:</strong></p>
+<ul>
+<li>Both <strong>chron</strong> and <strong>lubridate</strong> provide functionalities for working with dates and times, making it easy to manage these data types.</li>
+</ul>
+<p><strong>Differences:</strong></p>
+<ul>
+<li><strong>chron</strong> is focused more on simpler date-time representations and does not handle time zones as effectively as <strong>lubridate</strong>.</li>
+</ul>
+<p><strong>Advantages of <code>chron</code>:</strong></p>
+<ul>
+<li><p>Straightforward for handling date-time data without complexity.</p></li>
+<li><p>Lightweight and easy to use for simple applications.</p></li>
+</ul>
+<p><strong>Disadvantages of <code>chron</code>:</strong></p>
+<ul>
+<li><p>Lacks advanced features for manipulating dates and times.</p></li>
+<li><p>Limited support for time zones and complex date-time arithmetic.</p></li>
+</ul>
+</section>
+<section id="data.table-package" class="level3">
+<h3 class="anchored" data-anchor-id="data.table-package"><strong><code>data.table</code> Package</strong></h3>
+<p><strong>Similarities:</strong></p>
+<ul>
+<li>Both packages allow for efficient date-time operations, and <strong>data.table</strong> provides functions to convert to date objects (e.g., <code>as.IDate()</code>).</li>
+</ul>
+<p><strong>Differences:</strong></p>
+<ul>
+<li><strong>data.table</strong> is primarily a data manipulation package optimized for speed and performance, whereas <strong>lubridate</strong> focuses specifically on date-time operations.</li>
+</ul>
+<p><strong>Advantages of <code>data.table</code>:</strong></p>
+<ul>
+<li><p>Excellent performance with large datasets.</p></li>
+<li><p>Integrates well with data manipulation tasks, including date-time operations.</p></li>
+</ul>
+<p><strong>Disadvantages of <code>data.table</code>:</strong></p>
+<ul>
+<li><p>More complex syntax, especially for users unfamiliar with data.table conventions.</p></li>
+<li><p>Primarily focused on data manipulation rather than dedicated date-time handling.</p></li>
+</ul>
+</section>
+<section id="zoo-and-xts-packages" class="level3">
+<h3 class="anchored" data-anchor-id="zoo-and-xts-packages"><strong><code>zoo</code> and <code>xts</code> Packages</strong></h3>
+<p><strong>Similarities:</strong></p>
+<ul>
+<li>Both <strong>zoo</strong> and <strong>xts</strong> provide tools for handling time series data and can manage date-time objects effectively.</li>
+</ul>
+<p><strong>Differences:</strong></p>
+<ul>
+<li><strong>lubridate</strong> excels in date-time parsing and manipulation, while <strong>zoo</strong> and <strong>xts</strong> focus more on creating and manipulating time series objects.</li>
+</ul>
+<p><strong>Advantages of <code>zoo</code> and <code>xts</code>:</strong></p>
+<ul>
+<li><p>Specialized for handling irregularly spaced time series.</p></li>
+<li><p>Provides robust tools for time series analysis, including indexing and subsetting.</p></li>
+</ul>
+<p><strong>Disadvantages of <code>zoo</code> and <code>xts</code>:</strong></p>
+<ul>
+<li><p>Not as intuitive for general date-time manipulation tasks.</p></li>
+<li><p>Requires additional knowledge of time series concepts.</p></li>
+</ul>
+</section>
+<section id="advantages-of-lubridate" class="level3">
+<h3 class="anchored" data-anchor-id="advantages-of-lubridate">Advantages of <code>lubridate</code></h3>
+<ol type="1">
+<li><p><strong>User-Friendly Syntax</strong>: <strong>lubridate</strong> offers intuitive functions for parsing, manipulating, and formatting date-time objects, making it accessible to users of all skill levels.</p></li>
+<li><p><strong>Flexible Parsing</strong>: It can automatically recognize and parse multiple date-time formats, reducing the need for manual formatting.</p></li>
+<li><p><strong>Comprehensive Functionality</strong>: Provides a wide range of functions for date-time arithmetic, extracting components, and working with durations, periods, and intervals.</p></li>
+<li><p><strong>Time Zone Handling</strong>: Strong support for working with time zones, making it easy to convert between different zones.</p></li>
+</ol>
+</section>
+<section id="disadvantages-of-lubridate" class="level3">
+<h3 class="anchored" data-anchor-id="disadvantages-of-lubridate">Disadvantages of <code>lubridate</code></h3>
+<ol type="1">
+<li><p><strong>Performance</strong>: For very large datasets, <strong>lubridate</strong> may not be as performant as packages like <strong>data.table</strong> or <strong>xts</strong> due to its more extensive functionality and overhead.</p></li>
+<li><p><strong>Learning Curve</strong>: Although user-friendly, beginners may still face a learning curve when transitioning from basic date-time manipulation in base R to more advanced functionalities in <strong>lubridate</strong>.</p></li>
+<li><p><strong>Dependency</strong>: Requires installation of an additional package, which may not be ideal for all projects or environments.</p></li>
+</ol>
+</section>
+<section id="conclusion" class="level3">
+<h3 class="anchored" data-anchor-id="conclusion">Conclusion</h3>
+<p>The <code>lubridate</code> package is a powerful tool for handling date and time data in R, offering user-friendly functions for parsing, manipulating, and formatting date-time objects. Key features include:</p>
+<ul>
+<li><p><strong>Flexible Parsing</strong>: Functions like <code>ymd()</code>, <code>mdy()</code>, and <code>parse_date_time()</code> make it easy to convert various formats into date-time objects.</p></li>
+<li><p><strong>Component Extraction</strong>: Extracting components such as year, month, and day with functions like <code>year()</code> and <code>month()</code> simplifies detailed analysis.</p></li>
+<li><p><strong>Time Measurements</strong>: Creating durations, periods, and intervals allows for nuanced time calculations, enhancing temporal analysis.</p></li>
+</ul>
+<p>While <code>lubridate</code> excels in usability and flexibility, it’s important to consider its performance limitations with large datasets and the potential learning curve for new users. Comparing it with alternatives like base R, <code>chron</code>, <code>data.table</code>, <code>zoo</code>, and <code>xts</code> reveals that each package has its strengths, but <code>lubridate</code> stands out for its comprehensive approach to date-time manipulation.</p>
+<p>Incorporating <code>lubridate</code> into your R workflow will streamline your date-time processing, enabling more efficient data analysis and deeper insights.</p>
+<p>For more information, refer to the <a href="https://lubridate.tidyverse.org/">official lubridate documentation</a>.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/mfatihtuzen\.netlify\.app");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="MFatihTuzen/blogComments" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2023, M. Fatih Tüzen</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
