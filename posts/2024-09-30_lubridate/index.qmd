@@ -91,9 +91,8 @@ For example:
 
 -   **`dmy()`** parses a string in **day-month-year** order.
 
-```{=html}
 <!-- -->
-```
+
 -   Functions: `ymd()`, `mdy()`, `dmy()`, `ymd_hms()`, `mdy_hms()`, `dmy_hms()`
 
 ```{r}

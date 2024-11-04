@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.551">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="M. Fatih Tüzen">
+<meta name="dcterms.date" content="2024-11-04">
+
+<title>A Statistician’s R Notebook - Creating Professional Excel Reports with R: A Comprehensive Guide to openxlsx Package</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">A Statistician’s R Notebook</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/MFatihTuzen"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/dr-m-fatih-t-2b2a4328/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-blogroll" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">BlogRoll</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-blogroll">    
+        <li>
+    <a class="dropdown-item" href="https://www.r-bloggers.com/">
+ <span class="dropdown-text">R-bloggers</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://community.rstudio.com/">
+ <span class="dropdown-text">R-Studio Community</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://rweekly.org/">
+ <span class="dropdown-text">R weekly</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://allisonhorst.com/allison-horst">
+ <span class="dropdown-text">Allison Horst</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://github.com/topics/r">
+ <span class="dropdown-text">Github R Topics</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Creating Professional Excel Reports with R: A Comprehensive Guide to openxlsx Package</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">R Programming</div>
+                <div class="quarto-category">Report Automation</div>
+                <div class="quarto-category">openxlsx</div>
+                <div class="quarto-category">Excel</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>M. Fatih Tüzen </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">November 4, 2024</p>
+      </div>
+    </div>
+    
+      <div>
+      <div class="quarto-title-meta-heading">Modified</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date-modified">November 4, 2024</p>
+      </div>
+    </div>
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#why-choose-openxlsx" id="toc-why-choose-openxlsx" class="nav-link" data-scroll-target="#why-choose-openxlsx">Why Choose openxlsx?</a></li>
+  <li><a href="#getting-started" id="toc-getting-started" class="nav-link" data-scroll-target="#getting-started">Getting Started</a></li>
+  <li><a href="#basic-functions-and-their-arguments" id="toc-basic-functions-and-their-arguments" class="nav-link" data-scroll-target="#basic-functions-and-their-arguments">Basic Functions and Their Arguments</a>
+  <ul>
+  <li><a href="#core-functions" id="toc-core-functions" class="nav-link" data-scroll-target="#core-functions">Core Functions</a></li>
+  </ul></li>
+  <li><a href="#step-by-step-report-creation" id="toc-step-by-step-report-creation" class="nav-link" data-scroll-target="#step-by-step-report-creation">Step-by-Step Report Creation</a>
+  <ul>
+  <li><a href="#step-1-prepare-sample-data" id="toc-step-1-prepare-sample-data" class="nav-link" data-scroll-target="#step-1-prepare-sample-data">Step 1: Prepare Sample Data</a></li>
+  <li><a href="#step-2-create-workbook-and-add-sheets" id="toc-step-2-create-workbook-and-add-sheets" class="nav-link" data-scroll-target="#step-2-create-workbook-and-add-sheets">Step 2: Create Workbook and Add Sheets</a>
+  <ul>
+  <li><a href="#arguments-in-createstyle-for-the-title" id="toc-arguments-in-createstyle-for-the-title" class="nav-link" data-scroll-target="#arguments-in-createstyle-for-the-title">Arguments in <code>createStyle()</code> for the Title:</a></li>
+  <li><a href="#arguments-in-createstyle-for-the-header" id="toc-arguments-in-createstyle-for-the-header" class="nav-link" data-scroll-target="#arguments-in-createstyle-for-the-header">Arguments in <code>createStyle()</code> for the Header:</a></li>
+  </ul></li>
+  <li><a href="#step-3-add-summary-data-and-formatting" id="toc-step-3-add-summary-data-and-formatting" class="nav-link" data-scroll-target="#step-3-add-summary-data-and-formatting">Step 3: Add Summary Data and Formatting</a></li>
+  <li><a href="#step-4-create-and-add-visualizations" id="toc-step-4-create-and-add-visualizations" class="nav-link" data-scroll-target="#step-4-create-and-add-visualizations">Step 4: Create and Add Visualizations</a></li>
+  <li><a href="#step-5-add-regional-analysis" id="toc-step-5-add-regional-analysis" class="nav-link" data-scroll-target="#step-5-add-regional-analysis">Step 5: Add Regional Analysis</a></li>
+  <li><a href="#step-6-save-the-workbook" id="toc-step-6-save-the-workbook" class="nav-link" data-scroll-target="#step-6-save-the-workbook">Step 6: Save the Workbook</a></li>
+  </ul></li>
+  <li><a href="#best-practices-and-tips-for-using-the-openxlsx-package-in-r" id="toc-best-practices-and-tips-for-using-the-openxlsx-package-in-r" class="nav-link" data-scroll-target="#best-practices-and-tips-for-using-the-openxlsx-package-in-r">Best Practices and Tips for Using the <code>openxlsx</code> Package in R</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a>
+  <ul>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="https://ycphs.github.io/openxlsx/"><img src="openxlsx.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></a></p>
+</figure>
+</div>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>The ability to generate professional Excel reports programmatically is a crucial skill in data analysis and business reporting. In this comprehensive guide, we’ll explore how to use the <code>openxlsx</code> package in R to create sophisticated Excel reports with multiple sheets, custom formatting, and visualizations. This tutorial is designed for beginners to intermediate R users who want to automate their reporting workflows.</p>
+</section>
+<section id="why-choose-openxlsx" class="level2">
+<h2 class="anchored" data-anchor-id="why-choose-openxlsx">Why Choose openxlsx?</h2>
+<ul>
+<li><p><strong>No Excel Dependency</strong>: Unlike some alternatives, openxlsx doesn’t require Excel installation and No Java dependency (unlike XLConnect)</p></li>
+<li><p><strong>Performance</strong>: Efficient handling of large datasets</p></li>
+<li><p><strong>Comprehensive Formatting</strong>: Extensive options for cell styling, merging, and formatting</p></li>
+<li><p><strong>Multiple Worksheets</strong>: Easy management of multiple sheets in a workbook</p></li>
+<li><p><strong>Custom Styles</strong>: Ability to create and apply custom styles</p></li>
+<li><p><strong>Memory Efficient</strong>: Better memory management compared to other packages</p></li>
+<li><p><strong>Active Development</strong>: Regular updates and community support</p></li>
+</ul>
+</section>
+<section id="getting-started" class="level2">
+<h2 class="anchored" data-anchor-id="getting-started">Getting Started</h2>
+<p>First, install and load the required packages:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load packages</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(openxlsx)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'dplyr' was built under R version 4.3.3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'ggplot2' was built under R version 4.3.3</code></pre>
+</div>
+</div>
+</section>
+<section id="basic-functions-and-their-arguments" class="level2">
+<h2 class="anchored" data-anchor-id="basic-functions-and-their-arguments">Basic Functions and Their Arguments</h2>
+<section id="core-functions" class="level3">
+<h3 class="anchored" data-anchor-id="core-functions">Core Functions</h3>
+<p><strong><code>createWorkbook()</code></strong></p>
+<p>The <code>createWorkbook()</code> function is just the starting point and creates a new workbook object. When you run <code>wb &lt;- createWorkbook()</code>, you are creating a new, empty workbook object and assigning it to the variable <code>wb</code>. This workbook will serve as the container for any worksheets, styles, and data you want to add before saving it as an Excel file.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>wb <span class="ot">&lt;-</span> <span class="fu">createWorkbook</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong><code>addWorksheet()</code></strong></p>
+<p>The <strong><code>addWorksheet()</code></strong> function, part of the <strong>openxlsx</strong> package in R, is used to add a new worksheet (tab) to an Excel workbook created with <code>createWorkbook()</code>.</p>
+<p>Key arguments:</p>
+<ul>
+<li><p><strong><code>wb</code></strong>: This is the workbook object to which you’re adding a new worksheet. It should be an existing workbook created with <code>createWorkbook()</code>.</p></li>
+<li><p><strong><code>sheetName = "Sales Report"</code></strong>: This argument specifies the name of the new worksheet. In this case, the sheet will be labeled “Sales Report.” The name you choose will appear as the worksheet tab name in the Excel file.</p></li>
+<li><p><strong><code>gridLines = TRUE</code></strong>: This argument controls whether gridlines are visible in the worksheet.</p>
+<ul>
+<li><p><strong><code>TRUE</code></strong>: Shows gridlines (default setting).</p></li>
+<li><p><strong><code>FALSE</code></strong>: Hides gridlines, which can create a cleaner look in some reports.</p></li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">addWorksheet</span>(wb, <span class="at">sheetName =</span> <span class="st">"Sales Report"</span>, <span class="at">gridLines =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong><code>writeData()</code></strong></p>
+<p>The <code>writeData()</code> function from the <strong>openxlsx</strong> package in R is used to add data to a specific worksheet in an Excel workbook. Here’s what each argument in your code does:</p>
+<ul>
+<li><p><strong><code>wb</code></strong>: This is the workbook object where you want to write data. The workbook should already be created using <code>createWorkbook()</code>.</p></li>
+<li><p><strong><code>sheet = 1</code></strong>: This specifies the sheet to which you’re writing data. Here, <code>1</code> refers to the first sheet in the workbook. You can also use the sheet’s name (e.g., <code>sheet = "Sales Report"</code>) if you prefer.</p></li>
+<li><p><strong><code>x = data</code></strong>: This is the data you want to write to the worksheet. <code>data</code> can be a data frame, matrix, or vector.</p></li>
+<li><p><strong><code>startRow = 1</code></strong>: This specifies the row in the worksheet where the data should start. In this case, data will be written beginning at the first row.</p></li>
+<li><p><strong><code>startCol = 1</code></strong>: This specifies the column where the data should start. Setting this to <code>1</code> will write data starting from the first column (column “A” in Excel).</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">writeData</span>(wb, <span class="at">sheet =</span> <span class="dv">1</span>, <span class="at">x =</span> data, <span class="at">startRow =</span> <span class="dv">1</span>, <span class="at">startCol =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="step-by-step-report-creation" class="level2">
+<h2 class="anchored" data-anchor-id="step-by-step-report-creation">Step-by-Step Report Creation</h2>
+<p>Let’s create a sample sales report with multiple sheets, formatting, and charts.</p>
+<section id="step-1-prepare-sample-data" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-prepare-sample-data">Step 1: Prepare Sample Data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create sample sales data</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>sales_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Date =</span> <span class="fu">seq.Date</span>(<span class="fu">as.Date</span>(<span class="st">"2023-01-01"</span>), <span class="fu">as.Date</span>(<span class="st">"2023-12-31"</span>), <span class="at">by =</span> <span class="st">"month"</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Region =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"North"</span>, <span class="st">"South"</span>, <span class="st">"East"</span>, <span class="st">"West"</span>), <span class="dv">3</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sales =</span> <span class="fu">round</span>(<span class="fu">runif</span>(<span class="dv">12</span>, <span class="dv">10000</span>, <span class="dv">50000</span>), <span class="dv">2</span>),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Units =</span> <span class="fu">round</span>(<span class="fu">runif</span>(<span class="dv">12</span>, <span class="dv">100</span>, <span class="dv">500</span>)),</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Profit =</span> <span class="fu">round</span>(<span class="fu">runif</span>(<span class="dv">12</span>, <span class="dv">5000</span>, <span class="dv">25000</span>), <span class="dv">2</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>sales_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         Date Region    Sales Units   Profit
+1  2023-01-01  North 21503.10   371 18114.12
+2  2023-02-01  South 41532.21   329 19170.61
+3  2023-03-01   East 26359.08   141 15881.32
+4  2023-04-01   West 45320.70   460 16882.84
+5  2023-05-01  North 47618.69   198 10783.19
+6  2023-06-01  South 11822.26   117  7942.27
+7  2023-07-01   East 31124.22   231 24260.48
+8  2023-08-01   West 45696.76   482 23045.98
+9  2023-09-01  North 32057.40   456 18814.11
+10 2023-10-01  South 28264.59   377 20909.35
+11 2023-11-01   East 48273.33   356  5492.27
+12 2023-12-01   West 28133.37   498 14555.92</code></pre>
+</div>
+</div>
+<ul>
+<li><p><strong><code>set.seed(123)</code></strong>: This sets the random seed to ensure that any randomly generated numbers in the code are reproducible. This is useful if you want to get the same “random” values each time you run the code.</p></li>
+<li><p><strong><code>sales_data &lt;- data.frame(...)</code></strong>: This creates a data frame called <code>sales_data</code> to store the sample sales data. A data frame is a table-like structure in R, suitable for storing datasets.</p></li>
+<li><p><strong><code>Date = seq.Date(...)</code></strong>: <code>seq.Date()</code> generates a sequence of dates from January 1, 2023, to December 31, 2023, with one date per month.</p>
+<ul>
+<li><p><code>as.Date("2023-01-01")</code> and <code>as.Date("2023-12-31")</code> define the start and end dates for the sequence.</p></li>
+<li><p><code>by = "month"</code> specifies that the sequence should increment by one month at a time, creating 12 monthly date entries.</p></li>
+</ul></li>
+<li><p><strong><code>Region = rep(c("North", "South", "East", "West"), 3)</code></strong>: <code>rep(c("North", "South", "East", "West"), 3)</code> repeats the four regions (“North”, “South”, “East”, “West”) three times to get a total of 12 values. This column will indicate which region each data entry corresponds to.</p></li>
+<li><p><strong><code>Sales = round(runif(12, 10000, 50000), 2)</code></strong>:</p>
+<ul>
+<li><p><code>runif(12, 10000, 50000)</code> generates 12 random numbers between 10,000 and 50,000, representing the monthly sales figures.</p></li>
+<li><p><code>round(..., 2)</code> rounds these sales figures to two decimal places for readability.</p></li>
+</ul></li>
+<li><p><strong><code>Units = round(runif(12, 100, 500))</code></strong>:</p>
+<ul>
+<li><p><code>runif(12, 100, 500)</code> generates 12 random integers between 100 and 500, representing the number of units sold each month.</p></li>
+<li><p><code>round()</code> rounds these values to the nearest whole number.</p></li>
+</ul></li>
+<li><p><strong><code>Profit = round(runif(12, 5000, 25000), 2)</code></strong>:</p>
+<ul>
+<li><p><code>runif(12, 5000, 25000)</code> generates 12 random numbers between 5,000 and 25,000, representing monthly profit values.</p></li>
+<li><p><code>round(..., 2)</code> rounds each profit value to two decimal places.</p></li>
+</ul></li>
+</ul>
+</section>
+<section id="step-2-create-workbook-and-add-sheets" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-create-workbook-and-add-sheets">Step 2: Create Workbook and Add Sheets</h3>
+<p>Following code creates an Excel workbook and prepares it with several worksheets and customized styles for titles and headers. Let’s walk through each part.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create new workbook</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>wb <span class="ot">&lt;-</span> <span class="fu">createWorkbook</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This line initializes a new workbook object (<code>wb</code>) where you’ll add worksheets and data. The workbook is created using <code>createWorkbook()</code> from the <strong>openxlsx</strong> package.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add worksheets</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">addWorksheet</span>(wb, <span class="st">"Summary"</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">addWorksheet</span>(wb, <span class="st">"Details"</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">addWorksheet</span>(wb, <span class="st">"Charts"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>These lines add three worksheets to the workbook, named “Summary,” “Details,” and “Charts.” Each worksheet will be a separate tab in the Excel file.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a title style</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>title_style <span class="ot">&lt;-</span> <span class="fu">createStyle</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">fontSize =</span> <span class="dv">14</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">fontColour =</span> <span class="st">"#FFFFFF"</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">halign =</span> <span class="st">"center"</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">fgFill =</span> <span class="st">"#4F81BD"</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">textDecoration =</span> <span class="st">"bold"</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">border =</span> <span class="st">"TopBottom"</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">borderColour =</span> <span class="st">"#4F81BD"</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li><strong><code>createStyle()</code></strong>: This function defines a custom style that you can apply to specific cells in the workbook. The style here is designed for titles and is stored in <code>title_style</code>.</li>
+</ul>
+<section id="arguments-in-createstyle-for-the-title" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-in-createstyle-for-the-title">Arguments in <code>createStyle()</code> for the Title:</h4>
+<ul>
+<li><p><strong><code>fontSize = 14</code></strong>: Sets the font size to 14 for better visibility of the title.</p></li>
+<li><p><strong><code>fontColour = "#FFFFFF"</code></strong>: Sets the font color to white, using a hexadecimal color code.</p></li>
+<li><p><strong><code>halign = "center"</code></strong>: Horizontally aligns the text to the center within the cell.</p></li>
+<li><p><strong><code>fgFill = "#4F81BD"</code></strong>: Sets the background fill color (foreground color) of the cell to a shade of blue (<code>#4F81BD</code>).</p></li>
+<li><p><strong><code>textDecoration = "bold"</code></strong>: Makes the text bold to emphasize it as a title.</p></li>
+<li><p><strong><code>border = "TopBottom"</code></strong>: Adds borders to the top and bottom of the cell to give the title a framed appearance.</p></li>
+<li><p><strong><code>borderColour = "#4F81BD"</code></strong>: Sets the color of the borders to match the blue fill color.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create header style</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>header_style <span class="ot">&lt;-</span> <span class="fu">createStyle</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">fontSize =</span> <span class="dv">12</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">fontColour =</span> <span class="st">"#000000"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">halign =</span> <span class="st">"center"</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">fgFill =</span> <span class="st">"#DCE6F1"</span>,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">textDecoration =</span> <span class="st">"bold"</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">border =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">borderColour =</span> <span class="st">"#4F81BD"</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>This style is designed for headers in the worksheets, stored in <code>header_style</code>.</li>
+</ul>
+</section>
+<section id="arguments-in-createstyle-for-the-header" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-in-createstyle-for-the-header">Arguments in <code>createStyle()</code> for the Header:</h4>
+<ul>
+<li><p><strong><code>fontSize = 12</code></strong>: Sets a slightly smaller font size than the title.</p></li>
+<li><p><strong><code>fontColour = "#000000"</code></strong>: Sets the font color to black.</p></li>
+<li><p><strong><code>halign = "center"</code></strong>: Centers the text within each cell.</p></li>
+<li><p><strong><code>fgFill = "#DCE6F1"</code></strong>: Sets a light blue background fill for the header cells to distinguish them visually.</p></li>
+<li><p><strong><code>textDecoration = "bold"</code></strong>: Makes the header text bold.</p></li>
+<li><p><strong><code>border = "bottom"</code></strong>: Adds a border to the bottom of the cell.</p></li>
+<li><p><strong><code>borderColour = "#4F81BD"</code></strong>: Sets the color of the bottom border to the same blue as in the title style.</p></li>
+</ul>
+</section>
+</section>
+<section id="step-3-add-summary-data-and-formatting" class="level3">
+<h3 class="anchored" data-anchor-id="step-3-add-summary-data-and-formatting">Step 3: Add Summary Data and Formatting</h3>
+<p>This code adds a formatted title and data summary to the “Summary” worksheet in an Excel workbook, then applies styling to headers and numeric data, and adjusts column widths for a polished appearance. Let’s go through each section.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Write title</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">writeData</span>(wb, <span class="st">"Summary"</span>, <span class="st">"Sales Performance Report 2023"</span>, <span class="at">startCol =</span> <span class="dv">1</span>, <span class="at">startRow =</span> <span class="dv">1</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mergeCells</span>(wb, <span class="st">"Summary"</span>, <span class="at">cols =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">rows =</span> <span class="dv">1</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">addStyle</span>(wb, <span class="st">"Summary"</span>, title_style, <span class="at">rows =</span> <span class="dv">1</span>, <span class="at">cols =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li><p><strong><code>writeData(wb, "Summary", "Sales Performance Report 2023", startCol = 1, startRow = 1)</code></strong>: This places the text <code>"Sales Performance Report 2023"</code> in cell A1 of the “Summary” worksheet.</p></li>
+<li><p><strong><code>mergeCells(wb, "Summary", cols = 1:5, rows = 1)</code></strong>: Merges cells from columns 1 to 5 (A to E) in the first row, centering the title across these columns to make it look like a unified title.</p></li>
+<li><p><strong><code>addStyle(wb, "Summary", title_style, rows = 1, cols = 1:5)</code></strong>: Applies the previously defined <code>title_style</code> to the merged title cell. This style includes formatting like font size, color, alignment, and borders, giving the title a professional appearance.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Write data with headers</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">writeData</span>(wb, <span class="st">"Summary"</span>, sales_data, <span class="at">startCol =</span> <span class="dv">1</span>, <span class="at">startRow =</span> <span class="dv">3</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">addStyle</span>(wb, <span class="st">"Summary"</span>, header_style, <span class="at">rows =</span> <span class="dv">3</span>, <span class="at">cols =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li><p><strong><code>writeData(wb, "Summary", sales_data, startCol = 1, startRow = 3)</code></strong>: Writes the <code>sales_data</code> data frame starting from cell A3. Row 3 will contain the headers from <code>sales_data</code>, while the rows below will contain the data.</p></li>
+<li><p><strong><code>addStyle(wb, "Summary", header_style, rows = 3, cols = 1:5)</code></strong>: Applies the <code>header_style</code> to row 3 (columns A to E) to make the headers bold, centered, and colored with a background fill. This improves readability and distinguishes the headers from the data.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Format numbers</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>number_style <span class="ot">&lt;-</span> <span class="fu">createStyle</span>(<span class="at">numFmt =</span> <span class="st">"#,##0.00"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">addStyle</span>(wb, <span class="st">"Summary"</span>, number_style, <span class="at">rows =</span> <span class="dv">4</span><span class="sc">:</span><span class="dv">15</span>, <span class="at">cols =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">gridExpand =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li><p><strong><code>number_style &lt;- createStyle(numFmt = "#,##0.00")</code></strong>: Defines a style named <code>number_style</code> that formats numbers with commas as thousands separators and two decimal places (e.g., <code>12,345.67</code>).</p></li>
+<li><p><strong><code>addStyle(wb, "Summary", number_style, rows = 4:15, cols = 3:5, gridExpand = TRUE)</code></strong>:</p>
+<ul>
+<li><p>Applies this <code>number_style</code> to columns 3 through 5 (Sales, Units, and Profit columns in <code>sales_data</code>) for rows 4 to 15, covering all data rows.</p></li>
+<li><p><strong><code>gridExpand = TRUE</code></strong> ensures the style applies to the entire specified range, not just the first cell in each row or column.</p></li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Adjust column widths</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">setColWidths</span>(wb, <span class="st">"Summary"</span>, <span class="at">cols =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">widths =</span> <span class="st">"auto"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong><code>setColWidths(wb, "Summary", cols = 1:5, widths = "auto")</code></strong>: Automatically adjusts the widths of columns 1 through 5 (A to E) based on their content. This ensures that all data, headers, and titles are fully visible without manual adjustment.</p>
+</section>
+<section id="step-4-create-and-add-visualizations" class="level3">
+<h3 class="anchored" data-anchor-id="step-4-create-and-add-visualizations">Step 4: Create and Add Visualizations</h3>
+<p>This code creates a line chart to visualize monthly sales trends and inserts it into an Excel workbook. Here’s a step-by-step explanation of each part.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create monthly sales trend chart</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>sales_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(sales_data, <span class="fu">aes</span>(<span class="at">x =</span> Date, <span class="at">y =</span> Sales)) <span class="sc">+</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"#4F81BD"</span>, <span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"#4F81BD"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Monthly Sales Trend"</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Month"</span>,</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Sales ($)"</span>) <span class="sc">+</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">"bold"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+ℹ Please use `linewidth` instead.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save plot to workbook</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">insertPlot</span>(wb, <span class="st">"Charts"</span>, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">6</span>,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">startCol =</span> <span class="dv">1</span>, <span class="at">startRow =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong><code>insertPlot()</code></strong> is an <strong>openxlsx</strong> function that saves the current plot into a specified worksheet in an Excel workbook.</p>
+<ul>
+<li><p><strong><code>wb</code></strong>: Specifies the workbook to insert the plot into.</p></li>
+<li><p><strong><code>"Charts"</code></strong>: Specifies the worksheet where the plot will be placed.</p></li>
+<li><p><strong><code>width = 8, height = 6</code></strong>: Sets the width and height of the plot in inches.</p></li>
+<li><p><strong><code>startCol = 1, startRow = 1</code></strong>: Inserts the plot starting at cell A1 of the “Charts” worksheet.</p></li>
+</ul>
+</section>
+<section id="step-5-add-regional-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="step-5-add-regional-analysis">Step 5: Add Regional Analysis</h3>
+<p>Then let’s create a summary of sales data by region, writes it to the “Details” worksheet in an Excel workbook, and applies styling for a professional presentation.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create regional summary</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>regional_summary <span class="ot">&lt;-</span> sales_data <span class="sc">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Region) <span class="sc">%&gt;%</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Total_Sales =</span> <span class="fu">sum</span>(Sales),</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Avg_Units =</span> <span class="fu">mean</span>(Units),</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Total_Profit =</span> <span class="fu">sum</span>(Profit)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Write regional summary to Details sheet</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="fu">writeData</span>(wb, <span class="st">"Details"</span>, <span class="st">"Regional Performance Summary"</span>, <span class="at">startCol =</span> <span class="dv">1</span>, <span class="at">startRow =</span> <span class="dv">1</span>)</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="fu">mergeCells</span>(wb, <span class="st">"Details"</span>, <span class="at">cols =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">rows =</span> <span class="dv">1</span>)</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="fu">addStyle</span>(wb, <span class="st">"Details"</span>, title_style, <span class="at">rows =</span> <span class="dv">1</span>, <span class="at">cols =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>)</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="fu">writeData</span>(wb, <span class="st">"Details"</span>, regional_summary, <span class="at">startCol =</span> <span class="dv">1</span>, <span class="at">startRow =</span> <span class="dv">3</span>)</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="fu">addStyle</span>(wb, <span class="st">"Details"</span>, header_style, <span class="at">rows =</span> <span class="dv">3</span>, <span class="at">cols =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="step-6-save-the-workbook" class="level3">
+<h3 class="anchored" data-anchor-id="step-6-save-the-workbook">Step 6: Save the Workbook</h3>
+<p>Lastly with this command finalizes and exports the workbook, preserving all worksheets, data, formatting, and charts created in previous steps. You should see a file named <code>Sales_Report_2023.xlsx</code> in your working directory after this line runs.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the workbook</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveWorkbook</span>(wb, <span class="st">"Sales_Report_2023.xlsx"</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>After saving the Excel file with the <code>Summary</code>, <code>Details</code>, and <code>Charts</code> sheets, I opened the file to review the output. Below, I’m sharing screenshots of each sheet to showcase the final report layout, formatting, and visualization.</p>
+<p>In the <strong>Summary</strong> sheet, you can see the main title, followed by a detailed table with the monthly sales data. The headers and values are formatted to improve readability and create a professional appearance.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Summary.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>The <strong>Details</strong> sheet provides a regional breakdown with aggregated sales, average units, and profit for each region. This sheet includes formatted headers and a clear, centered title, making it easy to interpret the regional performance metrics.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Details.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>Lastly, the <strong>Charts</strong> sheet contains a line graph displaying the monthly sales trend. This visualization is useful for spotting sales patterns and seeing how performance changes over the months.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Charts.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>These screenshots illustrate the powerful formatting and customization options available when generating Excel reports in R, making it straightforward to create polished and informative workbooks for reporting.</p>
+</section>
+</section>
+<section id="best-practices-and-tips-for-using-the-openxlsx-package-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="best-practices-and-tips-for-using-the-openxlsx-package-in-r">Best Practices and Tips for Using the <code>openxlsx</code> Package in R</h2>
+<ol type="1">
+<li><p><strong>Use Meaningful Sheet Names</strong><br>
+Choose descriptive and relevant names for your Excel sheets. This helps users understand the content at a glance and enhances navigation within the workbook. For example, instead of generic names like “Sheet1,” use names like “SalesData_Q1” or “CustomerFeedback.”</p></li>
+<li><p><strong>Implement Consistent Styling Across Sheets</strong><br>
+Maintain a uniform style throughout your workbook to enhance readability and professionalism. Use consistent fonts, colors, and cell styles. You can set styles using the <code>createStyle()</code> function and apply them to multiple sheets to ensure uniformity.</p></li>
+<li><p><strong>Include Proper Documentation in Your Code</strong><br>
+Document your R code with clear comments explaining the purpose of each section and any specific styling or formatting choices made with the <code>openxlsx</code> functions. This will make your code easier to understand and maintain, especially for others who may work with it later.</p></li>
+<li><p><strong>Use Appropriate Number Formatting for Different Data Types</strong><br>
+Apply relevant number formats for various data types, such as currency, percentages, or dates. Utilize the <code>addStyle()</code> function to format cells appropriately, which improves data clarity and presentation in your reports.</p></li>
+<li><p><strong>Test the Report with Different Data Sizes</strong><br>
+Before finalizing your report, test it with datasets of varying sizes to ensure it renders correctly and performs well. This will help you identify any potential issues, such as layout problems or performance slowdowns, before distribution.</p></li>
+<li><p><strong>Include Error Handling for Robust Reports</strong><br>
+Implement error handling in your R code to gracefully manage potential issues, such as missing data or formatting errors. Use <code>tryCatch()</code> to catch errors during report generation, ensuring that your report generation process is robust and user-friendly.</p></li>
+</ol>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>The <code>openxlsx</code> package is a powerful and flexible tool for generating professional Excel reports directly from R. By leveraging its capabilities, you can create sophisticated reports that include multiple sheets, tailored formatting, and integrated visualizations. This package allows for extensive customization, enabling you to apply styles, set column widths, and format numbers to meet your specific requirements.</p>
+<p>As you create your reports, take advantage of features such as conditional formatting, data validation, and the ability to add hyperlinks. These functionalities can enhance the interactivity and usability of your reports, making them not only visually appealing but also more functional.</p>
+<p>Don’t hesitate to experiment with various formatting options, as <code>openxlsx</code> offers a range of functions to help you manipulate the appearance of your sheets. Adapting the code to fit your reporting needs is crucial; consider how you can automate repetitive tasks or incorporate dynamic elements that reflect changes in your data.</p>
+<p>Additionally, always keep performance in mind—testing your reports with datasets of varying sizes will ensure that they function smoothly and remain responsive, regardless of the data complexity. Finally, robust error handling will help you create reliable reports that can withstand unexpected data issues, thereby enhancing the user experience.</p>
+<p>By following the best practices outlined in this guide, you will be well-equipped to utilize the <code>openxlsx</code> package to its fullest potential, producing high-quality, professional reports that effectively communicate your insights and findings.</p>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
+<ol type="1">
+<li><p><strong>openxlsx GitHub Repository</strong><br>
+Explore the source code, issues, and development updates for the <code>openxlsx</code> package. Available at: <a href="https://github.com/ycphs/openxlsx">openxlsx GitHub</a><a href="https://github.com/ycphs/openxlsx">Repository</a></p></li>
+<li><p><strong>openxlsx Documentation</strong><br>
+Access the official documentation for detailed information on functions, usage, and examples for the <code>openxlsx</code> package. Available at: <a href="https://ycphs.github.io/openxlsx/">openxlsx Documentation</a></p></li>
+<li><p><strong>CRAN Package Page</strong><br>
+Find installation instructions, news, and package information from the Comprehensive R Archive Network (CRAN). Available at: <a href="https://cran.r-project.org/web/packages/openxlsx/openxlsx.pdf">openxlsx CRAN Page</a></p></li>
+</ol>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/mfatihtuzen\.netlify\.app");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="MFatihTuzen/blogComments" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2023, M. Fatih Tüzen</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
