@@ -33,7 +33,7 @@ The ability to generate professional Excel reports programmatically is a crucial
 First, install and load the required packages:
 
 ```{r}
-#| message: false
+#| warning: false
 # Load packages
 library(openxlsx)
 library(dplyr)
