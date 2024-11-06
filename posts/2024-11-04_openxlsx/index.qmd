@@ -14,7 +14,7 @@ The ability to generate professional Excel reports programmatically is a crucial
 
 ## Why Choose openxlsx?
 
--    **No Excel Dependency**: Unlike some alternatives, openxlsx doesn't require Excel installation and No Java dependency (unlike XLConnect)
+-   **No Excel Dependency**: Unlike some alternatives, openxlsx doesn't require Excel installation and No Java dependency (unlike XLConnect)
 
 -   **Performance**: Efficient handling of large datasets
 
@@ -396,7 +396,7 @@ By following the best practices outlined in this guide, you will be well-equippe
 ### References
 
 1.  **openxlsx GitHub Repository**\
-    Explore the source code, issues, and development updates for the `openxlsx` package. Available at: [openxlsx GitHub ](https://github.com/ycphs/openxlsx)[Repository](https://github.com/ycphs/openxlsx)
+    Explore the source code, issues, and development updates for the `openxlsx` package. Available at: [openxlsx GitHubRepository](https://github.com/ycphs/openxlsx)
 
 2.  **openxlsx Documentation**\
     Access the official documentation for detailed information on functions, usage, and examples for the `openxlsx` package. Available at: [openxlsx Documentation](https://ycphs.github.io/openxlsx/)

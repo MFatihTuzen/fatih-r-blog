@@ -54,16 +54,10 @@ background-color: null;
 font-style: inherit;">library</span>(openxlsx)</span>
 <span id="cb1-3"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">library</span>(dplyr)</span></code></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'dplyr' was built under R version 4.3.3</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+font-style: inherit;">library</span>(dplyr)</span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">library</span>(ggplot2)</span></code></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'ggplot2' was built under R version 4.3.3</code></pre>
-</div>
 </div>
 </section>
 <section id="basic-functions-and-their-arguments" class="level2">
@@ -73,7 +67,7 @@ font-style: inherit;">library</span>(ggplot2)</span></code></pre></div>
 <p><strong><code>createWorkbook()</code></strong></p>
 <p>The <code>createWorkbook()</code> function is just the starting point and creates a new workbook object. When you run <code>wb &lt;- createWorkbook()</code>, you are creating a new, empty workbook object and assigning it to the variable <code>wb</code>. This workbook will serve as the container for any worksheets, styles, and data you want to add before saving it as an Excel file.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">wb <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">wb <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -92,7 +86,7 @@ font-style: inherit;">createWorkbook</span>()</span></code></pre></div>
 </ul></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">addWorksheet</span>(wb, <span class="at" style="color: #657422;
 background-color: null;
@@ -114,7 +108,7 @@ font-style: inherit;">TRUE</span>)</span></code></pre></div>
 <li><p><strong><code>startCol = 1</code></strong>: This specifies the column where the data should start. Setting this to <code>1</code> will write data starting from the first column (column “A” in Excel).</p></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">writeData</span>(wb, <span class="at" style="color: #657422;
 background-color: null;
@@ -140,20 +134,20 @@ font-style: inherit;">1</span>)</span></code></pre></div>
 <section id="step-1-prepare-sample-data" class="level3">
 <h3 class="anchored" data-anchor-id="step-1-prepare-sample-data">Step 1: Prepare Sample Data</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create sample sales data</span></span>
-<span id="cb8-2"><span class="fu" style="color: #4758AB;
+<span id="cb5-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">123</span>)</span>
-<span id="cb8-3">sales_data <span class="ot" style="color: #003B4F;
+<span id="cb5-3">sales_data <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">data.frame</span>(</span>
-<span id="cb8-4">  <span class="at" style="color: #657422;
+<span id="cb5-4">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">Date =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -170,7 +164,7 @@ background-color: null;
 font-style: inherit;">by =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"month"</span>),</span>
-<span id="cb8-5">  <span class="at" style="color: #657422;
+<span id="cb5-5">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">Region =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -187,7 +181,7 @@ background-color: null;
 font-style: inherit;">"West"</span>), <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">3</span>),</span>
-<span id="cb8-6">  <span class="at" style="color: #657422;
+<span id="cb5-6">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">Sales =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -202,7 +196,7 @@ background-color: null;
 font-style: inherit;">50000</span>), <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2</span>),</span>
-<span id="cb8-7">  <span class="at" style="color: #657422;
+<span id="cb5-7">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">Units =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -215,7 +209,7 @@ background-color: null;
 font-style: inherit;">100</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">500</span>)),</span>
-<span id="cb8-8">  <span class="at" style="color: #657422;
+<span id="cb5-8">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">Profit =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -230,9 +224,9 @@ background-color: null;
 font-style: inherit;">25000</span>), <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2</span>)</span>
-<span id="cb8-9">)</span>
-<span id="cb8-10"></span>
-<span id="cb8-11">sales_data</span></code></pre></div>
+<span id="cb5-9">)</span>
+<span id="cb5-10"></span>
+<span id="cb5-11">sales_data</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>         Date Region    Sales Units   Profit
 1  2023-01-01  North 21503.10   371 18114.12
@@ -279,10 +273,10 @@ font-style: inherit;">2</span>)</span>
 <h3 class="anchored" data-anchor-id="step-2-create-workbook-and-add-sheets">Step 2: Create Workbook and Add Sheets</h3>
 <p>Following code creates an Excel workbook and prepares it with several worksheets and customized styles for titles and headers. Let’s walk through each part.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create new workbook</span></span>
-<span id="cb10-2">wb <span class="ot" style="color: #003B4F;
+<span id="cb7-2">wb <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -290,20 +284,20 @@ font-style: inherit;">createWorkbook</span>()</span></code></pre></div>
 </div>
 <p>This line initializes a new workbook object (<code>wb</code>) where you’ll add worksheets and data. The workbook is created using <code>createWorkbook()</code> from the <strong>openxlsx</strong> package.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Add worksheets</span></span>
-<span id="cb11-2"><span class="fu" style="color: #4758AB;
+<span id="cb8-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">addWorksheet</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Summary"</span>)</span>
-<span id="cb11-3"><span class="fu" style="color: #4758AB;
+<span id="cb8-3"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">addWorksheet</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Details"</span>)</span>
-<span id="cb11-4"><span class="fu" style="color: #4758AB;
+<span id="cb8-4"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">addWorksheet</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
@@ -311,50 +305,50 @@ font-style: inherit;">"Charts"</span>)</span></code></pre></div>
 </div>
 <p>These lines add three worksheets to the workbook, named “Summary,” “Details,” and “Charts.” Each worksheet will be a separate tab in the Excel file.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a title style</span></span>
-<span id="cb12-2">title_style <span class="ot" style="color: #003B4F;
+<span id="cb9-2">title_style <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">createStyle</span>(</span>
-<span id="cb12-3">  <span class="at" style="color: #657422;
+<span id="cb9-3">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">fontSize =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">14</span>,</span>
-<span id="cb12-4">  <span class="at" style="color: #657422;
+<span id="cb9-4">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">fontColour =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"#FFFFFF"</span>,</span>
-<span id="cb12-5">  <span class="at" style="color: #657422;
+<span id="cb9-5">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">halign =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"center"</span>,</span>
-<span id="cb12-6">  <span class="at" style="color: #657422;
+<span id="cb9-6">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">fgFill =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"#4F81BD"</span>,</span>
-<span id="cb12-7">  <span class="at" style="color: #657422;
+<span id="cb9-7">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">textDecoration =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"bold"</span>,</span>
-<span id="cb12-8">  <span class="at" style="color: #657422;
+<span id="cb9-8">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">border =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"TopBottom"</span>,</span>
-<span id="cb12-9">  <span class="at" style="color: #657422;
+<span id="cb9-9">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">borderColour =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"#4F81BD"</span></span>
-<span id="cb12-10">)</span></code></pre></div>
+<span id="cb9-10">)</span></code></pre></div>
 </div>
 <ul>
 <li><strong><code>createStyle()</code></strong>: This function defines a custom style that you can apply to specific cells in the workbook. The style here is designed for titles and is stored in <code>title_style</code>.</li>
@@ -371,50 +365,50 @@ font-style: inherit;">"#4F81BD"</span></span>
 <li><p><strong><code>borderColour = "#4F81BD"</code></strong>: Sets the color of the borders to match the blue fill color.</p></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create header style</span></span>
-<span id="cb13-2">header_style <span class="ot" style="color: #003B4F;
+<span id="cb10-2">header_style <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">createStyle</span>(</span>
-<span id="cb13-3">  <span class="at" style="color: #657422;
+<span id="cb10-3">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">fontSize =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">12</span>,</span>
-<span id="cb13-4">  <span class="at" style="color: #657422;
+<span id="cb10-4">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">fontColour =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"#000000"</span>,</span>
-<span id="cb13-5">  <span class="at" style="color: #657422;
+<span id="cb10-5">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">halign =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"center"</span>,</span>
-<span id="cb13-6">  <span class="at" style="color: #657422;
+<span id="cb10-6">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">fgFill =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"#DCE6F1"</span>,</span>
-<span id="cb13-7">  <span class="at" style="color: #657422;
+<span id="cb10-7">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">textDecoration =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"bold"</span>,</span>
-<span id="cb13-8">  <span class="at" style="color: #657422;
+<span id="cb10-8">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">border =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"bottom"</span>,</span>
-<span id="cb13-9">  <span class="at" style="color: #657422;
+<span id="cb10-9">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">borderColour =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"#4F81BD"</span></span>
-<span id="cb13-10">)</span></code></pre></div>
+<span id="cb10-10">)</span></code></pre></div>
 </div>
 <ul>
 <li>This style is designed for headers in the worksheets, stored in <code>header_style</code>.</li>
@@ -437,10 +431,10 @@ font-style: inherit;">"#4F81BD"</span></span>
 <h3 class="anchored" data-anchor-id="step-3-add-summary-data-and-formatting">Step 3: Add Summary Data and Formatting</h3>
 <p>This code adds a formatted title and data summary to the “Summary” worksheet in an Excel workbook, then applies styling to headers and numeric data, and adjusts column widths for a polished appearance. Let’s go through each section.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Write title</span></span>
-<span id="cb14-2"><span class="fu" style="color: #4758AB;
+<span id="cb11-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">writeData</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
@@ -455,7 +449,7 @@ background-color: null;
 font-style: inherit;">startRow =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span>)</span>
-<span id="cb14-3"><span class="fu" style="color: #4758AB;
+<span id="cb11-3"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">mergeCells</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
@@ -472,7 +466,7 @@ background-color: null;
 font-style: inherit;">rows =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span>)</span>
-<span id="cb14-4"><span class="fu" style="color: #4758AB;
+<span id="cb11-4"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">addStyle</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
@@ -496,10 +490,10 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 <li><p><strong><code>addStyle(wb, "Summary", title_style, rows = 1, cols = 1:5)</code></strong>: Applies the previously defined <code>title_style</code> to the merged title cell. This style includes formatting like font size, color, alignment, and borders, giving the title a professional appearance.</p></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Write data with headers</span></span>
-<span id="cb15-2"><span class="fu" style="color: #4758AB;
+<span id="cb12-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">writeData</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
@@ -512,7 +506,7 @@ background-color: null;
 font-style: inherit;">startRow =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">3</span>)</span>
-<span id="cb15-3"><span class="fu" style="color: #4758AB;
+<span id="cb12-3"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">addStyle</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
@@ -535,10 +529,10 @@ font-style: inherit;">5</span>)</span></code></pre></div>
 <li><p><strong><code>addStyle(wb, "Summary", header_style, rows = 3, cols = 1:5)</code></strong>: Applies the <code>header_style</code> to row 3 (columns A to E) to make the headers bold, centered, and colored with a background fill. This improves readability and distinguishes the headers from the data.</p></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Format numbers</span></span>
-<span id="cb16-2">number_style <span class="ot" style="color: #003B4F;
+<span id="cb13-2">number_style <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -547,7 +541,7 @@ background-color: null;
 font-style: inherit;">numFmt =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"#,##0.00"</span>)</span>
-<span id="cb16-3"><span class="fu" style="color: #4758AB;
+<span id="cb13-3"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">addStyle</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
@@ -582,10 +576,10 @@ font-style: inherit;">TRUE</span>)</span></code></pre></div>
 </ul></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Adjust column widths</span></span>
-<span id="cb17-2"><span class="fu" style="color: #4758AB;
+<span id="cb14-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">setColWidths</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
@@ -609,10 +603,10 @@ font-style: inherit;">"auto"</span>)</span></code></pre></div>
 <h3 class="anchored" data-anchor-id="step-4-create-and-add-visualizations">Step 4: Create and Add Visualizations</h3>
 <p>This code creates a line chart to visualize monthly sales trends and inserts it into an Excel workbook. Here’s a step-by-step explanation of each part.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create monthly sales trend chart</span></span>
-<span id="cb18-2">sales_plot <span class="ot" style="color: #003B4F;
+<span id="cb15-2">sales_plot <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -625,7 +619,7 @@ background-color: null;
 font-style: inherit;">y =</span> Sales)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb18-3">  <span class="fu" style="color: #4758AB;
+<span id="cb15-3">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_line</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -638,7 +632,7 @@ background-color: null;
 font-style: inherit;">1.2</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb18-4">  <span class="fu" style="color: #4758AB;
+<span id="cb15-4">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_point</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -651,31 +645,31 @@ background-color: null;
 font-style: inherit;">3</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb18-5">  <span class="fu" style="color: #4758AB;
+<span id="cb15-5">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb18-6">  <span class="fu" style="color: #4758AB;
+<span id="cb15-6">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Monthly Sales Trend"</span>,</span>
-<span id="cb18-7">       <span class="at" style="color: #657422;
+<span id="cb15-7">       <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Month"</span>,</span>
-<span id="cb18-8">       <span class="at" style="color: #657422;
+<span id="cb15-8">       <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Sales ($)"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb18-9">  <span class="fu" style="color: #4758AB;
+<span id="cb15-9">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -698,10 +692,10 @@ font-style: inherit;">"bold"</span>))</span></code></pre></div>
 <pre><code>Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
 ℹ Please use `linewidth` instead.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Save plot to workbook</span></span>
-<span id="cb20-2"><span class="fu" style="color: #4758AB;
+<span id="cb17-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">insertPlot</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
@@ -714,7 +708,7 @@ background-color: null;
 font-style: inherit;">height =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">6</span>,</span>
-<span id="cb20-3">          <span class="at" style="color: #657422;
+<span id="cb17-3">          <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">startCol =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
@@ -736,43 +730,43 @@ font-style: inherit;">1</span>)</span></code></pre></div>
 <h3 class="anchored" data-anchor-id="step-5-add-regional-analysis">Step 5: Add Regional Analysis</h3>
 <p>Then let’s create a summary of sales data by region, writes it to the “Details” worksheet in an Excel workbook, and applies styling for a professional presentation.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create regional summary</span></span>
-<span id="cb21-2">regional_summary <span class="ot" style="color: #003B4F;
+<span id="cb18-2">regional_summary <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> sales_data <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb21-3">  <span class="fu" style="color: #4758AB;
+<span id="cb18-3">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">group_by</span>(Region) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb21-4">  <span class="fu" style="color: #4758AB;
+<span id="cb18-4">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">summarise</span>(</span>
-<span id="cb21-5">    <span class="at" style="color: #657422;
+<span id="cb18-5">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">Total_Sales =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">sum</span>(Sales),</span>
-<span id="cb21-6">    <span class="at" style="color: #657422;
+<span id="cb18-6">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">Avg_Units =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">mean</span>(Units),</span>
-<span id="cb21-7">    <span class="at" style="color: #657422;
+<span id="cb18-7">    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">Total_Profit =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">sum</span>(Profit)</span>
-<span id="cb21-8">  )</span>
-<span id="cb21-9"></span>
-<span id="cb21-10"><span class="co" style="color: #5E5E5E;
+<span id="cb18-8">  )</span>
+<span id="cb18-9"></span>
+<span id="cb18-10"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Write regional summary to Details sheet</span></span>
-<span id="cb21-11"><span class="fu" style="color: #4758AB;
+<span id="cb18-11"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">writeData</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
@@ -787,7 +781,7 @@ background-color: null;
 font-style: inherit;">startRow =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span>)</span>
-<span id="cb21-12"><span class="fu" style="color: #4758AB;
+<span id="cb18-12"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">mergeCells</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
@@ -804,7 +798,7 @@ background-color: null;
 font-style: inherit;">rows =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span>)</span>
-<span id="cb21-13"><span class="fu" style="color: #4758AB;
+<span id="cb18-13"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">addStyle</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
@@ -821,8 +815,8 @@ background-color: null;
 font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">4</span>)</span>
-<span id="cb21-14"></span>
-<span id="cb21-15"><span class="fu" style="color: #4758AB;
+<span id="cb18-14"></span>
+<span id="cb18-15"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">writeData</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
@@ -835,7 +829,7 @@ background-color: null;
 font-style: inherit;">startRow =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">3</span>)</span>
-<span id="cb21-16"><span class="fu" style="color: #4758AB;
+<span id="cb18-16"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">addStyle</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
@@ -858,10 +852,10 @@ font-style: inherit;">4</span>)</span></code></pre></div>
 <h3 class="anchored" data-anchor-id="step-6-save-the-workbook">Step 6: Save the Workbook</h3>
 <p>Lastly with this command finalizes and exports the workbook, preserving all worksheets, data, formatting, and charts created in previous steps. You should see a file named <code>Sales_Report_2023.xlsx</code> in your working directory after this line runs.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Save the workbook</span></span>
-<span id="cb22-2"><span class="fu" style="color: #4758AB;
+<span id="cb19-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">saveWorkbook</span>(wb, <span class="st" style="color: #20794D;
 background-color: null;
@@ -921,7 +915,7 @@ Implement error handling in your R code to gracefully manage potential issues, s
 <h3 class="anchored" data-anchor-id="references">References</h3>
 <ol type="1">
 <li><p><strong>openxlsx GitHub Repository</strong><br>
-Explore the source code, issues, and development updates for the <code>openxlsx</code> package. Available at: <a href="https://github.com/ycphs/openxlsx">openxlsx GitHub</a><a href="https://github.com/ycphs/openxlsx">Repository</a></p></li>
+Explore the source code, issues, and development updates for the <code>openxlsx</code> package. Available at: <a href="https://github.com/ycphs/openxlsx">openxlsx GitHubRepository</a></p></li>
 <li><p><strong>openxlsx Documentation</strong><br>
 Access the official documentation for detailed information on functions, usage, and examples for the <code>openxlsx</code> package. Available at: <a href="https://ycphs.github.io/openxlsx/">openxlsx Documentation</a></p></li>
 <li><p><strong>CRAN Package Page</strong><br>

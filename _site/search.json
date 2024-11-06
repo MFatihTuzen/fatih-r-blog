@@ -690,7 +690,7 @@
     "href": "posts/2024-11-04_openxlsx/index.html#getting-started",
     "title": "Creating Professional Excel Reports with R: A Comprehensive Guide to openxlsx Package",
     "section": "Getting Started",
-    "text": "Getting Started\nFirst, install and load the required packages:\n\n# Load packages\nlibrary(openxlsx)\nlibrary(dplyr)\n\nWarning: package 'dplyr' was built under R version 4.3.3\n\nlibrary(ggplot2)\n\nWarning: package 'ggplot2' was built under R version 4.3.3"
+    "text": "Getting Started\nFirst, install and load the required packages:\n\n# Load packages\nlibrary(openxlsx)\nlibrary(dplyr)\nlibrary(ggplot2)"
   },
   {
     "objectID": "posts/2024-11-04_openxlsx/index.html#basic-functions-and-their-arguments",
