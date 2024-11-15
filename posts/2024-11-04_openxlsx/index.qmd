@@ -2,7 +2,7 @@
 title: "Creating Professional Excel Reports with R: A Comprehensive Guide to openxlsx Package"
 author: "M. Fatih Tüzen"
 date: "2024-11-04"
-date-modified: "2024-11-04"
+date-modified: "2024-11-15"
 categories: [R Programming, Report Automation, openxlsx, Excel]
 ---
 
@@ -393,7 +393,25 @@ Additionally, always keep performance in mind—testing your reports with datase
 
 By following the best practices outlined in this guide, you will be well-equipped to utilize the `openxlsx` package to its fullest potential, producing high-quality, professional reports that effectively communicate your insights and findings.
 
-### References
+## About `openxlsx2` Package
+
+While `openxlsx` is a powerful package for Excel reporting, its successor, **`openxlsx2`**, brings significant enhancements and additional features:
+
+1.  **Improved Performance**:\
+    `openxlsx2` is optimized for speed and efficiency, making it faster when handling large datasets or generating complex Excel files.
+
+2.  **Enhanced Compatibility**:\
+    The package offers better compatibility with modern Excel formats and supports advanced features such as conditional formatting and improved table styles.
+
+3.  **Simplified Syntax**:\
+    Functions in `openxlsx2` have been refined for easier use, with clearer argument names and enhanced documentation.
+
+4.  **Backward Compatibility**:\
+    `openxlsx2` maintains most of the functionality of `openxlsx`, allowing users to transition seamlessly while benefiting from the new features.
+
+For users who require advanced functionality or improved performance, `openxlsx2` is an excellent alternative. You can explore the package and its documentation on [CRAN](https://cran.r-project.org/web/packages/openxlsx2/index.html) and [github](https://github.com/JanMarvin/openxlsx2).
+
+## References
 
 1.  **openxlsx GitHub Repository**\
     Explore the source code, issues, and development updates for the `openxlsx` package. Available at: [openxlsx GitHubRepository](https://github.com/ycphs/openxlsx)

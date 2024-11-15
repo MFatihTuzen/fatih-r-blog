@@ -911,8 +911,24 @@ Implement error handling in your R code to gracefully manage potential issues, s
 <p>Don’t hesitate to experiment with various formatting options, as <code>openxlsx</code> offers a range of functions to help you manipulate the appearance of your sheets. Adapting the code to fit your reporting needs is crucial; consider how you can automate repetitive tasks or incorporate dynamic elements that reflect changes in your data.</p>
 <p>Additionally, always keep performance in mind—testing your reports with datasets of varying sizes will ensure that they function smoothly and remain responsive, regardless of the data complexity. Finally, robust error handling will help you create reliable reports that can withstand unexpected data issues, thereby enhancing the user experience.</p>
 <p>By following the best practices outlined in this guide, you will be well-equipped to utilize the <code>openxlsx</code> package to its fullest potential, producing high-quality, professional reports that effectively communicate your insights and findings.</p>
-<section id="references" class="level3">
-<h3 class="anchored" data-anchor-id="references">References</h3>
+</section>
+<section id="about-openxlsx2-package" class="level2">
+<h2 class="anchored" data-anchor-id="about-openxlsx2-package">About <code>openxlsx2</code> Package</h2>
+<p>While <code>openxlsx</code> is a powerful package for Excel reporting, its successor, <strong><code>openxlsx2</code></strong>, brings significant enhancements and additional features:</p>
+<ol type="1">
+<li><p><strong>Improved Performance</strong>:<br>
+<code>openxlsx2</code> is optimized for speed and efficiency, making it faster when handling large datasets or generating complex Excel files.</p></li>
+<li><p><strong>Enhanced Compatibility</strong>:<br>
+The package offers better compatibility with modern Excel formats and supports advanced features such as conditional formatting and improved table styles.</p></li>
+<li><p><strong>Simplified Syntax</strong>:<br>
+Functions in <code>openxlsx2</code> have been refined for easier use, with clearer argument names and enhanced documentation.</p></li>
+<li><p><strong>Backward Compatibility</strong>:<br>
+<code>openxlsx2</code> maintains most of the functionality of <code>openxlsx</code>, allowing users to transition seamlessly while benefiting from the new features.</p></li>
+</ol>
+<p>For users who require advanced functionality or improved performance, <code>openxlsx2</code> is an excellent alternative. You can explore the package and its documentation on <a href="https://cran.r-project.org/web/packages/openxlsx2/index.html">CRAN</a> and <a href="https://github.com/JanMarvin/openxlsx2">github</a>.</p>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
 <ol type="1">
 <li><p><strong>openxlsx GitHub Repository</strong><br>
 Explore the source code, issues, and development updates for the <code>openxlsx</code> package. Available at: <a href="https://github.com/ycphs/openxlsx">openxlsx GitHubRepository</a></p></li>
@@ -923,7 +939,6 @@ Find installation instructions, news, and package information from the Comprehen
 </ol>
 
 
-</section>
 </section>
 
  ]]></description>
