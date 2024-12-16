@@ -9,8 +9,373 @@
 <link>https://mfatihtuzen.netlify.app/</link>
 <atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Blog posts about R and Statistics</description>
-<generator>quarto-1.4.551</generator>
-<lastBuildDate>Sun, 03 Nov 2024 21:00:00 GMT</lastBuildDate>
+<generator>quarto-1.6.39</generator>
+<lastBuildDate>Sun, 15 Dec 2024 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>Extracting Data from OECD Databases in R: Using the oecd and rsdmx Packages</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2024-12-16_oecd/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>The <strong>OECD (Organisation for Economic Co-operation and Development)</strong> provides extensive databases for economic, social, and environmental indicators. Accessing these programmatically through R is efficient and reproducible. In this article, we explore two popular R packages for accessing OECD data—<strong><code>oecd</code></strong> and <strong><code>rsdmx</code></strong>—and discuss critical updates to the OECD Developer API that have impacted package functionality.</p>
+<p>We also provide practical examples, emphasize the importance of applying filters during data retrieval, and guide users on how to work with the latest tools to ensure seamless data access.</p>
+</section>
+<section id="why-programmatic-access-matters" class="level2">
+<h2 class="anchored" data-anchor-id="why-programmatic-access-matters">Why Programmatic Access Matters</h2>
+<p>Accessing data programmatically offers several benefits:</p>
+<ol type="1">
+<li><p><strong>Customization</strong>: Tailor requests to retrieve only the data you need (e.g., specific countries, indicators, and years).</p></li>
+<li><p><strong>Efficiency</strong>: Save time and bandwidth by filtering data before download.</p></li>
+<li><p><strong>Reproducibility</strong>: Ensure that analyses can be easily updated or shared.</p></li>
+<li><p><strong>Automation</strong>: Streamline workflows by automating data extraction.</p></li>
+</ol>
+</section>
+<section id="oecd-data-explorer-exploring-and-accessing-data" class="level2">
+<h2 class="anchored" data-anchor-id="oecd-data-explorer-exploring-and-accessing-data">OECD Data Explorer: Exploring and Accessing Data</h2>
+<p>The OECD provides programmatic access to OECD data for OECD countries and selected non-member economies through a RESTful application programming interface (API) based on the SDMX standard. The APIs allow developers to easily query the OECD data in several ways to create innovative software applications which use dynamically updated OECD data.</p>
+<p>The <strong>OECD Data Explorer</strong> is an interactive web-based platform that allows users to explore, visualize, and download data from the OECD databases. It is particularly useful for users who want to manually browse through datasets before deciding on specific data points for analysis. Here, we provide an overview of the <strong>OECD Data Explorer</strong>, including how to navigate the platform, customize filters, and access API links for programmatic use.</p>
+<p>The OECD Data Explorer is available at: <a href="https://data-explorer.oecd.org/" class="uri">https://data-explorer.oecd.org/</a></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2024-12-16_oecd/images/oecd_data_explorer.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>When you visit the site, you are greeted with a clean interface for navigating through datasets. The platform organizes data into <strong>themes</strong> such as;</p>
+<ul>
+<li><p>Economy</p></li>
+<li><p>Education</p></li>
+<li><p>Environment</p></li>
+<li><p>Health</p></li>
+<li><p>Innovation and Technology</p></li>
+<li><p>Employment</p></li>
+</ul>
+<p>Each theme contains various datasets that can be explored interactively.</p>
+<section id="using-the-oecd-data-explorer" class="level3">
+<h3 class="anchored" data-anchor-id="using-the-oecd-data-explorer">Using the OECD Data Explorer</h3>
+<section id="search-for-a-dataset" class="level4">
+<h4 class="anchored" data-anchor-id="search-for-a-dataset">1. <strong>Search for a Dataset</strong></h4>
+<p>The search bar allows you to quickly locate datasets. For example, if you are interested in unemployment data, simply type “unemployment” in the search bar.</p>
+</section>
+<section id="customize-filters" class="level4">
+<h4 class="anchored" data-anchor-id="customize-filters">2. <strong>Customize Filters</strong></h4>
+<p>Once you’ve selected a dataset (e.g., <em>Labour Market Statistics</em>), you can apply various filters to narrow down the data you need. Some of them are given below:</p>
+<ul>
+<li><p><strong>Geographical Region</strong>: Choose specific countries or regions (e.g., USA, France, OECD Total).</p></li>
+<li><p><strong>Time Period</strong>: Select years of interest (e.g., 2015–2023).</p></li>
+<li><p><strong>Indicator</strong>: Specify what you are analyzing (e.g., Unemployment Rate, Employment-to-Population Ratio).</p></li>
+<li><p><strong>Measurement Units</strong>: Choose relevant units (e.g., percentages, index values).</p></li>
+</ul>
+</section>
+<section id="explore-data-visualizations" class="level4">
+<h4 class="anchored" data-anchor-id="explore-data-visualizations">3. <strong>Explore Data Visualizations</strong></h4>
+<p>The platform provides instant visualizations, such as tables, line charts, and bar charts, based on your selected filters. These visualizations make it easy to understand trends and patterns in the data.</p>
+</section>
+<section id="exporting-data" class="level4">
+<h4 class="anchored" data-anchor-id="exporting-data">4. Exporting Data</h4>
+<p>Once you’ve customized the dataset, you can download in available formats, such as <strong>Excel</strong> or <strong>CSV</strong> by manually. the other choice is accessing the API Link. For programmatic access, the <strong>OECD Data Explorer</strong> provides API links that can be used in R or other programming languages. After selecting your filters, click on the <strong>Developer API</strong> and copy the generated link.</p>
+<p>For example, let’s want to pull data about the unemployment rates of some countries. After applying the filters I want, such a link will be created.</p>
+<p><code>https://sdmx.oecd.org/public/rest/data/OECD.SDD.TPS,DSD_LFS@DF_IALFS_UNE_M,1.0/BEL+AUS+AUT+CAN+DNK+FRA+DEU+GRC+HUN+IRL+ITA+JPN+NLD+NZL+NOR+PRT+SVN+ESP+SWE+CHE+USA+GBR+TUR..PT_LF_SUB._Z.Y._T.Y_GE15..M?startPeriod=2023-11&amp;dimensionAtObservation=AllDimensions</code></p>
+<p>This link can be directly used with R packages like <code>rsdmx</code> to fetch data programmatically.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2024-12-16_oecd/images/data_page.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>Also you can get detailed information from <a href="https://www.oecd.org/en/data/insights/data-explainers/2024/09/api.html" class="uri">https://www.oecd.org/en/data/insights/data-explainers/2024/09/api.html</a>. This page provides detailed information on how to programmatically retrieve data from the OECD Data Explorer via the API.</p>
+</section>
+</section>
+</section>
+<section id="the-oecd-package-accessing-oecd-data-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="the-oecd-package-accessing-oecd-data-in-r">The <code>OECD</code> Package: Accessing OECD Data in R</h2>
+<p>The <strong><code>oecd</code></strong> package is an R package designed to provide a convenient interface for accessing data from the <strong>OECD Developer API</strong>. It allows users to:</p>
+<ul>
+<li><p>Explore available datasets in the OECD databases.</p></li>
+<li><p>Retrieve filtered data programmatically for specific countries, indicators, and time periods.</p></li>
+<li><p>Work with data in a reproducible way directly within R.</p></li>
+</ul>
+<p>However, the version of the <strong><code>OECD</code></strong> package available on <strong>CRAN</strong> is currently <strong>outdated</strong> due to recent changes in the OECD API (2024). These changes have impacted the functionality of some key features in the CRAN release. You can find more information about changes in the OECD API from https://www.oecd.org/en/data/insights/data-explainers/2024/09/OECD-DE-FAQ.html.</p>
+<p>To overcome these limitations, it is recommended to use the <strong>updated version</strong> of the <code>OECD</code>package available on GitHub, which is fully compatible with the latest OECD API.</p>
+<p>For installation and usage details, refer to the updated package repository:<br>
+<a href="https://github.com/expersso/OECD"><strong>https://github.com/expersso/OECD</strong></a></p>
+<p><strong>Installing the Updated <code>oecd</code> Package:</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Install devtools if not already installed</span></span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">install.packages</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"devtools"</span>)</span>
+<span id="cb1-3"></span>
+<span id="cb1-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Install the updated oecd package from GitHub</span></span>
+<span id="cb1-5">devtools<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">install_github</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"expersso/OECD"</span>)</span></code></pre></div>
+</div>
+<p>The updated version of the <strong><code>OECD</code></strong>package simplifies interaction with the OECD API, focusing on just two core functions: <strong><code>get_data_structure()</code></strong> and <strong><code>get_dataset()</code></strong>. Here’s a brief overview of their functionality and arguments:</p>
+<section id="get_data_structure" class="level3">
+<h3 class="anchored" data-anchor-id="get_data_structure">1. <strong><code>get_data_structure()</code></strong></h3>
+<p>This function retrieves metadata about a specific dataset from the OECD API. It provides information about variables, classifications, adjustments, unit measures etc. For example, we can access this information about the unemployment rates of some countries by taking the code of the relevant data set from the link given above. Then we can extract dataset information from the link we received from the developer API section, starting with slash (/) after the data expression and up to the next slash (Shown in blue in screenshot).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2024-12-16_oecd/images/data_query.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(OECD)</span>
+<span id="cb2-2">dataset_unemprate <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"OECD.SDD.TPS,DSD_LFS@DF_IALFS_UNE_M,1.0"</span></span>
+<span id="cb2-3">data_str <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">get_data_structure</span>(dataset_unemprate)</span>
+<span id="cb2-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">str</span>(data_str, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">max.level =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 15
+ $ VAR_DESC               :'data.frame':    17 obs. of  2 variables:
+ $ CL_ACTIVITY_ISIC4      :'data.frame':    958 obs. of  2 variables:
+ $ CL_ADJUSTMENT          :'data.frame':    17 obs. of  2 variables:
+ $ CL_AGE                 :'data.frame':    308 obs. of  2 variables:
+ $ CL_AREA                :'data.frame':    469 obs. of  2 variables:
+ $ CL_SECTOR              :'data.frame':    216 obs. of  2 variables:
+ $ CL_SEX                 :'data.frame':    7 obs. of  2 variables:
+ $ CL_TRANSFORMATION      :'data.frame':    59 obs. of  2 variables:
+ $ CL_UNIT_MEASURE        :'data.frame':    670 obs. of  2 variables:
+ $ CL_WORKER_STATUS_ICSE93:'data.frame':    13 obs. of  2 variables:
+ $ CL_MEASURE_LFS_TPS     :'data.frame':    30 obs. of  2 variables:
+ $ CL_DECIMALS            :'data.frame':    16 obs. of  2 variables:
+ $ CL_FREQ                :'data.frame':    34 obs. of  2 variables:
+ $ CL_OBS_STATUS          :'data.frame':    20 obs. of  4 variables:
+ $ CL_UNIT_MULT           :'data.frame':    31 obs. of  4 variables:</code></pre>
+</div>
+</div>
+</section>
+<section id="get_dataset" class="level3">
+<h3 class="anchored" data-anchor-id="get_dataset">2. <strong><code>get_dataset()</code></strong></h3>
+<p>This function retrieves the actual data from a specified dataset, with optional filters for dimensions like country, time, and indicators.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">get_dataset</span>(</span>
+<span id="cb4-2">  dataset,</span>
+<span id="cb4-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filter =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>,</span>
+<span id="cb4-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">start_time =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>,</span>
+<span id="cb4-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">end_time =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>,</span>
+<span id="cb4-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">last_n_observations =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>,</span>
+<span id="cb4-7">  ...</span>
+<span id="cb4-8">)</span></code></pre></div>
+</div>
+<p>For filters, you need to start with “/” after the part for dataset and take it until question mark “?”. But be careful, don’t include question mark. For the time filtering, start_time or end_time arguments can be used.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2024-12-16_oecd/images/data_query_filters.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">data_filters_unemprate <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BEL+AUS+AUT+CAN+DNK+FRA+DEU+GRC+HUN+IRL+ITA+JPN+NLD+NZL+NOR+PRT+SVN+ESP+SWE+CHE+USA+GBR+TUR..PT_LF_SUB._Z.Y._T.Y_GE15..M"</span></span>
+<span id="cb5-2"></span>
+<span id="cb5-3">df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">get_dataset</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dataset =</span> dataset_unemprate,</span>
+<span id="cb5-4">                  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">filter =</span> data_filters_unemprate,</span>
+<span id="cb5-5">                  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">start_time =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2014</span>)</span>
+<span id="cb5-6"></span>
+<span id="cb5-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(df)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  ACTIVITY ADJUSTMENT    AGE DECIMALS FREQ  MEASURE OBS_STATUS ObsValue
+1       _Z          Y Y_GE15        1    M UNE_LF_M          A      3.6
+2       _Z          Y Y_GE15        1    M UNE_LF_M          A      3.7
+3       _Z          Y Y_GE15        1    M UNE_LF_M          A      5.5
+4       _Z          Y Y_GE15        1    M UNE_LF_M          A      5.6
+5       _Z          Y Y_GE15        1    M UNE_LF_M          A      5.7
+6       _Z          Y Y_GE15        1    M UNE_LF_M          A      4.3
+  REF_AREA SEX TIME_PERIOD TRANSFORMATION UNIT_MEASURE UNIT_MULT
+1      USA  _T     2019-06             _Z    PT_LF_SUB         0
+2      USA  _T     2019-07             _Z    PT_LF_SUB         0
+3      BEL  _T     2024-06             _Z    PT_LF_SUB         0
+4      BEL  _T     2024-07             _Z    PT_LF_SUB         0
+5      BEL  _T     2024-08             _Z    PT_LF_SUB         0
+6      DEU  _T     2015-08             _Z    PT_LF_SUB         0</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="using-the-rsdmx-package" class="level2">
+<h2 class="anchored" data-anchor-id="using-the-rsdmx-package">Using the <code>rsdmx</code> Package</h2>
+<p>The <code>rsdmx</code> package allows interaction with the OECD Developer API through <strong>SDMX format</strong>. It is particularly useful if you prefer working directly with API URLs.</p>
+<section id="installing-the-rsdmx-package" class="level3">
+<h3 class="anchored" data-anchor-id="installing-the-rsdmx-package">Installing the <code>rsdmx</code> Package</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">install.packages</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rsdmx"</span>)</span></code></pre></div>
+</div>
+<section id="key-functions-in-rsdmx" class="level4">
+<h4 class="anchored" data-anchor-id="key-functions-in-rsdmx">Key Functions in <code>rsdmx</code></h4>
+<ol type="1">
+<li><p><strong><code>readSDMX()</code></strong>: Fetches data from an SDMX-compatible API endpoint.</p></li>
+<li><p><strong><code>as.data.frame()</code></strong>: Converts the retrieved SDMX object into a data frame.</p></li>
+</ol>
+</section>
+<section id="example-workflow-with-rsdmx" class="level4">
+<h4 class="anchored" data-anchor-id="example-workflow-with-rsdmx">Example Workflow with <code>rsdmx</code></h4>
+<p>Here’s how you can retrieve unemployment data:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Load the rsdmx package</span></span>
+<span id="cb8-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(rsdmx)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'rsdmx' was built under R version 4.3.3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define the API URL for unemployment rates</span></span>
+<span id="cb10-2">oecd_url <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://sdmx.oecd.org/public/rest/data/OECD.SDD.TPS,DSD_LFS@DF_IALFS_UNE_M,1.0/BEL+AUS+AUT+CAN+DNK+FRA+DEU+GRC+HUN+IRL+ITA+JPN+NLD+NZL+NOR+PRT+SVN+ESP+SWE+CHE+USA+GBR+TUR..PT_LF_SUB._Z.Y._T.Y_GE15..M?startPeriod=2023-11&amp;dimensionAtObservation=AllDimensions"</span></span>
+<span id="cb10-3"></span>
+<span id="cb10-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Step 1: Fetch the data</span></span>
+<span id="cb10-5">unemployment_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">readSDMX</span>(oecd_url)</span>
+<span id="cb10-6"></span>
+<span id="cb10-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Step 2: Convert to a data frame</span></span>
+<span id="cb10-8">unemployment_df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.data.frame</span>(unemployment_data)</span>
+<span id="cb10-9"></span>
+<span id="cb10-10"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># View the data</span></span>
+<span id="cb10-11"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(unemployment_df)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  TIME_PERIOD REF_AREA  MEASURE UNIT_MEASURE TRANSFORMATION ADJUSTMENT SEX
+1     2024-03      ITA UNE_LF_M    PT_LF_SUB             _Z          Y  _T
+2     2024-04      ITA UNE_LF_M    PT_LF_SUB             _Z          Y  _T
+3     2024-08      BEL UNE_LF_M    PT_LF_SUB             _Z          Y  _T
+4     2024-09      BEL UNE_LF_M    PT_LF_SUB             _Z          Y  _T
+5     2024-10      BEL UNE_LF_M    PT_LF_SUB             _Z          Y  _T
+6     2023-12      SVN UNE_LF_M    PT_LF_SUB             _Z          Y  _T
+     AGE ACTIVITY FREQ obsValue UNIT_MULT DECIMALS OBS_STATUS
+1 Y_GE15       _Z    M      6.9         0        1          A
+2 Y_GE15       _Z    M      6.7         0        1          A
+3 Y_GE15       _Z    M      5.7         0        1          A
+4 Y_GE15       _Z    M      5.8         0        1          A
+5 Y_GE15       _Z    M      5.8         0        1          A
+6 Y_GE15       _Z    M      3.4         0        1          A</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>Both <code>oecd</code> and <code>rsdmx</code> allow you to specify filters directly in your API request, which is critical for:</p>
+<ol type="1">
+<li><p><strong>Time Efficiency</strong>: Smaller, focused datasets download faster.</p></li>
+<li><p><strong>Storage Optimization</strong>: Filtering minimizes the size of the retrieved dataset.</p></li>
+<li><p><strong>Simpler Analysis</strong>: Pre-filtered data reduces the need for extensive preprocessing.</p></li>
+</ol>
+<p>When working with OECD databases in R, the updated version of the <code>oecd</code> package (available on GitHub) is a reliable choice, provided you install it from its GitHub repository. If you prefer working directly with API URLs, the <code>rsdmx</code> package is another strong option.</p>
+<p>Regardless of the package, applying filters in your data requests is essential to ensure efficiency and reproducibility. By integrating these tools into your workflow, you can access OECD data programmatically and focus on the analysis itself.</p>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<ol type="1">
+<li><p><a href="https://data-explorer.oecd.org/"><strong>OECD Data Explorer</strong></a></p></li>
+<li><p><a href="https://www.oecd.org/en/data/insights/data-explainers/2024/09/api.html"><strong>OECD Data via API</strong></a></p></li>
+<li><p><a href="https://github.com/expersso/OECD"><strong>Updated <code>oecd</code> Package on GitHub</strong></a></p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/rsdmx/index.html"><strong><code>rsdmx</code> Package Documentation</strong></a></p></li>
+<li><p><a href="https://gitlab.algobank.oecd.org/public-documentation/dotstat-migration/-/raw/main/OECD_Data_API_documentation.pdf">OECD Data API documentation</a></p></li>
+<li><p><a href="https://gitlab.algobank.oecd.org/public-documentation/dotstat-migration/-/raw/main/OECD_Data_API_documentation-Upgrading_from_the_legacy_OECD.Stat_APIs.pdf">Upgrading your queries from the legacy OECD.Stat APIs to the new OECD Data API</a></p></li>
+</ol>
+
+
+</section>
+
+ ]]></description>
+  <category>R Programming</category>
+  <category>OECD</category>
+  <category>rsdmx</category>
+  <category>Import</category>
+  <category>API</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2024-12-16_oecd/</guid>
+  <pubDate>Sun, 15 Dec 2024 21:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Creating Professional Excel Reports with R: A Comprehensive Guide to openxlsx Package</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>
@@ -4078,6 +4443,7 @@ font-style: inherit;">9</span>)</span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(x) <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">sum</span>(x) <span class="sc" style="color: #5E5E5E;
@@ -4126,6 +4492,7 @@ font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">lapply</span>(word_list, <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(word) <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">grep</span>(<span class="st" style="color: #20794D;
@@ -4329,6 +4696,7 @@ font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">map_lgl</span>(num_list, <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(x) <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">all</span>(x <span class="sc" style="color: #5E5E5E;
@@ -4528,6 +4896,7 @@ font-style: inherit;">print</span>(benchmark_results)</span></code></pre></div>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(arg1, arg2, ...) {</span>
 <span id="cb1-2">  <span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -4555,6 +4924,7 @@ font-style: inherit;"># Define a function named 'square'</span></span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(x) {</span>
 <span id="cb2-3">  result <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -4624,6 +4994,7 @@ font-style: inherit;">print</span>(squared_value)</span></code></pre></div>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(x, <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">exponent =</span> <span class="dv" style="color: #AD0000;
@@ -4733,6 +5104,7 @@ font-style: inherit;">print</span>(power_of_3_cubed) </span></code></pre></div>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(...) {</span>
 <span id="cb9-2">  numbers <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -4832,6 +5204,7 @@ font-style: inherit;">print</span>(total_sum2) </span></code></pre></div>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(arg1, arg2, ...) {</span>
 <span id="cb14-2">  <span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -4856,6 +5229,7 @@ font-style: inherit;">return</span>(result)</span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(x, y) {</span>
 <span id="cb15-2">  result <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -4940,12 +5314,14 @@ font-style: inherit;"># Define a function named 'calculate_mean'</span></span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(numbers) {</span>
 <span id="cb21-3">  <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Check if 'numbers' is numeric</span></span>
 <span id="cb21-4">  <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">if</span> (<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
@@ -5019,6 +5395,7 @@ font-style: inherit;"># Define a function to calculate exponential growth</span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(initial_value, growth_rate, time_period) {</span>
 <span id="cb23-3">  final_value <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -5113,6 +5490,7 @@ font-style: inherit;"># Define a function to calculate compound interest</span><
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(principal, rate, time, compounding_frequency) {</span>
 <span id="cb25-3">  amount <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -5211,6 +5589,7 @@ font-style: inherit;"># Define a custom plotting function with ellipsis</span></
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(x_values, y_values, ..., <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">plot_type =</span> <span class="st" style="color: #20794D;
@@ -5230,6 +5609,7 @@ font-style: inherit;">"Custom Plot: "</span>, title)</span>
 <span id="cb27-4">  </span>
 <span id="cb27-5">  <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">if</span> (plot_type <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">==</span> <span class="st" style="color: #20794D;
@@ -5258,8 +5638,10 @@ background-color: null;
 font-style: inherit;">"Y-axis"</span>, ...)</span>
 <span id="cb27-7">  } <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">else</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">if</span> (plot_type <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">==</span> <span class="st" style="color: #20794D;
@@ -5284,6 +5666,7 @@ background-color: null;
 font-style: inherit;">"Y-axis"</span>, ...)</span>
 <span id="cb27-9">  } <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">else</span> {</span>
 <span id="cb27-10">    <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -5441,6 +5824,7 @@ font-style: inherit;"># Good example</span></span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(data) {</span>
 <span id="cb29-3">  <span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -5454,6 +5838,7 @@ font-style: inherit;"># Avoid</span></span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(d) {</span>
 <span id="cb29-8">  <span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -5483,6 +5868,7 @@ font-style: inherit;">#' @return Mean value.</span></span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(data) {</span>
 <span id="cb30-7">  <span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -5500,9 +5886,11 @@ font-style: inherit;"># Good example</span></span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(data) {</span>
 <span id="cb31-3">  <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">if</span> (<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
@@ -5530,6 +5918,7 @@ font-style: inherit;"># Good example</span></span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(data) {</span>
 <span id="cb32-3">  <span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -5547,6 +5936,7 @@ font-style: inherit;"># Good example</span></span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(data) {</span>
 <span id="cb33-3">  <span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -5557,6 +5947,7 @@ font-style: inherit;"># Function body</span></span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(data) {</span>
 <span id="cb33-7">  <span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -5574,6 +5965,7 @@ font-style: inherit;"># Good example</span></span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(data) {</span>
 <span id="cb34-3">  result <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -5596,6 +5988,7 @@ font-style: inherit;"># Good example</span></span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(data, <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
@@ -7671,6 +8064,7 @@ font-style: inherit;"># Custom function to compute statistics</span></span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(data) {</span>
 <span id="cb18-3">  stats_list <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -7755,6 +8149,7 @@ font-style: inherit;"># Function to fit a model and store outputs</span></span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(train_data, test_data) {</span>
 <span id="cb20-3">  model <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -7891,6 +8286,7 @@ font-style: inherit;"># Function to perform a simulation and store outputs</span
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(num_simulations) {</span>
 <span id="cb22-3">  simulation_results <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -7900,8 +8296,10 @@ font-style: inherit;">list</span>()</span>
 <span id="cb22-4">  </span>
 <span id="cb22-5">  <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
@@ -8725,6 +9123,7 @@ font-style: inherit;">det</span>(A)</span>
 <span id="cb65-3"></span>
 <span id="cb65-4"><span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">if</span> (det_A <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">!=</span> <span class="dv" style="color: #AD0000;
@@ -8737,6 +9136,7 @@ background-color: null;
 font-style: inherit;">"Matrix is invertible."</span>)</span>
 <span id="cb65-6">} <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">else</span> {</span>
 <span id="cb65-7">  <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -8806,6 +9206,7 @@ font-style: inherit;">det</span>(A)</span>
 <span id="cb71-3"></span>
 <span id="cb71-4"><span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">if</span> (det_A <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">!=</span> <span class="dv" style="color: #AD0000;
@@ -8821,6 +9222,7 @@ background-color: null;
 font-style: inherit;">print</span>(inverse_matrix_A)</span>
 <span id="cb71-7">} <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">else</span> {</span>
 <span id="cb71-8">  <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -11079,6 +11481,7 @@ Tip
 <div class="cell">
 <div class="sourceCode cell-code" id="cb48" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">if</span> (is_raining) {</span>
 <span id="cb48-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -11091,6 +11494,7 @@ background-color: null;
 font-style: inherit;">"</span>)</span>
 <span id="cb48-3">} <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">else</span> {</span>
 <span id="cb48-4">  <span class="fu" style="color: #4758AB;
 background-color: null;

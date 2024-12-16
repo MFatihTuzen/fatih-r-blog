@@ -1,0 +1,230 @@
+---
+title: "Extracting Data from OECD Databases in R: Using the oecd and rsdmx Packages"
+author: "M. Fatih Tüzen"
+date: "2024-12-16"
+categories: [R Programming, OECD, rsdmx , Import, API]
+---
+
+## Introduction
+
+The **OECD (Organisation for Economic Co-operation and Development)** provides extensive databases for economic, social, and environmental indicators. Accessing these programmatically through R is efficient and reproducible. In this article, we explore two popular R packages for accessing OECD data—**`oecd`** and **`rsdmx`**—and discuss critical updates to the OECD Developer API that have impacted package functionality.
+
+We also provide practical examples, emphasize the importance of applying filters during data retrieval, and guide users on how to work with the latest tools to ensure seamless data access.
+
+## Why Programmatic Access Matters
+
+Accessing data programmatically offers several benefits:
+
+1.  **Customization**: Tailor requests to retrieve only the data you need (e.g., specific countries, indicators, and years).
+
+2.  **Efficiency**: Save time and bandwidth by filtering data before download.
+
+3.  **Reproducibility**: Ensure that analyses can be easily updated or shared.
+
+4.  **Automation**: Streamline workflows by automating data extraction.
+
+## OECD Data Explorer: Exploring and Accessing Data
+
+The OECD provides programmatic access to OECD data for OECD countries and selected non-member economies through a RESTful application programming interface (API) based on the SDMX standard. The APIs allow developers to easily query the OECD data in several ways to create innovative software applications which use dynamically updated OECD data.
+
+The **OECD Data Explorer** is an interactive web-based platform that allows users to explore, visualize, and download data from the OECD databases. It is particularly useful for users who want to manually browse through datasets before deciding on specific data points for analysis. Here, we provide an overview of the **OECD Data Explorer**, including how to navigate the platform, customize filters, and access API links for programmatic use.
+
+The OECD Data Explorer is available at: <https://data-explorer.oecd.org/>
+
+![](images/oecd_data_explorer.png){fig-align="center"}
+
+When you visit the site, you are greeted with a clean interface for navigating through datasets. The platform organizes data into **themes** such as;
+
+-   Economy
+
+-   Education
+
+-   Environment
+
+-   Health
+
+-   Innovation and Technology
+
+-   Employment
+
+Each theme contains various datasets that can be explored interactively.
+
+### Using the OECD Data Explorer
+
+#### 1. **Search for a Dataset**
+
+The search bar allows you to quickly locate datasets. For example, if you are interested in unemployment data, simply type "unemployment" in the search bar.
+
+#### 2. **Customize Filters**
+
+Once you’ve selected a dataset (e.g., *Labour Market Statistics*), you can apply various filters to narrow down the data you need. Some of them are given below:
+
+-   **Geographical Region**: Choose specific countries or regions (e.g., USA, France, OECD Total).
+
+-   **Time Period**: Select years of interest (e.g., 2015–2023).
+
+-   **Indicator**: Specify what you are analyzing (e.g., Unemployment Rate, Employment-to-Population Ratio).
+
+-   **Measurement Units**: Choose relevant units (e.g., percentages, index values).
+
+#### 3. **Explore Data Visualizations**
+
+The platform provides instant visualizations, such as tables, line charts, and bar charts, based on your selected filters. These visualizations make it easy to understand trends and patterns in the data.
+
+#### 4. Exporting Data
+
+Once you’ve customized the dataset, you can download in available formats, such as **Excel** or **CSV** by manually. the other choice is accessing the API Link. For programmatic access, the **OECD Data Explorer** provides API links that can be used in R or other programming languages. After selecting your filters, click on the **Developer API** and copy the generated link.
+
+For example, let's want to pull data about the unemployment rates of some countries. After applying the filters I want, such a link will be created.
+
+`https://sdmx.oecd.org/public/rest/data/OECD.SDD.TPS,DSD_LFS@DF_IALFS_UNE_M,1.0/BEL+AUS+AUT+CAN+DNK+FRA+DEU+GRC+HUN+IRL+ITA+JPN+NLD+NZL+NOR+PRT+SVN+ESP+SWE+CHE+USA+GBR+TUR..PT_LF_SUB._Z.Y._T.Y_GE15..M?startPeriod=2023-11&dimensionAtObservation=AllDimensions`
+
+This link can be directly used with R packages like `rsdmx` to fetch data programmatically.
+
+![](images/data_page.png){fig-align="center"}
+
+Also you can get detailed information from <https://www.oecd.org/en/data/insights/data-explainers/2024/09/api.html>. This page provides detailed information on how to programmatically retrieve data from the OECD Data Explorer via the API.
+
+## The `OECD` Package: Accessing OECD Data in R
+
+The **`oecd`** package is an R package designed to provide a convenient interface for accessing data from the **OECD Developer API**. It allows users to:
+
+-   Explore available datasets in the OECD databases.
+
+-   Retrieve filtered data programmatically for specific countries, indicators, and time periods.
+
+-   Work with data in a reproducible way directly within R.
+
+However, the version of the **`OECD`** package available on **CRAN** is currently **outdated** due to recent changes in the OECD API (2024). These changes have impacted the functionality of some key features in the CRAN release. You can find more information about changes in the OECD API from [https://www.oecd.org/en/data/insights/data-explainers/2024/09/OECD-DE-FAQ.html](#0).
+
+To overcome these limitations, it is recommended to use the **updated version** of the `OECD`package available on GitHub, which is fully compatible with the latest OECD API.
+
+For installation and usage details, refer to the updated package repository:\
+[**https://github.com/expersso/OECD**](https://github.com/expersso/OECD)
+
+**Installing the Updated `oecd` Package:**
+
+```{r}
+#| eval: false
+# Install devtools if not already installed
+install.packages("devtools")
+
+# Install the updated oecd package from GitHub
+devtools::install_github("expersso/OECD")
+
+```
+
+The updated version of the **`OECD`**package simplifies interaction with the OECD API, focusing on just two core functions: **`get_data_structure()`** and **`get_dataset()`**. Here's a brief overview of their functionality and arguments:
+
+### 1. **`get_data_structure()`**
+
+This function retrieves metadata about a specific dataset from the OECD API. It provides information about variables, classifications, adjustments, unit measures etc. For example, we can access this information about the unemployment rates of some countries by taking the code of the relevant data set from the link given above. Then we can extract dataset information from the link we received from the developer API section, starting with slash (/) after the data expression and up to the next slash (Shown in blue in screenshot).
+
+![](images/data_query.png){fig-align="center"}
+
+```{r}
+library(OECD)
+dataset_unemprate <- "OECD.SDD.TPS,DSD_LFS@DF_IALFS_UNE_M,1.0"
+data_str <- get_data_structure(dataset_unemprate)
+str(data_str, max.level = 1)
+
+```
+
+### 2. **`get_dataset()`**
+
+This function retrieves the actual data from a specified dataset, with optional filters for dimensions like country, time, and indicators.
+
+```{r}
+#| eval: false
+get_dataset(
+  dataset,
+  filter = NULL,
+  start_time = NULL,
+  end_time = NULL,
+  last_n_observations = NULL,
+  ...
+)
+```
+
+For filters, you need to start with "/" after the part for dataset and take it until question mark "?". But be careful, don't include question mark. For the time filtering, start_time or end_time arguments can be used.
+
+![](images/data_query_filters.png){fig-align="center"}
+
+```{r}
+data_filters_unemprate <- "BEL+AUS+AUT+CAN+DNK+FRA+DEU+GRC+HUN+IRL+ITA+JPN+NLD+NZL+NOR+PRT+SVN+ESP+SWE+CHE+USA+GBR+TUR..PT_LF_SUB._Z.Y._T.Y_GE15..M"
+
+df <- get_dataset(dataset = dataset_unemprate,
+                  filter = data_filters_unemprate,
+                  start_time = 2014)
+
+head(df)
+```
+
+## Using the `rsdmx` Package
+
+The `rsdmx` package allows interaction with the OECD Developer API through **SDMX format**. It is particularly useful if you prefer working directly with API URLs.
+
+### Installing the `rsdmx` Package
+
+```{r}
+#| eval: false
+install.packages("rsdmx")
+```
+
+#### Key Functions in `rsdmx`
+
+1.  **`readSDMX()`**: Fetches data from an SDMX-compatible API endpoint.
+
+2.  **`as.data.frame()`**: Converts the retrieved SDMX object into a data frame.
+
+#### Example Workflow with `rsdmx`
+
+Here’s how you can retrieve unemployment data:
+
+```{r}
+
+# Load the rsdmx package
+library(rsdmx)
+
+# Define the API URL for unemployment rates
+oecd_url <- "https://sdmx.oecd.org/public/rest/data/OECD.SDD.TPS,DSD_LFS@DF_IALFS_UNE_M,1.0/BEL+AUS+AUT+CAN+DNK+FRA+DEU+GRC+HUN+IRL+ITA+JPN+NLD+NZL+NOR+PRT+SVN+ESP+SWE+CHE+USA+GBR+TUR..PT_LF_SUB._Z.Y._T.Y_GE15..M?startPeriod=2023-11&dimensionAtObservation=AllDimensions"
+
+# Step 1: Fetch the data
+unemployment_data <- readSDMX(oecd_url)
+
+# Step 2: Convert to a data frame
+unemployment_df <- as.data.frame(unemployment_data)
+
+# View the data
+head(unemployment_df)
+
+
+```
+
+## Conclusion
+
+Both `oecd` and `rsdmx` allow you to specify filters directly in your API request, which is critical for:
+
+1.  **Time Efficiency**: Smaller, focused datasets download faster.
+
+2.  **Storage Optimization**: Filtering minimizes the size of the retrieved dataset.
+
+3.  **Simpler Analysis**: Pre-filtered data reduces the need for extensive preprocessing.
+
+When working with OECD databases in R, the updated version of the `oecd` package (available on GitHub) is a reliable choice, provided you install it from its GitHub repository. If you prefer working directly with API URLs, the `rsdmx` package is another strong option.
+
+Regardless of the package, applying filters in your data requests is essential to ensure efficiency and reproducibility. By integrating these tools into your workflow, you can access OECD data programmatically and focus on the analysis itself.
+
+## References
+
+1.  [**OECD Data Explorer**](https://data-explorer.oecd.org/)
+
+2.  [**OECD Data via API**](https://www.oecd.org/en/data/insights/data-explainers/2024/09/api.html)
+
+3.  [**Updated `oecd` Package on GitHub**](https://github.com/expersso/OECD)
+
+4.  [**`rsdmx` Package Documentation**](https://cran.r-project.org/web/packages/rsdmx/index.html)
+
+5.  [OECD Data API documentation](https://gitlab.algobank.oecd.org/public-documentation/dotstat-migration/-/raw/main/OECD_Data_API_documentation.pdf)
+
+6.  [Upgrading your queries from the legacy OECD.Stat APIs to the new OECD Data API](https://gitlab.algobank.oecd.org/public-documentation/dotstat-migration/-/raw/main/OECD_Data_API_documentation-Upgrading_from_the_legacy_OECD.Stat_APIs.pdf)
