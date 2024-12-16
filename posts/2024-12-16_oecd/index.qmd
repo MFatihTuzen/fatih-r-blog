@@ -95,7 +95,7 @@ The **`oecd`** package is an R package designed to provide a convenient interfac
 
 -   Work with data in a reproducible way directly within R.
 
-However, the version of the **`OECD`** package available on **CRAN** is currently **outdated** due to recent changes in the OECD API (2024). These changes have impacted the functionality of some key features in the CRAN release. You can find more information about changes in the OECD API from <https://www.oecd.org/en/data/insights/data-explainers/2024/09/OECD-DE-FAQ.html.>
+However, the version of the **`OECD`** package available on **CRAN** is currently **outdated** due to recent changes in the OECD API (2024). These changes have impacted the functionality of some key features in the CRAN release. You can find more information about changes in the OECD API from <https://www.oecd.org/en/data/insights/data-explainers/2024/09/OECD-DE-FAQ.html>.
 
 To overcome these limitations, it is recommended to use the **updated version** of the `OECD`package available on GitHub, which is fully compatible with the latest OECD API.
 
