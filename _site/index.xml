@@ -99,7 +99,7 @@
 <li><p>Retrieve filtered data programmatically for specific countries, indicators, and time periods.</p></li>
 <li><p>Work with data in a reproducible way directly within R.</p></li>
 </ul>
-<p>However, the version of the <strong><code>OECD</code></strong> package available on <strong>CRAN</strong> is currently <strong>outdated</strong> due to recent changes in the OECD API (2024). These changes have impacted the functionality of some key features in the CRAN release. You can find more information about changes in the OECD API from https://www.oecd.org/en/data/insights/data-explainers/2024/09/OECD-DE-FAQ.html.</p>
+<p>However, the version of the <strong><code>OECD</code></strong> package available on <strong>CRAN</strong> is currently <strong>outdated</strong> due to recent changes in the OECD API (2024). These changes have impacted the functionality of some key features in the CRAN release. You can find more information about changes in the OECD API from <a href="https://www.oecd.org/en/data/insights/data-explainers/2024/09/OECD-DE-FAQ.html." class="uri">https://www.oecd.org/en/data/insights/data-explainers/2024/09/OECD-DE-FAQ.html.</a></p>
 <p>To overcome these limitations, it is recommended to use the <strong>updated version</strong> of the <code>OECD</code>package available on GitHub, which is fully compatible with the latest OECD API.</p>
 <p>For installation and usage details, refer to the updated package repository:<br>
 <a href="https://github.com/expersso/OECD"><strong>https://github.com/expersso/OECD</strong></a></p>
