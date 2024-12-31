@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/2024-12-31_cbrt/index.html",
       "/posts/2024-12-16_oecd/index.html",
       "/posts/2024-11-04_openxlsx/index.html",
       "/posts/2024-09-30_lubridate/index.html",

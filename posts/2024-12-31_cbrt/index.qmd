@@ -1,0 +1,205 @@
+---
+title: "Unlocking CBRT Data in R: A Guide to the CBRT R Package"
+author: "M. Fatih Tüzen"
+date: "2024-12-31"
+categories: [R Programming, CBRT, EVDS , Import, API]
+---
+
+![](images/clipboard-2062160124.png){fig-align="center"}
+
+The Central Bank of the Republic of Turkey (CBRT) provides a wealth of economic data crucial for researchers, analysts, and policymakers. Through the Electronic Data Delivery System (EVDS ), users can access time-series data on various economic indicators. With the `CBRT` R package this process becomes streamlined, empowering users to integrate CBRT data directly into their R workflows. This blog post delves into the details of accessing CBRT data using the package, explaining everything from obtaining an API key to practical examples of retrieving economic series.
+
+## Introduction
+
+The CBRT serves as Turkey's central bank, tasked with implementing monetary policies and maintaining financial stability. The EVDS (Elektronik Veri Dağıtım Sistemi) is the CBRT's online data delivery platform, providing access to a vast repository of economic data, including price indices, exchange rates, monetary aggregates, and more. EVDS supports API-based data retrieval, allowing programmatic access to its datasets.
+
+## EVDS
+
+[The Electronic Data Delivery System (EVDS)](https://evds2.tcmb.gov.tr/index.php) is a dynamic and interactive system that presents statistical time series data produced by the CBRT and/or data produced by other institutions and compiled by the CBRT. These data are published on dynamic web pages. They can also be reported in the xls format or through the web service client (json, csv, xml), viewed in the graphics format, and received via e-mail by subscribing to the system. The EVDS was first introduced in 1995 and is available in Turkish and English.
+
+The system provides a rich range of economic data and information to support economic education and foster economic research. Its technical infrastructure was revised in October 2017. The EVDS serves the public with its new facilities and content such as the REST web service, Customization, Reports, Interactive Charts, Frequently Used Data Groups, Recently Updated Data Groups, and data displayed on Turkey and world maps.
+
+## Setting Up Access: The API Key
+
+To access EVDS data programmatically, you need an API key, which serves as a unique identifier for authenticating your requests.
+
+1.  **Requesting an API Key:**\
+    Visit [EVDS](https://evds2.tcmb.gov.tr/index.php) and create an account. Once logged in, navigate to the API access section to generate your personal API key.
+
+2.  **Storing Your API Key Securely:**\
+    Avoid hardcoding your API key in scripts. Instead, save it in a `.txt` file and read it into your R session. For example:
+
+```{r}
+#| eval: false
+
+api_key <- readLines("path/to/your_api_key.txt")
+
+```
+
+## CBRT Package
+
+The **CBRT R package**, developed by [Prof. Dr. Erol Taymaz](https://avesis.metu.edu.tr/etaymaz) from Middle East Technical University, is a powerful tool designed to simplify data retrieval from the Central Bank of the Republic of Turkey's (CBRT) Electronic Data Delivery System (EVDS). This package enables users to efficiently access and analyze economic indicators by providing functions for querying data series, retrieving metadata, and searching for relevant datasets through the EVDS API. he CBRT package includes functions for finding, and downloading data from the Central Bank of the Republic of Türkiye’s database. The CBRT database covers more than 40,000 time series variables. For detailed documentation and further insights into the package, you can visit [this link](https://etaymaz.github.io/cbrt-2024.html).
+
+The package is now available at [CRAN](https://cran.r-project.org/web/packages/CBRT) (November 13, 2024), and can be installed by
+
+```{r}
+#| eval: false
+
+install.packages("CBRT")
+
+```
+
+## Core Functions
+
+All **data series** (variables) are classified into **data groups**, and data groups into **data categories**. There are 44 data categories (including the archieved ones), 499 data groups, and 40,826 data series.
+
+### getAllCategoriesInfo
+
+The `getAllCategoriesInfo` function in the **CBRT R package** provides a convenient way to access information about the main data categories available in the Central Bank of the Republic of Türkiye's (CBRT) Electronic Data Delivery System (EVDS). This function requires a valid API key as an argument to authenticate your request. By retrieving a structured list of these categories, users can explore the high-level organization of economic data offered by the EVDS API.
+
+```{r}
+#| warning: false
+#| message: false
+
+library(CBRT)
+my_api_key <- readLines("D:/evds_api_key.txt",warn=FALSE)
+
+Categories <- getAllCategoriesInfo(CBRTKey = my_api_key)
+head(Categories)
+```
+
+### getAllGroupsInfo
+
+The **CBRT R package** offers the `getAllGroupsInfo` function, which allows users to access detailed information about the groups within specific categories in the Central Bank of the Republic of Turkey's (CBRT) Electronic Data Delivery System (EVDS). Similar to `getAllCategoriesInfo`, this function requires a valid API key for authentication. The groups represent subcategories or finer classifications of data within the broader main categories. By leveraging the `cid` (category ID) variable from the categories table, users can establish a relationship between categories and their corresponding groups. This functionality provides a structured approach to exploring the hierarchy of economic data in EVDS, enabling users to efficiently navigate and identify the datasets most relevant to their research or analysis.
+
+```{r}
+Groups <- getAllGroupsInfo(CBRTKey = my_api_key)
+head(Groups)
+```
+
+Additionally, the groups table contains valuable metadata, including the date ranges for available data, data frequency, and data sources. The frequency of the data is indicated by predefined frequency codes:
+
+1.  Daily
+
+2.  Workday
+
+3.  Weekly
+
+4.  Biweekly
+
+5.  Monthly
+
+6.  Quarterly
+
+7.  Semiannual
+
+8.  Annual
+
+### getAllSeriesInfo
+
+The `getAllSeriesInfo` function in the **CBRT R package** enables users to retrieve up-to-date metadata for data series available in the Central Bank of the Republic of Turkey's (CBRT) Electronic Data Delivery System (EVDS). This function, like others in the package, requires a valid API key for authentication. The metadata includes essential details such as group codes, series names, and other relevant information about the datasets within a chosen topic. These details help users identify and filter specific series of interest. Furthermore, by utilizing key variables, the series metadata can be linked to the categories and groups tables, allowing users to establish relationships across the data hierarchy. This capability ensures a structured and interconnected exploration of economic datasets, simplifying the process of locating and analyzing relevant data for research or analysis.
+
+```{r}
+#| eval: false
+Series <- getAllSeriesInfo(CBRTKey = my_api_key)
+```
+
+```{r}
+#| echo: false
+
+Series <- readRDS("D:/series.rds")
+
+```
+
+```{r}
+head(Series)
+```
+
+### searchCBRT
+
+The `searchCBRT` function in the **CBRT R package** provides a powerful tool for searching any category, group, or series name within the Central Bank of the Republic of Turkey's (CBRT) Electronic Data Delivery System (EVDS). By specifying keywords and the desired field to search in, users can efficiently locate relevant datasets. This function simplifies the process of finding specific information within the extensive EVDS repository, enabling direct access to the desired table or dataset. Whether searching for broad topics, specific groups, or individual data series, `searchCBRT` offers a flexible and efficient way to navigate the system and pinpoint the data needed for analysis.
+
+Suppose we want to find datasets related to "Consumer Prices" within the EVDS system. Using the `searchCBRT` function, we can search for this keyword in relevant fields to locate the desired tables or series. Here’s how to do it:
+
+```{r}
+
+searchCBRT("consumer price", field = "series")
+
+```
+
+### getDataSeries
+
+The `getDataSeries` function in the **CBRT R package** is a versatile tool for importing one or more time series directly from the EVDS. This function provides users with several advanced features to customize their data retrieval. For example, users can specify the frequency level (`freq`), such as daily, weekly, or monthly, and set a date range using the `startDate` and `endDate` arguments in the format `DD-MM-YYYY`. If the `endDate` is not specified, the function automatically retrieves data up to the latest available point.
+
+An additional feature of `getDataSeries` is its ability to aggregate higher-frequency data into lower-frequency formats using the `aggType` argument. Supported aggregation methods include:
+
+-   `avg`: Average value,
+
+-   `first`: First observation,
+
+-   `last`: Last observation,
+
+-   `max`: Maximum value,
+
+-   `min`: Minimum value,
+
+-   `sum`: Summation of values.
+
+For instance, if weekly data is aggregated to a monthly frequency, the aggregation method is applied to compute the resulting values. Furthermore, the `na.rm` argument allows users to drop all missing dates, ensuring clean and continuous time series data.
+
+Here’s an example demonstrating its use:
+
+```{r}
+# Import a time series (e.g., CPI data) with specific parameters
+cpi_data <- getDataSeries(
+  series = c("TP.FE.OKTG01"),       # Example series ID
+  CBRTKey = my_api_key,            # Your API key
+  freq = 5,                     # Monthly frequency
+  startDate = "01-01-2010",     # Start date
+  endDate = "31-12-2023",       # End date
+  na.rm = TRUE                  # Remove missing dates
+)
+
+# View the imported data
+head(cpi_data)
+```
+
+For example, we want to fetch exchange rates for USD, EUR, and GBP against the Turkish Lira (TRY) for a specific time period in monthly frequency.
+
+```{r}
+
+# Define the series IDs for USD, EUR, and GBP (Sales rate against TRY)
+usd_series <- "TP.DK.USD.S"
+eur_series <- "TP.DK.EUR.S"
+gbp_series <- "TP.DK.GBP.S"
+
+# Define the frequency method
+freq <- 5  # Monthly frequency
+
+# Define the date range for the data (e.g., from 01-01-2020 to 31-12-2024)
+startDate <- "01-01-2020"
+endDate <- "31-12-2024"
+
+# Fetch the data for USD, EUR, and GBP exchange rates
+exchange_data <- getDataSeries(
+  series = c(usd_series,eur_series,gbp_series),
+  CBRTKey = my_api_key,
+  freq = freq,
+  startDate = startDate,
+  endDate = endDate,
+  na.rm = TRUE
+)
+
+head(exchange_data)
+
+```
+
+## Conclusion
+
+The `CBRT` R package is a powerful tool for accessing and analyzing Turkish economic data. By combining the package’s functionality with R’s robust analytical tools, users can unlock insights and streamline their research. Whether you’re tracking inflation trends, analyzing monetary policy impacts, or studying exchange rates, the `CBRT` package offers a seamless experience.
+
+### References
+
+1.  Taymaz, E. (2024). *CBRT R Package*. Retrieved from [CBRT Package ](https://users.metu.edu.tr/etaymaz/cbrt-2024.html#the-package)[Documentation](https://etaymaz.github.io/cbrt-2024.html)
+
+2.  Central Bank of the Republic of Turkey. *Electronic Data Delivery System (EVDS)*. Retrieved from [EVDS](https://evds2.tcmb.gov.tr/index.php?)

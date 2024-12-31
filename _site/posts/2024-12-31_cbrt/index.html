@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.39">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="M. Fatih Tüzen">
+<meta name="dcterms.date" content="2024-12-31">
+
+<title>Unlocking CBRT Data in R: A Guide to the CBRT R Package – A Statistician’s R Notebook</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-d166b450ba5a8e9f7a0ab969bf6592c1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-f3c2ea88cadbcfb37ba28ffa2c97cfc1.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-ae2d0dcda2edce4ab590422bb373b64f.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">A Statistician’s R Notebook</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/MFatihTuzen"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/dr-m-fatih-t-2b2a4328/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-blogroll" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">BlogRoll</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-blogroll">    
+        <li>
+    <a class="dropdown-item" href="https://www.r-bloggers.com/">
+ <span class="dropdown-text">R-bloggers</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://community.rstudio.com/">
+ <span class="dropdown-text">R-Studio Community</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://rweekly.org/">
+ <span class="dropdown-text">R weekly</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://allisonhorst.com/allison-horst">
+ <span class="dropdown-text">Allison Horst</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://github.com/topics/r">
+ <span class="dropdown-text">Github R Topics</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Unlocking CBRT Data in R: A Guide to the CBRT R Package</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">R Programming</div>
+                <div class="quarto-category">CBRT</div>
+                <div class="quarto-category">EVDS</div>
+                <div class="quarto-category">Import</div>
+                <div class="quarto-category">API</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>M. Fatih Tüzen </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">December 31, 2024</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#evds" id="toc-evds" class="nav-link" data-scroll-target="#evds">EVDS</a></li>
+  <li><a href="#setting-up-access-the-api-key" id="toc-setting-up-access-the-api-key" class="nav-link" data-scroll-target="#setting-up-access-the-api-key">Setting Up Access: The API Key</a></li>
+  <li><a href="#cbrt-package" id="toc-cbrt-package" class="nav-link" data-scroll-target="#cbrt-package">CBRT Package</a></li>
+  <li><a href="#core-functions" id="toc-core-functions" class="nav-link" data-scroll-target="#core-functions">Core Functions</a>
+  <ul>
+  <li><a href="#getallcategoriesinfo" id="toc-getallcategoriesinfo" class="nav-link" data-scroll-target="#getallcategoriesinfo">getAllCategoriesInfo</a></li>
+  <li><a href="#getallgroupsinfo" id="toc-getallgroupsinfo" class="nav-link" data-scroll-target="#getallgroupsinfo">getAllGroupsInfo</a></li>
+  <li><a href="#getallseriesinfo" id="toc-getallseriesinfo" class="nav-link" data-scroll-target="#getallseriesinfo">getAllSeriesInfo</a></li>
+  <li><a href="#searchcbrt" id="toc-searchcbrt" class="nav-link" data-scroll-target="#searchcbrt">searchCBRT</a></li>
+  <li><a href="#getdataseries" id="toc-getdataseries" class="nav-link" data-scroll-target="#getdataseries">getDataSeries</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a>
+  <ul>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/clipboard-2062160124.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>The Central Bank of the Republic of Turkey (CBRT) provides a wealth of economic data crucial for researchers, analysts, and policymakers. Through the Electronic Data Delivery System (EVDS ), users can access time-series data on various economic indicators. With the <code>CBRT</code> R package this process becomes streamlined, empowering users to integrate CBRT data directly into their R workflows. This blog post delves into the details of accessing CBRT data using the package, explaining everything from obtaining an API key to practical examples of retrieving economic series.</p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>The CBRT serves as Turkey’s central bank, tasked with implementing monetary policies and maintaining financial stability. The EVDS (Elektronik Veri Dağıtım Sistemi) is the CBRT’s online data delivery platform, providing access to a vast repository of economic data, including price indices, exchange rates, monetary aggregates, and more. EVDS supports API-based data retrieval, allowing programmatic access to its datasets.</p>
+</section>
+<section id="evds" class="level2">
+<h2 class="anchored" data-anchor-id="evds">EVDS</h2>
+<p><a href="https://evds2.tcmb.gov.tr/index.php">The Electronic Data Delivery System (EVDS)</a> is a dynamic and interactive system that presents statistical time series data produced by the CBRT and/or data produced by other institutions and compiled by the CBRT. These data are published on dynamic web pages. They can also be reported in the xls format or through the web service client (json, csv, xml), viewed in the graphics format, and received via e-mail by subscribing to the system. The EVDS was first introduced in 1995 and is available in Turkish and English.</p>
+<p>The system provides a rich range of economic data and information to support economic education and foster economic research. Its technical infrastructure was revised in October 2017. The EVDS serves the public with its new facilities and content such as the REST web service, Customization, Reports, Interactive Charts, Frequently Used Data Groups, Recently Updated Data Groups, and data displayed on Turkey and world maps.</p>
+</section>
+<section id="setting-up-access-the-api-key" class="level2">
+<h2 class="anchored" data-anchor-id="setting-up-access-the-api-key">Setting Up Access: The API Key</h2>
+<p>To access EVDS data programmatically, you need an API key, which serves as a unique identifier for authenticating your requests.</p>
+<ol type="1">
+<li><p><strong>Requesting an API Key:</strong><br>
+Visit <a href="https://evds2.tcmb.gov.tr/index.php">EVDS</a> and create an account. Once logged in, navigate to the API access section to generate your personal API key.</p></li>
+<li><p><strong>Storing Your API Key Securely:</strong><br>
+Avoid hardcoding your API key in scripts. Instead, save it in a <code>.txt</code> file and read it into your R session. For example:</p></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>api_key <span class="ot">&lt;-</span> <span class="fu">readLines</span>(<span class="st">"path/to/your_api_key.txt"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="cbrt-package" class="level2">
+<h2 class="anchored" data-anchor-id="cbrt-package">CBRT Package</h2>
+<p>The <strong>CBRT R package</strong>, developed by <a href="https://avesis.metu.edu.tr/etaymaz">Prof.&nbsp;Dr.&nbsp;Erol Taymaz</a> from Middle East Technical University, is a powerful tool designed to simplify data retrieval from the Central Bank of the Republic of Turkey’s (CBRT) Electronic Data Delivery System (EVDS). This package enables users to efficiently access and analyze economic indicators by providing functions for querying data series, retrieving metadata, and searching for relevant datasets through the EVDS API. he CBRT package includes functions for finding, and downloading data from the Central Bank of the Republic of Türkiye’s database. The CBRT database covers more than 40,000 time series variables. For detailed documentation and further insights into the package, you can visit <a href="https://etaymaz.github.io/cbrt-2024.html">this link</a>.</p>
+<p>The package is now available at&nbsp;<a href="https://cran.r-project.org/web/packages/CBRT">CRAN</a>&nbsp;(November 13, 2024), and can be installed by</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"CBRT"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="core-functions" class="level2">
+<h2 class="anchored" data-anchor-id="core-functions">Core Functions</h2>
+<p>All <strong>data series</strong> (variables) are classified into <strong>data groups</strong>, and data groups into <strong>data categories</strong>. There are 44 data categories (including the archieved ones), 499 data groups, and 40,826 data series.</p>
+<section id="getallcategoriesinfo" class="level3">
+<h3 class="anchored" data-anchor-id="getallcategoriesinfo">getAllCategoriesInfo</h3>
+<p>The <code>getAllCategoriesInfo</code> function in the <strong>CBRT R package</strong> provides a convenient way to access information about the main data categories available in the Central Bank of the Republic of Türkiye’s (CBRT) Electronic Data Delivery System (EVDS). This function requires a valid API key as an argument to authenticate your request. By retrieving a structured list of these categories, users can explore the high-level organization of economic data offered by the EVDS API.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(CBRT)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>my_api_key <span class="ot">&lt;-</span> <span class="fu">readLines</span>(<span class="st">"D:/evds_api_key.txt"</span>,<span class="at">warn=</span><span class="cn">FALSE</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>Categories <span class="ot">&lt;-</span> <span class="fu">getAllCategoriesInfo</span>(<span class="at">CBRTKey =</span> my_api_key)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(Categories)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   cid                                    topic
+1:   1                       MARKET DATA (CBRT)
+2:   2                    EXCHANGE RATES (CBRT)
+3:   3          INTEREST RATE STATISTICS (CBRT)
+4:   4 MONTHLY MONEY AND BANK STATISTICS (CBRT)
+5:   5             SECURITIES STATISTICS (CBRT)
+6:  12         FINANCIAL SERVICES SURVEY (CBRT)</code></pre>
+</div>
+</div>
+</section>
+<section id="getallgroupsinfo" class="level3">
+<h3 class="anchored" data-anchor-id="getallgroupsinfo">getAllGroupsInfo</h3>
+<p>The <strong>CBRT R package</strong> offers the <code>getAllGroupsInfo</code> function, which allows users to access detailed information about the groups within specific categories in the Central Bank of the Republic of Turkey’s (CBRT) Electronic Data Delivery System (EVDS). Similar to <code>getAllCategoriesInfo</code>, this function requires a valid API key for authentication. The groups represent subcategories or finer classifications of data within the broader main categories. By leveraging the <code>cid</code> (category ID) variable from the categories table, users can establish a relationship between categories and their corresponding groups. This functionality provides a structured approach to exploring the hierarchy of economic data in EVDS, enabling users to efficiently navigate and identify the datasets most relevant to their research or analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>Groups <span class="ot">&lt;-</span> <span class="fu">getAllGroupsInfo</span>(<span class="at">CBRTKey =</span> my_api_key)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(Groups)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   cid    groupCode
+1:   1   bie_pyrepo
+2:   0   bie_mkbral
+3:  25 bie_mkaltytl
+4:   1   bie_ppibsm
+5:   1 bie_pyintbnk
+6:   1    bie_tldov
+                                                                              groupName
+1:                                       Open Market Repo and Reverse Repo Transactions
+2:                                           Istanbul Gold Exchange (TRY_USD) (Archive)
+3:                                           Gold Prices (Averaged) - Free Market (TRY)
+4: Free Deposits of Banks and Total Liquidity (Beginning of the Day)(Million TRY)(CBRT)
+5:                      Interbank Money Market Transactions Summary (TRY Thousand or %)
+6:     Total Volume of FX Transaction of Banks Against Turkish Lira (Million USD, CBRT)
+   freq         source sourceLink revisionPolicy appLink  firstDate   lastDate
+1:    5           CBRT                                   01-08-2020 01-05-1989
+2:    2 BORSA ISTANBUL                                   29-06-2018 27-07-1995
+3:    5         Market                                   01-11-2024 01-12-1950
+4:    2           CBRT                                   31-12-2024 04-01-2007
+5:    2           CBRT                                   30-12-2024 04-11-1996
+6:    2           CBRT                                   23-12-2024 14-10-2002</code></pre>
+</div>
+</div>
+<p>Additionally, the groups table contains valuable metadata, including the date ranges for available data, data frequency, and data sources. The frequency of the data is indicated by predefined frequency codes:</p>
+<ol type="1">
+<li><p>Daily</p></li>
+<li><p>Workday</p></li>
+<li><p>Weekly</p></li>
+<li><p>Biweekly</p></li>
+<li><p>Monthly</p></li>
+<li><p>Quarterly</p></li>
+<li><p>Semiannual</p></li>
+<li><p>Annual</p></li>
+</ol>
+</section>
+<section id="getallseriesinfo" class="level3">
+<h3 class="anchored" data-anchor-id="getallseriesinfo">getAllSeriesInfo</h3>
+<p>The <code>getAllSeriesInfo</code> function in the <strong>CBRT R package</strong> enables users to retrieve up-to-date metadata for data series available in the Central Bank of the Republic of Turkey’s (CBRT) Electronic Data Delivery System (EVDS). This function, like others in the package, requires a valid API key for authentication. The metadata includes essential details such as group codes, series names, and other relevant information about the datasets within a chosen topic. These details help users identify and filter specific series of interest. Furthermore, by utilizing key variables, the series metadata can be linked to the categories and groups tables, allowing users to establish relationships across the data hierarchy. This capability ensures a structured and interconnected exploration of economic datasets, simplifying the process of locating and analyzing relevant data for research or analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Series <span class="ot">&lt;-</span> <span class="fu">getAllSeriesInfo</span>(<span class="at">CBRTKey =</span> my_api_key)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(Series)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   cid                                                                topic
+1:   7 DEPOSITS AND PARTICIPATION FUNDS SUBJECT TO REQUIRED RESERVES (CBRT)
+2:   7 DEPOSITS AND PARTICIPATION FUNDS SUBJECT TO REQUIRED RESERVES (CBRT)
+3:   7 DEPOSITS AND PARTICIPATION FUNDS SUBJECT TO REQUIRED RESERVES (CBRT)
+4:   7 DEPOSITS AND PARTICIPATION FUNDS SUBJECT TO REQUIRED RESERVES (CBRT)
+5:   7 DEPOSITS AND PARTICIPATION FUNDS SUBJECT TO REQUIRED RESERVES (CBRT)
+6:   7 DEPOSITS AND PARTICIPATION FUNDS SUBJECT TO REQUIRED RESERVES (CBRT)
+       groupCode
+1: bie_KYBKATFON
+2: bie_KYBKATFON
+3: bie_KYBKATFON
+4: bie_KYBKATFON
+5: bie_KYBKATFON
+6: bie_KYBKATFON
+                                                          groupName freq
+1: Breakdown of Participation Funds Subject to Reserve Requirements    3
+2: Breakdown of Participation Funds Subject to Reserve Requirements    3
+3: Breakdown of Participation Funds Subject to Reserve Requirements    3
+4: Breakdown of Participation Funds Subject to Reserve Requirements    3
+5: Breakdown of Participation Funds Subject to Reserve Requirements    3
+6: Breakdown of Participation Funds Subject to Reserve Requirements    3
+         seriesCode                          seriesName      start        end
+1: TP.KYBKATFON.KB1  Turkish Lira_Turkish Lira Accounts 10-05-2002 13-12-2024
+2: TP.KYBKATFON.KB2                   Fx Accounts (USD) 10-05-2002 13-12-2024
+3: TP.KYBKATFON.KB3                  Fx Accounts (EURO) 10-05-2002 13-12-2024
+4: TP.KYBKATFON.KB4 Fx Accounts Precious Minerals (USD) 14-10-2011 13-12-2024
+5: TP.KYBKATFON.KB5             Fx Accounts Other (USD) 10-05-2002 13-12-2024
+6: TP.KYBKATFON.KB6             Total Fx Accounts (USD) 10-05-2002 13-12-2024
+   aggMethod freqname  tag
+1:      last     Week &lt;NA&gt;
+2:      last     Week &lt;NA&gt;
+3:      last     Week &lt;NA&gt;
+4:      last     Week &lt;NA&gt;
+5:      last     Week &lt;NA&gt;
+6:      last     Week &lt;NA&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="searchcbrt" class="level3">
+<h3 class="anchored" data-anchor-id="searchcbrt">searchCBRT</h3>
+<p>The <code>searchCBRT</code> function in the <strong>CBRT R package</strong> provides a powerful tool for searching any category, group, or series name within the Central Bank of the Republic of Turkey’s (CBRT) Electronic Data Delivery System (EVDS). By specifying keywords and the desired field to search in, users can efficiently locate relevant datasets. This function simplifies the process of finding specific information within the extensive EVDS repository, enabling direct access to the desired table or dataset. Whether searching for broad topics, specific groups, or individual data series, <code>searchCBRT</code> offers a flexible and efficient way to navigate the system and pinpoint the data needed for analysis.</p>
+<p>Suppose we want to find datasets related to “Consumer Prices” within the EVDS system. Using the <code>searchCBRT</code> function, we can search for this keyword in relevant fields to locate the desired tables or series. Here’s how to do it:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">searchCBRT</span>(<span class="st">"consumer price"</span>, <span class="at">field =</span> <span class="st">"series"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         seriesCode
+1:  TP.ENFBEK.TEA12
+2: TP.ENFBEK.TEA345
+3:     TP.FE.OKTG01
+4:        TP.FG.A09
+5:        TP.FG.A10
+6:       TP.TG2.Y14
+7:       TP.TG2.Y15
+8:        TP.FG.F19
+9:        TP.FG.F20
+                                                                                                         seriesName
+1:              Percentage of households expecting consumer prices to increase more rapidly or at the same rate (%)
+2: Percentage of households expecting consumer prices to stay about the same, fall or increase at a slower rate (%)
+3:                                                                                             Consumer Price Index
+4:                                                                        Consumer Prices Index of Ankara (Archive)
+5:                                                                      Consumer Prices Index of Istanbul (Archive)
+6:                                              Assessment on Consumer prices change rate (over the last 12 months)
+7:             Expectation for consumer prices change rate (over the next 12 months compared to the past 12 months)
+8:                                                                            Ankara Consumer Price Index (Archive)
+9:                                                                          Istanbul Consumer Price Index (Archive)
+       groupCode
+1:    bie_enfbek
+2:    bie_enfbek
+3:    bie_feoktg
+4: bie_fgtukfiy2
+5: bie_fgtukfiy2
+6:   bie_mbgven2
+7:   bie_mbgven2
+8:   bie_tukfiy1
+9:   bie_tukfiy1
+                                                                                                   groupName
+1:                                                                           Sectoral Inflation Expectations
+2:                                                                           Sectoral Inflation Expectations
+3: TURKSTAT- Consumer Price Index-Indicators for the CPI's Having Specified Coverages (2003=100)(New Series)
+4:                                                      Consumer Price Index (1987=100) (TURKSTAT) (Archive)
+5:                                                      Consumer Price Index (1987=100) (TURKSTAT) (Archive)
+6:     Seasonally unadjusted Consumer Confidence Index and Indices of Consumer Tendency Survey Questions (*)
+7:     Seasonally unadjusted Consumer Confidence Index and Indices of Consumer Tendency Survey Questions (*)
+8:                                                 Consumer Price Index (1978_1979=100) (TURKSTAT) (Archive)
+9:                                                 Consumer Price Index (1978_1979=100) (TURKSTAT) (Archive)</code></pre>
+</div>
+</div>
+</section>
+<section id="getdataseries" class="level3">
+<h3 class="anchored" data-anchor-id="getdataseries">getDataSeries</h3>
+<p>The <code>getDataSeries</code> function in the <strong>CBRT R package</strong> is a versatile tool for importing one or more time series directly from the EVDS. This function provides users with several advanced features to customize their data retrieval. For example, users can specify the frequency level (<code>freq</code>), such as daily, weekly, or monthly, and set a date range using the <code>startDate</code> and <code>endDate</code> arguments in the format <code>DD-MM-YYYY</code>. If the <code>endDate</code> is not specified, the function automatically retrieves data up to the latest available point.</p>
+<p>An additional feature of <code>getDataSeries</code> is its ability to aggregate higher-frequency data into lower-frequency formats using the <code>aggType</code> argument. Supported aggregation methods include:</p>
+<ul>
+<li><p><code>avg</code>: Average value,</p></li>
+<li><p><code>first</code>: First observation,</p></li>
+<li><p><code>last</code>: Last observation,</p></li>
+<li><p><code>max</code>: Maximum value,</p></li>
+<li><p><code>min</code>: Minimum value,</p></li>
+<li><p><code>sum</code>: Summation of values.</p></li>
+</ul>
+<p>For instance, if weekly data is aggregated to a monthly frequency, the aggregation method is applied to compute the resulting values. Furthermore, the <code>na.rm</code> argument allows users to drop all missing dates, ensuring clean and continuous time series data.</p>
+<p>Here’s an example demonstrating its use:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import a time series (e.g., CPI data) with specific parameters</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>cpi_data <span class="ot">&lt;-</span> <span class="fu">getDataSeries</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">series =</span> <span class="fu">c</span>(<span class="st">"TP.FE.OKTG01"</span>),       <span class="co"># Example series ID</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">CBRTKey =</span> my_api_key,            <span class="co"># Your API key</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">freq =</span> <span class="dv">5</span>,                     <span class="co"># Monthly frequency</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">startDate =</span> <span class="st">"01-01-2010"</span>,     <span class="co"># Start date</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">endDate =</span> <span class="st">"31-12-2023"</span>,       <span class="co"># End date</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">na.rm =</span> <span class="cn">TRUE</span>                  <span class="co"># Remove missing dates</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># View the imported data</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(cpi_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         time TP.FE.OKTG01
+1: 2010-01-15       174.07
+2: 2010-02-15       176.59
+3: 2010-03-15       177.62
+4: 2010-04-15       178.68
+5: 2010-05-15       178.04
+6: 2010-06-15       177.04</code></pre>
+</div>
+</div>
+<p>For example, we want to fetch exchange rates for USD, EUR, and GBP against the Turkish Lira (TRY) for a specific time period in monthly frequency.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the series IDs for USD, EUR, and GBP (Sales rate against TRY)</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>usd_series <span class="ot">&lt;-</span> <span class="st">"TP.DK.USD.S"</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>eur_series <span class="ot">&lt;-</span> <span class="st">"TP.DK.EUR.S"</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>gbp_series <span class="ot">&lt;-</span> <span class="st">"TP.DK.GBP.S"</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the frequency method</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>freq <span class="ot">&lt;-</span> <span class="dv">5</span>  <span class="co"># Monthly frequency</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the date range for the data (e.g., from 01-01-2020 to 31-12-2024)</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>startDate <span class="ot">&lt;-</span> <span class="st">"01-01-2020"</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>endDate <span class="ot">&lt;-</span> <span class="st">"31-12-2024"</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Fetch the data for USD, EUR, and GBP exchange rates</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>exchange_data <span class="ot">&lt;-</span> <span class="fu">getDataSeries</span>(</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">series =</span> <span class="fu">c</span>(usd_series,eur_series,gbp_series),</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">CBRTKey =</span> my_api_key,</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">freq =</span> freq,</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">startDate =</span> startDate,</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">endDate =</span> endDate,</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">na.rm =</span> <span class="cn">TRUE</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(exchange_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         time TP.DK.USD.S TP.DK.EUR.S TP.DK.GBP.S
+1: 2020-01-15    5.928827    6.586905    7.763218
+2: 2020-02-15    6.055370    6.605785    7.872095
+3: 2020-03-15    6.325805    7.001341    7.858764
+4: 2020-04-15    6.831252    7.430133    8.493257
+5: 2020-05-15    6.964488    7.573124    8.588112
+6: 2020-06-15    6.821091    7.676245    8.560195</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>The <code>CBRT</code> R package is a powerful tool for accessing and analyzing Turkish economic data. By combining the package’s functionality with R’s robust analytical tools, users can unlock insights and streamline their research. Whether you’re tracking inflation trends, analyzing monetary policy impacts, or studying exchange rates, the <code>CBRT</code> package offers a seamless experience.</p>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
+<ol type="1">
+<li><p>Taymaz, E. (2024). <em>CBRT R Package</em>. Retrieved from <a href="https://users.metu.edu.tr/etaymaz/cbrt-2024.html#the-package">CBRT Package</a><a href="https://etaymaz.github.io/cbrt-2024.html">Documentation</a></p></li>
+<li><p>Central Bank of the Republic of Turkey. <em>Electronic Data Delivery System (EVDS)</em>. Retrieved from <a href="https://evds2.tcmb.gov.tr/index.php?">EVDS</a></p></li>
+</ol>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/mfatihtuzen\.netlify\.app");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="MFatihTuzen/blogComments" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2023, M. Fatih Tüzen</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

@@ -10,7 +10,468 @@
 <atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Blog posts about R and Statistics</description>
 <generator>quarto-1.6.39</generator>
-<lastBuildDate>Sun, 15 Dec 2024 21:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 30 Dec 2024 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>Unlocking CBRT Data in R: A Guide to the CBRT R Package</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2024-12-31_cbrt/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2024-12-31_cbrt/images/clipboard-2062160124.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>The Central Bank of the Republic of Turkey (CBRT) provides a wealth of economic data crucial for researchers, analysts, and policymakers. Through the Electronic Data Delivery System (EVDS ), users can access time-series data on various economic indicators. With the <code>CBRT</code> R package this process becomes streamlined, empowering users to integrate CBRT data directly into their R workflows. This blog post delves into the details of accessing CBRT data using the package, explaining everything from obtaining an API key to practical examples of retrieving economic series.</p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>The CBRT serves as Turkey’s central bank, tasked with implementing monetary policies and maintaining financial stability. The EVDS (Elektronik Veri Dağıtım Sistemi) is the CBRT’s online data delivery platform, providing access to a vast repository of economic data, including price indices, exchange rates, monetary aggregates, and more. EVDS supports API-based data retrieval, allowing programmatic access to its datasets.</p>
+</section>
+<section id="evds" class="level2">
+<h2 class="anchored" data-anchor-id="evds">EVDS</h2>
+<p><a href="https://evds2.tcmb.gov.tr/index.php">The Electronic Data Delivery System (EVDS)</a> is a dynamic and interactive system that presents statistical time series data produced by the CBRT and/or data produced by other institutions and compiled by the CBRT. These data are published on dynamic web pages. They can also be reported in the xls format or through the web service client (json, csv, xml), viewed in the graphics format, and received via e-mail by subscribing to the system. The EVDS was first introduced in 1995 and is available in Turkish and English.</p>
+<p>The system provides a rich range of economic data and information to support economic education and foster economic research. Its technical infrastructure was revised in October 2017. The EVDS serves the public with its new facilities and content such as the REST web service, Customization, Reports, Interactive Charts, Frequently Used Data Groups, Recently Updated Data Groups, and data displayed on Turkey and world maps.</p>
+</section>
+<section id="setting-up-access-the-api-key" class="level2">
+<h2 class="anchored" data-anchor-id="setting-up-access-the-api-key">Setting Up Access: The API Key</h2>
+<p>To access EVDS data programmatically, you need an API key, which serves as a unique identifier for authenticating your requests.</p>
+<ol type="1">
+<li><p><strong>Requesting an API Key:</strong><br>
+Visit <a href="https://evds2.tcmb.gov.tr/index.php">EVDS</a> and create an account. Once logged in, navigate to the API access section to generate your personal API key.</p></li>
+<li><p><strong>Storing Your API Key Securely:</strong><br>
+Avoid hardcoding your API key in scripts. Instead, save it in a <code>.txt</code> file and read it into your R session. For example:</p></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1">api_key <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">readLines</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"path/to/your_api_key.txt"</span>)</span></code></pre></div>
+</div>
+</section>
+<section id="cbrt-package" class="level2">
+<h2 class="anchored" data-anchor-id="cbrt-package">CBRT Package</h2>
+<p>The <strong>CBRT R package</strong>, developed by <a href="https://avesis.metu.edu.tr/etaymaz">Prof.&nbsp;Dr.&nbsp;Erol Taymaz</a> from Middle East Technical University, is a powerful tool designed to simplify data retrieval from the Central Bank of the Republic of Turkey’s (CBRT) Electronic Data Delivery System (EVDS). This package enables users to efficiently access and analyze economic indicators by providing functions for querying data series, retrieving metadata, and searching for relevant datasets through the EVDS API. he CBRT package includes functions for finding, and downloading data from the Central Bank of the Republic of Türkiye’s database. The CBRT database covers more than 40,000 time series variables. For detailed documentation and further insights into the package, you can visit <a href="https://etaymaz.github.io/cbrt-2024.html">this link</a>.</p>
+<p>The package is now available at&nbsp;<a href="https://cran.r-project.org/web/packages/CBRT">CRAN</a>&nbsp;(November 13, 2024), and can be installed by</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">install.packages</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CBRT"</span>)</span></code></pre></div>
+</div>
+</section>
+<section id="core-functions" class="level2">
+<h2 class="anchored" data-anchor-id="core-functions">Core Functions</h2>
+<p>All <strong>data series</strong> (variables) are classified into <strong>data groups</strong>, and data groups into <strong>data categories</strong>. There are 44 data categories (including the archieved ones), 499 data groups, and 40,826 data series.</p>
+<section id="getallcategoriesinfo" class="level3">
+<h3 class="anchored" data-anchor-id="getallcategoriesinfo">getAllCategoriesInfo</h3>
+<p>The <code>getAllCategoriesInfo</code> function in the <strong>CBRT R package</strong> provides a convenient way to access information about the main data categories available in the Central Bank of the Republic of Türkiye’s (CBRT) Electronic Data Delivery System (EVDS). This function requires a valid API key as an argument to authenticate your request. By retrieving a structured list of these categories, users can explore the high-level organization of economic data offered by the EVDS API.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(CBRT)</span>
+<span id="cb3-2">my_api_key <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">readLines</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"D:/evds_api_key.txt"</span>,<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">warn=</span><span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb3-3"></span>
+<span id="cb3-4">Categories <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">getAllCategoriesInfo</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">CBRTKey =</span> my_api_key)</span>
+<span id="cb3-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(Categories)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   cid                                    topic
+1:   1                       MARKET DATA (CBRT)
+2:   2                    EXCHANGE RATES (CBRT)
+3:   3          INTEREST RATE STATISTICS (CBRT)
+4:   4 MONTHLY MONEY AND BANK STATISTICS (CBRT)
+5:   5             SECURITIES STATISTICS (CBRT)
+6:  12         FINANCIAL SERVICES SURVEY (CBRT)</code></pre>
+</div>
+</div>
+</section>
+<section id="getallgroupsinfo" class="level3">
+<h3 class="anchored" data-anchor-id="getallgroupsinfo">getAllGroupsInfo</h3>
+<p>The <strong>CBRT R package</strong> offers the <code>getAllGroupsInfo</code> function, which allows users to access detailed information about the groups within specific categories in the Central Bank of the Republic of Turkey’s (CBRT) Electronic Data Delivery System (EVDS). Similar to <code>getAllCategoriesInfo</code>, this function requires a valid API key for authentication. The groups represent subcategories or finer classifications of data within the broader main categories. By leveraging the <code>cid</code> (category ID) variable from the categories table, users can establish a relationship between categories and their corresponding groups. This functionality provides a structured approach to exploring the hierarchy of economic data in EVDS, enabling users to efficiently navigate and identify the datasets most relevant to their research or analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">Groups <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">getAllGroupsInfo</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">CBRTKey =</span> my_api_key)</span>
+<span id="cb5-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(Groups)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   cid    groupCode
+1:   1   bie_pyrepo
+2:   0   bie_mkbral
+3:  25 bie_mkaltytl
+4:   1   bie_ppibsm
+5:   1 bie_pyintbnk
+6:   1    bie_tldov
+                                                                              groupName
+1:                                       Open Market Repo and Reverse Repo Transactions
+2:                                           Istanbul Gold Exchange (TRY_USD) (Archive)
+3:                                           Gold Prices (Averaged) - Free Market (TRY)
+4: Free Deposits of Banks and Total Liquidity (Beginning of the Day)(Million TRY)(CBRT)
+5:                      Interbank Money Market Transactions Summary (TRY Thousand or %)
+6:     Total Volume of FX Transaction of Banks Against Turkish Lira (Million USD, CBRT)
+   freq         source sourceLink revisionPolicy appLink  firstDate   lastDate
+1:    5           CBRT                                   01-08-2020 01-05-1989
+2:    2 BORSA ISTANBUL                                   29-06-2018 27-07-1995
+3:    5         Market                                   01-11-2024 01-12-1950
+4:    2           CBRT                                   31-12-2024 04-01-2007
+5:    2           CBRT                                   30-12-2024 04-11-1996
+6:    2           CBRT                                   23-12-2024 14-10-2002</code></pre>
+</div>
+</div>
+<p>Additionally, the groups table contains valuable metadata, including the date ranges for available data, data frequency, and data sources. The frequency of the data is indicated by predefined frequency codes:</p>
+<ol type="1">
+<li><p>Daily</p></li>
+<li><p>Workday</p></li>
+<li><p>Weekly</p></li>
+<li><p>Biweekly</p></li>
+<li><p>Monthly</p></li>
+<li><p>Quarterly</p></li>
+<li><p>Semiannual</p></li>
+<li><p>Annual</p></li>
+</ol>
+</section>
+<section id="getallseriesinfo" class="level3">
+<h3 class="anchored" data-anchor-id="getallseriesinfo">getAllSeriesInfo</h3>
+<p>The <code>getAllSeriesInfo</code> function in the <strong>CBRT R package</strong> enables users to retrieve up-to-date metadata for data series available in the Central Bank of the Republic of Turkey’s (CBRT) Electronic Data Delivery System (EVDS). This function, like others in the package, requires a valid API key for authentication. The metadata includes essential details such as group codes, series names, and other relevant information about the datasets within a chosen topic. These details help users identify and filter specific series of interest. Furthermore, by utilizing key variables, the series metadata can be linked to the categories and groups tables, allowing users to establish relationships across the data hierarchy. This capability ensures a structured and interconnected exploration of economic datasets, simplifying the process of locating and analyzing relevant data for research or analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">Series <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">getAllSeriesInfo</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">CBRTKey =</span> my_api_key)</span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(Series)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   cid                                                                topic
+1:   7 DEPOSITS AND PARTICIPATION FUNDS SUBJECT TO REQUIRED RESERVES (CBRT)
+2:   7 DEPOSITS AND PARTICIPATION FUNDS SUBJECT TO REQUIRED RESERVES (CBRT)
+3:   7 DEPOSITS AND PARTICIPATION FUNDS SUBJECT TO REQUIRED RESERVES (CBRT)
+4:   7 DEPOSITS AND PARTICIPATION FUNDS SUBJECT TO REQUIRED RESERVES (CBRT)
+5:   7 DEPOSITS AND PARTICIPATION FUNDS SUBJECT TO REQUIRED RESERVES (CBRT)
+6:   7 DEPOSITS AND PARTICIPATION FUNDS SUBJECT TO REQUIRED RESERVES (CBRT)
+       groupCode
+1: bie_KYBKATFON
+2: bie_KYBKATFON
+3: bie_KYBKATFON
+4: bie_KYBKATFON
+5: bie_KYBKATFON
+6: bie_KYBKATFON
+                                                          groupName freq
+1: Breakdown of Participation Funds Subject to Reserve Requirements    3
+2: Breakdown of Participation Funds Subject to Reserve Requirements    3
+3: Breakdown of Participation Funds Subject to Reserve Requirements    3
+4: Breakdown of Participation Funds Subject to Reserve Requirements    3
+5: Breakdown of Participation Funds Subject to Reserve Requirements    3
+6: Breakdown of Participation Funds Subject to Reserve Requirements    3
+         seriesCode                          seriesName      start        end
+1: TP.KYBKATFON.KB1  Turkish Lira_Turkish Lira Accounts 10-05-2002 13-12-2024
+2: TP.KYBKATFON.KB2                   Fx Accounts (USD) 10-05-2002 13-12-2024
+3: TP.KYBKATFON.KB3                  Fx Accounts (EURO) 10-05-2002 13-12-2024
+4: TP.KYBKATFON.KB4 Fx Accounts Precious Minerals (USD) 14-10-2011 13-12-2024
+5: TP.KYBKATFON.KB5             Fx Accounts Other (USD) 10-05-2002 13-12-2024
+6: TP.KYBKATFON.KB6             Total Fx Accounts (USD) 10-05-2002 13-12-2024
+   aggMethod freqname  tag
+1:      last     Week &lt;NA&gt;
+2:      last     Week &lt;NA&gt;
+3:      last     Week &lt;NA&gt;
+4:      last     Week &lt;NA&gt;
+5:      last     Week &lt;NA&gt;
+6:      last     Week &lt;NA&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="searchcbrt" class="level3">
+<h3 class="anchored" data-anchor-id="searchcbrt">searchCBRT</h3>
+<p>The <code>searchCBRT</code> function in the <strong>CBRT R package</strong> provides a powerful tool for searching any category, group, or series name within the Central Bank of the Republic of Turkey’s (CBRT) Electronic Data Delivery System (EVDS). By specifying keywords and the desired field to search in, users can efficiently locate relevant datasets. This function simplifies the process of finding specific information within the extensive EVDS repository, enabling direct access to the desired table or dataset. Whether searching for broad topics, specific groups, or individual data series, <code>searchCBRT</code> offers a flexible and efficient way to navigate the system and pinpoint the data needed for analysis.</p>
+<p>Suppose we want to find datasets related to “Consumer Prices” within the EVDS system. Using the <code>searchCBRT</code> function, we can search for this keyword in relevant fields to locate the desired tables or series. Here’s how to do it:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">searchCBRT</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"consumer price"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">field =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"series"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         seriesCode
+1:  TP.ENFBEK.TEA12
+2: TP.ENFBEK.TEA345
+3:     TP.FE.OKTG01
+4:        TP.FG.A09
+5:        TP.FG.A10
+6:       TP.TG2.Y14
+7:       TP.TG2.Y15
+8:        TP.FG.F19
+9:        TP.FG.F20
+                                                                                                         seriesName
+1:              Percentage of households expecting consumer prices to increase more rapidly or at the same rate (%)
+2: Percentage of households expecting consumer prices to stay about the same, fall or increase at a slower rate (%)
+3:                                                                                             Consumer Price Index
+4:                                                                        Consumer Prices Index of Ankara (Archive)
+5:                                                                      Consumer Prices Index of Istanbul (Archive)
+6:                                              Assessment on Consumer prices change rate (over the last 12 months)
+7:             Expectation for consumer prices change rate (over the next 12 months compared to the past 12 months)
+8:                                                                            Ankara Consumer Price Index (Archive)
+9:                                                                          Istanbul Consumer Price Index (Archive)
+       groupCode
+1:    bie_enfbek
+2:    bie_enfbek
+3:    bie_feoktg
+4: bie_fgtukfiy2
+5: bie_fgtukfiy2
+6:   bie_mbgven2
+7:   bie_mbgven2
+8:   bie_tukfiy1
+9:   bie_tukfiy1
+                                                                                                   groupName
+1:                                                                           Sectoral Inflation Expectations
+2:                                                                           Sectoral Inflation Expectations
+3: TURKSTAT- Consumer Price Index-Indicators for the CPI's Having Specified Coverages (2003=100)(New Series)
+4:                                                      Consumer Price Index (1987=100) (TURKSTAT) (Archive)
+5:                                                      Consumer Price Index (1987=100) (TURKSTAT) (Archive)
+6:     Seasonally unadjusted Consumer Confidence Index and Indices of Consumer Tendency Survey Questions (*)
+7:     Seasonally unadjusted Consumer Confidence Index and Indices of Consumer Tendency Survey Questions (*)
+8:                                                 Consumer Price Index (1978_1979=100) (TURKSTAT) (Archive)
+9:                                                 Consumer Price Index (1978_1979=100) (TURKSTAT) (Archive)</code></pre>
+</div>
+</div>
+</section>
+<section id="getdataseries" class="level3">
+<h3 class="anchored" data-anchor-id="getdataseries">getDataSeries</h3>
+<p>The <code>getDataSeries</code> function in the <strong>CBRT R package</strong> is a versatile tool for importing one or more time series directly from the EVDS. This function provides users with several advanced features to customize their data retrieval. For example, users can specify the frequency level (<code>freq</code>), such as daily, weekly, or monthly, and set a date range using the <code>startDate</code> and <code>endDate</code> arguments in the format <code>DD-MM-YYYY</code>. If the <code>endDate</code> is not specified, the function automatically retrieves data up to the latest available point.</p>
+<p>An additional feature of <code>getDataSeries</code> is its ability to aggregate higher-frequency data into lower-frequency formats using the <code>aggType</code> argument. Supported aggregation methods include:</p>
+<ul>
+<li><p><code>avg</code>: Average value,</p></li>
+<li><p><code>first</code>: First observation,</p></li>
+<li><p><code>last</code>: Last observation,</p></li>
+<li><p><code>max</code>: Maximum value,</p></li>
+<li><p><code>min</code>: Minimum value,</p></li>
+<li><p><code>sum</code>: Summation of values.</p></li>
+</ul>
+<p>For instance, if weekly data is aggregated to a monthly frequency, the aggregation method is applied to compute the resulting values. Furthermore, the <code>na.rm</code> argument allows users to drop all missing dates, ensuring clean and continuous time series data.</p>
+<p>Here’s an example demonstrating its use:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Import a time series (e.g., CPI data) with specific parameters</span></span>
+<span id="cb12-2">cpi_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">getDataSeries</span>(</span>
+<span id="cb12-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">series =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TP.FE.OKTG01"</span>),       <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Example series ID</span></span>
+<span id="cb12-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">CBRTKey =</span> my_api_key,            <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Your API key</span></span>
+<span id="cb12-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">freq =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,                     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Monthly frequency</span></span>
+<span id="cb12-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">startDate =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"01-01-2010"</span>,     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Start date</span></span>
+<span id="cb12-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">endDate =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"31-12-2023"</span>,       <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># End date</span></span>
+<span id="cb12-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>                  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Remove missing dates</span></span>
+<span id="cb12-9">)</span>
+<span id="cb12-10"></span>
+<span id="cb12-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># View the imported data</span></span>
+<span id="cb12-12"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(cpi_data)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         time TP.FE.OKTG01
+1: 2010-01-15       174.07
+2: 2010-02-15       176.59
+3: 2010-03-15       177.62
+4: 2010-04-15       178.68
+5: 2010-05-15       178.04
+6: 2010-06-15       177.04</code></pre>
+</div>
+</div>
+<p>For example, we want to fetch exchange rates for USD, EUR, and GBP against the Turkish Lira (TRY) for a specific time period in monthly frequency.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define the series IDs for USD, EUR, and GBP (Sales rate against TRY)</span></span>
+<span id="cb14-2">usd_series <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TP.DK.USD.S"</span></span>
+<span id="cb14-3">eur_series <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TP.DK.EUR.S"</span></span>
+<span id="cb14-4">gbp_series <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TP.DK.GBP.S"</span></span>
+<span id="cb14-5"></span>
+<span id="cb14-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define the frequency method</span></span>
+<span id="cb14-7">freq <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Monthly frequency</span></span>
+<span id="cb14-8"></span>
+<span id="cb14-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define the date range for the data (e.g., from 01-01-2020 to 31-12-2024)</span></span>
+<span id="cb14-10">startDate <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"01-01-2020"</span></span>
+<span id="cb14-11">endDate <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"31-12-2024"</span></span>
+<span id="cb14-12"></span>
+<span id="cb14-13"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Fetch the data for USD, EUR, and GBP exchange rates</span></span>
+<span id="cb14-14">exchange_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">getDataSeries</span>(</span>
+<span id="cb14-15">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">series =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(usd_series,eur_series,gbp_series),</span>
+<span id="cb14-16">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">CBRTKey =</span> my_api_key,</span>
+<span id="cb14-17">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">freq =</span> freq,</span>
+<span id="cb14-18">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">startDate =</span> startDate,</span>
+<span id="cb14-19">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">endDate =</span> endDate,</span>
+<span id="cb14-20">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span></span>
+<span id="cb14-21">)</span>
+<span id="cb14-22"></span>
+<span id="cb14-23"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(exchange_data)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         time TP.DK.USD.S TP.DK.EUR.S TP.DK.GBP.S
+1: 2020-01-15    5.928827    6.586905    7.763218
+2: 2020-02-15    6.055370    6.605785    7.872095
+3: 2020-03-15    6.325805    7.001341    7.858764
+4: 2020-04-15    6.831252    7.430133    8.493257
+5: 2020-05-15    6.964488    7.573124    8.588112
+6: 2020-06-15    6.821091    7.676245    8.560195</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>The <code>CBRT</code> R package is a powerful tool for accessing and analyzing Turkish economic data. By combining the package’s functionality with R’s robust analytical tools, users can unlock insights and streamline their research. Whether you’re tracking inflation trends, analyzing monetary policy impacts, or studying exchange rates, the <code>CBRT</code> package offers a seamless experience.</p>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
+<ol type="1">
+<li><p>Taymaz, E. (2024). <em>CBRT R Package</em>. Retrieved from <a href="https://users.metu.edu.tr/etaymaz/cbrt-2024.html#the-package">CBRT Package</a><a href="https://etaymaz.github.io/cbrt-2024.html">Documentation</a></p></li>
+<li><p>Central Bank of the Republic of Turkey. <em>Electronic Data Delivery System (EVDS)</em>. Retrieved from <a href="https://evds2.tcmb.gov.tr/index.php?">EVDS</a></p></li>
+</ol>
+
+
+</section>
+</section>
+
+ ]]></description>
+  <category>R Programming</category>
+  <category>CBRT</category>
+  <category>EVDS</category>
+  <category>Import</category>
+  <category>API</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2024-12-31_cbrt/</guid>
+  <pubDate>Mon, 30 Dec 2024 21:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Extracting Data from OECD Databases in R: Using the oecd and rsdmx Packages</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>
