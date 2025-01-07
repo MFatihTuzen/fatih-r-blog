@@ -200,6 +200,6 @@ The `CBRT` R package is a powerful tool for accessing and analyzing Turkish econ
 
 ### References
 
-1.  Taymaz, E. (2024). *CBRT R Package*. Retrieved from [CBRT Package ](https://users.metu.edu.tr/etaymaz/cbrt-2024.html#the-package)[Documentation](https://etaymaz.github.io/cbrt-2024.html)
+1.  Taymaz, E. (2024). *CBRT R Package*. Retrieved from [CBRT Package](https://users.metu.edu.tr/etaymaz/cbrt-2024.html#the-package)[Documentation](https://etaymaz.github.io/cbrt-2024.html)
 
 2.  Central Bank of the Republic of Turkey. *Electronic Data Delivery System (EVDS)*. Retrieved from [EVDS](https://evds2.tcmb.gov.tr/index.php?)
