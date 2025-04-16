@@ -17,3 +17,10 @@ Welcome to my R and Statistics blog! This repository hosts a collection of artic
 -   ...
 
 My purpose is to provide valuable resources and knowledge to help you excel in these fields. Happy coding and exploring the world of statistics with R!
+
+---
+
+## License
+
+Text and visual content of this book is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).  
+R code examples are licensed under the [MIT License](https://opensource.org/licenses/MIT).
