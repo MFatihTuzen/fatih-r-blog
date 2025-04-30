@@ -10,7 +10,1559 @@
 <atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Blog posts about R and Statistics</description>
 <generator>quarto-1.6.39</generator>
-<lastBuildDate>Mon, 10 Mar 2025 21:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 29 Apr 2025 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>Explained vs. Predictive Power: R², Adjusted R², and Beyond</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2025-04-30_rsquared/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-04-30_rsquared/quote_box.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:8cm"></p>
+</figure>
+</div>
+<section id="introduction" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Introduction</h1>
+<blockquote class="blockquote">
+<p><strong>You trust R². Should you?</strong><br>
+You proudly present a model with R² = 0.95. Everyone applauds.<br>
+But what if your model fails miserably on the next new data?</p>
+</blockquote>
+<p>When building a statistical model, one of the first numbers analysts and data scientists often cite is the <strong>R²</strong>, or coefficient of determination. It’s widely reported in research, academic theses, and industry reports — and yet, frequently misunderstood or misused.</p>
+<p>Does a high R² mean your model is good? Is it enough to evaluate model performance? What about its adjusted or predictive counterparts?</p>
+<p>This article will explore in depth: - What R², Adjusted R², and Predicted R² actually mean - Why relying solely on R² can mislead you - How to evaluate models using <strong>both explanatory and predictive power</strong> - Real-life implementation using the <strong>{tidymodels}</strong> framework in R</p>
+<p>We’ll also discuss best practices and common pitfalls, and equip you with a mindset to look beyond surface-level model summaries.</p>
+</section>
+<section id="theoretical-background" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Theoretical Background</h1>
+<section id="what-is-r²" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="what-is-r²"><span class="header-section-number">2.1</span> What is R²?</h2>
+<p>The <strong>coefficient of determination</strong>, R², is defined as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?R%5E2%20=%201%20-%20%5Cfrac%7B%5Ctext%7BSS%7D_%7B%5Ctext%7Bres%7D%7D%7D%7B%5Ctext%7BSS%7D_%7B%5Ctext%7Btot%7D%7D%7D"></p>
+<p>Where:</p>
+<ul>
+<li><p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BSS%7D_%7B%5Ctext%7Bres%7D%7D"> = Sum of squares of residuals = <img src="https://latex.codecogs.com/png.latex?%5Csum%20(y_i%20-%20%5Chat%7By%7D_i)%5E2"></p></li>
+<li><p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BSS%7D_%7B%5Ctext%7Btot%7D%7D"> = Total sum of squares = <img src="https://latex.codecogs.com/png.latex?%5Csum%20(y_i%20-%20%5Cbar%7By%7D)%5E2"></p></li>
+</ul>
+<p>It tells us the <strong>proportion of variance explained by the model</strong>. An R² of 0.80 implies that 80% of the variability in the dependent variable is explained by the model.</p>
+<p>But beware — it only measures <strong>fit to training data</strong>, not the model’s ability to <strong>generalize</strong>.</p>
+</section>
+<section id="adjusted-r²" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="adjusted-r²"><span class="header-section-number">2.2</span> Adjusted R²</h2>
+<p>When we add predictors to a regression model, R² will never decrease — even if the added variables are irrelevant.</p>
+<p><strong>Adjusted R²</strong> corrects this by penalizing the number of predictors: <img src="https://latex.codecogs.com/png.latex?R%5E2_%7B%5Ctext%7Badj%7D%7D%20=%201%20-%20%5Cleft(1%20-%20R%5E2%5Cright)%20%5Ccdot%20%5Cleft(%5Cfrac%7Bn%20-%201%7D%7Bn%20-%20p%20-%201%7D%5Cright)"></p>
+<p>Where:</p>
+<ul>
+<li><p>n : number of observations</p></li>
+<li><p>p : number of predictors</p></li>
+</ul>
+<p>Thus, Adjusted R² will <strong>only increase</strong> if the new predictor improves the model more than expected by chance.</p>
+</section>
+<section id="predicted-r²" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="predicted-r²"><span class="header-section-number">2.3</span> Predicted R²</h2>
+<p><strong>Predicted R²</strong> (or cross-validated R²) is the most honest estimate of model utility. It answers the question:</p>
+<blockquote class="blockquote">
+<p><em>How well will this model predict new, unseen data?</em></p>
+</blockquote>
+<p>This is typically calculated using cross-validation, and unlike regular R², it reflects <strong>out-of-sample performance</strong>.</p>
+<p>You can also view it as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?R%5E2_%7B%5Ctext%7Bpred%7D%7D%20=%201%20-%20%5Cfrac%7B%5Ctext%7BPRESS%7D%7D%7B%5Ctext%7BSS%7D_%7B%5Ctext%7Btot%7D%7D%7D"></p>
+<p>Where PRESS is the <strong>Prediction Error Sum of Squares</strong> based on cross-validation.</p>
+</section>
+</section>
+<section id="dataset-overview" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Dataset Overview</h1>
+<p>We’ll use the classic <strong>Boston Housing Dataset</strong> to demonstrate. It includes:</p>
+<ul>
+<li><p>Socio-economic and housing variables for 506 Boston suburbs</p></li>
+<li><p>Target: <code>medv</code> (median value of owner-occupied homes in $1000s)</p></li>
+</ul>
+<p>Below are the key variables:</p>
+<ul>
+<li><strong>crim</strong>: per capita crime rate by town</li>
+<li><strong>zn</strong>: proportion of residential land zoned for large lots</li>
+<li><strong>indus</strong>: proportion of non-retail business acres</li>
+<li><strong>chas</strong>: Charles River dummy variable (1 = tract bounds river; 0 = otherwise)</li>
+<li><strong>nox</strong>: nitric oxides concentration (parts per 10 million)</li>
+<li><strong>rm</strong>: average number of rooms per dwelling</li>
+<li><strong>age</strong>: proportion of owner-occupied units built before 1940</li>
+<li><strong>dis</strong>: weighted distance to employment centers</li>
+<li><strong>rad</strong>: index of accessibility to radial highways</li>
+<li><strong>tax</strong>: property-tax rate per $10,000</li>
+<li><strong>ptratio</strong>: pupil-teacher ratio by town</li>
+<li><strong>black</strong>: 1000(Bk - 0.63)^2 where Bk is the proportion of Black residents</li>
+<li><strong>lstat</strong>: percentage of lower status of the population</li>
+<li><strong>medv</strong>: <strong>target</strong> — median value of owner-occupied homes (in $1000s)</li>
+</ul>
+<p>This regression problem mimics common real estate or socio-economic modeling use cases. Let’s first examine the dataset’s summary statistics.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidymodels)</span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(MASS)</span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggplot2)</span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(corrr)</span>
+<span id="cb1-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(skimr)</span>
+<span id="cb1-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(patchwork)</span>
+<span id="cb1-7"></span>
+<span id="cb1-8"></span>
+<span id="cb1-9">boston <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> MASS<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span>Boston</span>
+<span id="cb1-10"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">skim</span>(boston)</span></code></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">boston</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">506</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">14</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">14</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 10%">
+<col style="width: 15%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">crim</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.61</td>
+<td style="text-align: right;">8.60</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">0.08</td>
+<td style="text-align: right;">0.26</td>
+<td style="text-align: right;">3.68</td>
+<td style="text-align: right;">88.98</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">zn</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">11.36</td>
+<td style="text-align: right;">23.32</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">12.50</td>
+<td style="text-align: right;">100.00</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">indus</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">11.14</td>
+<td style="text-align: right;">6.86</td>
+<td style="text-align: right;">0.46</td>
+<td style="text-align: right;">5.19</td>
+<td style="text-align: right;">9.69</td>
+<td style="text-align: right;">18.10</td>
+<td style="text-align: right;">27.74</td>
+<td style="text-align: left;">▇▆▁▇▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">chas</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.07</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">nox</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.55</td>
+<td style="text-align: right;">0.12</td>
+<td style="text-align: right;">0.38</td>
+<td style="text-align: right;">0.45</td>
+<td style="text-align: right;">0.54</td>
+<td style="text-align: right;">0.62</td>
+<td style="text-align: right;">0.87</td>
+<td style="text-align: left;">▇▇▆▅▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rm</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">6.28</td>
+<td style="text-align: right;">0.70</td>
+<td style="text-align: right;">3.56</td>
+<td style="text-align: right;">5.89</td>
+<td style="text-align: right;">6.21</td>
+<td style="text-align: right;">6.62</td>
+<td style="text-align: right;">8.78</td>
+<td style="text-align: left;">▁▂▇▂▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">age</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">68.57</td>
+<td style="text-align: right;">28.15</td>
+<td style="text-align: right;">2.90</td>
+<td style="text-align: right;">45.02</td>
+<td style="text-align: right;">77.50</td>
+<td style="text-align: right;">94.07</td>
+<td style="text-align: right;">100.00</td>
+<td style="text-align: left;">▂▂▂▃▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">dis</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.80</td>
+<td style="text-align: right;">2.11</td>
+<td style="text-align: right;">1.13</td>
+<td style="text-align: right;">2.10</td>
+<td style="text-align: right;">3.21</td>
+<td style="text-align: right;">5.19</td>
+<td style="text-align: right;">12.13</td>
+<td style="text-align: left;">▇▅▂▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">rad</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">9.55</td>
+<td style="text-align: right;">8.71</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: right;">24.00</td>
+<td style="text-align: right;">24.00</td>
+<td style="text-align: left;">▇▂▁▁▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">tax</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">408.24</td>
+<td style="text-align: right;">168.54</td>
+<td style="text-align: right;">187.00</td>
+<td style="text-align: right;">279.00</td>
+<td style="text-align: right;">330.00</td>
+<td style="text-align: right;">666.00</td>
+<td style="text-align: right;">711.00</td>
+<td style="text-align: left;">▇▇▃▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ptratio</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">18.46</td>
+<td style="text-align: right;">2.16</td>
+<td style="text-align: right;">12.60</td>
+<td style="text-align: right;">17.40</td>
+<td style="text-align: right;">19.05</td>
+<td style="text-align: right;">20.20</td>
+<td style="text-align: right;">22.00</td>
+<td style="text-align: left;">▁▃▅▅▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">black</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">356.67</td>
+<td style="text-align: right;">91.29</td>
+<td style="text-align: right;">0.32</td>
+<td style="text-align: right;">375.38</td>
+<td style="text-align: right;">391.44</td>
+<td style="text-align: right;">396.22</td>
+<td style="text-align: right;">396.90</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">lstat</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">12.65</td>
+<td style="text-align: right;">7.14</td>
+<td style="text-align: right;">1.73</td>
+<td style="text-align: right;">6.95</td>
+<td style="text-align: right;">11.36</td>
+<td style="text-align: right;">16.96</td>
+<td style="text-align: right;">37.97</td>
+<td style="text-align: left;">▇▇▅▂▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">medv</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">22.53</td>
+<td style="text-align: right;">9.20</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: right;">17.02</td>
+<td style="text-align: right;">21.20</td>
+<td style="text-align: right;">25.00</td>
+<td style="text-align: right;">50.00</td>
+<td style="text-align: left;">▂▇▅▁▁</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>Commentary:</strong></p>
+<ul>
+<li><p>Variables like <code>crim</code>, <code>tax</code>, and <code>lstat</code> exhibit high variability and potential skewness.</p></li>
+<li><p><code>chas</code> is binary and acts like a categorical indicator.</p></li>
+<li><p>The target variable <code>medv</code> ranges from $5,000 to $50,000 (capped).</p></li>
+<li><p><code>rm</code> (average number of rooms) and <code>lstat</code> (lower status population) show notable spread and will likely play strong roles in the model.</p></li>
+</ul>
+<p>Next, we examine correlations with <code>medv</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">boston <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">correlate</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> corrr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">focus</span>(medv) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">arrange</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">desc</span>(medv))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 13 × 2
+   term      medv
+   &lt;chr&gt;    &lt;dbl&gt;
+ 1 rm       0.695
+ 2 zn       0.360
+ 3 black    0.333
+ 4 dis      0.250
+ 5 chas     0.175
+ 6 age     -0.377
+ 7 rad     -0.382
+ 8 crim    -0.388
+ 9 nox     -0.427
+10 tax     -0.469
+11 indus   -0.484
+12 ptratio -0.508
+13 lstat   -0.738</code></pre>
+</div>
+</div>
+<p><strong>Interpretation of Correlations:</strong></p>
+<ul>
+<li><p><code>rm</code> shows a <strong>strong positive</strong> correlation with <code>medv</code> — more rooms generally imply higher value.</p></li>
+<li><p><code>lstat</code> and <code>crim</code> have <strong>strong negative</strong> correlations — as lower status or crime increases, housing values drop.</p></li>
+<li><p><code>nox</code>, <code>age</code>, and <code>ptratio</code> also show negative correlations with price, hinting at socio-environmental effects.</p></li>
+</ul>
+<p>These insights will guide us in building and evaluating our model.</p>
+</section>
+<section id="exploratory-data-analysis" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Exploratory Data Analysis</h1>
+<p>Let’s visualize some of the most influential variables in relation to <code>medv</code>, our target variable. These exploratory graphs help reveal potential linear or nonlinear relationships, outliers, or the need for transformation.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define individual plots with improved formatting for Quarto rendering</span></span>
+<span id="cb4-2">p1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(boston, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(rm, medv)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#2c7fb8"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_smooth</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lm"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">se =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb4-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Rooms</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">vs. Median Value"</span>,</span>
+<span id="cb4-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Average Number of Rooms (rm)"</span>,</span>
+<span id="cb4-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Median Value of Homes ($1000s)"</span></span>
+<span id="cb4-9">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">11</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lineheight =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.1</span>))</span>
+<span id="cb4-12"></span>
+<span id="cb4-13">p2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(boston, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(lstat, medv)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#de2d26"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_smooth</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"loess"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">se =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb4-17">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Lower Status %</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">vs. Median Value"</span>,</span>
+<span id="cb4-18">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"% Lower Status Population (lstat)"</span>,</span>
+<span id="cb4-19">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Median Value of Homes ($1000s)"</span></span>
+<span id="cb4-20">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-21">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-22">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">11</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lineheight =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.1</span>))</span>
+<span id="cb4-23"></span>
+<span id="cb4-24">p3 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(boston, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(nox, medv)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-25">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#31a354"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-26">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_smooth</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"loess"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">se =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-27">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb4-28">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NOx Concentration</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">vs. Median Value"</span>,</span>
+<span id="cb4-29">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NOx concentration (ppm)"</span>,</span>
+<span id="cb4-30">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Median Value of Homes ($1000s)"</span></span>
+<span id="cb4-31">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-32">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-33">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">11</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lineheight =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.1</span>))</span>
+<span id="cb4-34"></span>
+<span id="cb4-35">p4 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(boston, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(age, medv)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-36">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ff7f00"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-37">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_smooth</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"loess"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">se =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-38">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb4-39">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Old Homes %</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">vs. Median Value"</span>,</span>
+<span id="cb4-40">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"% Homes Built Before 1940 (age)"</span>,</span>
+<span id="cb4-41">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Median Value of Homes ($1000s)"</span></span>
+<span id="cb4-42">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-43">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-44">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">11</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lineheight =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.1</span>))</span>
+<span id="cb4-45"></span>
+<span id="cb4-46">p5 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(boston, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(tax, medv)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-47">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#6a3d9a"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-48">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_smooth</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"loess"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">se =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-49">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb4-50">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Tax Rate</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">vs. Median Value"</span>,</span>
+<span id="cb4-51">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Tax Rate (per $10,000)"</span>,</span>
+<span id="cb4-52">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Median Value of Homes ($1000s)"</span></span>
+<span id="cb4-53">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-54">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-55">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">11</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lineheight =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.1</span>))</span>
+<span id="cb4-56"></span>
+<span id="cb4-57">p6 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(boston, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(dis, medv)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-58">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#1f78b4"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-59">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_smooth</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"loess"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">se =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-60">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb4-61">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Distance to Jobs</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">vs. Median Value"</span>,</span>
+<span id="cb4-62">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Weighted Distance to Employment Centers (dis)"</span>,</span>
+<span id="cb4-63">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Median Value of Homes ($1000s)"</span></span>
+<span id="cb4-64">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-65">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-66">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">plot.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">11</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lineheight =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.1</span>))</span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">(p1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|</span> p2) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">guides =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'collect'</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-04-30_rsquared/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="1152"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Rooms (<code>rm</code>)</strong>: Strong positive linear relationship with <code>medv</code>. More rooms correlate with higher home values.</li>
+<li><strong>Lower Status Population (<code>lstat</code>)</strong>: Strong nonlinear inverse relation. Poorer areas tend to have significantly lower housing values.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">(p3 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|</span> p4) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">guides =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'collect'</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-04-30_rsquared/index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="1152"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Nitric Oxide (<code>nox</code>)</strong>: Moderate negative relationship — environmental factors like pollution impact price.</li>
+<li><strong>Old Homes (<code>age</code>)</strong>: Slight negative trend — older areas may have reduced appeal or value.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">(p5 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|</span> p6) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">guides =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'collect'</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-04-30_rsquared/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="1152"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Tax Rate (<code>tax</code>)</strong>: Higher taxes often relate to lower housing value, possibly due to location or socio-economic constraints.</li>
+<li><strong>Distance to Employment Centers (<code>dis</code>)</strong>: Weak to moderate positive correlation. Suburban or well-connected areas might command higher value.</li>
+</ul>
+<p>These six plots combine both socioeconomic and environmental dimensions of housing value — providing both intuition and modeling direction.</p>
+</section>
+<section id="modeling-with-tidymodels" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Modeling with Tidymodels</h1>
+<p>Now that we’ve explored the data, it’s time to fit a model using the <strong>tidymodels</strong> framework. We’ll use a simple linear regression to predict <code>medv</code>, the median home value.</p>
+<section id="data-splitting-and-preprocessing" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="data-splitting-and-preprocessing"><span class="header-section-number">5.1</span> Data Splitting and Preprocessing</h2>
+<p>We begin by splitting the dataset into training and testing sets. The training set will be used to fit the model, and the test set will evaluate its generalization performance.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">42</span>)</span>
+<span id="cb8-2">split <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">initial_split</span>(boston, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">prop =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span>)</span>
+<span id="cb8-3">train <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">training</span>(split)</span>
+<span id="cb8-4">test <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">testing</span>(split)</span>
+<span id="cb8-5"></span>
+<span id="cb8-6">rec <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">recipe</span>(medv <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> ., <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> train)</span>
+<span id="cb8-7">model <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">linear_reg</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_engine</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lm"</span>)</span>
+<span id="cb8-8">workflow <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">workflow</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">add_recipe</span>(rec) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">add_model</span>(model)</span></code></pre></div>
+</div>
+</section>
+<section id="model-fitting" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="model-fitting"><span class="header-section-number">5.2</span> Model Fitting</h2>
+<p>We now fit the model to the training data:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">fit <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fit</span>(workflow, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> train)</span></code></pre></div>
+</div>
+</section>
+<section id="evaluating-the-model-on-the-training-set" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="evaluating-the-model-on-the-training-set"><span class="header-section-number">5.3</span> Evaluating the Model on the Training Set</h2>
+<p>Let’s extract the R² and Adjusted R² values from the fitted model:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1">training_summary <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">glance</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">extract_fit_parsnip</span>(fit))</span>
+<span id="cb10-2">training_summary <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> dplyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(r.squared, adj.r.squared)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  r.squared adj.r.squared
+      &lt;dbl&gt;         &lt;dbl&gt;
+1     0.726         0.717</code></pre>
+</div>
+</div>
+<p><strong>🔍 Interpretation:</strong></p>
+<ul>
+<li><strong>R²</strong> measures the proportion of variance in <code>medv</code> explained by the predictors in the training set.</li>
+<li><strong>Adjusted R²</strong> adjusts this value by penalizing for the number of predictors, making it more reliable in multi-variable contexts.</li>
+</ul>
+<p>If R² and Adjusted R² differ significantly, it indicates that some predictors may not be contributing meaningfully to the model.</p>
+<blockquote class="blockquote">
+<p>Example: A model with 12 predictors might show R² = 0.76, but Adjusted R² = 0.72 — suggesting some predictors are adding complexity without real explanatory power.</p>
+</blockquote>
+</section>
+<section id="test-set-performance" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="test-set-performance"><span class="header-section-number">5.4</span> Test Set Performance</h2>
+<p>Now we assess the model on the unseen test data:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1">preds <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(fit, test) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bind_cols</span>(test)</span>
+<span id="cb12-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">metrics</span>(preds, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> medv, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> .pred)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard       4.79 
+2 rsq     standard       0.784
+3 mae     standard       3.32 </code></pre>
+</div>
+</div>
+<p><strong>📉 Interpretation:</strong></p>
+<ul>
+<li>If <strong>test R²</strong> is <strong>much lower</strong> than training R², overfitting may be present.</li>
+<li>If <strong>test RMSE</strong> is high, the model’s absolute prediction error is large — another sign of poor generalization.</li>
+</ul>
+</section>
+<section id="cross-validation-for-predicted-r²" class="level2" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="cross-validation-for-predicted-r²"><span class="header-section-number">5.5</span> Cross-Validation for Predicted R²</h2>
+<p>To get a more robust performance estimate, we use 10-fold cross-validation:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">42</span>)</span>
+<span id="cb14-2">cv <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">vfold_cv</span>(train, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">v =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span>
+<span id="cb14-3">resample <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fit_resamples</span>(</span>
+<span id="cb14-4">  workflow,</span>
+<span id="cb14-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">resamples =</span> cv,</span>
+<span id="cb14-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">metrics =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">metric_set</span>(rsq, rmse),</span>
+<span id="cb14-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">control =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">control_resamples</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">save_pred =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb14-8">)</span>
+<span id="cb14-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">collect_metrics</span>(resample)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 6
+  .metric .estimator  mean     n std_err .config             
+  &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
+1 rmse    standard   4.79     10  0.384  Preprocessor1_Model1
+2 rsq     standard   0.712    10  0.0341 Preprocessor1_Model1</code></pre>
+</div>
+</div>
+<p><strong>✅ Interpretation:</strong></p>
+<ul>
+<li><strong>Predicted R² (via CV)</strong> tells us how well the model would perform on unseen data across multiple resamples.</li>
+<li>It typically lies between training R² and test R².</li>
+<li>Consistency between cross-validated and test R² implies a stable model.</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Use cross-validation as a standard evaluation tool, especially when data is limited.</p>
+</div>
+</div>
+<p><strong>💬 Summary of Findings:</strong></p>
+<ul>
+<li>Our linear model explains a good portion of the variance, but some predictors might be irrelevant or redundant.</li>
+<li>Cross-validation confirms the model is relatively stable but leaves room for refinement — possibly through feature selection or nonlinear modeling.</li>
+</ul>
+<p>In the next step, we can analyze residuals or explore model improvements such as polynomial terms or regularization.</p>
+</section>
+<section id="residual-diagnostics" class="level2" data-number="5.6">
+<h2 data-number="5.6" class="anchored" data-anchor-id="residual-diagnostics"><span class="header-section-number">5.6</span> Residual Diagnostics</h2>
+<p>Let’s now check if our linear model satisfies basic regression assumptions. We’ll plot residuals and assess patterns, non-linearity, and potential heteroskedasticity.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(broom)</span>
+<span id="cb16-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggthemes)</span>
+<span id="cb16-3"></span>
+<span id="cb16-4">aug <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">augment</span>(fit<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>fit<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>fit<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>fit)</span>
+<span id="cb16-5"></span>
+<span id="cb16-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(aug, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(.fitted, .resid)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb16-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#2c7fb8"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb16-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_hline</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">yintercept =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linetype =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dashed"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb16-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb16-10">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Residuals vs Fitted Values"</span>,</span>
+<span id="cb16-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Fitted Values"</span>,</span>
+<span id="cb16-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Residuals"</span></span>
+<span id="cb16-13">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb16-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>()</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-04-30_rsquared/index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>📌 Interpretation:</strong></p>
+<ul>
+<li>We want residuals to be randomly scattered around zero.</li>
+<li>If there’s a pattern or funnel shape, that may indicate <strong>non-linearity</strong> or <strong>heteroskedasticity</strong>.</li>
+</ul>
+</section>
+<section id="improving-the-model-transforming-lstat" class="level2" data-number="5.7">
+<h2 data-number="5.7" class="anchored" data-anchor-id="improving-the-model-transforming-lstat"><span class="header-section-number">5.7</span> Improving the Model: Transforming <code>lstat</code></h2>
+<p>From our earlier EDA, we saw a strong <strong>nonlinear relationship</strong> between <code>lstat</code> (lower status %) and <code>medv</code>. Let’s try <strong>log-transforming</strong> <code>lstat</code> to capture that curvature.</p>
+<section id="updated-recipe-with-transformation" class="level3" data-number="5.7.1">
+<h3 data-number="5.7.1" class="anchored" data-anchor-id="updated-recipe-with-transformation"><span class="header-section-number">5.7.1</span> Updated Recipe with Transformation</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1">rec_log <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">recipe</span>(medv <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> ., <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> train) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb17-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">step_log</span>(lstat)</span>
+<span id="cb17-3"></span>
+<span id="cb17-4">workflow_log <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">workflow</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb17-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">add_model</span>(model) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb17-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">add_recipe</span>(rec_log)</span>
+<span id="cb17-7"></span>
+<span id="cb17-8">fit_log <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fit</span>(workflow_log, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> train)</span></code></pre></div>
+</div>
+</section>
+<section id="evaluation-of-transformed-model" class="level3" data-number="5.7.2">
+<h3 data-number="5.7.2" class="anchored" data-anchor-id="evaluation-of-transformed-model"><span class="header-section-number">5.7.2</span> Evaluation of Transformed Model</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1">preds_log <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(fit_log, test) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bind_cols</span>(test)</span>
+<span id="cb18-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">metrics</span>(preds_log, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> medv, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> .pred)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard       4.43 
+2 rsq     standard       0.815
+3 mae     standard       3.16 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">glance</span>(fit_log)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 12
+  r.squared adj.r.squared sigma statistic   p.value    df logLik   AIC   BIC
+      &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1     0.785         0.778  4.21      110. 2.64e-121    13 -1147. 2324. 2384.
+# ℹ 3 more variables: deviance &lt;dbl&gt;, df.residual &lt;int&gt;, nobs &lt;int&gt;</code></pre>
+</div>
+</div>
+<p><strong>🧠 Interpretation:</strong></p>
+<ul>
+<li>Compare RMSE and R² from the transformed model to the original.</li>
+<li>If we see improvement, the transformation helped capture underlying nonlinearity.</li>
+<li><strong>Adjusted R²</strong> is especially helpful here to assess whether the transformation truly improved fit — not just overfit.</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Transformations, polynomial terms, and splines are all valid strategies to improve linear models without abandoning interpretability.</p>
+</div>
+</div>
+<p>With residuals checked and a transformation tested, our next step could be to explore <strong>regularized models</strong> like ridge or lasso regression, or even move beyond linearity with <strong>tree-based</strong> models.</p>
+</section>
+</section>
+</section>
+<section id="common-pitfalls-and-misconceptions" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Common Pitfalls and Misconceptions</h1>
+<p>Even though R² is widely reported and intuitively appealing, its interpretation is often flawed — even by experienced analysts. Here, we’ll go beyond textbook definitions and highlight real-world traps and misunderstandings related to R² and its variants.</p>
+<p><strong>🚫 Misconception 1: High R² means the model is good</strong></p>
+<ul>
+<li>A model with R² = 0.95 may <strong>look impressive</strong>, but that doesn’t guarantee predictive power.</li>
+<li>High R² can result from overfitting, especially when the model is complex or contains many predictors.</li>
+<li><strong>Adjusted R² and Predicted R²</strong> must be considered to evaluate true usefulness.</li>
+</ul>
+<p><strong>⚠️ Misconception 2: Adding predictors always improves the model</strong></p>
+<ul>
+<li>While R² never decreases with more variables, <strong>Adjusted R² can</strong> — and should — if the new variable doesn’t add real value.</li>
+<li>Including irrelevant predictors increases complexity without improving explanatory power.</li>
+<li>This is a form of <strong>dimensional overfitting</strong>.</li>
+</ul>
+<p><strong>❌ Misconception 3: R² indicates causality</strong></p>
+<ul>
+<li>R² quantifies correlation, <strong>not causation</strong>.</li>
+<li>A high R² can arise from spurious relationships or confounding variables.</li>
+<li>Always supplement with <strong>domain knowledge</strong> and causal reasoning.</li>
+</ul>
+<p><strong>📉 Misconception 4: R² is a universal performance metric</strong></p>
+<ul>
+<li>R² only applies to <strong>regression tasks</strong>. Using it for classification models is inappropriate and meaningless.</li>
+<li>For binary classification, use metrics like <strong>AUC</strong>, <strong>accuracy</strong>, <strong>precision</strong>, and <strong>recall</strong>.</li>
+</ul>
+<p><strong>🔍 Misconception 5: Residual plots don’t matter if R² is high</strong></p>
+<ul>
+<li>A good R² doesn’t guarantee that model assumptions are met.</li>
+<li>Residual patterns may still reveal <strong>non-linearity</strong>, <strong>heteroskedasticity</strong>, or <strong>influential outliers</strong>.</li>
+<li>Always inspect residual diagnostics.</li>
+</ul>
+<p><strong>💡 Misconception 6: Predicted R² isn’t necessary</strong></p>
+<ul>
+<li>Many practitioners report R² and Adjusted R², but <strong>omit cross-validation entirely</strong>.</li>
+<li><strong>Predicted R²</strong> (e.g., via 10-fold CV) is the <strong>most honest measure</strong> of model generalizability.</li>
+</ul>
+<p><strong>🔬 Misconception 7: R² has a fixed interpretation</strong></p>
+<ul>
+<li>R² values <strong>depend on the context</strong>. In social sciences, an R² of 0.3 can be meaningful, while in physics we expect 0.99+.</li>
+<li>A “low” R² doesn’t mean the model is useless — it may reflect inherent variability in human behavior or macroeconomic data.</li>
+</ul>
+<hr>
+<blockquote class="blockquote">
+<p><strong>Insight:</strong> Always use R² in context — alongside other metrics, validation strategies, and graphical checks.</p>
+</blockquote>
+<p>For a deeper dive into R² misconceptions and proper regression diagnostics, see:</p>
+<ul>
+<li><p>Harrell, F. (2015). <em>Regression Modeling Strategies</em>. Springer.</p></li>
+<li><p>Gelman &amp; Hill (2006). <em>Data Analysis Using Regression and Multilevel/Hierarchical Models</em>.</p></li>
+<li><p>Burnham &amp; Anderson (2002). <em>Model Selection and Multimodel Inference</em>.</p></li>
+<li><p>Kutner et al.&nbsp;(2004). <em>Applied Linear Regression Models</em>.</p></li>
+</ul>
+<p>Together, these references build the foundation for <strong>responsible model interpretation</strong>.</p>
+</section>
+<section id="conclusion-recommendations" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Conclusion &amp; Recommendations</h1>
+<section id="summary" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="summary"><span class="header-section-number">7.1</span> 📌 Summary</h2>
+<p>In this post, we explored <strong>R²</strong>, <strong>Adjusted R²</strong>, and <strong>Predicted R²</strong> in depth — not just as mathematical constructs, but as tools for critical thinking in modeling. We walked through theory, practical application in R with tidymodels, residual diagnostics, and even model improvement through transformation.</p>
+<p>Let’s recap: - <strong>R²</strong> tells us how well our model fits the training data, but can be misleading on its own. - <strong>Adjusted R²</strong> improves upon R² by accounting for model complexity. - <strong>Predicted R²</strong>, evaluated via cross-validation, provides the most trustworthy estimate of real-world performance.</p>
+<p>High R² values can be seductive. But as we saw, <strong>they don’t guarantee causality, generalizability, or correctness</strong>. Only by combining R² with residual diagnostics, domain knowledge, and out-of-sample validation can we judge a model responsibly.</p>
+</section>
+<section id="recommendations-for-practitioners" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="recommendations-for-practitioners"><span class="header-section-number">7.2</span> 💡 Recommendations for Practitioners</h2>
+<ol type="1">
+<li><strong>Always accompany R² with Adjusted and Predicted R²</strong> — never rely on one metric alone.</li>
+<li><strong>Perform residual diagnostics</strong> to check linearity, variance assumptions, and outlier influence.</li>
+<li><strong>Use cross-validation (e.g., 10-fold)</strong> as a default evaluation strategy, especially when the dataset is not large.</li>
+<li><strong>Transform nonlinear predictors</strong> (as we did with <code>lstat</code>) or use flexible models (e.g., splines, GAMs) when needed.</li>
+<li><strong>Avoid including irrelevant predictors</strong> — they inflate R² without improving generalization.</li>
+<li><strong>Contextualize your R²</strong> — in some fields, a lower R² is still useful; in others, it may signal inadequacy.</li>
+<li><strong>Complement numerical metrics with visual tools</strong> — scatterplots, predicted vs.&nbsp;actual plots, and residuals reveal insights numbers alone may miss.</li>
+</ol>
+</section>
+<section id="looking-ahead" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="looking-ahead"><span class="header-section-number">7.3</span> 🚀 Looking Ahead</h2>
+<p>If you want to take your modeling further: - Try <strong>ridge or lasso regression</strong> to handle multicollinearity. - Explore <strong>tree-based models</strong> (e.g., random forests) when relationships are complex and nonlinear. - Use tools like <strong><code>yardstick</code></strong> and <strong><code>modeltime</code></strong> to automate robust validation and reporting.</p>
+<blockquote class="blockquote">
+<p>In the end, modeling isn’t just about maximizing R² — it’s about <strong>understanding your data, validating your decisions</strong>, and making <strong>informed predictions</strong>.</p>
+</blockquote>
+<p>Thanks for reading!</p>
+<p>Feel free to share, fork, or reuse this analysis. Questions and comments are welcome.</p>
+
+
+<!-- -->
+
+</section>
+</section>
+
+ ]]></description>
+  <category>R</category>
+  <category>Statistics</category>
+  <category>Machine Learning</category>
+  <category>r-squared</category>
+  <category>adjusted-r-squared</category>
+  <category>predictive-modeling</category>
+  <category>tidymodels</category>
+  <category>model-evaluation</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2025-04-30_rsquared/</guid>
+  <pubDate>Tue, 29 Apr 2025 21:00:00 GMT</pubDate>
+  <media:content url="https://mfatihtuzen.netlify.app/posts/2025-04-30_rsquared/quote_box.png" medium="image" type="image/png" height="216" width="144"/>
+</item>
 <item>
   <title>Underrated Gems in R: Must-Know Functions You’re Probably Missing Out On</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>

@@ -137,7 +137,7 @@
     "href": "index.html",
     "title": "A Statistician's R Notebook",
     "section": "",
-    "text": "Order By\n       Default\n         \n          Title\n        \n         \n          Date - Oldest\n        \n         \n          Date - Newest\n        \n         \n          Author\n        \n     \n  \n    \n      \n      \n    \n\n\n\n\n\n\n\n\n\n\nUnderrated Gems in R: Must-Know Functions You’re Probably Missing Out On\n\n\n\nreduce\n\n\nvapply\n\n\ndo.call\n\n\nclean_names\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nMar 11, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nUnlocking CBRT Data in R: A Guide to the CBRT R Package\n\n\n\nR Programming\n\n\nCBRT\n\n\nEVDS\n\n\nImport\n\n\nAPI\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nDec 31, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nExtracting Data from OECD Databases in R: Using the oecd and rsdmx Packages\n\n\n\nR Programming\n\n\nOECD\n\n\nrsdmx\n\n\nImport\n\n\nAPI\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nDec 16, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nCreating Professional Excel Reports with R: A Comprehensive Guide to openxlsx Package\n\n\n\nR Programming\n\n\nReport Automation\n\n\nopenxlsx\n\n\nExcel\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nNov 4, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nMastering Date and Time Data in R with lubridate\n\n\n\nR Programming\n\n\nlubridate\n\n\ntime series\n\n\ntime manipulation\n\n\ndate handling\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nSep 30, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nMastering Data Transformation in R with pivot_longer and pivot_wider\n\n\n\nR Programming\n\n\ntidyr\n\n\npivot_wider\n\n\npivot_longer\n\n\ndata transformation\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nSep 19, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nText Data Analysis in R: Understanding grep, grepl, sub and gsub\n\n\n\nR Programming\n\n\ngrep\n\n\ngrepl\n\n\nsub\n\n\ngsub\n\n\nregex\n\n\ntext analysis\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nJul 9, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nExploring apply, sapply, lapply, and map Functions in R\n\n\n\nR Programming\n\n\napply\n\n\nsapply\n\n\nlapply\n\n\nmap\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nApr 15, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nR Function Writing 101:A Journey Through Syntax, Best Practices, and More\n\n\n\nR Programming\n\n\nFunctions\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nJan 23, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nCracking the Code of Categorical Data: A Guide to Factors in R\n\n\n\nR Programming\n\n\ndata types\n\n\nfactor\n\n\ncategorical data\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nJan 11, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nUnraveling DataFrames in R: A Comprehensive Guide\n\n\n\nR Programming\n\n\ndata types\n\n\ndataframe\n\n\ntibble\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nDec 29, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nUnderstanding Lists in R Programming\n\n\n\nR Programming\n\n\ndata types\n\n\nlists\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nDec 19, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nUnderstanding Matrices in R Programming\n\n\n\nR Programming\n\n\ndata types\n\n\nmatrices\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nNov 20, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nExploring Vectors in R Programming: The Fundamental Building Blocks\n\n\n\nR Programming\n\n\ndata types\n\n\nvectors\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nOct 3, 2023\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nUnderstanding Data Types in R\n\n\n\nR Programming\n\n\ndata types\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nSep 26, 2023\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nA Gentle Introduction to R Programming\n\n\n\nR Programming\n\n\nR Studio\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nAug 15, 2023\n\n\n\n\n\n\n\n\nNo matching items"
+    "text": "Order By\n       Default\n         \n          Title\n        \n         \n          Date - Oldest\n        \n         \n          Date - Newest\n        \n         \n          Author\n        \n     \n  \n    \n      \n      \n    \n\n\n\n\n\n\n\n\n\n\nExplained vs. Predictive Power: R², Adjusted R², and Beyond\n\n\n\nR\n\n\nStatistics\n\n\nMachine Learning\n\n\nr-squared\n\n\nadjusted-r-squared\n\n\npredictive-modeling\n\n\ntidymodels\n\n\nmodel-evaluation\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nApr 30, 2025\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nUnderrated Gems in R: Must-Know Functions You’re Probably Missing Out On\n\n\n\nreduce\n\n\nvapply\n\n\ndo.call\n\n\nclean_names\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nMar 11, 2025\n\n\n\n\n\n\n\n\n\n\n\n\nUnlocking CBRT Data in R: A Guide to the CBRT R Package\n\n\n\nR Programming\n\n\nCBRT\n\n\nEVDS\n\n\nImport\n\n\nAPI\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nDec 31, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nExtracting Data from OECD Databases in R: Using the oecd and rsdmx Packages\n\n\n\nR Programming\n\n\nOECD\n\n\nrsdmx\n\n\nImport\n\n\nAPI\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nDec 16, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nCreating Professional Excel Reports with R: A Comprehensive Guide to openxlsx Package\n\n\n\nR Programming\n\n\nReport Automation\n\n\nopenxlsx\n\n\nExcel\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nNov 4, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nMastering Date and Time Data in R with lubridate\n\n\n\nR Programming\n\n\nlubridate\n\n\ntime series\n\n\ntime manipulation\n\n\ndate handling\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nSep 30, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nMastering Data Transformation in R with pivot_longer and pivot_wider\n\n\n\nR Programming\n\n\ntidyr\n\n\npivot_wider\n\n\npivot_longer\n\n\ndata transformation\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nSep 19, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nText Data Analysis in R: Understanding grep, grepl, sub and gsub\n\n\n\nR Programming\n\n\ngrep\n\n\ngrepl\n\n\nsub\n\n\ngsub\n\n\nregex\n\n\ntext analysis\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nJul 9, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nExploring apply, sapply, lapply, and map Functions in R\n\n\n\nR Programming\n\n\napply\n\n\nsapply\n\n\nlapply\n\n\nmap\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nApr 15, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nR Function Writing 101:A Journey Through Syntax, Best Practices, and More\n\n\n\nR Programming\n\n\nFunctions\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nJan 23, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nCracking the Code of Categorical Data: A Guide to Factors in R\n\n\n\nR Programming\n\n\ndata types\n\n\nfactor\n\n\ncategorical data\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nJan 11, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nUnraveling DataFrames in R: A Comprehensive Guide\n\n\n\nR Programming\n\n\ndata types\n\n\ndataframe\n\n\ntibble\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nDec 29, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nUnderstanding Lists in R Programming\n\n\n\nR Programming\n\n\ndata types\n\n\nlists\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nDec 19, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nUnderstanding Matrices in R Programming\n\n\n\nR Programming\n\n\ndata types\n\n\nmatrices\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nNov 20, 2023\n\n\n\n\n\n\n\n\n\n\n\n\nExploring Vectors in R Programming: The Fundamental Building Blocks\n\n\n\nR Programming\n\n\ndata types\n\n\nvectors\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nOct 3, 2023\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nUnderstanding Data Types in R\n\n\n\nR Programming\n\n\ndata types\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nSep 26, 2023\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nA Gentle Introduction to R Programming\n\n\n\nR Programming\n\n\nR Studio\n\n\n\n\n\n\n\nM. Fatih Tüzen\n\n\nAug 15, 2023\n\n\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "about.html",
@@ -1048,5 +1048,194 @@
     "title": "Underrated Gems in R: Must-Know Functions You’re Probably Missing Out On",
     "section": "References",
     "text": "References\n\nR Core Team (2025). R: A Language and Environment for Statistical Computing. R Foundation for Statistical Computing, Vienna, Austria. Available at: https://www.R-project.org/\nFirke, Sam (2023). janitor: Simple Tools for Examining and Cleaning Dirty Data. CRAN. Available at: https://CRAN.R-project.org/package=janitor\nR Documentation for Reduce, vapply, do.call, clean_names."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquare/index.html",
+    "href": "posts/2025-04-30_rsquare/index.html",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "",
+    "text": "You trust R². Should you?\nYou proudly present a model with R² = 0.95. Everyone applauds.\nBut what if your model fails miserably on the next new data?\n\n\n“All models are wrong, but some are useful.”\n— George Box\n\nWhen building a statistical model, one of the first numbers analysts and data scientists often cite is the R², or coefficient of determination. It’s widely reported in research, academic theses, and industry reports — and yet, frequently misunderstood or misused.\nDoes a high R² mean your model is good? Is it enough to evaluate model performance? What about its adjusted or predictive counterparts?\nThis article will explore in depth: - What R², Adjusted R², and Predicted R² actually mean - Why relying solely on R² can mislead you - How to evaluate models using both explanatory and predictive power - Real-life implementation using the {tidymodels} framework in R\nWe’ll also discuss best practices and common pitfalls, and equip you with a mindset to look beyond surface-level model summaries."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquare/index.html#what-is-r²",
+    "href": "posts/2025-04-30_rsquare/index.html#what-is-r²",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "2.1 What is R²?",
+    "text": "2.1 What is R²?\nThe coefficient of determination, R², is defined as:\n\\[R^2 = 1 - \\frac{\\text{SS}_{\\text{res}}}{\\text{SS}_{\\text{tot}}}\\]\nWhere:\n\n\\(\\text{SS}_{\\text{res}}\\) = Sum of squares of residuals = \\(\\sum (y_i - \\hat{y}_i)^2\\)\n\\(\\text{SS}_{\\text{tot}}\\) = Total sum of squares = \\(\\sum (y_i - \\bar{y})^2\\)\n\nIt tells us the proportion of variance explained by the model. An R² of 0.80 implies that 80% of the variability in the dependent variable is explained by the model.\nBut beware — it only measures fit to training data, not the model’s ability to generalize."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquare/index.html#adjusted-r²",
+    "href": "posts/2025-04-30_rsquare/index.html#adjusted-r²",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "2.2 Adjusted R²",
+    "text": "2.2 Adjusted R²\nWhen we add predictors to a regression model, R² will never decrease — even if the added variables are irrelevant.\nAdjusted R² corrects this by penalizing the number of predictors: \\[R^2_{\\text{adj}} = 1 - \\left(1 - R^2\\right) \\cdot \\left(\\frac{n - 1}{n - p - 1}\\right)\\]\nWhere:\n\nn : number of observations\np : number of predictors\n\nThus, Adjusted R² will only increase if the new predictor improves the model more than expected by chance."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquare/index.html#predicted-r²",
+    "href": "posts/2025-04-30_rsquare/index.html#predicted-r²",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "2.3 Predicted R²",
+    "text": "2.3 Predicted R²\nPredicted R² (or cross-validated R²) is the most honest estimate of model utility. It answers the question:\n\nHow well will this model predict new, unseen data?\n\nThis is typically calculated using cross-validation, and unlike regular R², it reflects out-of-sample performance.\nYou can also view it as:\n\\[R^2_{\\text{pred}} = 1 - \\frac{\\text{PRESS}}{\\text{SS}_{\\text{tot}}}\\]\nWhere PRESS is the Prediction Error Sum of Squares based on cross-validation."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquare/index.html#data-splitting-and-preprocessing",
+    "href": "posts/2025-04-30_rsquare/index.html#data-splitting-and-preprocessing",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "5.1 Data Splitting and Preprocessing",
+    "text": "5.1 Data Splitting and Preprocessing\nWe begin by splitting the dataset into training and testing sets. The training set will be used to fit the model, and the test set will evaluate its generalization performance.\n\nset.seed(42)\nsplit &lt;- initial_split(boston, prop = 0.8)\ntrain &lt;- training(split)\ntest &lt;- testing(split)\n\nrec &lt;- recipe(medv ~ ., data = train)\nmodel &lt;- linear_reg() %&gt;% set_engine(\"lm\")\nworkflow &lt;- workflow() %&gt;% add_recipe(rec) %&gt;% add_model(model)"
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquare/index.html#model-fitting",
+    "href": "posts/2025-04-30_rsquare/index.html#model-fitting",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "5.2 Model Fitting",
+    "text": "5.2 Model Fitting\nWe now fit the model to the training data:\n\nfit &lt;- fit(workflow, data = train)"
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquare/index.html#evaluating-the-model-on-the-training-set",
+    "href": "posts/2025-04-30_rsquare/index.html#evaluating-the-model-on-the-training-set",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "5.3 Evaluating the Model on the Training Set",
+    "text": "5.3 Evaluating the Model on the Training Set\nLet’s extract the R² and Adjusted R² values from the fitted model:\n\ntraining_summary &lt;- glance(extract_fit_parsnip(fit))\ntraining_summary %&gt;% dplyr::select(r.squared, adj.r.squared)\n\n# A tibble: 1 × 2\n  r.squared adj.r.squared\n      &lt;dbl&gt;         &lt;dbl&gt;\n1     0.726         0.717\n\n\n🔍 Interpretation:\n\nR² measures the proportion of variance in medv explained by the predictors in the training set.\nAdjusted R² adjusts this value by penalizing for the number of predictors, making it more reliable in multi-variable contexts.\n\nIf R² and Adjusted R² differ significantly, it indicates that some predictors may not be contributing meaningfully to the model.\n\nExample: A model with 12 predictors might show R² = 0.76, but Adjusted R² = 0.72 — suggesting some predictors are adding complexity without real explanatory power."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquare/index.html#test-set-performance",
+    "href": "posts/2025-04-30_rsquare/index.html#test-set-performance",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "5.4 Test Set Performance",
+    "text": "5.4 Test Set Performance\nNow we assess the model on the unseen test data:\n\npreds &lt;- predict(fit, test) %&gt;% bind_cols(test)\nmetrics(preds, truth = medv, estimate = .pred)\n\n# A tibble: 3 × 3\n  .metric .estimator .estimate\n  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;\n1 rmse    standard       4.79 \n2 rsq     standard       0.784\n3 mae     standard       3.32 \n\n\n📉 Interpretation:\n\nIf test R² is much lower than training R², overfitting may be present.\nIf test RMSE is high, the model’s absolute prediction error is large — another sign of poor generalization."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquare/index.html#cross-validation-for-predicted-r²",
+    "href": "posts/2025-04-30_rsquare/index.html#cross-validation-for-predicted-r²",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "5.5 Cross-Validation for Predicted R²",
+    "text": "5.5 Cross-Validation for Predicted R²\nTo get a more robust performance estimate, we use 10-fold cross-validation:\n\nset.seed(42)\ncv &lt;- vfold_cv(train, v = 10)\nresample &lt;- fit_resamples(\n  workflow,\n  resamples = cv,\n  metrics = metric_set(rsq, rmse),\n  control = control_resamples(save_pred = TRUE)\n)\ncollect_metrics(resample)\n\n# A tibble: 2 × 6\n  .metric .estimator  mean     n std_err .config             \n  &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               \n1 rmse    standard   4.79     10  0.384  Preprocessor1_Model1\n2 rsq     standard   0.712    10  0.0341 Preprocessor1_Model1\n\n\n✅ Interpretation:\n\nPredicted R² (via CV) tells us how well the model would perform on unseen data across multiple resamples.\nIt typically lies between training R² and test R².\nConsistency between cross-validated and test R² implies a stable model.\n\n\n\n\n\n\n\nTip\n\n\n\nUse cross-validation as a standard evaluation tool, especially when data is limited.\n\n\n💬 Summary of Findings:\n\nOur linear model explains a good portion of the variance, but some predictors might be irrelevant or redundant.\nCross-validation confirms the model is relatively stable but leaves room for refinement — possibly through feature selection or nonlinear modeling.\n\nIn the next step, we can analyze residuals or explore model improvements such as polynomial terms or regularization."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquare/index.html#residual-diagnostics",
+    "href": "posts/2025-04-30_rsquare/index.html#residual-diagnostics",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "5.6 Residual Diagnostics",
+    "text": "5.6 Residual Diagnostics\nLet’s now check if our linear model satisfies basic regression assumptions. We’ll plot residuals and assess patterns, non-linearity, and potential heteroskedasticity.\n\nlibrary(broom)\nlibrary(ggthemes)\n\naug &lt;- augment(fit$fit$fit$fit)\n\nggplot(aug, aes(.fitted, .resid)) +\n  geom_point(alpha = 0.5, color = \"#2c7fb8\") +\n  geom_hline(yintercept = 0, linetype = \"dashed\") +\n  labs(\n    title = \"Residuals vs Fitted Values\",\n    x = \"Fitted Values\",\n    y = \"Residuals\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\n📌 Interpretation:\n\nWe want residuals to be randomly scattered around zero.\nIf there’s a pattern or funnel shape, that may indicate non-linearity or heteroskedasticity."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquare/index.html#improving-the-model-transforming-lstat",
+    "href": "posts/2025-04-30_rsquare/index.html#improving-the-model-transforming-lstat",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "5.7 Improving the Model: Transforming lstat",
+    "text": "5.7 Improving the Model: Transforming lstat\nFrom our earlier EDA, we saw a strong nonlinear relationship between lstat (lower status %) and medv. Let’s try log-transforming lstat to capture that curvature.\n\n5.7.1 Updated Recipe with Transformation\n\nrec_log &lt;- recipe(medv ~ ., data = train) %&gt;%\n  step_log(lstat)\n\nworkflow_log &lt;- workflow() %&gt;%\n  add_model(model) %&gt;%\n  add_recipe(rec_log)\n\nfit_log &lt;- fit(workflow_log, data = train)\n\n\n\n5.7.2 Evaluation of Transformed Model\n\npreds_log &lt;- predict(fit_log, test) %&gt;% bind_cols(test)\nmetrics(preds_log, truth = medv, estimate = .pred)\n\n# A tibble: 3 × 3\n  .metric .estimator .estimate\n  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;\n1 rmse    standard       4.43 \n2 rsq     standard       0.815\n3 mae     standard       3.16 \n\n\n\nglance(fit_log)\n\n# A tibble: 1 × 12\n  r.squared adj.r.squared sigma statistic   p.value    df logLik   AIC   BIC\n      &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1     0.785         0.778  4.21      110. 2.64e-121    13 -1147. 2324. 2384.\n# ℹ 3 more variables: deviance &lt;dbl&gt;, df.residual &lt;int&gt;, nobs &lt;int&gt;\n\n\n🧠 Interpretation:\n\nCompare RMSE and R² from the transformed model to the original.\nIf we see improvement, the transformation helped capture underlying nonlinearity.\nAdjusted R² is especially helpful here to assess whether the transformation truly improved fit — not just overfit.\n\n\n\n\n\n\n\nTip\n\n\n\nTransformations, polynomial terms, and splines are all valid strategies to improve linear models without abandoning interpretability.\n\n\nWith residuals checked and a transformation tested, our next step could be to explore regularized models like ridge or lasso regression, or even move beyond linearity with tree-based models."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquare/index.html#summary",
+    "href": "posts/2025-04-30_rsquare/index.html#summary",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "7.1 📌 Summary",
+    "text": "7.1 📌 Summary\nIn this post, we explored R², Adjusted R², and Predicted R² in depth — not just as mathematical constructs, but as tools for critical thinking in modeling. We walked through theory, practical application in R with tidymodels, residual diagnostics, and even model improvement through transformation.\nLet’s recap: - R² tells us how well our model fits the training data, but can be misleading on its own. - Adjusted R² improves upon R² by accounting for model complexity. - Predicted R², evaluated via cross-validation, provides the most trustworthy estimate of real-world performance.\nHigh R² values can be seductive. But as we saw, they don’t guarantee causality, generalizability, or correctness. Only by combining R² with residual diagnostics, domain knowledge, and out-of-sample validation can we judge a model responsibly."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquare/index.html#recommendations-for-practitioners",
+    "href": "posts/2025-04-30_rsquare/index.html#recommendations-for-practitioners",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "7.2 💡 Recommendations for Practitioners",
+    "text": "7.2 💡 Recommendations for Practitioners\n\nAlways accompany R² with Adjusted and Predicted R² — never rely on one metric alone.\nPerform residual diagnostics to check linearity, variance assumptions, and outlier influence.\nUse cross-validation (e.g., 10-fold) as a default evaluation strategy, especially when the dataset is not large.\nTransform nonlinear predictors (as we did with lstat) or use flexible models (e.g., splines, GAMs) when needed.\nAvoid including irrelevant predictors — they inflate R² without improving generalization.\nContextualize your R² — in some fields, a lower R² is still useful; in others, it may signal inadequacy.\nComplement numerical metrics with visual tools — scatterplots, predicted vs. actual plots, and residuals reveal insights numbers alone may miss."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquare/index.html#looking-ahead",
+    "href": "posts/2025-04-30_rsquare/index.html#looking-ahead",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "7.3 🚀 Looking Ahead",
+    "text": "7.3 🚀 Looking Ahead\nIf you want to take your modeling further: - Try ridge or lasso regression to handle multicollinearity. - Explore tree-based models (e.g., random forests) when relationships are complex and nonlinear. - Use tools like yardstick and modeltime to automate robust validation and reporting.\n\nIn the end, modeling isn’t just about maximizing R² — it’s about understanding your data, validating your decisions, and making informed predictions.\n\nThanks for reading!\nFeel free to share, fork, or reuse this analysis. Questions and comments are welcome."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquared/index.html#what-is-r²",
+    "href": "posts/2025-04-30_rsquared/index.html#what-is-r²",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "2.1 What is R²?",
+    "text": "2.1 What is R²?\nThe coefficient of determination, R², is defined as:\n\\[R^2 = 1 - \\frac{\\text{SS}_{\\text{res}}}{\\text{SS}_{\\text{tot}}}\\]\nWhere:\n\n\\(\\text{SS}_{\\text{res}}\\) = Sum of squares of residuals = \\(\\sum (y_i - \\hat{y}_i)^2\\)\n\\(\\text{SS}_{\\text{tot}}\\) = Total sum of squares = \\(\\sum (y_i - \\bar{y})^2\\)\n\nIt tells us the proportion of variance explained by the model. An R² of 0.80 implies that 80% of the variability in the dependent variable is explained by the model.\nBut beware — it only measures fit to training data, not the model’s ability to generalize."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquared/index.html#adjusted-r²",
+    "href": "posts/2025-04-30_rsquared/index.html#adjusted-r²",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "2.2 Adjusted R²",
+    "text": "2.2 Adjusted R²\nWhen we add predictors to a regression model, R² will never decrease — even if the added variables are irrelevant.\nAdjusted R² corrects this by penalizing the number of predictors: \\[R^2_{\\text{adj}} = 1 - \\left(1 - R^2\\right) \\cdot \\left(\\frac{n - 1}{n - p - 1}\\right)\\]\nWhere:\n\nn : number of observations\np : number of predictors\n\nThus, Adjusted R² will only increase if the new predictor improves the model more than expected by chance."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquared/index.html#predicted-r²",
+    "href": "posts/2025-04-30_rsquared/index.html#predicted-r²",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "2.3 Predicted R²",
+    "text": "2.3 Predicted R²\nPredicted R² (or cross-validated R²) is the most honest estimate of model utility. It answers the question:\n\nHow well will this model predict new, unseen data?\n\nThis is typically calculated using cross-validation, and unlike regular R², it reflects out-of-sample performance.\nYou can also view it as:\n\\[R^2_{\\text{pred}} = 1 - \\frac{\\text{PRESS}}{\\text{SS}_{\\text{tot}}}\\]\nWhere PRESS is the Prediction Error Sum of Squares based on cross-validation."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquared/index.html#data-splitting-and-preprocessing",
+    "href": "posts/2025-04-30_rsquared/index.html#data-splitting-and-preprocessing",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "5.1 Data Splitting and Preprocessing",
+    "text": "5.1 Data Splitting and Preprocessing\nWe begin by splitting the dataset into training and testing sets. The training set will be used to fit the model, and the test set will evaluate its generalization performance.\n\nset.seed(42)\nsplit &lt;- initial_split(boston, prop = 0.8)\ntrain &lt;- training(split)\ntest &lt;- testing(split)\n\nrec &lt;- recipe(medv ~ ., data = train)\nmodel &lt;- linear_reg() %&gt;% set_engine(\"lm\")\nworkflow &lt;- workflow() %&gt;% add_recipe(rec) %&gt;% add_model(model)"
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquared/index.html#model-fitting",
+    "href": "posts/2025-04-30_rsquared/index.html#model-fitting",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "5.2 Model Fitting",
+    "text": "5.2 Model Fitting\nWe now fit the model to the training data:\n\nfit &lt;- fit(workflow, data = train)"
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquared/index.html#evaluating-the-model-on-the-training-set",
+    "href": "posts/2025-04-30_rsquared/index.html#evaluating-the-model-on-the-training-set",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "5.3 Evaluating the Model on the Training Set",
+    "text": "5.3 Evaluating the Model on the Training Set\nLet’s extract the R² and Adjusted R² values from the fitted model:\n\ntraining_summary &lt;- glance(extract_fit_parsnip(fit))\ntraining_summary %&gt;% dplyr::select(r.squared, adj.r.squared)\n\n# A tibble: 1 × 2\n  r.squared adj.r.squared\n      &lt;dbl&gt;         &lt;dbl&gt;\n1     0.726         0.717\n\n\n🔍 Interpretation:\n\nR² measures the proportion of variance in medv explained by the predictors in the training set.\nAdjusted R² adjusts this value by penalizing for the number of predictors, making it more reliable in multi-variable contexts.\n\nIf R² and Adjusted R² differ significantly, it indicates that some predictors may not be contributing meaningfully to the model.\n\nExample: A model with 12 predictors might show R² = 0.76, but Adjusted R² = 0.72 — suggesting some predictors are adding complexity without real explanatory power."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquared/index.html#test-set-performance",
+    "href": "posts/2025-04-30_rsquared/index.html#test-set-performance",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "5.4 Test Set Performance",
+    "text": "5.4 Test Set Performance\nNow we assess the model on the unseen test data:\n\npreds &lt;- predict(fit, test) %&gt;% bind_cols(test)\nmetrics(preds, truth = medv, estimate = .pred)\n\n# A tibble: 3 × 3\n  .metric .estimator .estimate\n  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;\n1 rmse    standard       4.79 \n2 rsq     standard       0.784\n3 mae     standard       3.32 \n\n\n📉 Interpretation:\n\nIf test R² is much lower than training R², overfitting may be present.\nIf test RMSE is high, the model’s absolute prediction error is large — another sign of poor generalization."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquared/index.html#cross-validation-for-predicted-r²",
+    "href": "posts/2025-04-30_rsquared/index.html#cross-validation-for-predicted-r²",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "5.5 Cross-Validation for Predicted R²",
+    "text": "5.5 Cross-Validation for Predicted R²\nTo get a more robust performance estimate, we use 10-fold cross-validation:\n\nset.seed(42)\ncv &lt;- vfold_cv(train, v = 10)\nresample &lt;- fit_resamples(\n  workflow,\n  resamples = cv,\n  metrics = metric_set(rsq, rmse),\n  control = control_resamples(save_pred = TRUE)\n)\ncollect_metrics(resample)\n\n# A tibble: 2 × 6\n  .metric .estimator  mean     n std_err .config             \n  &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               \n1 rmse    standard   4.79     10  0.384  Preprocessor1_Model1\n2 rsq     standard   0.712    10  0.0341 Preprocessor1_Model1\n\n\n✅ Interpretation:\n\nPredicted R² (via CV) tells us how well the model would perform on unseen data across multiple resamples.\nIt typically lies between training R² and test R².\nConsistency between cross-validated and test R² implies a stable model.\n\n\n\n\n\n\n\nTip\n\n\n\nUse cross-validation as a standard evaluation tool, especially when data is limited.\n\n\n💬 Summary of Findings:\n\nOur linear model explains a good portion of the variance, but some predictors might be irrelevant or redundant.\nCross-validation confirms the model is relatively stable but leaves room for refinement — possibly through feature selection or nonlinear modeling.\n\nIn the next step, we can analyze residuals or explore model improvements such as polynomial terms or regularization."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquared/index.html#residual-diagnostics",
+    "href": "posts/2025-04-30_rsquared/index.html#residual-diagnostics",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "5.6 Residual Diagnostics",
+    "text": "5.6 Residual Diagnostics\nLet’s now check if our linear model satisfies basic regression assumptions. We’ll plot residuals and assess patterns, non-linearity, and potential heteroskedasticity.\n\nlibrary(broom)\nlibrary(ggthemes)\n\naug &lt;- augment(fit$fit$fit$fit)\n\nggplot(aug, aes(.fitted, .resid)) +\n  geom_point(alpha = 0.5, color = \"#2c7fb8\") +\n  geom_hline(yintercept = 0, linetype = \"dashed\") +\n  labs(\n    title = \"Residuals vs Fitted Values\",\n    x = \"Fitted Values\",\n    y = \"Residuals\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\n📌 Interpretation:\n\nWe want residuals to be randomly scattered around zero.\nIf there’s a pattern or funnel shape, that may indicate non-linearity or heteroskedasticity."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquared/index.html#improving-the-model-transforming-lstat",
+    "href": "posts/2025-04-30_rsquared/index.html#improving-the-model-transforming-lstat",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "5.7 Improving the Model: Transforming lstat",
+    "text": "5.7 Improving the Model: Transforming lstat\nFrom our earlier EDA, we saw a strong nonlinear relationship between lstat (lower status %) and medv. Let’s try log-transforming lstat to capture that curvature.\n\n5.7.1 Updated Recipe with Transformation\n\nrec_log &lt;- recipe(medv ~ ., data = train) %&gt;%\n  step_log(lstat)\n\nworkflow_log &lt;- workflow() %&gt;%\n  add_model(model) %&gt;%\n  add_recipe(rec_log)\n\nfit_log &lt;- fit(workflow_log, data = train)\n\n\n\n5.7.2 Evaluation of Transformed Model\n\npreds_log &lt;- predict(fit_log, test) %&gt;% bind_cols(test)\nmetrics(preds_log, truth = medv, estimate = .pred)\n\n# A tibble: 3 × 3\n  .metric .estimator .estimate\n  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;\n1 rmse    standard       4.43 \n2 rsq     standard       0.815\n3 mae     standard       3.16 \n\n\n\nglance(fit_log)\n\n# A tibble: 1 × 12\n  r.squared adj.r.squared sigma statistic   p.value    df logLik   AIC   BIC\n      &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1     0.785         0.778  4.21      110. 2.64e-121    13 -1147. 2324. 2384.\n# ℹ 3 more variables: deviance &lt;dbl&gt;, df.residual &lt;int&gt;, nobs &lt;int&gt;\n\n\n🧠 Interpretation:\n\nCompare RMSE and R² from the transformed model to the original.\nIf we see improvement, the transformation helped capture underlying nonlinearity.\nAdjusted R² is especially helpful here to assess whether the transformation truly improved fit — not just overfit.\n\n\n\n\n\n\n\nTip\n\n\n\nTransformations, polynomial terms, and splines are all valid strategies to improve linear models without abandoning interpretability.\n\n\nWith residuals checked and a transformation tested, our next step could be to explore regularized models like ridge or lasso regression, or even move beyond linearity with tree-based models."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquared/index.html#summary",
+    "href": "posts/2025-04-30_rsquared/index.html#summary",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "7.1 📌 Summary",
+    "text": "7.1 📌 Summary\nIn this post, we explored R², Adjusted R², and Predicted R² in depth — not just as mathematical constructs, but as tools for critical thinking in modeling. We walked through theory, practical application in R with tidymodels, residual diagnostics, and even model improvement through transformation.\nLet’s recap: - R² tells us how well our model fits the training data, but can be misleading on its own. - Adjusted R² improves upon R² by accounting for model complexity. - Predicted R², evaluated via cross-validation, provides the most trustworthy estimate of real-world performance.\nHigh R² values can be seductive. But as we saw, they don’t guarantee causality, generalizability, or correctness. Only by combining R² with residual diagnostics, domain knowledge, and out-of-sample validation can we judge a model responsibly."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquared/index.html#recommendations-for-practitioners",
+    "href": "posts/2025-04-30_rsquared/index.html#recommendations-for-practitioners",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "7.2 💡 Recommendations for Practitioners",
+    "text": "7.2 💡 Recommendations for Practitioners\n\nAlways accompany R² with Adjusted and Predicted R² — never rely on one metric alone.\nPerform residual diagnostics to check linearity, variance assumptions, and outlier influence.\nUse cross-validation (e.g., 10-fold) as a default evaluation strategy, especially when the dataset is not large.\nTransform nonlinear predictors (as we did with lstat) or use flexible models (e.g., splines, GAMs) when needed.\nAvoid including irrelevant predictors — they inflate R² without improving generalization.\nContextualize your R² — in some fields, a lower R² is still useful; in others, it may signal inadequacy.\nComplement numerical metrics with visual tools — scatterplots, predicted vs. actual plots, and residuals reveal insights numbers alone may miss."
+  },
+  {
+    "objectID": "posts/2025-04-30_rsquared/index.html#looking-ahead",
+    "href": "posts/2025-04-30_rsquared/index.html#looking-ahead",
+    "title": "Explained vs. Predictive Power: R², Adjusted R², and Beyond",
+    "section": "7.3 🚀 Looking Ahead",
+    "text": "7.3 🚀 Looking Ahead\nIf you want to take your modeling further: - Try ridge or lasso regression to handle multicollinearity. - Explore tree-based models (e.g., random forests) when relationships are complex and nonlinear. - Use tools like yardstick and modeltime to automate robust validation and reporting.\n\nIn the end, modeling isn’t just about maximizing R² — it’s about understanding your data, validating your decisions, and making informed predictions.\n\nThanks for reading!\nFeel free to share, fork, or reuse this analysis. Questions and comments are welcome."
   }
 ]
