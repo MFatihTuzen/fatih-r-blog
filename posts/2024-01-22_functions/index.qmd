@@ -2,7 +2,7 @@
 title: "R Function Writing 101:A Journey Through Syntax, Best Practices, and More"
 author: "M. Fatih Tüzen"
 date: "2024-01-23"
-date-modified: "2024-01-23"
+date-modified: "2025-05-27"
 categories: [R Programming, Functions]
 ---
 
@@ -83,7 +83,7 @@ This function takes a single argument, squares it, and returns the result. You c
 
 ## **Advanced Function Features**
 
-### **Default Arguments**
+### Default Arguments
 
 "Default Arguments" refers to a feature in R functions that allows you to specify default values for function parameters. Default arguments provide a predefined value for a parameter in case the user does not explicitly provide a value when calling the function.
 
@@ -148,7 +148,7 @@ Here, we demonstrate two usages of the **`power_function`**:
 
 In summary, the default argument (**`exponent = 2`**) makes the function more flexible by providing a sensible default value for the **`exponent`** parameter, but users can override it by supplying their own value when needed.
 
-### Variable **Arguments**
+### Variable Arguments
 
 In R, the **`...`** (ellipsis) allows you to work with a variable number of arguments in a function, offering flexibility and convenience. This magical feature empowers you to create functions that can handle different inputs without explicitly defining each one.
 
@@ -273,9 +273,105 @@ print(result2)
 
 This flexibility in handling multiple arguments makes R functions versatile and adaptable to various tasks. You can design functions to perform complex operations or calculations by allowing users to input different sets of data through multiple parameters.
 
-## More Examples
+### Returning Multiple Outputs from a Function in R
 
-### **Mean of a Numeric Vector**
+In R, functions traditionally return a **single object**. However, in many real-world data analysis workflows, we often need a function to return **multiple outputs simultaneously** — such as several statistics, model results, or diagnostic values.
+
+To achieve this, the most common approach in R is to **return a named list**. This provides flexibility, structure, and easy access to individual components.
+
+Below are some practical examples demonstrating this concept.
+
+#### Example 1: Returning Multiple Summary Statistics
+
+Let's say we want to compute the mean, median, and standard deviation of a numeric vector:
+
+```{r}
+summary_stats <- function(x) {
+  mean_x <- mean(x, na.rm = TRUE)
+  median_x <- median(x, na.rm = TRUE)
+  sd_x <- sd(x, na.rm = TRUE)
+  
+  return(list(
+    mean = mean_x,
+    median = median_x,
+    sd = sd_x
+  ))
+}
+
+data <- c(10, 20, 30, 40, 50)
+result <- summary_stats(data)
+
+result$mean    # 30
+result$median  # 30
+result$sd      # 15.81
+
+```
+
+**What’s happening?**
+
+-    The function `summary_stats()` returns a named list with three numeric values.
+
+-   You can access each result using `$`, e.g., `result$sd`.
+
+#### Example 2: Returning a Data Frame and Plot Together
+
+Sometimes we want a function to return both **a table** and **a visualization**.
+
+```{r}
+#| warning: FALSE
+#| messages: FALSE
+library(ggplot2)
+
+analyze_distribution <- function(x) {
+  df <- data.frame(
+    value = x,
+    z = scale(x)
+  )
+  
+  plot <- ggplot(df, aes(x = value)) +
+    geom_histogram(bins = 10, fill = "steelblue", color = "white") +
+    theme_minimal()
+  
+  return(list(
+    table = df,
+    histogram = plot
+  ))
+}
+
+data <- rnorm(100)
+output <- analyze_distribution(data)
+
+head(output$table)     # Shows the first few rows of the table
+output$histogram       # Displays the ggplot2 histogram
+```
+
+**Takeaways:**
+
+-   This function returns both a `data.frame` and a `ggplot` object.
+
+-   This is especially useful for reporting functions in packages or Shiny applications.
+
+#### Bonus Tip: Named Lists vs. Tibbles
+
+While lists are flexible, in some modeling contexts (e.g., when nesting or mapping), it can be useful to wrap outputs in a tibble:
+
+```{r}
+library(tibble)
+
+multi_return <- function(x) {
+  tibble(
+    input = list(x),
+    summary = list(summary(x)),
+    sd = sd(x)
+  )
+}
+```
+
+**In summary;** R does not support multiple return values like Python’s tuple unpacking, but **lists** and **tibbles** allow us to simulate this pattern elegantly. Whether you are building utility functions or modularizing a complex pipeline, returning multiple outputs as a single structured object is both powerful and idiomatic in R.
+
+## **More Examples**
+
+### Mean of a Numeric Vector
 
 Let's create a simple function that calculates the mean of a numeric vector in R. The function will take a numeric vector as its argument and return the mean value.
 
@@ -303,7 +399,7 @@ print(mean_result)
 
 In this function we also check the input validation. **`if (!is.numeric(numbers))`** checks if the input vector is numeric. If not, an error message is displayed using **`stop()`**.
 
-### **Calculate Exponential Growth**
+### Calculate Exponential Growth
 
 Let's create a function to calculate the exponential growth of a quantity over time. Exponential growth is a mathematical concept where a quantity increases by a fixed percentage rate over a given period.
 
@@ -462,7 +558,7 @@ Explanation:
 
 Wtih using ellipsis (**`...`**) the custom plotting function is more versatile, allowing users to pass any valid plotting parameters to further customize the appearance of the plots. Users can now customize the plots according to their specific needs without modifying the function itself.
 
-## Best Practices for Writing Functions
+## **Best Practices for Writing Functions**
 
 Writing functions in R is a fundamental aspect of creating efficient, readable, and maintainable code. As R enthusiasts, developers, and data scientists, adopting best practices for writing functions is crucial to ensure the quality and usability of our codebase. Whether you're working on a small script or a large-scale project, following established guidelines can greatly enhance the clarity, modularity, and reliability of your functions.
 
