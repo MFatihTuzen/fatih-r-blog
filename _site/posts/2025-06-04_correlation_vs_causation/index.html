@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.39">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="M. Fatih Tüzen">
+<meta name="dcterms.date" content="2025-06-04">
+
+<title>Correlation vs Causation: Understanding the Difference – A Statistician’s R Notebook</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-d166b450ba5a8e9f7a0ab969bf6592c1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-f3c2ea88cadbcfb37ba28ffa2c97cfc1.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-ae2d0dcda2edce4ab590422bb373b64f.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">A Statistician’s R Notebook</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/MFatihTuzen"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/dr-m-fatih-t-2b2a4328/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-blogroll" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">BlogRoll</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-blogroll">    
+        <li>
+    <a class="dropdown-item" href="https://www.r-bloggers.com/">
+ <span class="dropdown-text">R-bloggers</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://community.rstudio.com/">
+ <span class="dropdown-text">R-Studio Community</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://rweekly.org/">
+ <span class="dropdown-text">R weekly</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://allisonhorst.com/allison-horst">
+ <span class="dropdown-text">Allison Horst</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://github.com/topics/r">
+ <span class="dropdown-text">Github R Topics</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <div class="quarto-title-block"><div><h1 class="title">Correlation vs Causation: Understanding the Difference</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+                                <div class="quarto-categories">
+                <div class="quarto-category">Statistics</div>
+                <div class="quarto-category">Correlation</div>
+                <div class="quarto-category">Causation</div>
+                <div class="quarto-category">Econometrics</div>
+                <div class="quarto-category">Causal Inference</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>M. Fatih Tüzen </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">June 4, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">1</span> Introduction</a></li>
+  <li><a href="#theoretical-background-correlation-in-a-nutshell" id="toc-theoretical-background-correlation-in-a-nutshell" class="nav-link" data-scroll-target="#theoretical-background-correlation-in-a-nutshell"><span class="header-section-number">2</span> Theoretical Background: Correlation in a Nutshell</a></li>
+  <li><a href="#why-correlation-causation-confounders-coincidences-and-reverse-causality" id="toc-why-correlation-causation-confounders-coincidences-and-reverse-causality" class="nav-link" data-scroll-target="#why-correlation-causation-confounders-coincidences-and-reverse-causality"><span class="header-section-number">3</span> Why Correlation ≠ Causation: Confounders, Coincidences, and Reverse Causality</a>
+  <ul class="collapse">
+  <li><a href="#simulating-a-spurious-correlation-in-r" id="toc-simulating-a-spurious-correlation-in-r" class="nav-link" data-scroll-target="#simulating-a-spurious-correlation-in-r"><span class="header-section-number">3.1</span> Simulating a Spurious Correlation in R</a></li>
+  </ul></li>
+  <li><a href="#real-world-example-1-interest-rates-and-inflation" id="toc-real-world-example-1-interest-rates-and-inflation" class="nav-link" data-scroll-target="#real-world-example-1-interest-rates-and-inflation"><span class="header-section-number">4</span> Real-World Example 1: Interest Rates and Inflation</a></li>
+  <li><a href="#real-world-example-2-vaccines-and-disease-prevalence" id="toc-real-world-example-2-vaccines-and-disease-prevalence" class="nav-link" data-scroll-target="#real-world-example-2-vaccines-and-disease-prevalence"><span class="header-section-number">5</span> Real-World Example 2: Vaccines and Disease Prevalence</a></li>
+  <li><a href="#from-correlation-to-causation-how-can-we-tell" id="toc-from-correlation-to-causation-how-can-we-tell" class="nav-link" data-scroll-target="#from-correlation-to-causation-how-can-we-tell"><span class="header-section-number">6</span> From Correlation to Causation: How Can We Tell?</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">7</span> Conclusion</a></li>
+  <li><a href="#references-further-reading" id="toc-references-further-reading" class="nav-link" data-scroll-target="#references-further-reading"><span class="header-section-number">8</span> References &amp; Further Reading</a></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="corr_causation.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="900"></p>
+</figure>
+</div>
+<section id="introduction" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">1</span> Introduction</h2>
+<p>“Correlation is not causation” – it’s a refrain we hear often, yet the distinction between these concepts is deceptively easy to overlook. Correlation refers to a statistical association: when one variable changes, another tends to change as well. Causation, on the other hand, means a change in one variable <em>directly produces</em> a change in another. In other words, there is a cause-and-effect relationship. A crucial insight (sometimes phrased as <em>“causation implies correlation (but not vice versa)”</em>) is that while causation <em>always</em> entails some correlation, observing a correlation by itself <strong>does not prove causation</strong>. This article will explore the theoretical basis of correlation and causation, illustrate the difference with real-world examples in economics and healthcare, and demonstrate with R code how misleading correlations can arise – and how we can attempt to control for confounding factors. Along the way, we’ll dispel common misconceptions and share expert insights to encourage critical thinking about causal claims in data.</p>
+<blockquote class="blockquote">
+<p><a href="https://blog.gopenai.com/disentangling-causation-and-correlation-in-data-analysis-bbb60a2e1dd2"><strong>Judea Pearl</strong></a>, a pioneer of modern causal inference, put it succinctly: <em>“Correlation is not causation; merely observing a relationship between variables does not imply a causal connection”.</em> In practical terms, correlation is a symmetric relationship – X and Y vary together – whereas causation is directional: X produces Y. If two things are correlated, there are several possibilities: X causes Y, Y causes X, or some other factor influences both (or it could even be a chance coincidence). As statistician <a href="https://blog.gopenai.com/disentangling-causation-and-correlation-in-data-analysis-bbb60a2e1dd2"><strong>David Freedman</strong></a> warned, <em>“Misinterpreting correlation as causation can lead to erroneous conclusions and misguided actions”</em>. To use data responsibly, we must dig deeper than surface-level associations.</p>
+</blockquote>
+</section>
+<section id="theoretical-background-correlation-in-a-nutshell" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="theoretical-background-correlation-in-a-nutshell"><span class="header-section-number">2</span> Theoretical Background: Correlation in a Nutshell</h2>
+<p>In statistics, correlation is often measured by the Pearson correlation coefficient (usually notated <em>r</em>). Mathematically, for variables X and Y, this coefficient is defined as:</p>
+<p><span class="math display">\[
+r_{XY} = \frac{\\Cov(X,Y)}{\sigma_X \sigma_Y}
+\]</span></p>
+<p>where Cov(X,Y) is the covariance and σ denotes standard deviations. This value ranges from –1 (perfect negative correlation) to +1 (perfect positive correlation). An <em>r</em> near 0 indicates no linear relationship. Correlation captures how closely two variables move in sync. For example, if higher values of X tend to coincide with higher values of Y (and lower with lower), the correlation is positive. If one tends to go up when the other goes down, the correlation is negative. Crucially, correlation is a descriptive statistic – it quantifies an association, <strong>but it does not explain why</strong> the variables are related.</p>
+<p><em>Correlation alone is silent on mechanism.</em> It answers “Are X and Y related?” not “Does X change Y?”. To establish causation, we usually rely on theory, controlled experiments, or advanced observational study designs. In the language of causality, we think about interventions: if we <em>do</em> something to X, does Y change as a result? This is fundamentally a different question than observing X and Y moving together. Empirically, evidence of causation typically requires satisfying conditions such as temporal precedence (cause precedes effect), a credible mechanism linking X to Y, consistency with other evidence, and ruling out alternative explanations (confounders).</p>
+</section>
+<section id="why-correlation-causation-confounders-coincidences-and-reverse-causality" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="why-correlation-causation-confounders-coincidences-and-reverse-causality"><span class="header-section-number">3</span> Why Correlation ≠ Causation: Confounders, Coincidences, and Reverse Causality</h2>
+<p>If correlation doesn’t imply causation, what might be going on when two variables track together? There are a few common scenarios:</p>
+<ul>
+<li><p><strong>Confounding (Third Variables):</strong> A hidden factor influences both variables. This <em>lurking variable</em> makes X and Y move together, creating an illusion that they’re directly linked. Classic example: children’s shoe sizes are strongly correlated with their reading ability. Obviously, <em>bigger shoes don’t make kids read better</em>. The confounder is age: older children have larger feet and also read more proficiently – age drives both. Once age is taken into account, the shoe size–reading correlation disappears. As Pearl humorously noted, <em>“The third variable problem highlights the danger of assuming causation based solely on correlation”</em>. We’ll demonstrate a confounding example with R shortly.</p></li>
+<li><p><strong>Pure Coincidence (Spurious Correlations):</strong> With enough data, you’re bound to find some weird correlations by chance alone. In fact, whole websites are devoted to absurd correlations. <strong>Tyler Vigen’s</strong> famous collection of spurious correlations highlights gems like a 0.95 correlation between U.S. per capita cheese consumption and the number of people who died by becoming tangled in their bedsheets. It’s a comical reminder that with countless variables in the world, some will line up in sync purely by accident. High correlation can occur in entirely unrelated data — a cautionary tale for data miners. We should always ask: <em>Is there a plausible reason for this correlation, or could it be random?</em></p></li>
+<li><p><strong>Reverse Causation (Directionality):</strong> Sometimes X and Y truly are causally related, but not in the direction one assumes. For example, suppose data show a correlation between depression and low vitamin D levels. Does lack of vitamin D cause depression, or do depressed individuals tend to get less sunlight and thus have lower vitamin D? The data alone can’t tell us the direction. Another example: cities with more police officers tend to have higher crime rates. This doesn’t mean police cause crime; rather, high-crime areas hire more police. In economic contexts, we’ll see debates like <em>“Do higher interest rates reduce inflation, or is it that rising inflation prompts central banks to raise rates?”</em> – in such cases, cause and effect can be easily confused if we only look at correlations.</p></li>
+<li><p><strong>Selection Bias and Other Pitfalls:</strong> In observational data, how samples are collected can also create misleading correlations. For instance, a medical study might find that patients on a certain medication have higher survival rates – but if those patients were also healthier or younger on average (selection bias), the medication’s effect is confounded. <strong>Correlation can even vanish or flip sign when data is disaggregated</strong>, a phenomenon known as Simpson’s Paradox. The aggregate data might show one trend, while each subgroup shows the opposite trend. This often indicates a confounding variable at play.</p></li>
+</ul>
+<section id="simulating-a-spurious-correlation-in-r" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="simulating-a-spurious-correlation-in-r"><span class="header-section-number">3.1</span> Simulating a Spurious Correlation in R</h3>
+<p>To make these ideas concrete, let’s simulate an example in R. We’ll create a scenario with two groups (“Young” and “Old”) where <strong>within each group, there is no relationship</strong> between our variables, but when we combine the groups, we observe a strong correlation. This mimics a confounding situation (here, age group is the confounder).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate data for two groups: 'Young' and 'Old'</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>AgeGroup <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Young"</span>, <span class="st">"Old"</span>), <span class="at">each =</span> <span class="dv">50</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># For Young group, generate foot_size and reading_score with no true correlation</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>foot_size <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(<span class="dv">50</span>, <span class="at">mean =</span> <span class="dv">20</span>, <span class="at">sd =</span> <span class="dv">2</span>),    <span class="co"># Young have smaller feet on average</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>               <span class="fu">rnorm</span>(<span class="dv">50</span>, <span class="at">mean =</span> <span class="dv">25</span>, <span class="at">sd =</span> <span class="dv">2</span>))    <span class="co"># Old have larger feet on average</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>reading_score <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(<span class="dv">50</span>, <span class="at">mean =</span> <span class="dv">50</span>, <span class="at">sd =</span> <span class="dv">5</span>),<span class="co"># Young have lower reading scores on avg</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">rnorm</span>(<span class="dv">50</span>, <span class="at">mean =</span> <span class="dv">80</span>, <span class="at">sd =</span> <span class="dv">5</span>))<span class="co"># Old have higher reading scores on avg</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Check correlations</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(foot_size, reading_score)                        <span class="co"># overall correlation</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.7597618</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(foot_size[AgeGroup<span class="sc">==</span><span class="st">"Young"</span>], reading_score[AgeGroup<span class="sc">==</span><span class="st">"Young"</span>])  <span class="co"># within Young group</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1043372</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(foot_size[AgeGroup<span class="sc">==</span><span class="st">"Old"</span>], reading_score[AgeGroup<span class="sc">==</span><span class="st">"Old"</span>])      <span class="co"># within Old group</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -0.07429122</code></pre>
+</div>
+</div>
+<p>Running the code above, we might find an overall Pearson correlation around ~0.75 between <code>foot_size</code> and <code>reading_score</code> for all 100 individuals combined. Yet within each age group separately, the correlation is near 0 (essentially no relationship). In our simulation, <em>foot size</em> was not actually affecting <em>reading ability</em> at all – the apparent overall correlation arose because the Old group had higher values for both variables than the Young group. Age group was the lurking factor. This is a toy example of Simpson’s Paradox, where aggregation masks the true story.</p>
+<p>We can visualize this:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the data, coloring by group, and add regression lines</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(AgeGroup, foot_size, reading_score)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> foot_size, <span class="at">y =</span> reading_score, <span class="at">color =</span> AgeGroup)) <span class="sc">+</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">group =</span> <span class="dv">1</span>), <span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Foot size (cm)"</span>, <span class="at">y =</span> <span class="st">"Reading score"</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Spurious correlation: Foot size vs Reading score"</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Colored by AgeGroup. Solid lines = separate group fits (no correlation); dashed line = overall fit."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Interpretation:</strong> <em>In the plot, blue points (younger kids) cluster toward the lower-left, and red points (older kids) cluster at the upper-right. The black dashed line through all data has a clear upward slope, indicating a positive overall correlation. However, the solid trend lines fitted to each group are nearly flat – within each group there’s no meaningful correlation between foot size and reading skill. It’s the group difference (older children are both larger and more literate) that created the misleading overall association.</em> This example underscores why we must be cautious: if we naively observed all the data, we might have (laughably) concluded that “big feet cause better reading”! Only by accounting for the confounding variable (age) do we see the true picture.</p>
+<p><em>Figure: An example of spurious correlation. Each point is an individual child; foot size and reading score are uncorrelated within the Young (blue) and Old (red) groups, but when pooled together there is a strong positive correlation. The overall trend (black dashed line) is entirely driven by the age-group effect. Such patterns illustrate how a lurking variable can create a misleading correlation.</em></p>
+</section>
+</section>
+<section id="real-world-example-1-interest-rates-and-inflation" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="real-world-example-1-interest-rates-and-inflation"><span class="header-section-number">4</span> Real-World Example 1: Interest Rates and Inflation</h2>
+<p>One arena where correlation vs causation debates rage is macroeconomics. Consider <strong>interest rates and inflation</strong> – two metrics that often move in tandem. Central banks (like the U.S. Federal Reserve or Bank of England) adjust interest rates as a policy tool, aiming to control inflation. Intuition says raising interest rates should <em>cause</em> inflation to decrease (by cooling off spending and investment). Indeed, periods of tight monetary policy often coincide with inflation coming down. But does that correlation mean the rate hikes caused the relief in inflation? Not necessarily. As one economics blogger noted during the 2022–2023 inflation surge: <em>“One might be tempted to draw a direct line between higher interest rates and lower inflation rates. But correlation does not necessarily imply causation.”</em> In that episode, global inflation started easing after its 2022 peak, at the same time central banks were aggressively raising rates. However, careful analysis suggested much of the inflation decline was due to resolving supply chain issues and falling commodity prices – factors largely independent of interest rate moves. In other words, inflation <em>would</em> have started abating on its own as pandemic-era supply shocks faded, even if interest rates had not been hiked so sharply. The overlap in timing was a correlation, not a definitive proof of causation.</p>
+<p>Economists have to untangle these relationships with statistical tools and historical data. One approach is to look at <em>lead-lag</em> relationships: if interest rate changes truly cause lower inflation, we’d expect to see inflation consistently drop a few quarters <strong>after</strong> rate hikes. If instead we observe that inflation spikes often <em>precede</em> rate hikes (as central banks react <em>to</em> rising inflation), that indicates reverse causation – inflation causing interest rate changes. Studies of the UK economy, for instance, found that in the short run, raising interest rates sometimes correlated with <strong>higher</strong> inflation in subsequent quarters. This counter-intuitive positive correlation could mean that initial rate hikes were implemented when inflation was already rising (so inflation kept climbing shortly after), or that rate hikes had supply-side effects (e.g.&nbsp;raising business costs) that temporarily <em>stoked</em> inflation. Only after a longer time lag did the correlation turn negative as expected (inflation easing modestly) – and even then, the effect was statistically weak in some analyses. An outside observer summed up the mixed evidence wryly: <em>“If correlation means causality then possibly not. [Rate hikes] may have an effect, but the effect might be weak on inflation and brutal on society”</em>. In other words, simply correlating past interest increases with inflation outcomes can be misleading; it takes careful modeling to isolate the causal impact (and it might be smaller than popularly assumed).</p>
+<p>This example highlights two key points: First, <strong>directionality matters</strong> – are we seeing X→Y or Y→X or both? (In economics, feedback loops are common: inflation could prompt rate changes, which in turn influence future inflation, a two-way causality.) Second, <strong>confounding variables abound</strong> – other factors like global supply conditions, fiscal policy, or consumer expectations can drive inflation, obscuring the effect of interest rates. Analysts tackle these challenges with techniques such as Vector Autoregression (VAR) models, instrumental variables, or by “clustering” data to compare similar periods or countries. A commenter on an economics forum pointed out that failing to control for such factors is akin to falling for Simpson’s Paradox: <em>“Plotting inflation vs interest rates can be misleading unless you cluster to avoid confounding variables”</em>. The lesson: even in highly data-driven fields like economics, correlation alone can support multiple stories, and solid conclusions require digging into the causal structure of the problem.</p>
+</section>
+<section id="real-world-example-2-vaccines-and-disease-prevalence" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="real-world-example-2-vaccines-and-disease-prevalence"><span class="header-section-number">5</span> Real-World Example 2: Vaccines and Disease Prevalence</h2>
+<p>Few areas demonstrate the difference between correlation and causation as starkly as healthcare and epidemiology. Let’s examine vaccines and disease rates. Vaccines are designed based on a known causal mechanism (they induce immunity, which <strong>prevents disease</strong>), and countless studies and trials have validated their efficacy. Thus, when a vaccine is introduced, we expect disease incidence to drop as a causal result. Conversely, if vaccination rates fall, diseases can surge. Both correlations have been observed in reality – one led to a life-saving public health success, the other to a dangerous resurgence of disease – and they underline why understanding causality is critical.</p>
+<p><strong>Correlation used as evidence of causation (correctly):</strong> In the 1950s, polio was a dreaded disease paralyzing tens of thousands each year. In 1955, the Salk polio vaccine was introduced. Within just a few years, polio cases plummeted. In the United States, annual polio cases dropped from ~58,000 to about 5,600 by 1957, and only 161 cases by 1961. The timing and magnitude of this drop, alongside laboratory and clinical evidence, provided convincing proof that the vaccine <em>caused</em> the decline in polio. Here the correlation (vaccine rollout followed by disease collapse) was no coincidence – it was a predicted outcome based on a causal understanding of immunity. As another example, when the HPV vaccine was introduced, health officials observed sharp declines in HPV infections and related cancers in subsequent years, consistent with the expected causal effect of vaccinating adolescents. In such cases, correlation was a <strong>strong hint</strong> that led scientists to conclude causation, bolstered by controlled trials and biological plausibility.</p>
+<p><strong>Correlation misinterpreted as causation (incorrectly):</strong> Not all observed links are what they seem. A notorious case was the now-debunked claim that the MMR (measles, mumps, rubella) vaccine caused autism in children. This idea stemmed from a 1998 study (later found fraudulent) and the anecdotal observation that autism diagnoses were often made around the same age children receive lots of vaccines. In truth, the <strong>apparent correlation</strong> was driven by coincidental timing and increased awareness/diagnosis of autism in the 1990s – not by vaccines. Extensive research over decades showed <em>no causal link</em>: <em>“Research over the past 15 years has shown that childhood vaccines don’t cause autism”.</em> Unfortunately, the fear incited by the false correlation led many parents to avoid the MMR vaccine. The result? Measles, once near-eliminated, came roaring back. Great Britain, for instance, experienced a measles epidemic in the 2000s as vaccination rates fell. Public health officials directly attributed this to the drop in vaccinations after the autism scare: <em>“Great Britain is in the midst of a measles epidemic, one that public health officials say is the result of parents refusing to vaccinate their children after a safety scare that was later proved to be fraudulent”</em>. In regions where MMR vaccination rates fell below about 80%, measles cases spiked dramatically. One commentator lamented, <em>“This is the legacy of the Wakefield scare”.</em> The correlation here – <strong>lower</strong> vaccination accompanied by <strong>higher</strong> disease incidence – reflected a causal relationship, but in the <strong>opposite direction</strong> of the original false claim. Vaccines <em>prevent</em> measles, so when vaccination dropped, measles returned. It’s a sobering example of how a misunderstood correlation (vaccines and autism) led to behaviors that revealed a very real causation (lack of vaccines causing disease outbreaks).</p>
+<p>In summary, the vaccine story teaches us that <strong>we must have external evidence and domain knowledge to distinguish meaningful correlations from spurious ones</strong>. When strong theory and additional evidence support a correlation (as with vaccines preventing disease), we can infer causation with confidence. But when a correlation flies in the face of established knowledge or lacks a plausible mechanism (as with vaccines causing autism), it demands deep skepticism and further investigation. Correlation may open the door to a hypothesis, but only rigorous science can confirm causality.</p>
+</section>
+<section id="from-correlation-to-causation-how-can-we-tell" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="from-correlation-to-causation-how-can-we-tell"><span class="header-section-number">6</span> From Correlation to Causation: How Can We Tell?</h2>
+<p>So, if correlation alone isn’t enough, how do scientists and statisticians actually establish causation? This is the realm of <em>causal inference</em>, and entire textbooks (and careers) are devoted to it. Here we’ll outline a few key principles and methods:</p>
+<ul>
+<li><p><strong>Controlled Experiments:</strong> The gold standard for testing causality is the randomized controlled trial (RCT). By randomly assigning subjects to a treatment (X) or control, we ensure no systematic confounders differ between groups. Any difference in outcomes (Y) can then be attributed to X (within known statistical error). As statistician <a href="https://blog.gopenai.com/disentangling-causation-and-correlation-in-data-analysis-bbb60a2e1dd2"><strong>Paul Rosenbaum</strong></a> emphasizes, <em>“Experimental design is crucial for establishing causal relationships and overcoming confounding factors”</em>. In fields like medicine, RCTs are required to claim a drug <em>causes</em> an effect. In more complex domains (economics, social sciences) where RCTs may be infeasible or unethical, researchers look for natural experiments or instrumental variables to approximate that level of control.</p></li>
+<li><p><strong>Temporal Checks:</strong> Ensure the cause precedes the effect. Sounds obvious, but it’s a simple way to weed out some mistaken causal interpretations. If Y happens before X, X cannot be the cause. Sometimes lagged correlations or time-series analyses (like <strong>Granger causality</strong> tests in economics) are used to see if changes in X consistently come before changes in Y. In our interest rate example, analysts examined whether inflation tended to drop <em>after</em> interest rate hikes (and found mixed results, indicating caution in the causal claim).</p></li>
+<li><p><strong>Controlling for Confounders:</strong> In observational studies, a common strategy is to measure possible confounding variables and include them in a regression or stratify the analysis. For instance, if we suspect age is a confounder in our earlier example, we can compare individuals of similar age (or include age in a multiple regression model) to see if foot size still correlates with reading ability within those strata. If the correlation vanishes after controlling for the third variable, it was likely spurious. Techniques like <strong>multiple regression</strong>, <strong>matching</strong>, <strong>propensity score adjustment</strong>, and <strong>difference-in-differences</strong> analysis are all about simulating a “ceteris paribus” condition – i.e.&nbsp;comparing like with like, so that the effect of interest can be isolated. In R, one might use <code>lm()</code> (linear modeling) to adjust for confounders. For example, <code>lm(reading_score ~ foot_size + Age, data=df)</code> would tell us if foot_size still has any predictive power for reading_score once Age is accounted for. (In our simulated data, it would show foot_size is not significant when Age is included, reinforcing that foot size itself wasn’t causing better reading.)</p></li>
+<li><p><strong>Multiple Studies and Triangulation:</strong> We gain confidence in causation when multiple independent studies, using different methods, consistently point to the same conclusion. If correlational evidence is supported by lab experiments, longitudinal studies, and perhaps natural experiments, the case for causality strengthens. In the smoking and lung cancer example: early on, skeptics said “correlation is not causation” – maybe smokers had other habits causing cancer. But over time, mountains of evidence (animal experiments, biological mechanisms, epidemiological studies controlling for diet, etc.) converged to establish that smoking <em>does</em> cause cancer.</p></li>
+<li><p><strong>Plausibility and Mechanism:</strong> A correlation accompanied by a plausible mechanism is more convincing. If we can explain <em>how</em> X could influence Y (through physics, biology, or logic), we are more likely to consider X a potential cause of Y. In contrast, if no one can conceive a realistic way that X would affect Y, we suspect a lurking variable or coincidence. (For instance, it’s hard to imagine how eating more cheese would directly cause strangulation by bedsheets – more likely, as one humorous analysis noted, it’s just an “accidental, misleading pattern” or related to a confounder like time or lifestyle).</p></li>
+<li><p><strong>Causal Graphs and Models:</strong> Modern data science sometimes employs causal graphs or Bayesian networks (à la Judea Pearl’s <strong>do-calculus</strong>) to formally model assumptions about causation and test if the observed correlations fit a causal structure. While beyond the scope of this article, these tools provide a framework to encode “X causes Y” assumptions and see what observational patterns should emerge if that’s true. They also help identify what additional data or experiments are needed to distinguish between competing causal hypotheses.</p></li>
+</ul>
+<p>In practice, determining causation is often like solving a puzzle. We marshal all available evidence, use critical thinking, and sometimes still end up with uncertainty. However, the effort is worthwhile because acting on false causal assumptions can be costly. Misattributing causation can lead to bad policy, ineffective or harmful interventions, or simply wasting resources chasing the wrong problem. As we’ve seen, <strong>data should be approached with a skeptical eye</strong>. Correlations can be tantalizing – they can indeed be hints to causal relationships – but we must verify those hints. By combining statistical rigor with domain expertise, we improve our chances of getting the causation right.</p>
+</section>
+<section id="conclusion" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">7</span> Conclusion</h2>
+<p>Understanding the difference between correlation and causation is essential for anyone who consumes data-driven information (which these days is all of us). We’ve covered how correlation is a mathematical relationship that can flag interesting connections but can also mislead us through confounding, coincidence, or reversed cause-and-effect. We explored examples from economics and healthcare where these distinctions have real-world consequences – from guiding central bank policies to informing public health decisions. The key takeaway is to <strong>think critically</strong>: when you hear that X is linked to Y, ask <em>why</em> and <em>how</em>. Look for evidence that goes beyond the raw correlation. As the saying goes (often attributed to many scientists), <em>“Correlation is not causation, but it sure is a hint.”</em> Use the hint to investigate further, not to jump to conclusions.</p>
+<p>In the words of statistician David Freedman, misinterpreting correlation as causation is not just an academic error but one that can lead to “misguided actions”. By staying curious and skeptical – and by leveraging tools like R to analyze data properly – we can uncover the true stories our data are telling us. Correlation can open the door to discovery, but only rigorous analysis and critical thinking will reveal what’s inside.</p>
+</section>
+<section id="references-further-reading" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="references-further-reading"><span class="header-section-number">8</span> References &amp; Further Reading</h2>
+<ul>
+<li><p><a href="https://macro-to-go.com/2023/06/05/correlation-does-not-imply-causation-the-case-of-higher-interest-and-lower-inflation-rates/#:~:text=As%20the%20inflation%20peak%20roughly,%E2%80%93%20with%20one%20important%20caveat">Bandholz, H. “Correlation does not imply causation: higher interest and lower inflation rates” – Macro to Go blog (2023)</a></p></li>
+<li><p><a href="https://medium.com/@eddyojb/do-interest-rates-tackle-inflation-af4bfce45b88">Eddy-OJB. <em>“Do Interest Rates Tackle Inflation?”</em> – <em>Medium</em> (2023)</a></p></li>
+<li><p><a href="https://www.statsig.com/perspectives/misleading-correlations-examples#:~:text=Tyler%20Vigen%27s%20site%2C%20Spurious%20Correlations%2C,data%20with%20a%20critical%20eye">Statsig Team. Examples of misleading correlations (2024)</a></p></li>
+<li><p><a href="https://priceonomics.com/do-storks-deliver-babies/#:~:text=Lo%20and%20behold%2C%20a%20correlation,of%20storks%20in%20a%20country">Matthews, R. <em>“Storks Deliver Babies (p = 0.008)”</em> – <em>Teaching Statistics</em> via Priceonomics</a></p></li>
+<li><p><a href="https://www.scribbr.com/methodology/correlation-vs-causation/#:~:text=Causation%20means%20that%20changes%20in,a%20causal%20link%20between%20them">Scribbr – <em>Correlation vs Causation</em> (2021)</a></p></li>
+<li><p><a href="https://www.npr.org/sections/health-shots/2013/05/21/185801259/fifteen-years-after-a-vaccine-scare-a-measles-epidemic#:~:text=Most%20of%20the%20measles%20cases,the%20Wakefield%20paper%20was%20published">NPR – <em>Measles epidemic after vaccine scare</em> (2013)</a></p></li>
+<li><p><a href="https://www.who.int/news-room/spotlight/history-of-vaccination/history-of-polio-vaccination#:~:text=The%20results%20were%20announced%20on,1961%2C%20only%20161%20cases%20remained">WHO – <em>History of polio vaccination</em> (2021)</a></p></li>
+</ul>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/mfatihtuzen\.netlify\.app");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="MFatihTuzen/blogComments" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb8" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Correlation vs Causation: Understanding the Difference"</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "M. Fatih Tüzen"</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2025-06-04"</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> [Statistics, Correlation, Causation, Econometrics, Causal Inference, Public Health]</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span><span class="co"> </span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: false</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co">    code-overflow: scroll</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co">    code-block-background: true</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="al">![](corr_causation.png)</span>{fig-align="center" width="900"}</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="fu">## Introduction</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>“Correlation is not causation” – it’s a refrain we hear often, yet the distinction between these concepts is deceptively easy to overlook. Correlation refers to a statistical association: when one variable changes, another tends to change as well. Causation, on the other hand, means a change in one variable *directly produces* a change in another. In other words, there is a cause-and-effect relationship. A crucial insight (sometimes phrased as *“causation implies correlation (but not vice versa)”*) is that while causation *always* entails some correlation, observing a correlation by itself **does not prove causation**. This article will explore the theoretical basis of correlation and causation, illustrate the difference with real-world examples in economics and healthcare, and demonstrate with R code how misleading correlations can arise – and how we can attempt to control for confounding factors. Along the way, we’ll dispel common misconceptions and share expert insights to encourage critical thinking about causal claims in data.</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="co">[</span><span class="ot">**Judea Pearl**</span><span class="co">](https://blog.gopenai.com/disentangling-causation-and-correlation-in-data-analysis-bbb60a2e1dd2)</span><span class="at">, a pioneer of modern causal inference, put it succinctly: *“Correlation is not causation; merely observing a relationship between variables does not imply a causal connection”.* In practical terms, correlation is a symmetric relationship – X and Y vary together – whereas causation is directional: X produces Y. If two things are correlated, there are several possibilities: X causes Y, Y causes X, or some other factor influences both (or it could even be a chance coincidence). As statistician [**David Freedman**](https://blog.gopenai.com/disentangling-causation-and-correlation-in-data-analysis-bbb60a2e1dd2) warned, *“Misinterpreting correlation as causation can lead to erroneous conclusions and misguided actions”*. To use data responsibly, we must dig deeper than surface-level associations.</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="fu">## Theoretical Background: Correlation in a Nutshell</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>In statistics, correlation is often measured by the Pearson correlation coefficient (usually notated *r*). Mathematically, for variables X and Y, this coefficient is defined as:</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>r_{XY} = \frac{<span class="sc">\\</span>Cov(X,Y)}{\sigma_X \sigma_Y}</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>where Cov(X,Y) is the covariance and σ denotes standard deviations. This value ranges from –1 (perfect negative correlation) to +1 (perfect positive correlation). An *r* near 0 indicates no linear relationship. Correlation captures how closely two variables move in sync. For example, if higher values of X tend to coincide with higher values of Y (and lower with lower), the correlation is positive. If one tends to go up when the other goes down, the correlation is negative. Crucially, correlation is a descriptive statistic – it quantifies an association, **but it does not explain why** the variables are related.</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>*Correlation alone is silent on mechanism.* It answers “Are X and Y related?” not “Does X change Y?”. To establish causation, we usually rely on theory, controlled experiments, or advanced observational study designs. In the language of causality, we think about interventions: if we *do* something to X, does Y change as a result? This is fundamentally a different question than observing X and Y moving together. Empirically, evidence of causation typically requires satisfying conditions such as temporal precedence (cause precedes effect), a credible mechanism linking X to Y, consistency with other evidence, and ruling out alternative explanations (confounders).</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a><span class="fu">## Why Correlation ≠ Causation: Confounders, Coincidences, and Reverse Causality</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>If correlation doesn’t imply causation, what might be going on when two variables track together? There are a few common scenarios:</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Confounding (Third Variables):** A hidden factor influences both variables. This *lurking variable* makes X and Y move together, creating an illusion that they’re directly linked. Classic example: children’s shoe sizes are strongly correlated with their reading ability. Obviously, *bigger shoes don’t make kids read better*. The confounder is age: older children have larger feet and also read more proficiently – age drives both. Once age is taken into account, the shoe size–reading correlation disappears. As Pearl humorously noted, *“The third variable problem highlights the danger of assuming causation based solely on correlation”*. We’ll demonstrate a confounding example with R shortly.</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Pure Coincidence (Spurious Correlations):** With enough data, you’re bound to find some weird correlations by chance alone. In fact, whole websites are devoted to absurd correlations. **Tyler Vigen’s** famous collection of spurious correlations highlights gems like a 0.95 correlation between U.S. per capita cheese consumption and the number of people who died by becoming tangled in their bedsheets. It’s a comical reminder that with countless variables in the world, some will line up in sync purely by accident. High correlation can occur in entirely unrelated data — a cautionary tale for data miners. We should always ask: *Is there a plausible reason for this correlation, or could it be random?*</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Reverse Causation (Directionality):** Sometimes X and Y truly are causally related, but not in the direction one assumes. For example, suppose data show a correlation between depression and low vitamin D levels. Does lack of vitamin D cause depression, or do depressed individuals tend to get less sunlight and thus have lower vitamin D? The data alone can’t tell us the direction. Another example: cities with more police officers tend to have higher crime rates. This doesn’t mean police cause crime; rather, high-crime areas hire more police. In economic contexts, we’ll see debates like *“Do higher interest rates reduce inflation, or is it that rising inflation prompts central banks to raise rates?”* – in such cases, cause and effect can be easily confused if we only look at correlations.</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Selection Bias and Other Pitfalls:** In observational data, how samples are collected can also create misleading correlations. For instance, a medical study might find that patients on a certain medication have higher survival rates – but if those patients were also healthier or younger on average (selection bias), the medication’s effect is confounded. **Correlation can even vanish or flip sign when data is disaggregated**, a phenomenon known as Simpson’s Paradox. The aggregate data might show one trend, while each subgroup shows the opposite trend. This often indicates a confounding variable at play.</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a><span class="fu">### Simulating a Spurious Correlation in R</span></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>To make these ideas concrete, let’s simulate an example in R. We’ll create a scenario with two groups (“Young” and “Old”) where **within each group, there is no relationship** between our variables, but when we combine the groups, we observe a strong correlation. This mimics a confounding situation (here, age group is the confounder).</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate data for two groups: 'Young' and 'Old'</span></span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>AgeGroup <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Young"</span>, <span class="st">"Old"</span>), <span class="at">each =</span> <span class="dv">50</span>)</span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a><span class="co"># For Young group, generate foot_size and reading_score with no true correlation</span></span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>foot_size <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(<span class="dv">50</span>, <span class="at">mean =</span> <span class="dv">20</span>, <span class="at">sd =</span> <span class="dv">2</span>),    <span class="co"># Young have smaller feet on average</span></span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>               <span class="fu">rnorm</span>(<span class="dv">50</span>, <span class="at">mean =</span> <span class="dv">25</span>, <span class="at">sd =</span> <span class="dv">2</span>))    <span class="co"># Old have larger feet on average</span></span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a>reading_score <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(<span class="dv">50</span>, <span class="at">mean =</span> <span class="dv">50</span>, <span class="at">sd =</span> <span class="dv">5</span>),<span class="co"># Young have lower reading scores on avg</span></span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">rnorm</span>(<span class="dv">50</span>, <span class="at">mean =</span> <span class="dv">80</span>, <span class="at">sd =</span> <span class="dv">5</span>))<span class="co"># Old have higher reading scores on avg</span></span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a><span class="co"># Check correlations</span></span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(foot_size, reading_score)                        <span class="co"># overall correlation</span></span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(foot_size[AgeGroup<span class="sc">==</span><span class="st">"Young"</span>], reading_score[AgeGroup<span class="sc">==</span><span class="st">"Young"</span>])  <span class="co"># within Young group</span></span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(foot_size[AgeGroup<span class="sc">==</span><span class="st">"Old"</span>], reading_score[AgeGroup<span class="sc">==</span><span class="st">"Old"</span>])      <span class="co"># within Old group</span></span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a>Running the code above, we might find an overall Pearson correlation around \~0.75 between <span class="in">`foot_size`</span> and <span class="in">`reading_score`</span> for all 100 individuals combined. Yet within each age group separately, the correlation is near 0 (essentially no relationship). In our simulation, *foot size* was not actually affecting *reading ability* at all – the apparent overall correlation arose because the Old group had higher values for both variables than the Young group. Age group was the lurking factor. This is a toy example of Simpson’s Paradox, where aggregation masks the true story.</span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a>We can visualize this:</span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the data, coloring by group, and add regression lines</span></span>
+<span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(AgeGroup, foot_size, reading_score)</span>
+<span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> foot_size, <span class="at">y =</span> reading_score, <span class="at">color =</span> AgeGroup)) <span class="sc">+</span></span>
+<span id="cb8-86"><a href="#cb8-86" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb8-87"><a href="#cb8-87" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> </span>
+<span id="cb8-88"><a href="#cb8-88" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">group =</span> <span class="dv">1</span>), <span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb8-89"><a href="#cb8-89" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Foot size (cm)"</span>, <span class="at">y =</span> <span class="st">"Reading score"</span>,</span>
+<span id="cb8-90"><a href="#cb8-90" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Spurious correlation: Foot size vs Reading score"</span>,</span>
+<span id="cb8-91"><a href="#cb8-91" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Colored by AgeGroup. Solid lines = separate group fits (no correlation); dashed line = overall fit."</span>)</span>
+<span id="cb8-92"><a href="#cb8-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-93"><a href="#cb8-93" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-94"><a href="#cb8-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-95"><a href="#cb8-95" aria-hidden="true" tabindex="-1"></a>**Interpretation:** *In the plot, blue points (younger kids) cluster toward the lower-left, and red points (older kids) cluster at the upper-right. The black dashed line through all data has a clear upward slope, indicating a positive overall correlation. However, the solid trend lines fitted to each group are nearly flat – within each group there’s no meaningful correlation between foot size and reading skill. It’s the group difference (older children are both larger and more literate) that created the misleading overall association.* This example underscores why we must be cautious: if we naively observed all the data, we might have (laughably) concluded that “big feet cause better reading”! Only by accounting for the confounding variable (age) do we see the true picture.</span>
+<span id="cb8-96"><a href="#cb8-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-97"><a href="#cb8-97" aria-hidden="true" tabindex="-1"></a>*Figure: An example of spurious correlation. Each point is an individual child; foot size and reading score are uncorrelated within the Young (blue) and Old (red) groups, but when pooled together there is a strong positive correlation. The overall trend (black dashed line) is entirely driven by the age-group effect. Such patterns illustrate how a lurking variable can create a misleading correlation.*</span>
+<span id="cb8-98"><a href="#cb8-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-99"><a href="#cb8-99" aria-hidden="true" tabindex="-1"></a><span class="fu">## Real-World Example 1: Interest Rates and Inflation</span></span>
+<span id="cb8-100"><a href="#cb8-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-101"><a href="#cb8-101" aria-hidden="true" tabindex="-1"></a>One arena where correlation vs causation debates rage is macroeconomics. Consider **interest rates and inflation** – two metrics that often move in tandem. Central banks (like the U.S. Federal Reserve or Bank of England) adjust interest rates as a policy tool, aiming to control inflation. Intuition says raising interest rates should *cause* inflation to decrease (by cooling off spending and investment). Indeed, periods of tight monetary policy often coincide with inflation coming down. But does that correlation mean the rate hikes caused the relief in inflation? Not necessarily. As one economics blogger noted during the 2022–2023 inflation surge: *“One might be tempted to draw a direct line between higher interest rates and lower inflation rates. But correlation does not necessarily imply causation.”* In that episode, global inflation started easing after its 2022 peak, at the same time central banks were aggressively raising rates. However, careful analysis suggested much of the inflation decline was due to resolving supply chain issues and falling commodity prices – factors largely independent of interest rate moves. In other words, inflation *would* have started abating on its own as pandemic-era supply shocks faded, even if interest rates had not been hiked so sharply. The overlap in timing was a correlation, not a definitive proof of causation.</span>
+<span id="cb8-102"><a href="#cb8-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-103"><a href="#cb8-103" aria-hidden="true" tabindex="-1"></a>Economists have to untangle these relationships with statistical tools and historical data. One approach is to look at *lead-lag* relationships: if interest rate changes truly cause lower inflation, we’d expect to see inflation consistently drop a few quarters **after** rate hikes. If instead we observe that inflation spikes often *precede* rate hikes (as central banks react *to* rising inflation), that indicates reverse causation – inflation causing interest rate changes. Studies of the UK economy, for instance, found that in the short run, raising interest rates sometimes correlated with **higher** inflation in subsequent quarters. This counter-intuitive positive correlation could mean that initial rate hikes were implemented when inflation was already rising (so inflation kept climbing shortly after), or that rate hikes had supply-side effects (e.g. raising business costs) that temporarily *stoked* inflation. Only after a longer time lag did the correlation turn negative as expected (inflation easing modestly) – and even then, the effect was statistically weak in some analyses. An outside observer summed up the mixed evidence wryly: *“If correlation means causality then possibly not. \[Rate hikes\] may have an effect, but the effect might be weak on inflation and brutal on society”*. In other words, simply correlating past interest increases with inflation outcomes can be misleading; it takes careful modeling to isolate the causal impact (and it might be smaller than popularly assumed).</span>
+<span id="cb8-104"><a href="#cb8-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-105"><a href="#cb8-105" aria-hidden="true" tabindex="-1"></a>This example highlights two key points: First, **directionality matters** – are we seeing X→Y or Y→X or both? (In economics, feedback loops are common: inflation could prompt rate changes, which in turn influence future inflation, a two-way causality.) Second, **confounding variables abound** – other factors like global supply conditions, fiscal policy, or consumer expectations can drive inflation, obscuring the effect of interest rates. Analysts tackle these challenges with techniques such as Vector Autoregression (VAR) models, instrumental variables, or by “clustering” data to compare similar periods or countries. A commenter on an economics forum pointed out that failing to control for such factors is akin to falling for Simpson’s Paradox: *“Plotting inflation vs interest rates can be misleading unless you cluster to avoid confounding variables"*. The lesson: even in highly data-driven fields like economics, correlation alone can support multiple stories, and solid conclusions require digging into the causal structure of the problem.</span>
+<span id="cb8-106"><a href="#cb8-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-107"><a href="#cb8-107" aria-hidden="true" tabindex="-1"></a><span class="fu">## Real-World Example 2: Vaccines and Disease Prevalence</span></span>
+<span id="cb8-108"><a href="#cb8-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-109"><a href="#cb8-109" aria-hidden="true" tabindex="-1"></a>Few areas demonstrate the difference between correlation and causation as starkly as healthcare and epidemiology. Let’s examine vaccines and disease rates. Vaccines are designed based on a known causal mechanism (they induce immunity, which **prevents disease**), and countless studies and trials have validated their efficacy. Thus, when a vaccine is introduced, we expect disease incidence to drop as a causal result. Conversely, if vaccination rates fall, diseases can surge. Both correlations have been observed in reality – one led to a life-saving public health success, the other to a dangerous resurgence of disease – and they underline why understanding causality is critical.</span>
+<span id="cb8-110"><a href="#cb8-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-111"><a href="#cb8-111" aria-hidden="true" tabindex="-1"></a>**Correlation used as evidence of causation (correctly):** In the 1950s, polio was a dreaded disease paralyzing tens of thousands each year. In 1955, the Salk polio vaccine was introduced. Within just a few years, polio cases plummeted. In the United States, annual polio cases dropped from \~58,000 to about 5,600 by 1957, and only 161 cases by 1961. The timing and magnitude of this drop, alongside laboratory and clinical evidence, provided convincing proof that the vaccine *caused* the decline in polio. Here the correlation (vaccine rollout followed by disease collapse) was no coincidence – it was a predicted outcome based on a causal understanding of immunity. As another example, when the HPV vaccine was introduced, health officials observed sharp declines in HPV infections and related cancers in subsequent years, consistent with the expected causal effect of vaccinating adolescents. In such cases, correlation was a **strong hint** that led scientists to conclude causation, bolstered by controlled trials and biological plausibility.</span>
+<span id="cb8-112"><a href="#cb8-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-113"><a href="#cb8-113" aria-hidden="true" tabindex="-1"></a>**Correlation misinterpreted as causation (incorrectly):** Not all observed links are what they seem. A notorious case was the now-debunked claim that the MMR (measles, mumps, rubella) vaccine caused autism in children. This idea stemmed from a 1998 study (later found fraudulent) and the anecdotal observation that autism diagnoses were often made around the same age children receive lots of vaccines. In truth, the **apparent correlation** was driven by coincidental timing and increased awareness/diagnosis of autism in the 1990s – not by vaccines. Extensive research over decades showed *no causal link*: *“Research over the past 15 years has shown that childhood vaccines don’t cause autism”.* Unfortunately, the fear incited by the false correlation led many parents to avoid the MMR vaccine. The result? Measles, once near-eliminated, came roaring back. Great Britain, for instance, experienced a measles epidemic in the 2000s as vaccination rates fell. Public health officials directly attributed this to the drop in vaccinations after the autism scare: *“Great Britain is in the midst of a measles epidemic, one that public health officials say is the result of parents refusing to vaccinate their children after a safety scare that was later proved to be fraudulent”*. In regions where MMR vaccination rates fell below about 80%, measles cases spiked dramatically. One commentator lamented, *“This is the legacy of the Wakefield scare”.* The correlation here – **lower** vaccination accompanied by **higher** disease incidence – reflected a causal relationship, but in the **opposite direction** of the original false claim. Vaccines *prevent* measles, so when vaccination dropped, measles returned. It’s a sobering example of how a misunderstood correlation (vaccines and autism) led to behaviors that revealed a very real causation (lack of vaccines causing disease outbreaks).</span>
+<span id="cb8-114"><a href="#cb8-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-115"><a href="#cb8-115" aria-hidden="true" tabindex="-1"></a>In summary, the vaccine story teaches us that **we must have external evidence and domain knowledge to distinguish meaningful correlations from spurious ones**. When strong theory and additional evidence support a correlation (as with vaccines preventing disease), we can infer causation with confidence. But when a correlation flies in the face of established knowledge or lacks a plausible mechanism (as with vaccines causing autism), it demands deep skepticism and further investigation. Correlation may open the door to a hypothesis, but only rigorous science can confirm causality.</span>
+<span id="cb8-116"><a href="#cb8-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-117"><a href="#cb8-117" aria-hidden="true" tabindex="-1"></a><span class="fu">## From Correlation to Causation: How Can We Tell?</span></span>
+<span id="cb8-118"><a href="#cb8-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-119"><a href="#cb8-119" aria-hidden="true" tabindex="-1"></a>So, if correlation alone isn’t enough, how do scientists and statisticians actually establish causation? This is the realm of *causal inference*, and entire textbooks (and careers) are devoted to it. Here we’ll outline a few key principles and methods:</span>
+<span id="cb8-120"><a href="#cb8-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-121"><a href="#cb8-121" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Controlled Experiments:** The gold standard for testing causality is the randomized controlled trial (RCT). By randomly assigning subjects to a treatment (X) or control, we ensure no systematic confounders differ between groups. Any difference in outcomes (Y) can then be attributed to X (within known statistical error). As statistician [**Paul Rosenbaum**](https://blog.gopenai.com/disentangling-causation-and-correlation-in-data-analysis-bbb60a2e1dd2) emphasizes, *“Experimental design is crucial for establishing causal relationships and overcoming confounding factors”*. In fields like medicine, RCTs are required to claim a drug *causes* an effect. In more complex domains (economics, social sciences) where RCTs may be infeasible or unethical, researchers look for natural experiments or instrumental variables to approximate that level of control.</span>
+<span id="cb8-122"><a href="#cb8-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-123"><a href="#cb8-123" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Temporal Checks:** Ensure the cause precedes the effect. Sounds obvious, but it’s a simple way to weed out some mistaken causal interpretations. If Y happens before X, X cannot be the cause. Sometimes lagged correlations or time-series analyses (like **Granger causality** tests in economics) are used to see if changes in X consistently come before changes in Y. In our interest rate example, analysts examined whether inflation tended to drop *after* interest rate hikes (and found mixed results, indicating caution in the causal claim).</span>
+<span id="cb8-124"><a href="#cb8-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-125"><a href="#cb8-125" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Controlling for Confounders:** In observational studies, a common strategy is to measure possible confounding variables and include them in a regression or stratify the analysis. For instance, if we suspect age is a confounder in our earlier example, we can compare individuals of similar age (or include age in a multiple regression model) to see if foot size still correlates with reading ability within those strata. If the correlation vanishes after controlling for the third variable, it was likely spurious. Techniques like **multiple regression**, **matching**, **propensity score adjustment**, and **difference-in-differences** analysis are all about simulating a “ceteris paribus” condition – i.e. comparing like with like, so that the effect of interest can be isolated. In R, one might use <span class="in">`lm()`</span> (linear modeling) to adjust for confounders. For example, <span class="in">`lm(reading_score ~ foot_size + Age, data=df)`</span> would tell us if foot_size still has any predictive power for reading_score once Age is accounted for. (In our simulated data, it would show foot_size is not significant when Age is included, reinforcing that foot size itself wasn’t causing better reading.)</span>
+<span id="cb8-126"><a href="#cb8-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-127"><a href="#cb8-127" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Multiple Studies and Triangulation:** We gain confidence in causation when multiple independent studies, using different methods, consistently point to the same conclusion. If correlational evidence is supported by lab experiments, longitudinal studies, and perhaps natural experiments, the case for causality strengthens. In the smoking and lung cancer example: early on, skeptics said “correlation is not causation” – maybe smokers had other habits causing cancer. But over time, mountains of evidence (animal experiments, biological mechanisms, epidemiological studies controlling for diet, etc.) converged to establish that smoking *does* cause cancer.</span>
+<span id="cb8-128"><a href="#cb8-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-129"><a href="#cb8-129" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Plausibility and Mechanism:** A correlation accompanied by a plausible mechanism is more convincing. If we can explain *how* X could influence Y (through physics, biology, or logic), we are more likely to consider X a potential cause of Y. In contrast, if no one can conceive a realistic way that X would affect Y, we suspect a lurking variable or coincidence. (For instance, it’s hard to imagine how eating more cheese would directly cause strangulation by bedsheets – more likely, as one humorous analysis noted, it’s just an “accidental, misleading pattern” or related to a confounder like time or lifestyle).</span>
+<span id="cb8-130"><a href="#cb8-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-131"><a href="#cb8-131" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Causal Graphs and Models:** Modern data science sometimes employs causal graphs or Bayesian networks (à la Judea Pearl’s **do-calculus**) to formally model assumptions about causation and test if the observed correlations fit a causal structure. While beyond the scope of this article, these tools provide a framework to encode “X causes Y” assumptions and see what observational patterns should emerge if that’s true. They also help identify what additional data or experiments are needed to distinguish between competing causal hypotheses.</span>
+<span id="cb8-132"><a href="#cb8-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-133"><a href="#cb8-133" aria-hidden="true" tabindex="-1"></a>In practice, determining causation is often like solving a puzzle. We marshal all available evidence, use critical thinking, and sometimes still end up with uncertainty. However, the effort is worthwhile because acting on false causal assumptions can be costly. Misattributing causation can lead to bad policy, ineffective or harmful interventions, or simply wasting resources chasing the wrong problem. As we’ve seen, **data should be approached with a skeptical eye**. Correlations can be tantalizing – they can indeed be hints to causal relationships – but we must verify those hints. By combining statistical rigor with domain expertise, we improve our chances of getting the causation right.</span>
+<span id="cb8-134"><a href="#cb8-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-135"><a href="#cb8-135" aria-hidden="true" tabindex="-1"></a><span class="fu">## Conclusion</span></span>
+<span id="cb8-136"><a href="#cb8-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-137"><a href="#cb8-137" aria-hidden="true" tabindex="-1"></a>Understanding the difference between correlation and causation is essential for anyone who consumes data-driven information (which these days is all of us). We’ve covered how correlation is a mathematical relationship that can flag interesting connections but can also mislead us through confounding, coincidence, or reversed cause-and-effect. We explored examples from economics and healthcare where these distinctions have real-world consequences – from guiding central bank policies to informing public health decisions. The key takeaway is to **think critically**: when you hear that X is linked to Y, ask *why* and *how*. Look for evidence that goes beyond the raw correlation. As the saying goes (often attributed to many scientists), *“Correlation is not causation, but it sure is a hint.”* Use the hint to investigate further, not to jump to conclusions.</span>
+<span id="cb8-138"><a href="#cb8-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-139"><a href="#cb8-139" aria-hidden="true" tabindex="-1"></a>In the words of statistician David Freedman, misinterpreting correlation as causation is not just an academic error but one that can lead to “misguided actions”. By staying curious and skeptical – and by leveraging tools like R to analyze data properly – we can uncover the true stories our data are telling us. Correlation can open the door to discovery, but only rigorous analysis and critical thinking will reveal what’s inside.</span>
+<span id="cb8-140"><a href="#cb8-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-141"><a href="#cb8-141" aria-hidden="true" tabindex="-1"></a><span class="fu">## References &amp; Further Reading</span></span>
+<span id="cb8-142"><a href="#cb8-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-143"><a href="#cb8-143" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="co">[</span><span class="ot">Bandholz, H. “Correlation does not imply causation: higher interest and lower inflation rates” – Macro to Go blog (2023)</span><span class="co">](https://macro-to-go.com/2023/06/05/correlation-does-not-imply-causation-the-case-of-higher-interest-and-lower-inflation-rates/#:~:text=As%20the%20inflation%20peak%20roughly,%E2%80%93%20with%20one%20important%20caveat)</span></span>
+<span id="cb8-144"><a href="#cb8-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-145"><a href="#cb8-145" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="co">[</span><span class="ot">Eddy-OJB. *“Do Interest Rates Tackle Inflation?”* – *Medium* (2023)</span><span class="co">](https://medium.com/@eddyojb/do-interest-rates-tackle-inflation-af4bfce45b88)</span></span>
+<span id="cb8-146"><a href="#cb8-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-147"><a href="#cb8-147" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="co">[</span><span class="ot">Statsig Team. Examples of misleading correlations (2024)</span><span class="co">](https://www.statsig.com/perspectives/misleading-correlations-examples#:~:text=Tyler%20Vigen%27s%20site%2C%20Spurious%20Correlations%2C,data%20with%20a%20critical%20eye)</span></span>
+<span id="cb8-148"><a href="#cb8-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-149"><a href="#cb8-149" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="co">[</span><span class="ot">Matthews, R. *“Storks Deliver Babies (p = 0.008)”* – *Teaching Statistics* via Priceonomics</span><span class="co">](https://priceonomics.com/do-storks-deliver-babies/#:~:text=Lo%20and%20behold%2C%20a%20correlation,of%20storks%20in%20a%20country)</span></span>
+<span id="cb8-150"><a href="#cb8-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-151"><a href="#cb8-151" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="co">[</span><span class="ot">Scribbr – *Correlation vs Causation* (2021)</span><span class="co">](https://www.scribbr.com/methodology/correlation-vs-causation/#:~:text=Causation%20means%20that%20changes%20in,a%20causal%20link%20between%20them)</span></span>
+<span id="cb8-152"><a href="#cb8-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-153"><a href="#cb8-153" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="co">[</span><span class="ot">NPR – *Measles epidemic after vaccine scare* (2013)</span><span class="co">](https://www.npr.org/sections/health-shots/2013/05/21/185801259/fifteen-years-after-a-vaccine-scare-a-measles-epidemic#:~:text=Most%20of%20the%20measles%20cases,the%20Wakefield%20paper%20was%20published)</span></span>
+<span id="cb8-154"><a href="#cb8-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-155"><a href="#cb8-155" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="co">[</span><span class="ot">WHO – *History of polio vaccination* (2021)</span><span class="co">](https://www.who.int/news-room/spotlight/history-of-vaccination/history-of-polio-vaccination#:~:text=The%20results%20were%20announced%20on,1961%2C%20only%20161%20cases%20remained)</span></span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2023, M. Fatih Tüzen</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
