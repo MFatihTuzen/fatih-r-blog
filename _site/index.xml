@@ -364,6 +364,159 @@ font-style: inherit;">"Colored by AgeGroup. Solid lines = separate group fits (n
   <pubDate>Tue, 03 Jun 2025 21:00:00 GMT</pubDate>
 </item>
 <item>
+  <title>Statistics with R: A Gentle Introduction for Data Explorers</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2025-06-23_intro_R_stats/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<section id="introduction" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">1</span> Introduction</h2>
+<p><strong>Have you ever wondered what statistics really means?</strong> Or how professionals use R to understand patterns in data, uncover insights, and make informed decisions?</p>
+<p>This post is the beginning of a blog series designed for anyone curious about <strong>statistics and data analysis using R</strong>. Whether you’re a student, a researcher, or a professional aiming to enter the data world, this series will provide a gradual, well-structured introduction to statistical thinking with hands-on coding examples.</p>
+<p>We’ll go beyond textbook definitions, bringing concepts to life with <strong>real examples, R code, and visual illustrations</strong>.</p>
+<p>Let’s dive in.</p>
+</section>
+<section id="what-is-statistics-why-should-you-care" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="what-is-statistics-why-should-you-care"><span class="header-section-number">2</span> What is Statistics? Why Should You Care?</h2>
+<blockquote class="blockquote">
+<p>“Statistical thinking will one day be as necessary for efficient citizenship as the ability to read and write.” – H.G. Wells</p>
+</blockquote>
+<p>Statistics is the science of collecting, organizing, analyzing, and interpreting data. In essence, it’s a toolkit to help you:</p>
+<ul>
+<li></li>
+<li><p>Understand variability</p></li>
+<li></li>
+<li><p>Make informed decisions under uncertainty</p></li>
+<li></li>
+<li><p>Detect patterns, trends, and anomalies</p></li>
+<li></li>
+</ul>
+<p>Whether it’s analyzing customer behavior, predicting economic trends, or understanding medical data, <strong>statistics is everywhere</strong>.</p>
+<p>And when paired with R, the world’s most powerful open-source statistical programming language, you’re holding the key to data exploration.</p>
+</section>
+<section id="what-will-you-learn-in-this-series" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="what-will-you-learn-in-this-series"><span class="header-section-number">3</span> What Will You Learn in This Series?</h2>
+<p>In this series, we’ll cover:</p>
+<ul>
+<li></li>
+<li><p>Descriptive statistics</p></li>
+<li></li>
+<li><p>Distributions and probability</p></li>
+<li></li>
+<li><p>Hypothesis testing</p></li>
+<li></li>
+<li><p>Regression and model diagnostics</p></li>
+<li></li>
+<li><p>Time series and data preprocessing</p></li>
+<li></li>
+</ul>
+<p>Each part will focus on:</p>
+<ul>
+<li></li>
+<li><p><strong>A theory segment</strong> (clear and intuitive explanations)</p></li>
+<li></li>
+<li><p><strong>Hands-on R coding examples</strong></p></li>
+<li></li>
+<li><p><strong>Visual summaries</strong> using <code>ggplot2</code></p></li>
+<li></li>
+<li><p><strong>Practical insights</strong> for real-world use</p></li>
+<li></li>
+</ul>
+<p>Today, we begin with the foundation: <strong>Getting to know your data</strong>.</p>
+</section>
+<section id="r-essentials-getting-started-with-a-dataset" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="r-essentials-getting-started-with-a-dataset"><span class="header-section-number">4</span> R Essentials: Getting Started with a Dataset</h2>
+<p>We’ll use a built-in dataset in R called <code>mtcars</code>. It’s a classic dataset that contains information about different car models, including miles per gallon, number of cylinders, horsepower, weight, and more.</p>
+<pre><code># Load the dataset data(mtcars) head(mtcars) </code></pre>
+<p>Let’s get a feel for the structure:</p>
+<pre><code>str(mtcars) summary(mtcars) </code></pre>
+<p>These two functions help answer:</p>
+<ul>
+<li></li>
+<li><p>What variables are in the dataset?</p></li>
+<li></li>
+<li><p>What are their types?</p></li>
+<li></li>
+<li><p>Are there missing values?</p></li>
+<li></li>
+<li><p>What are typical values (mean, median, min, max)?</p></li>
+<li></li>
+</ul>
+<p>👉 <strong>Tip:</strong> Always start with <code>str()</code> and <code>summary()</code> when analyzing new data.</p>
+</section>
+<section id="descriptive-statistics-in-r" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="descriptive-statistics-in-r"><span class="header-section-number">5</span> Descriptive Statistics in R</h2>
+<p>Descriptive statistics help us <strong>summarize and describe</strong> the essential features of data. Let’s compute some basic summaries for <code>mpg</code> (miles per gallon).</p>
+<pre><code>mean(mtcars$mpg) median(mtcars$mpg) sd(mtcars$mpg) range(mtcars$mpg) </code></pre>
+<section id="create-a-summary-table" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="create-a-summary-table"><span class="header-section-number">5.1</span> Create a Summary Table</h3>
+<pre><code>summary_stats &lt;- data.frame(   Mean = mean(mtcars$mpg),   Median = median(mtcars$mpg),   SD = sd(mtcars$mpg),   Min = min(mtcars$mpg),   Max = max(mtcars$mpg) ) summary_stats </code></pre>
+<p>This gives us a compact overview of central tendency and spread.</p>
+</section>
+<section id="visualizing-with-ggplot2" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="visualizing-with-ggplot2"><span class="header-section-number">5.2</span> Visualizing with ggplot2</h3>
+<pre><code>library(ggplot2)  # Histogram ggplot(mtcars, aes(x = mpg)) +   geom_histogram(binwidth = 2, fill = "steelblue", color = "black") +   theme_minimal() +   labs(title = "Distribution of MPG", x = "Miles per Gallon", y = "Count")  # Boxplot ggplot(mtcars, aes(y = mpg)) +   geom_boxplot(fill = "orange") +   theme_minimal() +   labs(title = "Boxplot of MPG", y = "Miles per Gallon") </code></pre>
+<p>These visuals help answer:</p>
+<ul>
+<li></li>
+<li><p>Is the distribution skewed?</p></li>
+<li></li>
+<li><p>Are there outliers?</p></li>
+<li></li>
+<li><p>What’s the typical range?</p></li>
+<li></li>
+</ul>
+</section>
+</section>
+<section id="understanding-variables-quantitative-vs-categorical" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="understanding-variables-quantitative-vs-categorical"><span class="header-section-number">6</span> Understanding Variables: Quantitative vs Categorical</h2>
+<p>Although all variables in <code>mtcars</code> are numeric, some are actually <strong>categorical</strong> in meaning (e.g., <code>cyl</code>, <code>gear</code>). We can convert and analyze them accordingly.</p>
+<pre><code>mtcars$cyl &lt;- factor(mtcars$cyl) mtcars$gear &lt;- factor(mtcars$gear)  # Bar plot for categorical variable ggplot(mtcars, aes(x = gear)) +   geom_bar(fill = "coral") +   labs(title = "Number of Cars by Gear Type", x = "Gear", y = "Count") +   theme_minimal() </code></pre>
+<p>Understanding variable types ensures proper analysis. Treating a categorical variable as continuous could lead to misleading results.</p>
+</section>
+<section id="wrap-up-and-whats-next" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="wrap-up-and-whats-next"><span class="header-section-number">7</span> Wrap-Up and What’s Next</h2>
+<p>In this first post, we:</p>
+<p>✅ Introduced statistics and why it matters<br>
+✅ Learned how to inspect and summarize data in R<br>
+✅ Explored key descriptive statistics and visual tools<br>
+✅ Discussed variable types and proper treatment</p>
+<p>📌 In the next part, we’ll dive into <strong>distributions and the beauty of the normal curve</strong> – with R visualizations and simulations.</p>
+<blockquote class="blockquote">
+<p>Stay tuned – and if you found this helpful, consider sharing or following for future updates!</p>
+</blockquote>
+<section id="further-reading" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="further-reading"><span class="header-section-number">7.1</span> Further Reading</h3>
+<ul>
+<li></li>
+<li><p><a href="https://r4ds.had.co.nz/">R for Data Science by Wickham &amp; Grolemund</a></p></li>
+<li></li>
+<li><p><a href="https://www.penguinrandomhouse.com/books/602003/the-art-of-statistics-by-david-spiegelhalter/">The Art of Statistics by David Spiegelhalter</a></p></li>
+<li></li>
+<li><p><a href="https://www.statlearning.com/">Introduction to Statistical Learning</a></p></li>
+<li></li>
+</ul>
+<p><em>This blog post is part of the “Statistics with R” series. Follow along to build your statistical intuition and R skills step by step.</em></p>
+
+
+<!-- -->
+
+</section>
+</section>
+
+ ]]></description>
+  <category>statistics</category>
+  <category>R</category>
+  <category>data analysis</category>
+  <category>education</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2025-06-23_intro_R_stats/</guid>
+  <pubDate>Tue, 03 Jun 2025 21:00:00 GMT</pubDate>
+</item>
+<item>
   <title>Explained vs. Predictive Power: R², Adjusted R², and Beyond</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>
   <link>https://mfatihtuzen.netlify.app/posts/2025-04-30_rsquared/</link>
