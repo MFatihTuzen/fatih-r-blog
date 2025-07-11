@@ -10,7 +10,854 @@
 <atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Blog posts about R and Statistics</description>
 <generator>quarto-1.6.39</generator>
-<lastBuildDate>Tue, 03 Jun 2025 21:00:00 GMT</lastBuildDate>
+<lastBuildDate>Thu, 10 Jul 2025 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>Standard Deviation vs. Standard Error: Meaning, Misuse, and the Math Behind the Confusion</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2025-06-11_sd_vs_se/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-06-11_sd_vs_se/sd_vs_se.png" class="img-fluid figure-img" style="width:80.0%"></p>
+<figcaption>The left side illustrates standard deviation as the spread of individual data values around the population mean (μ). The right side shows standard error as the variability in sample means (x̄) obtained from repeated sampling. Notice how the SE distribution is narrower—it represents uncertainty in the estimate, not variability in the raw data.</figcaption>
+</figure>
+</div>
+<section id="introduction-why-this-confusion-still-matters" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="introduction-why-this-confusion-still-matters"><span class="header-section-number">1</span> Introduction: Why This Confusion Still Matters</h2>
+<p>In the world of data analysis and statistics, <strong>standard deviation (SD)</strong> and <strong>standard error (SE)</strong> are two concepts that are often misunderstood or—worse—used interchangeably. This confusion isn’t just academic: misinterpreting these two measures can lead to poor conclusions, misleading visualizations, and incorrect inferences, especially in reports intended for non-technical audiences.</p>
+<p>Think about this: you read a news article stating that <em>“the average income of a sample group is $3,000 with a standard error of $500.”</em> But then another article says <em>“the same average income with a standard deviation of $500.”</em> Should your level of confidence change? Absolutely—because they tell two fundamentally different stories.</p>
+<p>This article aims to:</p>
+<ul>
+<li>Define and differentiate standard deviation and standard error,</li>
+<li>Explore their mathematical foundations,</li>
+<li>Demonstrate their practical implications with real R code and visuals,</li>
+<li>Warn about common pitfalls and interpretation mistakes.</li>
+</ul>
+<p>By the end of this post, you’ll not only <strong>understand the difference</strong> but also <strong>know exactly when and why each metric matters</strong>.</p>
+</section>
+<section id="definitions-and-mathematical-foundation" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="definitions-and-mathematical-foundation"><span class="header-section-number">2</span> Definitions and Mathematical Foundation</h2>
+<p>Understanding the difference between <strong>standard deviation</strong> and <strong>standard error</strong> requires going beyond surface-level definitions. While they are mathematically related, they answer fundamentally different questions.</p>
+<section id="standard-deviation-sd" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="standard-deviation-sd"><span class="header-section-number">2.1</span> Standard Deviation (SD)</h3>
+<p>Standard deviation is a measure of <strong>variability</strong> or <strong>dispersion</strong> within a single dataset. It tells us how far individual observations tend to deviate from the sample (or population) mean.</p>
+<p>Mathematically, for a sample of size <img src="https://latex.codecogs.com/png.latex?n">, the sample standard deviation is given by:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0As%20=%20%5Csqrt%7B%20%5Cfrac%7B1%7D%7Bn%20-%201%7D%20%5Csum_%7Bi=1%7D%5E%7Bn%7D%20(x_i%20-%20%5Cbar%7Bx%7D)%5E2%20%7D%0A"></p>
+<p>Where:</p>
+<ul>
+<li><img src="https://latex.codecogs.com/png.latex?x_i">: Each data point</li>
+<li><img src="https://latex.codecogs.com/png.latex?%5Cbar%7Bx%7D">: Sample mean</li>
+<li><img src="https://latex.codecogs.com/png.latex?n">: Number of observations</li>
+</ul>
+<p>Standard deviation is widely used in descriptive statistics to understand how <strong>spread out</strong> the values in a dataset are. A large SD implies high variability, while a small SD suggests the values are clustered closely around the mean.</p>
+<blockquote class="blockquote">
+<p>📌 <strong>Use case</strong>: “How much do individual students’ test scores vary from the class average?”</p>
+</blockquote>
+</section>
+<section id="standard-error-se" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="standard-error-se"><span class="header-section-number">2.2</span> Standard Error (SE)</h3>
+<p>Standard error, in contrast, is a measure of <strong>precision</strong>—specifically, the precision of an estimate like the sample mean. It tells us how much the <strong>sample mean</strong> would vary if we repeatedly drew samples from the population.</p>
+<p>It is defined as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctext%7BSE%7D%20=%20%5Cfrac%7Bs%7D%7B%5Csqrt%7Bn%7D%7D%0A"></p>
+<p>As you can see, SE is directly related to the standard deviation but scaled down by the square root of the sample size. This reflects the idea that <strong>more data gives more precise estimates</strong>.</p>
+<blockquote class="blockquote">
+<p>📌 <strong>Use case</strong>: “How much uncertainty is there in the sample mean as an estimate of the population mean?”</p>
+</blockquote>
+<hr>
+<p>In short:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 24%">
+<col style="width: 24%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Concept</th>
+<th>Measures</th>
+<th>Based on</th>
+<th>Affected by Sample Size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Standard Deviation</td>
+<td>Spread of individual data points</td>
+<td>Individual observations</td>
+<td>❌ No</td>
+</tr>
+<tr class="even">
+<td>Standard Error</td>
+<td>Uncertainty in the sample mean</td>
+<td>Sampling distribution</td>
+<td>✅ Yes</td>
+</tr>
+</tbody>
+</table>
+<p>Understanding this distinction is critical for drawing correct conclusions—especially in inferential statistics, confidence intervals, and hypothesis testing.</p>
+</section>
+</section>
+<section id="visualizing-the-difference-with-r-simulation-and-interpretation" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="visualizing-the-difference-with-r-simulation-and-interpretation"><span class="header-section-number">3</span> Visualizing the Difference with R: Simulation and Interpretation</h2>
+<p>Let’s use R to <strong>visualize</strong> and <strong>truly understand</strong> the difference between standard deviation and standard error.</p>
+<p>We’ll start by generating a single random sample from a known population and examining the spread of individual values. Then, we’ll simulate multiple samples to show how the sample means vary—and how that variation reflects the standard error.</p>
+<section id="standard-deviation-spread-of-values-within-a-sample" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="standard-deviation-spread-of-values-within-a-sample"><span class="header-section-number">3.1</span> Standard Deviation: Spread of Values Within a Sample</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">42</span>)</span>
+<span id="cb1-2">sample_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sd =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>)</span></code></pre></div>
+</div>
+<p>We generate 50 values from a normal distribution with a mean of 100 and a standard deviation of 15. This mimics a situation like measuring the heights, weights, or incomes of 50 individuals.</p>
+<p>Let’s visualize how these values are distributed.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggplot2)</span>
+<span id="cb2-2"></span>
+<span id="cb2-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> sample_data), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> x)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_histogram</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> ..density..), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">binwidth =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"steelblue"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.6</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_density</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linetype =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"solid"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_vline</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xintercept =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(x)), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linetype =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dashed"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb2-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Standard Deviation: Spread of Individual Values"</span>,</span>
+<span id="cb2-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Value"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Density"</span></span>
+<span id="cb2-10">  )</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-06-11_sd_vs_se/index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>What This Graph Shows</strong></p>
+<ul>
+<li><p>The histogram shows the <strong>distribution of raw data</strong> from our single sample.</p></li>
+<li><p>The black curve is a <strong>kernel density estimate</strong>, giving us a smooth representation of the distribution.</p></li>
+<li><p>The red dashed line marks the <strong>sample mean</strong>.</p></li>
+<li><p>The <strong>spread around this mean</strong>—the “thickness” of the histogram—is what the <strong>standard deviation</strong> quantifies.</p></li>
+</ul>
+<p>So, in simple terms: <strong>standard deviation tells us how much individual values differ from their mean in one sample</strong>. It answers the question:</p>
+<blockquote class="blockquote">
+<p>“Are most values close to the average, or are they all over the place?”</p>
+</blockquote>
+</section>
+<section id="standard-error-spread-of-sample-means-across-repeated-samples" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="standard-error-spread-of-sample-means-across-repeated-samples"><span class="header-section-number">3.2</span> Standard Error: Spread of Sample Means Across Repeated Samples</h3>
+<p>Now let’s go one level deeper. Instead of looking at one sample, let’s imagine we repeatedly draw many samples from the same population, each of size 50, and record their means.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">sample_means <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">replicate</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sd =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>)))</span></code></pre></div>
+</div>
+<p>Let’s see how those means are distributed:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean =</span> sample_means), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> mean)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_histogram</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> ..density..), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">binwidth =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"darkorange"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.7</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_density</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linetype =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"solid"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_vline</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xintercept =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(mean)), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linetype =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dashed"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb4-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb4-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Standard Error: Variability of Sample Means"</span>,</span>
+<span id="cb4-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Sample Mean"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Density"</span></span>
+<span id="cb4-8">  )</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-06-11_sd_vs_se/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>What This Graph Shows</strong></p>
+<ul>
+<li><p>Each bar in the histogram represents the <strong>frequency of sample means</strong> in a small range.</p></li>
+<li><p>The curve again shows the <strong>estimated density</strong> of the sample means.</p></li>
+<li><p>The red dashed line is the <strong>grand mean</strong> of all 1,000 sample means—it should be close to 100.</p></li>
+<li><p>Unlike the previous graph, here we don’t see individual values but <strong>mean values from many samples</strong>.</p></li>
+</ul>
+<p>This distribution is known as the <strong>sampling distribution of the sample mean</strong>.</p>
+<p>And the <strong>standard deviation of this distribution is the standard error</strong>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">se_estimate <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sd</span>(sample_means)</span>
+<span id="cb5-2">se_estimate</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.113943</code></pre>
+</div>
+</div>
+</section>
+<section id="interpretation-two-types-of-spread-two-different-questions" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="interpretation-two-types-of-spread-two-different-questions"><span class="header-section-number">3.3</span> Interpretation: Two Types of Spread, Two Different Questions</h3>
+<p>Let’s pause and reflect on what we’ve seen so far.</p>
+<p>Although <strong>standard deviation</strong> and <strong>standard error</strong> are both measures of “spread,” they describe very different things, answer different questions, and are used in different contexts.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 34%">
+<col style="width: 21%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Concept</th>
+<th>What it Measures</th>
+<th>Based on…</th>
+<th>Changes with Sample Size (<img src="https://latex.codecogs.com/png.latex?n">)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Standard Deviation</td>
+<td>Spread of individual data values</td>
+<td>Single sample</td>
+<td>❌ No</td>
+</tr>
+<tr class="even">
+<td>Standard Error</td>
+<td>Spread of sample means across repeated samples</td>
+<td>Sampling distribution</td>
+<td>✅ Yes</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<section id="summary-of-interpretation" class="level4" data-number="3.3.1">
+<h4 data-number="3.3.1" class="anchored" data-anchor-id="summary-of-interpretation"><span class="header-section-number">3.3.1</span> Summary of Interpretation</h4>
+<ul>
+<li><p><strong>Standard deviation (SD)</strong> tells us:<br>
+&gt; <em>“How much do individual values differ from the average within a sample?”</em></p></li>
+<li><p><strong>Standard error (SE)</strong> tells us:<br>
+&gt; <em>“How much would the sample average vary if we repeated the sampling?”</em></p></li>
+</ul>
+<p>In other words:</p>
+<ul>
+<li><strong>SD measures natural variability</strong> among individuals (or observations).</li>
+<li><strong>SE measures the statistical uncertainty</strong> of an estimate, usually the sample mean.</li>
+</ul>
+<p>This difference is not just semantic—it has <strong>critical consequences</strong> for data interpretation:</p>
+<ul>
+<li>You use <strong>SD</strong> when describing the spread of your sample or population.</li>
+<li>You use <strong>SE</strong> when making inferences, estimating confidence intervals, or assessing how trustworthy your sample statistic is.</li>
+</ul>
+</section>
+<section id="the-mathematical-connection" class="level4" data-number="3.3.2">
+<h4 data-number="3.3.2" class="anchored" data-anchor-id="the-mathematical-connection"><span class="header-section-number">3.3.2</span> The Mathematical Connection</h4>
+<p>As we saw earlier, the standard error is mathematically derived from the standard deviation:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctext%7BSE%7D%20=%20%5Cfrac%7Bs%7D%7B%5Csqrt%7Bn%7D%7D%0A"></p>
+<p>This formula reveals a fundamental principle in statistics:</p>
+<ul>
+<li>The more data you collect (larger <img src="https://latex.codecogs.com/png.latex?n">), the <strong>more stable</strong> your sample mean becomes.</li>
+<li>However, the <strong>variability within the sample</strong> (standard deviation <img src="https://latex.codecogs.com/png.latex?s">) may remain roughly the same—because it depends on the population, not on how many observations you took.</li>
+</ul>
+<blockquote class="blockquote">
+<p>🧠 <strong>Key insight</strong>:<br>
+<strong>Standard deviation reflects the reality of your data.</strong><br>
+<strong>Standard error reflects your uncertainty about the mean.</strong></p>
+</blockquote>
+</section>
+</section>
+</section>
+<section id="common-mistakes-and-misinterpretations" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="common-mistakes-and-misinterpretations"><span class="header-section-number">4</span> Common Mistakes and Misinterpretations</h2>
+<p>Despite their differences, standard deviation and standard error are frequently confused—even in academic papers, business reports, and media articles. Below are some of the most common mistakes and why they matter.</p>
+<section id="mistake-1-using-standard-error-instead-of-standard-deviation-in-descriptive-summaries" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="mistake-1-using-standard-error-instead-of-standard-deviation-in-descriptive-summaries"><span class="header-section-number">4.1</span> Mistake 1: Using Standard Error Instead of Standard Deviation in Descriptive Summaries</h3>
+<p>A classic mistake is reporting the <strong>standard error</strong> when trying to describe how spread out individual values are.</p>
+<blockquote class="blockquote">
+<p>❌ <em>“The average score was 80 ± 2 (SE)”</em><br>
+✅ <em>“The average score was 80 ± 2 (SD)”</em></p>
+</blockquote>
+<p>In descriptive statistics—such as reporting the results of a survey, an experiment, or a class performance—you almost always want to use the <strong>standard deviation</strong>, because it reflects <strong>individual variability</strong>.</p>
+<blockquote class="blockquote">
+<p>📌 The standard error, by contrast, only makes sense if your goal is to communicate <strong>how uncertain your estimate of the mean is</strong>, not how diverse the sample is.</p>
+</blockquote>
+<hr>
+</section>
+<section id="mistake-2-adding-error-bars-to-a-barplot-without-clarifying-whether-its-sd-or-se" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="mistake-2-adding-error-bars-to-a-barplot-without-clarifying-whether-its-sd-or-se"><span class="header-section-number">4.2</span> Mistake 2: Adding Error Bars to a Barplot Without Clarifying Whether It’s SD or SE</h3>
+<p>Barplots with error bars are everywhere—but often, those bars are unlabeled, or worse, mislabeled.</p>
+<ul>
+<li>If the error bars are <strong>standard deviation</strong>, they show the <strong>range of variation</strong> in the data.</li>
+<li>If they are <strong>standard error</strong>, they show the <strong>precision of the mean estimate</strong>.</li>
+</ul>
+<p>Yet many charts leave this ambiguous or assume the reader will infer it.</p>
+<blockquote class="blockquote">
+<p>✏️ <strong>Always label your error bars.</strong> In R and ggplot2, you can add <code>labs(caption = "Error bars represent ±1 SE")</code> to avoid confusion.</p>
+</blockquote>
+<hr>
+</section>
+<section id="mistake-3-believing-that-se-can-describe-the-samples-spread" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="mistake-3-believing-that-se-can-describe-the-samples-spread"><span class="header-section-number">4.3</span> Mistake 3: Believing That SE Can Describe the Sample’s Spread</h3>
+<p>Another subtle misinterpretation is thinking that <strong>a small SE implies the data itself is tightly clustered</strong>. But SE has nothing to do with spread among individual values.</p>
+<blockquote class="blockquote">
+<p>A sample can have high variability (large SD), but still have a small SE if the sample size is large.</p>
+</blockquote>
+<p>This is especially misleading in <strong>clinical trials</strong> or <strong>public health studies</strong>, where the sample size might be very large—but individual responses vary wildly.</p>
+<blockquote class="blockquote">
+<p>📉 Low SE ≠ Low diversity. It just means you’re confident about the average.</p>
+</blockquote>
+<hr>
+</section>
+<section id="mistake-4-reporting-se-without-context" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="mistake-4-reporting-se-without-context"><span class="header-section-number">4.4</span> Mistake 4: Reporting SE Without Context</h3>
+<p>It’s not uncommon to see a mean value with a standard error reported like this:</p>
+<blockquote class="blockquote">
+<p><em>“Mean blood pressure: 132 ± 1.5”</em></p>
+</blockquote>
+<p>This may seem informative—but <strong>without knowing the sample size</strong>, this value has limited meaning.</p>
+<p>Why? Because SE is <strong>dependent on</strong> <img src="https://latex.codecogs.com/png.latex?n">. A standard error of 1.5 from 10 observations is very different from the same SE based on 10,000 observations.</p>
+<blockquote class="blockquote">
+<p>✔️ Always include the <strong>sample size</strong> and preferably also the <strong>standard deviation</strong>, especially if the goal is transparency and reproducibility.</p>
+</blockquote>
+<hr>
+</section>
+<section id="final-rule-of-thumb" class="level3" data-number="4.5">
+<h3 data-number="4.5" class="anchored" data-anchor-id="final-rule-of-thumb"><span class="header-section-number">4.5</span> Final Rule of Thumb</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>If you want to…</th>
+<th>Use…</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Describe how individuals vary</td>
+<td>Standard Deviation</td>
+</tr>
+<tr class="even">
+<td>Quantify uncertainty about the sample mean</td>
+<td>Standard Error</td>
+</tr>
+<tr class="odd">
+<td>Construct a confidence interval</td>
+<td>Standard Error</td>
+</tr>
+<tr class="even">
+<td>Show variability in raw data</td>
+<td>Standard Deviation</td>
+</tr>
+</tbody>
+</table>
+<p>By respecting the purpose and proper use of these two measures, you’ll avoid misleading your audience—and build more trust in your analyses.</p>
+</section>
+</section>
+<section id="a-real-world-example-monthly-spending-survey-in-usd" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="a-real-world-example-monthly-spending-survey-in-usd"><span class="header-section-number">5</span> A Real-World Example: Monthly Spending Survey in USD</h2>
+<p>Let’s now apply what we’ve learned in a more realistic, international scenario.</p>
+<p>Imagine a survey conducted in a mid-sized city where 40 individuals are asked:</p>
+<blockquote class="blockquote">
+<p><em>“How much money do you spend per month (in US Dollars)?”</em></p>
+</blockquote>
+<p>We simulate responses centered around $2,000, with a standard deviation of $500.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span>
+<span id="cb7-2">n <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span></span>
+<span id="cb7-3">monthly_spending <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(n, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2000</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sd =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)</span>
+<span id="cb7-4"></span>
+<span id="cb7-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(monthly_spending)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1720 1885 2779 2035 2065 2858</code></pre>
+</div>
+</div>
+<section id="descriptive-statistics" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="descriptive-statistics"><span class="header-section-number">5.1</span> Descriptive Statistics</h3>
+<p>Now let’s compute the mean, standard deviation, and standard error:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">mean_spending <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(monthly_spending)</span>
+<span id="cb9-2">sd_spending <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sd</span>(monthly_spending)</span>
+<span id="cb9-3">se_spending <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> sd_spending <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sqrt</span>(n)</span>
+<span id="cb9-4"></span>
+<span id="cb9-5">mean_spending</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2022.6</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1">sd_spending</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 448.8549</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1">se_spending</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 70.9702</code></pre>
+</div>
+</div>
+<p>Let’s interpret the output:</p>
+<ul>
+<li><p><strong>Mean monthly spending</strong>: approximately 2023 USD</p></li>
+<li><p><strong>Standard deviation</strong>: approximately 449 USD</p></li>
+<li><p><strong>Standard error</strong>: approximately 71 USD</p></li>
+</ul>
+</section>
+<section id="what-do-these-numbers-tell-us" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="what-do-these-numbers-tell-us"><span class="header-section-number">5.2</span> What Do These Numbers Tell Us?</h3>
+<ul>
+<li><p>The <strong>standard deviation</strong> tells us that individual spending varies by about 449 USD from the average. So one person may spend only around 1574 USD, while another spends over 2471 USD.</p></li>
+<li><p>The <strong>standard error</strong> tells us that the <strong>average</strong> we see in this sample could fluctuate by about ±71 USD due to sampling variability.</p></li>
+</ul>
+<div>
+<p>📌 While individuals differ significantly in spending habits, the sample mean is relatively stable thanks to a sufficient sample size <img src="https://latex.codecogs.com/png.latex?n%20="> 40</p>
+</div>
+</section>
+<section id="visualizing-the-distribution" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="visualizing-the-distribution"><span class="header-section-number">5.3</span> Visualizing the Distribution</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggplot2)</span>
+<span id="cb15-2"></span>
+<span id="cb15-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">spending =</span> monthly_spending), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> spending)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb15-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_histogram</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> ..density..), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">binwidth =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">250</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"skyblue"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.7</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb15-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_density</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"darkblue"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb15-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_vline</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xintercept =</span> mean_spending), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linetype =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dashed"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb15-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb15-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Distribution of Monthly Spending"</span>,</span>
+<span id="cb15-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Monthly Spending (USD)"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Density"</span></span>
+<span id="cb15-10">  )</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-06-11_sd_vs_se/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This graph shows:</p>
+<ul>
+<li><p>The <strong>red dashed line</strong> is the sample mean 2023 USD</p></li>
+<li><p>The <strong>width</strong> of the histogram and smooth curve represents the variability in spending.</p></li>
+<li><p>This is captured by the <strong>standard deviation</strong>, not the standard error.</p></li>
+</ul>
+</section>
+<section id="confidence-interval-for-the-mean" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="confidence-interval-for-the-mean"><span class="header-section-number">5.4</span> Confidence Interval for the Mean</h3>
+<p>Let’s calculate a 95% confidence interval using the standard error:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1">lower <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> mean_spending <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.96</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> se_spending</span>
+<span id="cb16-2">upper <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> mean_spending <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.96</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> se_spending</span>
+<span id="cb16-3"></span>
+<span id="cb16-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(lower, upper)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1883.498 2161.702</code></pre>
+</div>
+</div>
+<p>Result:</p>
+<blockquote class="blockquote">
+<p><strong>Confidence interval:</strong> approximately 1883 to 2162 USD</p>
+</blockquote>
+<p>This tells us:</p>
+<blockquote class="blockquote">
+<p>“We are 95% confident that the true average monthly spending of the population lies between 1883 and 2162 USD.”</p>
+</blockquote>
+<p><strong>Remember:</strong> this range reflects <strong>uncertainty about the mean</strong>, not individual variability.</p>
+</section>
+</section>
+<section id="conclusion" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">6</span> Conclusion</h2>
+<p>Standard deviation and standard error are often mentioned in the same breath, but they serve <strong>very different purposes</strong> in data analysis and statistical reasoning.</p>
+<ul>
+<li><strong>Standard deviation</strong> reflects the <strong>natural variability</strong> in a dataset. It tells us how different individuals are from one another.</li>
+<li><strong>Standard error</strong> quantifies the <strong>precision of a sample estimate</strong>, such as the mean. It tells us how much we can trust our estimate of the population parameter.</li>
+</ul>
+<p>While they are mathematically related, confusing one for the other can lead to serious misinterpretations—especially in scientific communication, data journalism, or policymaking.</p>
+<p>Here are some final takeaways:</p>
+<ul>
+<li>Use <strong>standard deviation</strong> when describing the data you have.</li>
+<li>Use <strong>standard error</strong> when making inferences about the population from your sample.</li>
+<li>Always <strong>label your charts and error bars clearly</strong>, and <strong>report sample size</strong> to give proper context.</li>
+<li>Don’t mistake low standard error for low variability—it only means your estimate is more precise, not that your data is more uniform.</li>
+</ul>
+<blockquote class="blockquote">
+<p>🎯 In short:<br>
+<strong>Standard deviation tells you about your data.</strong><br>
+<strong>Standard error tells you how much you can trust your mean.</strong></p>
+</blockquote>
+<p>Understanding this distinction is more than just a statistical nuance—it’s a sign of analytical maturity.</p>
+</section>
+<section id="references" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="references"><span class="header-section-number">7</span> References</h2>
+<ul>
+<li><p>James, G., Witten, D., Hastie, T., &amp; Tibshirani, R. (2021). <em>An Introduction to Statistical Learning with Applications in R</em>. Springer. <a href="https://www.statlearning.com" class="uri">https://www.statlearning.com</a></p></li>
+<li><p>Moore, D. S., McCabe, G. P., &amp; Craig, B. A. (2017). <em>Introduction to the Practice of Statistics</em>. W.H. Freeman.</p></li>
+<li><p>R Core Team. (2024). <em>R: A language and environment for statistical computing</em>. R Foundation for Statistical Computing. <a href="https://www.r-project.org" class="uri">https://www.r-project.org</a></p></li>
+<li><p>Wickham, H., Çetinkaya-Rundel, M., &amp; Grolemund, G. (2023). <em>R for Data Science (2e)</em>. <a href="https://r4ds.hadley.nz" class="uri">https://r4ds.hadley.nz</a></p></li>
+<li><p>Navarro, D. (2019). <em>Learning Statistics with R: A tutorial for psychology students and other beginners</em>. <a href="https://learningstatisticswithr.com" class="uri">https://learningstatisticswithr.com</a></p></li>
+</ul>
+
+
+<!-- -->
+
+</section>
+
+ ]]></description>
+  <category>R</category>
+  <category>Statistics</category>
+  <category>Data Analysis</category>
+  <category>Standard Deviation</category>
+  <category>Standard Error</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2025-06-11_sd_vs_se/</guid>
+  <pubDate>Thu, 10 Jul 2025 21:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Correlation vs Causation: Understanding the Difference</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>
