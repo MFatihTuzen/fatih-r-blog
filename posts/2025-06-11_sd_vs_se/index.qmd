@@ -76,7 +76,7 @@ As you can see, SE is directly related to the standard deviation but scaled down
 In short:
 
 | Concept            | Measures                         | Based on                | Affected by Sample Size |
-|------------------|------------------|------------------|-------------------|
+|--------------------|----------------------------------|-------------------------|-------------------------|
 | Standard Deviation | Spread of individual data points | Individual observations | ❌ No                   |
 | Standard Error     | Uncertainty in the sample mean   | Sampling distribution   | ✅ Yes                  |
 
@@ -175,7 +175,7 @@ Let’s pause and reflect on what we've seen so far.
 Although **standard deviation** and **standard error** are both measures of “spread,” they describe very different things, answer different questions, and are used in different contexts.
 
 | Concept            | What it Measures                               | Based on...           | Changes with Sample Size ($n$) |
-|----------------|-------------------------|----------------|----------------|
+|--------------------|------------------------------------------------|-----------------------|--------------------------------|
 | Standard Deviation | Spread of individual data values               | Single sample         | ❌ No                          |
 | Standard Error     | Spread of sample means across repeated samples | Sampling distribution | ✅ Yes                         |
 

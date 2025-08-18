@@ -10,7 +10,7 @@
 <atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Blog posts about R and Statistics</description>
 <generator>quarto-1.6.39</generator>
-<lastBuildDate>Thu, 10 Jul 2025 21:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 17 Aug 2025 21:00:00 GMT</lastBuildDate>
 <item>
   <title>Standard Deviation vs. Standard Error: Meaning, Misuse, and the Math Behind the Confusion</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>
@@ -72,10 +72,10 @@
 <p>In short:</p>
 <table class="caption-top table">
 <colgroup>
+<col style="width: 19%">
+<col style="width: 32%">
 <col style="width: 24%">
 <col style="width: 24%">
-<col style="width: 24%">
-<col style="width: 26%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -413,10 +413,10 @@ font-style: inherit;">sd</span>(sample_means)</span>
 <p>Although <strong>standard deviation</strong> and <strong>standard error</strong> are both measures of “spread,” they describe very different things, answer different questions, and are used in different contexts.</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 21%">
-<col style="width: 34%">
-<col style="width: 21%">
-<col style="width: 21%">
+<col style="width: 16%">
+<col style="width: 39%">
+<col style="width: 18%">
+<col style="width: 26%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -856,7 +856,1884 @@ font-style: inherit;">c</span>(lower, upper)</span></code></pre></div>
   <category>Standard Deviation</category>
   <category>Standard Error</category>
   <guid>https://mfatihtuzen.netlify.app/posts/2025-06-11_sd_vs_se/</guid>
-  <pubDate>Thu, 10 Jul 2025 21:00:00 GMT</pubDate>
+  <pubDate>Sun, 17 Aug 2025 21:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Handling Missing Data in R: A Comprehensive Guide</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2025-08-18_missing_values/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<section id="introduction" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">1</span> Introduction</h2>
+<p>Missing data is one of the most common challenges in data analysis and statistical modeling.<br>
+Whether the data originates from surveys, administrative registers, or clinical trials, it is almost inevitable that some values are absent. Ignoring this issue or handling it incorrectly can seriously bias results, reduce statistical power, and ultimately lead to misleading conclusions.</p>
+<p>In statistical notation, missing values are usually represented as <strong>NA</strong> (Not Available) in R.<br>
+However, not all missing values are created equal: some are missing completely at random, while others may follow systematic patterns. Before deciding how to handle missingness, one must carefully investigate its causes and implications.</p>
+<p>In this article, we will cover:</p>
+<ul>
+<li>The theoretical foundations of missing data mechanisms (MCAR, MAR, MNAR).</li>
+<li>How to detect and visualize missing values in R.</li>
+<li>Different strategies for handling missingness, from simple imputation to advanced multiple imputation techniques.</li>
+<li>A practical workflow using the <strong>NHANES dataset</strong>, widely used in health research, to demonstrate methods in R.</li>
+<li>Best practices, pitfalls, and recommendations for applied data science.</li>
+</ul>
+<p>We will use several R packages throughout this tutorial:</p>
+<ul>
+<li><strong>tidyverse</strong>: Data wrangling and visualization</li>
+<li><strong>naniar</strong> and <strong>VIM</strong>: Tools for exploring and visualizing missing data</li>
+<li><strong>mice</strong>: Multiple imputation by chained equations</li>
+<li><strong>missForest</strong>: Random forest–based imputation for nonlinear data</li>
+</ul>
+<p>This structured approach will help you not only handle missing data but also understand the reasoning behind each method, ensuring that your analyses remain robust and reliable.</p>
+</section>
+<section id="nhanes-dataset" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="nhanes-dataset"><span class="header-section-number">2</span> NHANES Dataset</h2>
+<p>In this section, we will work with the <strong>NHANES</strong> dataset, which comes from the US National Health and Nutrition Examination Survey.<br>
+The dataset includes demographic, examination, and laboratory data collected from thousands of individuals.<br>
+Since the full dataset is quite large, we will focus only on a subset of variables that are relevant for preprocessing examples.</p>
+<p>Here are the variables we will use:</p>
+<ul>
+<li><strong>ID</strong>: Unique identifier for each participant</li>
+<li><strong>Age</strong>: Age of the participant</li>
+<li><strong>Gender</strong>: Biological sex (male or female)</li>
+<li><strong>BMI</strong>: Body Mass Index</li>
+<li><strong>BPSysAve</strong>: Average systolic blood pressure</li>
+<li><strong>Diabetes</strong>: Whether the participant has been diagnosed with diabetes</li>
+</ul>
+<p>Before diving into preprocessing, let’s take a quick look at the structure of these selected variables:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(NHANES)</span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(dplyr)</span>
+<span id="cb1-3"></span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NHANES"</span>)</span>
+<span id="cb1-5"></span>
+<span id="cb1-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Select relevant variables</span></span>
+<span id="cb1-7">nhanes_sub <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> NHANES <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb1-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(ID, Age, Gender, BMI, BPSysAve, Diabetes)</span>
+<span id="cb1-9"></span>
+<span id="cb1-10"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">glimpse</span>(nhanes_sub)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 10,000
+Columns: 6
+$ ID       &lt;int&gt; 51624, 51624, 51624, 51625, 51630, 51638, 51646, 51647, 51647…
+$ Age      &lt;int&gt; 34, 34, 34, 4, 49, 9, 8, 45, 45, 45, 66, 58, 54, 10, 58, 50, …
+$ Gender   &lt;fct&gt; male, male, male, male, female, male, male, female, female, f…
+$ BMI      &lt;dbl&gt; 32.22, 32.22, 32.22, 15.30, 30.57, 16.82, 20.64, 27.24, 27.24…
+$ BPSysAve &lt;int&gt; 113, 113, 113, NA, 112, 86, 107, 118, 118, 118, 111, 104, 134…
+$ Diabetes &lt;fct&gt; No, No, No, No, No, No, No, No, No, No, No, No, No, No, No, N…</code></pre>
+</div>
+</div>
+</section>
+<section id="why-missingness-matters" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="why-missingness-matters"><span class="header-section-number">3</span> Why Missingness Matters</h2>
+<p>Missing data is not just an inconvenience — it can distort the statistical conclusions we draw from a dataset.<br>
+There are several critical reasons why handling missingness properly is essential:</p>
+<ul>
+<li><strong>Biased results</strong>: If the missing values are not random, analyses may systematically misrepresent the population.</li>
+<li><strong>Reduced sample size</strong>: Complete-case analysis (simply dropping missing rows) reduces data availability, weakening statistical power.</li>
+<li><strong>Model incompatibility</strong>: Many modeling techniques in R (e.g., <code>lm()</code>, <code>glm()</code>) require complete data, and will automatically drop cases with missing values, sometimes silently.</li>
+</ul>
+<section id="a-short-case-example-bmi-missingness-and-blood-pressure" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="a-short-case-example-bmi-missingness-and-blood-pressure"><span class="header-section-number">3.1</span> A Short Case Example: BMI Missingness and Blood Pressure</h3>
+<p>Suppose we want to explore how <strong>Body Mass Index (BMI)</strong> relates to <strong>Systolic Blood Pressure (BPSysAve)</strong>.<br>
+However, BMI contains missing values. If we ignore them and only analyze complete cases, we may end up with biased conclusions.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># How many missing in BMI?</span></span>
+<span id="cb3-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(nhanes_sub<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>BMI))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 366</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Complete-case dataset (dropping missing BMI)</span></span>
+<span id="cb5-2">nhanes_complete <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nhanes_sub <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb5-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(BMI))</span>
+<span id="cb5-4"></span>
+<span id="cb5-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compare sample sizes</span></span>
+<span id="cb5-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(nhanes_sub)     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># original sample size</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 10000</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(nhanes_complete) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># after dropping missing BMI</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 9634</code></pre>
+</div>
+</div>
+<p>We see that a substantial portion of the data is dropped when we remove missing BMI values. This reduction not only decreases efficiency but can also <strong>bias the estimates</strong> if those missing values are not randomly distributed.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Fit regression with complete cases only</span></span>
+<span id="cb9-2">model_complete <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lm</span>(BPSysAve <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> BMI <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Age <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Gender, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> nhanes_complete)</span>
+<span id="cb9-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summary</span>(model_complete)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = BPSysAve ~ BMI + Age + Gender, data = nhanes_complete)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-56.281  -8.652  -0.955   7.560 102.790 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 90.016503   0.677618  132.84   &lt;2e-16 ***
+BMI          0.328076   0.023228   14.12   &lt;2e-16 ***
+Age          0.412758   0.008076   51.11   &lt;2e-16 ***
+Gendermale   4.346847   0.313476   13.87   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 14.43 on 8483 degrees of freedom
+  (1147 observations deleted due to missingness)
+Multiple R-squared:  0.2969,    Adjusted R-squared:  0.2966 
+F-statistic:  1194 on 3 and 8483 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p><strong>Interpretation</strong>:</p>
+<ul>
+<li>The model only uses complete cases, ignoring potentially informative missingness.</li>
+<li>If BMI is more often missing in certain subgroups (e.g., older adults or females), then the relationship estimated here does not represent the whole population.</li>
+<li>In later sections, we will see how different imputation strategies can mitigate this problem.</li>
+</ul>
+</section>
+</section>
+<section id="missing-data-mechanisms" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="missing-data-mechanisms"><span class="header-section-number">4</span> Missing Data Mechanisms</h2>
+<p>One of the most crucial aspects of handling missing data is to understand <strong>why</strong> the data are missing.<br>
+The mechanism behind missingness determines whether our chosen method will yield unbiased and efficient estimates.</p>
+<section id="types-of-missing-data-mechanisms" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="types-of-missing-data-mechanisms"><span class="header-section-number">4.1</span> Types of Missing Data Mechanisms</h3>
+<ul>
+<li><p><strong>MCAR (Missing Completely At Random)</strong><br>
+The probability of a value being missing does not depend on either the observed or the unobserved data.<br>
+→ Example: A lab machine randomly fails for some patients, regardless of their characteristics.<br>
+→ Implication: Complete-case analysis is valid (though less efficient).</p></li>
+<li><p><strong>MAR (Missing At Random)</strong><br>
+The probability of missingness depends only on the <strong>observed</strong> data, not on the missing values themselves.<br>
+→ Example: People with lower income are less likely to report their weight, but we observe income.<br>
+→ Implication: Multiple imputation or likelihood-based methods can recover unbiased estimates.</p></li>
+<li><p><strong>MNAR (Missing Not At Random)</strong><br>
+The probability of missingness depends on the <strong>unobserved</strong> value itself.<br>
+→ Example: People with higher BMI are less likely to report their weight.<br>
+→ Implication: Strong assumptions or external information are needed; imputation under MAR will still be biased.</p></li>
+</ul>
+</section>
+<section id="what-each-mechanism-implies-with-nhanes-intuition" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="what-each-mechanism-implies-with-nhanes-intuition"><span class="header-section-number">4.2</span> What each mechanism implies (with NHANES intuition)</h3>
+<ul>
+<li><p><strong>MCAR</strong> — e.g., random device failure that occasionally prevents recording <code>BMI</code>.<br>
+<em>Implication:</em> Complete-case analysis (dropping rows) is unbiased but wastes data.</p></li>
+<li><p><strong>MAR</strong> — e.g., <code>BMI</code> missingness varies by observed <strong>Age</strong> or <strong>Gender</strong>.<br>
+<em>Implication:</em> Likelihood-based methods or <strong>Multiple Imputation (MI)</strong> are valid if those predictors are in the imputation model.</p></li>
+<li><p><strong>MNAR</strong> — e.g., people with <strong>very high BMI</strong> systematically do not report it.<br>
+<em>Implication:</em> MAR-based methods still biased; requires <strong>sensitivity analysis</strong> or explicit MNAR models.</p></li>
+</ul>
+</section>
+<section id="quick-nhanes-checks-that-suggest-a-mechanism" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="quick-nhanes-checks-that-suggest-a-mechanism"><span class="header-section-number">4.3</span> Quick NHANES checks that suggest a mechanism</h3>
+<p>Below we do two simple diagnostics on our working subset <code>nhanes_sub</code><br>
+(defined earlier as: <code>NHANES |&gt; select(ID, Age, Gender, BMI, BPSysAve, Diabetes)</code>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Packages we already use</span></span>
+<span id="cb11-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(dplyr)</span>
+<span id="cb11-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(knitr)</span>
+<span id="cb11-4"></span>
+<span id="cb11-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 1) Overall BMI missingness</span></span>
+<span id="cb11-6">nhanes_sub <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb11-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pct_missing_BMI =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(BMI)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb11-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pct_missing_BMI =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(pct_missing_BMI, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb11-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">kable</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">caption =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Overall BMI missingness (%)"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Overall BMI missingness (%)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">pct_missing_BMI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">3.7</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 2) Does BMI missingness vary by observed variables? (MAR hint)</span></span>
+<span id="cb12-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#    - By Gender</span></span>
+<span id="cb12-3">by_gender <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nhanes_sub <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb12-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">group_by</span>(Gender) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb12-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pct_miss_BMI =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(BMI)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>,</span>
+<span id="cb12-6">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">n</span>(), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.groups =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"drop"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb12-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pct_miss_BMI =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(pct_miss_BMI, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>))</span>
+<span id="cb12-8"></span>
+<span id="cb12-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#    - By Age groups (bins)</span></span>
+<span id="cb12-10">by_age <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nhanes_sub <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb12-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">AgeBand =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cut</span>(Age, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">breaks =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">45</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">60</span>, <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">Inf</span>),</span>
+<span id="cb12-12">                       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">labels =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"&lt;=30"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"31–45"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"46–60"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"60+"</span>),</span>
+<span id="cb12-13">                       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">right =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb12-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">group_by</span>(AgeBand) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb12-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pct_miss_BMI =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(BMI)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>,</span>
+<span id="cb12-16">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">n</span>(), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.groups =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"drop"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb12-17">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pct_miss_BMI =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(pct_miss_BMI, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>))</span>
+<span id="cb12-18"></span>
+<span id="cb12-19"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Show summaries nicely</span></span>
+<span id="cb12-20"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">kable</span>(by_gender, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">caption =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BMI missingness by Gender (%)"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>BMI missingness by Gender (%)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Gender</th>
+<th style="text-align: right;">pct_miss_BMI</th>
+<th style="text-align: right;">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">female</td>
+<td style="text-align: right;">3.6</td>
+<td style="text-align: right;">5020</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">male</td>
+<td style="text-align: right;">3.8</td>
+<td style="text-align: right;">4980</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">kable</span>(by_age,    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">caption =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BMI missingness by Age band (%)"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>BMI missingness by Age band (%)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">AgeBand</th>
+<th style="text-align: right;">pct_miss_BMI</th>
+<th style="text-align: right;">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">&lt;=30</td>
+<td style="text-align: right;">7.6</td>
+<td style="text-align: right;">4121</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">31–45</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">2049</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">46–60</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">1991</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">60+</td>
+<td style="text-align: right;">1.7</td>
+<td style="text-align: right;">1839</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><p>If <code>pct_miss_BMI</code> is <strong>similar across groups</strong>, MCAR is more plausible.</p></li>
+<li><p>If missingness <strong>changes with Age or Gender</strong>, <strong>MAR</strong> is more plausible (we must include those predictors in imputation).</p></li>
+<li><p>These are <em>indicators</em>, not proofs; true <strong>MNAR</strong> needs external info or sensitivity analyses.</p></li>
+</ul>
+<p><strong>Which methods are valid under which mechanism?</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 27%">
+<col style="width: 30%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Mechanism</th>
+<th>Example (NHANES context)</th>
+<th>Valid methods</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>MCAR</strong></td>
+<td>Random loss of <code>BMI</code> records</td>
+<td>Complete-case, single imputation, MI</td>
+<td>Unbiased but may waste data</td>
+</tr>
+<tr class="even">
+<td><strong>MAR</strong></td>
+<td><code>BMI</code> missingness varies by observed <code>Age</code>, <code>Gender</code></td>
+<td><strong>Multiple Imputation (MICE)</strong>, likelihood/EM, missForest</td>
+<td>Include strong predictors of missingness</td>
+</tr>
+<tr class="odd">
+<td><strong>MNAR</strong></td>
+<td>People with very high <code>BMI</code> hide it</td>
+<td>Sensitivity analysis, selection/pattern-mixture models</td>
+<td>MAR-based MI alone is biased</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Optional: Little’s MCAR Test
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Little’s MCAR test is a statistical procedure used to examine whether data are <strong>Missing Completely at Random (MCAR)</strong>.</p>
+<p>⚠️ However, this test comes with important caveats:<br>
+- It can be overly sensitive in <strong>large samples</strong>, flagging trivial deviations.<br>
+- In <strong>small samples</strong>, its power is often too low to detect meaningful departures from MCAR.</p>
+<p>Because of these limitations, it should be treated only as a <strong>supporting tool</strong> rather than a definitive test when diagnosing missingness mechanisms.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="detecting-missing-data" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="detecting-missing-data"><span class="header-section-number">5</span> Detecting Missing Data</h2>
+<p>Before applying any imputation or modeling technique, it is essential to explore the <strong>extent and structure of missingness</strong> in the dataset. The <code>nhanes_sub</code> data frame, derived from the NHANES dataset, will be used for illustration.</p>
+<section id="simple-counts-and-summaries" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="simple-counts-and-summaries"><span class="header-section-number">5.1</span> Simple Counts and Summaries</h3>
+<p>The first step is to quantify how many values are missing per variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Count missing values for each variable</span></span>
+<span id="cb14-2">nhanes_sub <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb14-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">across</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">everything</span>(), <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(.)))) </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 6
+     ID   Age Gender   BMI BPSysAve Diabetes
+  &lt;int&gt; &lt;int&gt;  &lt;int&gt; &lt;int&gt;    &lt;int&gt;    &lt;int&gt;
+1     0     0      0   366     1449      142</code></pre>
+</div>
+</div>
+<p>The output shows the number of missing values in each column, making it easy to spot problematic variables. Another quick check is to identify how many <strong>complete vs.&nbsp;incomplete cases</strong> exist:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">complete.cases</span>(nhanes_sub))       <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># number of complete rows</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 8482</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">complete.cases</span>(nhanes_sub))      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># number of incomplete rows</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1518</code></pre>
+</div>
+</div>
+<p>This gives us an idea of the proportion of observations that would be lost if we opted for <strong>listwise deletion</strong>.</p>
+</section>
+<section id="visualizing-missingness" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="visualizing-missingness"><span class="header-section-number">5.2</span> Visualizing Missingness</h3>
+<p>Textual summaries are informative, but missing data often has <strong>patterns</strong> that are better revealed visually. Several R packages support this task:</p>
+<section id="naniar" class="level4" data-number="5.2.1">
+<h4 data-number="5.2.1" class="anchored" data-anchor-id="naniar"><span class="header-section-number">5.2.1</span> <code>naniar</code></h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(naniar)</span>
+<span id="cb20-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggplot2)</span>
+<span id="cb20-3"></span>
+<span id="cb20-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Visualize missing values by variable</span></span>
+<span id="cb20-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">gg_miss_var</span>(nhanes_sub, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">show_pct =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb20-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Missing Values by Variable in NHANES Subset"</span>,</span>
+<span id="cb20-7">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Variables"</span>,</span>
+<span id="cb20-8">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Proportion of Missing Values"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-08-18_missing_values/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><p>Each bar corresponds to a variable.</p></li>
+<li><p>The <strong>height of the bar</strong> shows how many observations are missing for that variable.</p></li>
+<li><p>With <code>show_pct = TRUE</code>, the proportion of missing values is also displayed, making it easier to compare across variables.</p></li>
+<li><p>Variables with tall bars clearly have higher missingness (e.g., BMI or blood pressure variables often stand out in this dataset).</p></li>
+</ul>
+</section>
+<section id="vim" class="level4" data-number="5.2.2">
+<h4 data-number="5.2.2" class="anchored" data-anchor-id="vim"><span class="header-section-number">5.2.2</span> <code>VIM</code></h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(VIM)</span>
+<span id="cb21-2"></span>
+<span id="cb21-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aggr</span>(nhanes_sub, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">numbers =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">prop =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sortVar =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-08-18_missing_values/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ Variables sorted by number of missings: 
+ Variable Count
+ BPSysAve  1449
+      BMI   366
+ Diabetes   142
+       ID     0
+      Age     0
+   Gender     0</code></pre>
+</div>
+</div>
+<p>This aggregated visualization shows the proportion of missing values per variable and the combinations of missingness across variables.</p>
+</section>
+<section id="visdat" class="level4" data-number="5.2.3">
+<h4 data-number="5.2.3" class="anchored" data-anchor-id="visdat"><span class="header-section-number">5.2.3</span> <code>visdat</code></h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(visdat)</span>
+<span id="cb23-2"></span>
+<span id="cb23-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">vis_dat</span>(nhanes_sub)</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-08-18_missing_values/index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This function displays the data type of each variable and overlays missingness, helping to identify whether missing values cluster in certain variable types (e.g., numeric vs.&nbsp;categorical).</p>
+</section>
+</section>
+<section id="interpreting-the-patterns" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="interpreting-the-patterns"><span class="header-section-number">5.3</span> Interpreting the Patterns</h3>
+<ul>
+<li><strong>Random scatter of missing values</strong> across rows/columns may indicate <strong>MCAR</strong> (though formal testing is required).</li>
+<li><strong>Systematic patterns</strong> (e.g., older participants more likely to have missing BMI) hint at <strong>MAR</strong>.</li>
+<li><strong>Blocks of missingness</strong> (entire variables missing for subgroups) may suggest <strong>MNAR</strong> or structural missingness.</li>
+</ul>
+</section>
+</section>
+<section id="handling-missing-data-methods" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="handling-missing-data-methods"><span class="header-section-number">6</span> Handling Missing Data — Methods</h2>
+<p>In this section we review the main families of methods, show <strong>when</strong> each is appropriate, and demonstrate them on <code>nhanes_sub</code>. We will explicitly call out the <strong>trade-offs</strong> so readers can choose deliberately—not by habit.</p>
+<hr>
+<section id="deletion" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="deletion"><span class="header-section-number">6.1</span> Deletion</h3>
+<p><strong>Listwise deletion (complete-case)</strong> removes any row that contains <em>at least one</em> missing value.<br>
+<strong>Pairwise deletion</strong> uses all available pairs to compute correlations/covariances, which can later lead to <strong>non–positive-definite</strong> covariance matrices and failures in modeling.</p>
+<ul>
+<li><p><strong>Pros</strong> - Simple; widely implemented by default (often silently). - Unbiased <em>only</em> under <strong>MCAR</strong>.</p></li>
+<li><p><strong>Cons</strong> - Wastes data; reduces power. - Biased under <strong>MAR/MNAR</strong>; can change the sample composition.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># How many rows would we lose if we required complete cases for these variables?</span></span>
+<span id="cb24-2">n_total <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(nhanes_sub)</span>
+<span id="cb24-3">n_cc    <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nhanes_sub <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> stats<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">complete.cases</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>()</span>
+<span id="cb24-4"></span>
+<span id="cb24-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cbind</span>(</span>
+<span id="cb24-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">total_rows    =</span> n_total,</span>
+<span id="cb24-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">complete_cases=</span> n_cc,</span>
+<span id="cb24-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lost_rows     =</span> n_total <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> n_cc,</span>
+<span id="cb24-9">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lost_pct      =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>((n_total <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> n_cc) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> n_total <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb24-10">)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     total_rows complete_cases lost_rows lost_pct
+[1,]      10000           8482      1518     15.2</code></pre>
+</div>
+</div>
+<p><strong>Interpretation:</strong> If the lost percentage is non-trivial (e.g., &gt;5–10%), listwise deletion both <strong>shrinks power</strong> and <strong>risks bias</strong> unless MCAR truly holds. Pairwise deletion is <strong>not recommended</strong> for modeling because it can yield inconsistent covariance structures.</p>
+</section>
+<section id="simple-imputation" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="simple-imputation"><span class="header-section-number">6.2</span> Simple Imputation</h3>
+<p><strong>Idea.</strong> Fill missing values with a single plausible value (one pass). Fast and convenient, but it <strong>underestimates uncertainty</strong> (standard errors too small) and can <strong>distort distributions</strong>.</p>
+<p><strong>Typical choices</strong></p>
+<ul>
+<li><p><strong>Mean/Median/Mode</strong> (baselines; median is more robust to skew)</p></li>
+<li><p><strong>k-Nearest Neighbors (kNN)</strong> (borrows information from similar rows)</p></li>
+<li><p><strong>Hot-deck</strong> (donor-based; similar spirit to kNN)</p></li>
+</ul>
+<section id="median-numeric-mode-categorical-baselines" class="level4" data-number="6.2.1">
+<h4 data-number="6.2.1" class="anchored" data-anchor-id="median-numeric-mode-categorical-baselines"><span class="header-section-number">6.2.1</span> Median (numeric) + Mode (categorical) baselines</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2025</span>)</span>
+<span id="cb26-2"></span>
+<span id="cb26-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a median-imputed BMI for illustration (only if BMI is missing)</span></span>
+<span id="cb26-4">nh_med <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nhanes_sub <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb26-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb26-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">BMI_med =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ifelse</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(BMI), stats<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">median</span>(BMI, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>), BMI)</span>
+<span id="cb26-7">  )</span>
+<span id="cb26-8"></span>
+<span id="cb26-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compare how many BMI were imputed</span></span>
+<span id="cb26-10"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(nhanes_sub<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>BMI))           <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># original missing BMI count</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 366</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(nh_med<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>BMI_med))           <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># should be 0</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<p><strong>Distribution distortion (variance shrinkage).</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggplot2)</span>
+<span id="cb30-2"></span>
+<span id="cb30-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compare BMI distribution: complete-case vs median-imputed</span></span>
+<span id="cb30-4">p_cc  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nhanes_sub <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb30-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(BMI)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb30-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> BMI)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb30-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_density</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb30-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BMI density — complete cases"</span>)</span>
+<span id="cb30-9"></span>
+<span id="cb30-10">p_med <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nh_med <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb30-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> BMI_med)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb30-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_density</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb30-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BMI density — median-imputed"</span>)</span>
+<span id="cb30-14"></span>
+<span id="cb30-15">p_cc; p_med</span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-08-18_missing_values/index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-08-18_missing_values/index_files/figure-html/unnamed-chunk-12-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Interpretation:</strong> Median imputation <strong>spikes</strong> the distribution around the median and <strong>reduces variance</strong>. This can attenuate real relationships that depend on dispersion.</p>
+</section>
+<section id="knn-donor-based-imputation" class="level4" data-number="6.2.2">
+<h4 data-number="6.2.2" class="anchored" data-anchor-id="knn-donor-based-imputation"><span class="header-section-number">6.2.2</span> kNN (donor-based) imputation</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># kNN imputation with VIM::kNN (works on data frames; chooses donors by similarity)</span></span>
+<span id="cb31-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(VIM)</span>
+<span id="cb31-3"></span>
+<span id="cb31-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># We impute only BMI here; set k=5 as a reasonable starting point.</span></span>
+<span id="cb31-5">nh_knn <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nhanes_sub <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb31-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(Age, Gender, BMI, BPSysAve, Diabetes) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb31-7">  VIM<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">kNN</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">k =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">imp_var =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># imp_var=FALSE avoids extra *_imp columns</span></span>
+<span id="cb31-8"></span>
+<span id="cb31-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Check imputation effect</span></span>
+<span id="cb31-10"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(nhanes_sub<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>BMI))   <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># original missing BMI</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 366</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(nh_knn<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>BMI))       <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># after kNN (should be 0)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<p><strong>Interpretation:</strong> kNN preserves local structure better than mean/median, but it is still <strong>single imputation</strong> → uncertainty is <strong>not</strong> propagated. Choice of <strong>k</strong> and included predictors matters.</p>
+<blockquote class="blockquote">
+<p><strong>Rule of thumb.</strong> Simple methods are acceptable for quick EDA or as baselines. For principled inference under MAR, prefer <strong>Multiple Imputation</strong>.</p>
+</blockquote>
+</section>
+</section>
+<section id="advanced-methods" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="advanced-methods"><span class="header-section-number">6.3</span> Advanced Methods</h3>
+<section id="multiple-imputation-with-mice" class="level4" data-number="6.3.1">
+<h4 data-number="6.3.1" class="anchored" data-anchor-id="multiple-imputation-with-mice"><span class="header-section-number">6.3.1</span> Multiple Imputation with <code>mice</code></h4>
+<p>So far, we have seen that missing values exist in several variables of our dataset. A common and powerful approach to handle missingness is <strong>Multiple Imputation by Chained Equations (MICE)</strong>. The <code>mice</code> package in R is widely used for this purpose. The idea is simple:</p>
+<ul>
+<li>Instead of filling in missing values once, MICE creates <strong>multiple complete datasets</strong> by imputing values several times.</li>
+<li>Each dataset is then analyzed separately.</li>
+<li>Finally, results are pooled together to account for the variability introduced by missingness.</li>
+</ul>
+<p>Let’s try this approach on our subset of the <code>NHANES</code> data:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(mice)</span>
+<span id="cb35-2"></span>
+<span id="cb35-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create imputations</span></span>
+<span id="cb35-4">imp <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mice</span>(nhanes_sub, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">m =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">seed =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ iter imp variable
+  1   1  BMI  BPSysAve  Diabetes
+  1   2  BMI  BPSysAve  Diabetes
+  1   3  BMI  BPSysAve  Diabetes
+  2   1  BMI  BPSysAve  Diabetes
+  2   2  BMI  BPSysAve  Diabetes
+  2   3  BMI  BPSysAve  Diabetes
+  3   1  BMI  BPSysAve  Diabetes
+  3   2  BMI  BPSysAve  Diabetes
+  3   3  BMI  BPSysAve  Diabetes
+  4   1  BMI  BPSysAve  Diabetes
+  4   2  BMI  BPSysAve  Diabetes
+  4   3  BMI  BPSysAve  Diabetes
+  5   1  BMI  BPSysAve  Diabetes
+  5   2  BMI  BPSysAve  Diabetes
+  5   3  BMI  BPSysAve  Diabetes</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Look at a summary</span></span>
+<span id="cb37-2">imp</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Class: mids
+Number of multiple imputations:  3 
+Imputation methods:
+      ID      Age   Gender      BMI BPSysAve Diabetes 
+      ""       ""       ""    "pmm"    "pmm" "logreg" 
+PredictorMatrix:
+         ID Age Gender BMI BPSysAve Diabetes
+ID        0   1      1   1        1        1
+Age       1   0      1   1        1        1
+Gender    1   1      0   1        1        1
+BMI       1   1      1   0        1        1
+BPSysAve  1   1      1   1        0        1
+Diabetes  1   1      1   1        1        0</code></pre>
+</div>
+</div>
+<p>The output shows:</p>
+<ul>
+<li><p><code>m = 3</code>: number of imputed datasets created.</p></li>
+<li><p>For each variable with missingness, the method used for imputation.</p></li>
+<li><p>How many iterations were performed in the algorithm.</p></li>
+</ul>
+<p>We can take a quick look at the imputed values:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Inspect first few imputations for BMI</span></span>
+<span id="cb39-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(imp<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>imp<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>BMI)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        1     2     3
+61  43.00 17.70 12.90
+161 16.70 13.50 18.59
+210 16.28 24.00 23.10
+309 24.00 37.32 26.20
+310 24.00 28.55 26.30
+320 25.10 32.25 29.20</code></pre>
+</div>
+</div>
+<p>This shows different plausible values for missing BMI observations across the three imputed datasets. Each dataset gives slightly different results, which is expected and important for reflecting uncertainty.</p>
+<p>Once we have these imputations, we can <strong>complete the dataset</strong>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extract the first imputed dataset</span></span>
+<span id="cb41-2">nhanes_completed <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">complete</span>(imp, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb41-3"></span>
+<span id="cb41-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(nhanes_completed)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     ID Age Gender   BMI BPSysAve Diabetes
+1 51624  34   male 32.22      113       No
+2 51624  34   male 32.22      113       No
+3 51624  34   male 32.22      113       No
+4 51625   4   male 15.30       92       No
+5 51630  49 female 30.57      112       No
+6 51638   9   male 16.82       86       No</code></pre>
+</div>
+</div>
+<p>Now we have a complete dataset with no missing values. In practice, we would analyze all imputed datasets and then combine results using Rubin’s rules, but the key takeaway here is:</p>
+<ul>
+<li><p><code>mice()</code> provides multiple versions of the data,</p></li>
+<li><p>imputations are based on relationships among variables,</p></li>
+<li><p>and the method preserves uncertainty rather than hiding it.</p></li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+MICE Essentials: Key Arguments
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p><strong>method</strong>: Specifies the imputation model for each variable.</p>
+<ul>
+<li><code>pmm</code>: predictive mean matching (continuous variables)</li>
+<li><code>logreg</code>: logistic regression (binary)</li>
+<li><code>polyreg</code>: multinomial regression (nominal categorical)</li>
+<li><code>polr</code>: proportional odds model (ordered categorical)</li>
+</ul>
+<p><em>Rule of thumb</em>: If a factor has &gt;2 levels, prefer <code>polyreg</code> (nominal) or <code>polr</code> (ordered) instead of <code>logreg</code>. Always check the actual levels of variables such as <code>Gender</code> or <code>Diabetes</code> in your data before setting methods.</p></li>
+<li><p><strong>predictorMatrix</strong>: Controls which variables are used to predict others.</p>
+<ul>
+<li>Rows = target variables (to be imputed)</li>
+<li>Columns = predictor variables</li>
+</ul></li>
+<li><p><strong>m</strong>: Number of multiple imputations to generate (commonly 5–20).</p>
+<ul>
+<li>More imputations recommended for high missingness.</li>
+</ul></li>
+<li><p><strong>maxit</strong>: Number of iterations of the chained equations (often 5–10).</p></li>
+<li><p><strong>seed</strong>: Random seed for reproducibility.</p>
+<ul>
+<li>Always set when writing tutorials or reports.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="multiple-imputation-with-missforest" class="level4" data-number="6.3.2">
+<h4 data-number="6.3.2" class="anchored" data-anchor-id="multiple-imputation-with-missforest"><span class="header-section-number">6.3.2</span> Multiple Imputation with missForest</h4>
+<p>The <strong>missForest</strong> package provides a non-parametric imputation method based on random forests.<br>
+Unlike <code>mice</code>, which generates multiple imputations, <code>missForest</code> creates a <strong>single completed dataset</strong> by iteratively predicting missing values using random forest models. It works well with both continuous and categorical variables and can capture nonlinear relationships.</p>
+<p>We will use the same <code>nhanes_sub</code> dataset as before:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(dplyr)</span>
+<span id="cb43-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(missForest)</span>
+<span id="cb43-3"></span>
+<span id="cb43-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Start from the existing subset:</span></span>
+<span id="cb43-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># nhanes_sub &lt;- NHANES |&gt; select(ID, Age, Gender, BMI, BPSysAve, Diabetes)</span></span>
+<span id="cb43-6"></span>
+<span id="cb43-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 1) Keep only model-relevant columns (drop pure identifier)</span></span>
+<span id="cb43-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 2) Convert character variables to factors (missForest expects factors, not raw character)</span></span>
+<span id="cb43-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 3) Coerce to base data.frame to avoid tibble-related method dispatch issues</span></span>
+<span id="cb43-10">mf_input <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nhanes_sub <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb43-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(Age, Gender, BMI, BPSysAve, Diabetes) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb43-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">across</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">where</span>(is.character), as.factor)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span></span>
+<span id="cb43-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.data.frame</span>()</span>
+<span id="cb43-14"></span>
+<span id="cb43-15"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span>
+<span id="cb43-16">mf_fit <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">missForest</span>(</span>
+<span id="cb43-17">  mf_input,</span>
+<span id="cb43-18">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ntree   =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">200</span>,    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># more trees -&gt; stabler imputations</span></span>
+<span id="cb43-19">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">maxiter =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># outer iterations (default 10; 5 is fine for demo)</span></span>
+<span id="cb43-20">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">verbose =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span></span>
+<span id="cb43-21">)</span>
+<span id="cb43-22"></span>
+<span id="cb43-23"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Completed data and OOB error</span></span>
+<span id="cb43-24">mf_imputed <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> mf_fit<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>ximp</span>
+<span id="cb43-25">mf_oob     <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> mf_fit<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>OOBerror</span>
+<span id="cb43-26"></span>
+<span id="cb43-27"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Quick checks</span></span>
+<span id="cb43-28"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(mf_input<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>BMI))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 366</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb45" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(mf_imputed<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>BMI))   <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># should go to 0</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1">mf_oob</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     NRMSE        PFC 
+0.17890307 0.02667884 </code></pre>
+</div>
+</div>
+<p>The function returns a list with two key elements:</p>
+<ul>
+<li><p><code>ximp</code>: the completed dataset after imputation.</p></li>
+<li><p><code>OOBerror</code>: the estimated imputation error (normalized root mean squared error for continuous variables and proportion of falsely classified entries for categorical variables).</p></li>
+</ul>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><p>The <strong>completed dataset</strong> (<code>ximp</code>) replaces all missing values with imputed estimates.</p></li>
+<li><p><strong>NRMSE (Normalized Root Mean Squared Error):</strong> <code>0.1789</code></p>
+<ul>
+<li>This value reflects the imputation error for continuous variables (e.g., <code>Age</code>, <code>BMI</code>, <code>BPSysAve</code>).</li>
+<li>Since it is normalized, values closer to <strong>0</strong> indicate better accuracy. Here, an error of ~0.18 suggests that the imputed values are quite close to the true (non-missing) values.</li>
+</ul></li>
+<li><p><strong>PFC (Proportion of Falsely Classified):</strong> <code>0.0267</code></p>
+<ul>
+<li>This metric evaluates categorical variables (e.g., <code>Gender</code>, <code>Diabetes</code>).</li>
+<li>A value of ~0.027 means only about <strong>2.7% of categorical imputations were misclassified</strong>, which is a strong performance.</li>
+</ul></li>
+</ul>
+<p>✅ <strong>Interpretation:</strong><br>
+The results indicate that <code>missForest</code> produced high-quality imputations: continuous variables are imputed with relatively low error, and categorical variables with very low misclassification. In practical terms, this means the dataset after imputation is reliable and close to the original data distribution.</p>
+<p><strong>Pros and Cons of <code>missForest</code></strong></p>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li>Handles mixed data types (continuous + categorical).</li>
+<li>Captures nonlinearities and complex interactions.</li>
+<li>No need to specify an explicit imputation model.</li>
+</ul>
+<p><strong>Limitations:</strong></p>
+<ul>
+<li>Produces only a <strong>single imputed dataset</strong>, so uncertainty is not directly quantified (unlike <code>mice</code>).</li>
+<li>Computationally more expensive for very large datasets.</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="single-vs.-multiple-imputation" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="single-vs.-multiple-imputation"><span class="header-section-number">7</span> Single vs.&nbsp;Multiple Imputation</h2>
+<p>One critical distinction in handling missing data is <strong>single imputation</strong> vs.&nbsp;<strong>multiple imputation (MI)</strong>.</p>
+<ul>
+<li><p><strong>Single imputation</strong> (mean, median, regression, etc.) fills each missing value once. While simple, it <strong>ignores uncertainty</strong>, treating imputed values as if they were observed.</p></li>
+<li><p><strong>Multiple imputation</strong> generates <strong>several plausible versions of the dataset</strong> (e.g., 5–10). Each dataset is analyzed separately, and results are then combined (pooled). This approach accounts for <strong>variability due to missingness</strong> and produces more reliable inferences.</p></li>
+</ul>
+<p>Let’s illustrate with our <code>nhanes_sub</code> dataset:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Complete-case analysis (ignores missing data)</span></span>
+<span id="cb49-2">lm_cc <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lm</span>(BMI <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> Age <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Gender <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> BPSysAve <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Diabetes,</span>
+<span id="cb49-3">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> nhanes_sub, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.action =</span> na.omit)</span>
+<span id="cb49-4"></span>
+<span id="cb49-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Single imputation (mean imputation for BMI)</span></span>
+<span id="cb49-6">nhanes_single <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nhanes_sub <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|&gt;</span> </span>
+<span id="cb49-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">BMI =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ifelse</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(BMI), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(BMI, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>), BMI))</span>
+<span id="cb49-8"></span>
+<span id="cb49-9">lm_si <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lm</span>(BMI <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> Age <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Gender <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> BPSysAve <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Diabetes,</span>
+<span id="cb49-10">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> nhanes_single)</span>
+<span id="cb49-11"></span>
+<span id="cb49-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Multiple imputation with mice</span></span>
+<span id="cb49-13">imp <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mice</span>(nhanes_sub, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">m =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pmm"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">seed =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ iter imp variable
+  1   1  BMI  BPSysAve  Diabetes
+  1   2  BMI  BPSysAve  Diabetes
+  1   3  BMI  BPSysAve  Diabetes
+  1   4  BMI  BPSysAve  Diabetes
+  1   5  BMI  BPSysAve  Diabetes
+  2   1  BMI  BPSysAve  Diabetes
+  2   2  BMI  BPSysAve  Diabetes
+  2   3  BMI  BPSysAve  Diabetes
+  2   4  BMI  BPSysAve  Diabetes
+  2   5  BMI  BPSysAve  Diabetes
+  3   1  BMI  BPSysAve  Diabetes
+  3   2  BMI  BPSysAve  Diabetes
+  3   3  BMI  BPSysAve  Diabetes
+  3   4  BMI  BPSysAve  Diabetes
+  3   5  BMI  BPSysAve  Diabetes
+  4   1  BMI  BPSysAve  Diabetes
+  4   2  BMI  BPSysAve  Diabetes
+  4   3  BMI  BPSysAve  Diabetes
+  4   4  BMI  BPSysAve  Diabetes
+  4   5  BMI  BPSysAve  Diabetes
+  5   1  BMI  BPSysAve  Diabetes
+  5   2  BMI  BPSysAve  Diabetes
+  5   3  BMI  BPSysAve  Diabetes
+  5   4  BMI  BPSysAve  Diabetes
+  5   5  BMI  BPSysAve  Diabetes</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb51" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1">lm_mi <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">with</span>(imp, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lm</span>(BMI <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> Age <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Gender <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> BPSysAve <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Diabetes))</span>
+<span id="cb51-2">pooled <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pool</span>(lm_mi)</span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summary</span>(lm_cc)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = BMI ~ Age + Gender + BPSysAve + Diabetes, data = nhanes_sub, 
+    na.action = na.omit)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-18.771  -4.640  -1.053   3.553  53.003 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 17.488597   0.513225  34.076   &lt;2e-16 ***
+Age          0.047930   0.004273  11.217   &lt;2e-16 ***
+Gendermale  -0.278756   0.144799  -1.925   0.0542 .  
+BPSysAve     0.067504   0.004903  13.767   &lt;2e-16 ***
+DiabetesYes  3.789606   0.265240  14.287   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 6.588 on 8477 degrees of freedom
+  (1518 observations deleted due to missingness)
+Multiple R-squared:  0.1136,    Adjusted R-squared:  0.1132 
+F-statistic: 271.5 on 4 and 8477 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb54" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summary</span>(lm_si)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = BMI ~ Age + Gender + BPSysAve + Diabetes, data = nhanes_single)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-18.657  -4.634  -1.029   3.533  53.004 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 17.600406   0.508667  34.601   &lt;2e-16 ***
+Age          0.047159   0.004237  11.129   &lt;2e-16 ***
+Gendermale  -0.287221   0.143820  -1.997   0.0458 *  
+BPSysAve     0.066791   0.004858  13.748   &lt;2e-16 ***
+DiabetesYes  3.725941   0.262781  14.179   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 6.57 on 8541 degrees of freedom
+  (1454 observations deleted due to missingness)
+Multiple R-squared:  0.1118,    Adjusted R-squared:  0.1114 
+F-statistic: 268.8 on 4 and 8541 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb56" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summary</span>(pooled)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         term    estimate   std.error statistic       df       p.value
+1 (Intercept) 14.66559186 0.487686304 30.071773 1253.210 5.075329e-150
+2         Age  0.10367759 0.003748806 27.656164 3916.798 6.073157e-154
+3  Gendermale -0.30521870 0.134707691 -2.265785 3727.382  2.352165e-02
+4    BPSysAve  0.06754332 0.004761820 14.184349 1160.000  3.121286e-42
+5 DiabetesYes  3.23549109 0.260299313 12.429887 8866.664  3.529334e-35</code></pre>
+</div>
+</div>
+<p>We applied three different approaches to handle missing BMI values in the <code>nhanes_sub</code> dataset, modeling <strong>BMI ~ Age + Gender + BPSysAve + Diabetes</strong>. Here is what we found:</p>
+<p><strong>1. Complete-Case Analysis (CCA)</strong></p>
+<ul>
+<li><p><strong>What we did:</strong> We dropped all observations with missing values (<code>na.omit</code>).</p></li>
+<li><p><strong>Result:</strong></p>
+<ul>
+<li><p><strong>Coefficients:</strong> Age (0.048), BPSysAve (0.068), DiabetesYes (+3.79), Gender slightly negative.</p></li>
+<li><p><strong>Standard errors:</strong> Relatively large because ~1500 observations were discarded.</p></li>
+<li><p><strong>R²:</strong> 0.114 — fairly low.</p></li>
+</ul></li>
+<li><p><strong>Takeaway:</strong> CCA wastes data and may bias estimates if missingness is not MCAR (Missing Completely at Random).</p></li>
+</ul>
+<p><strong>2. Single Imputation (Mean Substitution for BMI)</strong></p>
+<ul>
+<li><p><strong>What we did:</strong> Replaced missing BMI values with the mean BMI.</p></li>
+<li><p><strong>Result:</strong></p>
+<ul>
+<li><p><strong>Coefficients:</strong> Very close to CCA (Age 0.047, BPSysAve 0.067, DiabetesYes +3.73).</p></li>
+<li><p><strong>Gender</strong> effect became just significant (<em>p</em> = 0.045).</p></li>
+<li><p><strong>Residual SE</strong> decreased slightly (6.57).</p></li>
+</ul></li>
+<li><p><strong>Takeaway:</strong> Looks “better” because all observations are retained, but this approach <strong>ignores imputation uncertainty</strong> and artificially stabilizes estimates. Standard errors are underestimated, leading to overconfidence.</p></li>
+</ul>
+<p><strong>3. Multiple Imputation (MI with <code>mice</code>, m = 5, method = “pmm”)</strong></p>
+<ul>
+<li><p><strong>What we did:</strong> Generated 5 imputed datasets using Predictive Mean Matching (PMM), fit the same model in each, and pooled results.</p></li>
+<li><p><strong>Result:</strong></p>
+<ul>
+<li><p><strong>Coefficients:</strong> Age effect doubled (0.104), intercept dropped (14.7 vs.&nbsp;~17.5), Diabetes effect slightly smaller (+3.24), Gender effect remained modest but significant (<em>p</em> = 0.023).</p></li>
+<li><p><strong>Standard errors:</strong> Properly adjusted upwards — reflecting real uncertainty in imputed BMI values.</p></li>
+<li><p><strong>Inference:</strong> Despite differences in point estimates, the conclusions are more <strong>statistically honest</strong>.</p></li>
+</ul></li>
+<li><p><strong>Takeaway:</strong> MI balances efficiency (uses all data) and validity (acknowledges missingness uncertainty).</p></li>
+</ul>
+<p><strong>🔑 Overall Comparison</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 16%">
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Keeps All Data</th>
+<th>Coefficients Similar?</th>
+<th>SE Adjusted for Uncertainty?</th>
+<th>Main Issue</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Complete Case (CCA)</td>
+<td>❌ (~1500 rows lost)</td>
+<td>Yes, but less precise</td>
+<td>✅ (but biased if MAR/MNAR)</td>
+<td>Data loss, possible bias</td>
+</tr>
+<tr class="even">
+<td>Single Imputation (SI)</td>
+<td>✅</td>
+<td>Similar to CCA</td>
+<td>❌ Underestimated</td>
+<td>Overconfident inference</td>
+</tr>
+<tr class="odd">
+<td>Multiple Imputation (MI)</td>
+<td>✅</td>
+<td>Somewhat different (esp.&nbsp;Age)</td>
+<td>✅ Properly adjusted</td>
+<td>More computation needed</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><p><strong>Complete-case</strong> drops too much data and risks bias.</p></li>
+<li><p><strong>Single imputation</strong> keeps the data but gives <em>too much confidence</em> in results.</p></li>
+<li><p><strong>Multiple imputation</strong> changes some coefficients (notably Age) and reports more realistic uncertaint</p></li>
+</ul>
+<p>👉 <strong>Lesson:</strong> If your goal is valid inference, especially in epidemiological or social science settings, <strong>multiple imputation is the gold standard</strong>.</p>
+</section>
+<section id="comparison-of-common-imputation-methods" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="comparison-of-common-imputation-methods"><span class="header-section-number">8</span> Comparison of Common Imputation Methods</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 31%">
+<col style="width: 23%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Description</th>
+<th>Advantages</th>
+<th>Disadvantages</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Listwise Deletion</td>
+<td>Removes all observations containing missing values</td>
+<td>Very simple, quick to implement</td>
+<td>Substantial data loss, potential bias</td>
+</tr>
+<tr class="even">
+<td>Mean / Median / Mode</td>
+<td>Replaces missing values with a fixed statistic</td>
+<td>Easy to apply, preserves sample size</td>
+<td>Reduces variance, distorts relationships</td>
+</tr>
+<tr class="odd">
+<td>LOCF (Last Observation Carried Forward)</td>
+<td>Uses the last available value (mainly time series)</td>
+<td>Useful in longitudinal data, preserves continuity</td>
+<td>Ignores trends, underestimates variability</td>
+</tr>
+<tr class="even">
+<td>Linear Interpolation</td>
+<td>Estimates missing values by connecting known data points</td>
+<td>Maintains trends, intuitive</td>
+<td>Fails with sudden changes or nonlinear patterns</td>
+</tr>
+<tr class="odd">
+<td>KNN Imputation</td>
+<td>Predicts missing values using nearest neighbors</td>
+<td>Preserves multivariate structure, flexible</td>
+<td>Computationally expensive, sensitive to k choice</td>
+</tr>
+<tr class="even">
+<td>MICE (Multiple Imputation by Chained Equations)</td>
+<td>Iterative regression-based multiple imputation</td>
+<td>Accounts for uncertainty, widely used in research</td>
+<td>Time-consuming, requires expertise</td>
+</tr>
+<tr class="odd">
+<td>missForest</td>
+<td>Uses Random Forest to impute missing values</td>
+<td>Handles nonlinearities and interactions</td>
+<td>Black-box method, computationally intensive</td>
+</tr>
+<tr class="even">
+<td>EM Algorithm</td>
+<td>Iterative expectation-maximization for likelihood-based estimation</td>
+<td>Statistically principled, robust in theory</td>
+<td>Requires strong assumptions, advanced knowledge</td>
+</tr>
+</tbody>
+</table>
+<p>No single imputation method is universally optimal—each comes with trade-offs between simplicity, accuracy, and interpretability. For instance, <strong>listwise deletion</strong> is tempting for its ease but can heavily bias results if missingness is not random. Simple <strong>mean or median imputation</strong> keeps the dataset intact but artificially reduces variability and masks true correlations. More advanced techniques such as <strong>MICE, missForest, and EM</strong> provide statistically sound imputations that preserve uncertainty and relationships, but they demand more computational resources and methodological expertise.</p>
+<p>In practice:</p>
+<ul>
+<li><p><strong>Exploratory analysis</strong> often starts with simple methods (e.g., median replacement) to get a sense of the data.</p></li>
+<li><p><strong>Time series data</strong> may rely on <strong>LOCF or interpolation</strong>.</p></li>
+<li><p><strong>Complex survey or clinical datasets</strong> typically benefit from advanced approaches like <strong>MICE</strong> or <strong>missForest</strong>, which better respect the multivariate nature of the data.</p></li>
+</ul>
+<p>Ultimately, the choice depends on the <strong>data structure, missingness mechanism (MCAR, MAR, MNAR), and analytical goals</strong>.</p>
+</section>
+<section id="conclusion" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">9</span> Conclusion</h2>
+<p>There is <strong>no one-size-fits-all</strong> solution for missing data. The right approach depends on your <strong>goal (prediction vs.&nbsp;inference)</strong>, the <strong>missingness mechanism (MCAR/MAR/MNAR)</strong>, your <strong>data structure</strong> (cross-sectional vs.&nbsp;longitudinal), and <strong>practical constraints</strong> (time, compute, expertise).</p>
+<section id="what-our-nhanes-walkthrough-showed" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="what-our-nhanes-walkthrough-showed"><span class="header-section-number">9.1</span> What our NHANES walkthrough showed</h3>
+<ul>
+<li><strong>Complete-case analysis</strong> is simple but wastes data and can bias results unless MCAR is plausible.</li>
+<li><strong>Single imputation</strong> (mean/median, kNN, missForest run once) keeps all rows but <strong>underestimates uncertainty</strong>, yielding overconfident inferences.</li>
+<li><strong>Multiple imputation (MICE)</strong> typically strikes the best balance for <strong>inference under MAR</strong>: it preserves multivariate structure and <strong>propagates uncertainty</strong> (via pooling), producing more honest standard errors and CIs.</li>
+<li><strong>Nonparametric imputers</strong> like <strong>missForest</strong> are strong for <strong>predictive accuracy</strong> on complex, nonlinear structure, but they do <strong>not</strong> capture imputation uncertainty by themselves.</li>
+</ul>
+</section>
+<section id="practical-guidance-decision-oriented" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="practical-guidance-decision-oriented"><span class="header-section-number">9.2</span> Practical guidance (decision-oriented)</h3>
+<ul>
+<li><strong>If your main task is prediction</strong> and interpretability is secondary → a good single-imputation engine (e.g., <strong>missForest</strong>) can be effective, with careful validation.</li>
+<li><strong>If your main task is inference</strong> (effect sizes, CIs, p-values) and <strong>MAR is reasonable</strong> → prefer <strong>MICE</strong>; include strong predictors of both the outcome and missingness; check diagnostics.</li>
+<li><strong>If you suspect MNAR</strong> → acknowledge this explicitly and consider <strong>sensitivity analyses</strong> (pattern-mixture/selection models) rather than assuming MAR.</li>
+</ul>
+</section>
+<section id="reporting-checklist-make-your-analysis-reproducible-credible" class="level3" data-number="9.3">
+<h3 data-number="9.3" class="anchored" data-anchor-id="reporting-checklist-make-your-analysis-reproducible-credible"><span class="header-section-number">9.3</span> Reporting checklist (make your analysis reproducible &amp; credible)</h3>
+<ul>
+<li>% missing <strong>by variable</strong> and <strong>by key subgroups</strong> (e.g., Age, Gender).</li>
+<li>Your <strong>assumed mechanism</strong> (MCAR/MAR/MNAR) and why it’s plausible.</li>
+<li>The <strong>method(s)</strong> used (e.g., MICE with <code>pmm</code>, <code>m</code>, <code>maxit</code>, <code>predictorMatrix</code>; or missForest with <code>ntree</code>, <code>maxiter</code>).</li>
+<li><strong>Diagnostics</strong> (trace/density/strip plots for MICE; OOB error for missForest).</li>
+<li>For MI: <strong>pooled estimates</strong> with standard errors/intervals; clarify how pooling was performed.</li>
+<li><strong>Limitations</strong> (e.g., potential MNAR, model misspecification, small-sample caveats).</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Rule of thumb.</strong> Use simple methods for quick EDA; use <strong>MICE</strong> for publication-grade inference under MAR; use <strong>missForest</strong> when you primarily need strong <strong>predictive performance</strong> on mixed/complex data.</p>
+</div>
+</div>
+</section>
+<section id="common-pitfalls-to-avoid" class="level3" data-number="9.4">
+<h3 data-number="9.4" class="anchored" data-anchor-id="common-pitfalls-to-avoid"><span class="header-section-number">9.4</span> Common pitfalls to avoid</h3>
+<ul>
+<li>Treating imputed values as if they were observed “truth” (single imputation + significance testing).</li>
+<li>Imputing the <strong>outcome</strong> itself (generally avoid; let it <em>inform</em> predictor imputations instead).</li>
+<li>Ignoring <strong>leakage</strong>: fit imputers <strong>within</strong> resampling folds/splits, not on the full data.</li>
+<li>Omitting key covariates that explain missingness (weakens the MAR assumption and the imputer).</li>
+</ul>
+</section>
+<section id="where-to-go-next" class="level3" data-number="9.5">
+<h3 data-number="9.5" class="anchored" data-anchor-id="where-to-go-next"><span class="header-section-number">9.5</span> Where to go next</h3>
+<ul>
+<li><strong>Leakage-free pipelines</strong> with <code>tidymodels::recipes</code> (train/test split done right).</li>
+<li><strong>Sensitivity analyses</strong> for MNAR.</li>
+<li><strong>Robustness checks</strong> (alternative imputation models, different <code>m</code>, predictor sets).</li>
+</ul>
+<p><strong>Bottom line:</strong> Choose methods intentionally, <strong>justify assumptions</strong>, show diagnostics, and <strong>report pooled results</strong> when using MI. Good missing-data practice is less about one magic function and more about transparent, principled workflow.</p>
+</section>
+</section>
+<section id="references" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="references"><span class="header-section-number">10</span> References</h2>
+<ul>
+<li><p>Allison, P. D. (2001). <em>Missing Data</em>. Sage Publications.</p></li>
+<li><p>Enders, C. K. (2010). <em>Applied Missing Data Analysis</em>. The Guilford Press.</p></li>
+<li><p>Little, R. J. A., &amp; Rubin, D. B. (2002). <em>Statistical Analysis with Missing Data</em> (2nd ed.). Wiley.</p></li>
+<li><p>van Buuren, S. (2018). <em>Flexible Imputation of Missing Data</em> (2nd ed.). Chapman &amp; Hall/CRC.</p></li>
+<li><p>Stekhoven, D. J., &amp; Bühlmann, P. (2012). “MissForest—Nonparametric Missing Value Imputation for Mixed-Type Data.” <em>Bioinformatics</em>, 28(1), 112–118. https://doi.org/10.1093/bioinformatics/btr597</p></li>
+<li><p>Rubin, D. B. (1987). <em>Multiple Imputation for Nonresponse in Surveys</em>. Wiley.</p></li>
+<li><p>Schafer, J. L. (1997). <em>Analysis of Incomplete Multivariate Data</em>. Chapman &amp; Hall/CRC.</p></li>
+<li><p>R Documentation: <a href="https://cran.r-project.org/package=mice"><code>mice</code> package</a></p></li>
+<li><p>R Documentation: <a href="https://cran.r-project.org/package=missForest"><code>missForest</code> package</a></p></li>
+</ul>
+
+
+<!-- -->
+
+</section>
+
+ ]]></description>
+  <category>R</category>
+  <category>Statistics</category>
+  <category>Data Analysis</category>
+  <category>Standard Deviation</category>
+  <category>Standard Error</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2025-08-18_missing_values/</guid>
+  <pubDate>Sun, 17 Aug 2025 21:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Correlation vs Causation: Understanding the Difference</title>
