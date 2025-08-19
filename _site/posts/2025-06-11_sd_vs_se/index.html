@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="M. Fatih Tüzen">
-<meta name="dcterms.date" content="2025-08-18">
+<meta name="dcterms.date" content="2025-07-11">
 
 <title>Standard Deviation vs.&nbsp;Standard Error: Meaning, Misuse, and the Math Behind the Confusion – A Statistician's R Notebook</title>
 <style>
@@ -237,7 +237,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">August 18, 2025</p>
+        <p class="date">July 11, 2025</p>
       </div>
     </div>
     
@@ -328,10 +328,10 @@ s = \sqrt{ \frac{1}{n - 1} \sum_{i=1}^{n} (x_i - \bar{x})^2 }
 <p>In short:</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 19%">
-<col style="width: 32%">
-<col style="width: 24%">
-<col style="width: 24%">
+<col style="width: 23%">
+<col style="width: 30%">
+<col style="width: 23%">
+<col style="width: 23%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -449,10 +449,10 @@ s = \sqrt{ \frac{1}{n - 1} \sum_{i=1}^{n} (x_i - \bar{x})^2 }
 <p>Although <strong>standard deviation</strong> and <strong>standard error</strong> are both measures of “spread,” they describe very different things, answer different questions, and are used in different contexts.</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 16%">
-<col style="width: 39%">
-<col style="width: 18%">
-<col style="width: 26%">
+<col style="width: 21%">
+<col style="width: 34%">
+<col style="width: 21%">
+<col style="width: 21%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -1363,7 +1363,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <div class="sourceCode" id="cb18" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Standard Deviation vs. Standard Error: Meaning, Misuse, and the Math Behind the Confusion"</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> M. Fatih Tüzen</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> today</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2025-07-11"</span></span>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> [R, Statistics, Data Analysis, Standard Deviation, Standard Error]</span></span>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span><span class="co"> </span></span>
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
@@ -1438,7 +1438,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb18-76"><a href="#cb18-76" aria-hidden="true" tabindex="-1"></a>In short:</span>
 <span id="cb18-77"><a href="#cb18-77" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-78"><a href="#cb18-78" aria-hidden="true" tabindex="-1"></a>| Concept            | Measures                         | Based on                | Affected by Sample Size |</span>
-<span id="cb18-79"><a href="#cb18-79" aria-hidden="true" tabindex="-1"></a>|--------------------|----------------------------------|-------------------------|-------------------------|</span>
+<span id="cb18-79"><a href="#cb18-79" aria-hidden="true" tabindex="-1"></a>|-----------------|----------------------|-----------------|-----------------|</span>
 <span id="cb18-80"><a href="#cb18-80" aria-hidden="true" tabindex="-1"></a>| Standard Deviation | Spread of individual data points | Individual observations | ❌ No                   |</span>
 <span id="cb18-81"><a href="#cb18-81" aria-hidden="true" tabindex="-1"></a>| Standard Error     | Uncertainty in the sample mean   | Sampling distribution   | ✅ Yes                  |</span>
 <span id="cb18-82"><a href="#cb18-82" aria-hidden="true" tabindex="-1"></a></span>
@@ -1537,7 +1537,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb18-185"><a href="#cb18-185" aria-hidden="true" tabindex="-1"></a>Although **standard deviation** and **standard error** are both measures of “spread,” they describe very different things, answer different questions, and are used in different contexts.</span>
 <span id="cb18-186"><a href="#cb18-186" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-187"><a href="#cb18-187" aria-hidden="true" tabindex="-1"></a>| Concept            | What it Measures                               | Based on...           | Changes with Sample Size ($n$) |</span>
-<span id="cb18-188"><a href="#cb18-188" aria-hidden="true" tabindex="-1"></a>|--------------------|------------------------------------------------|-----------------------|--------------------------------|</span>
+<span id="cb18-188"><a href="#cb18-188" aria-hidden="true" tabindex="-1"></a>|----------------|-------------------------|----------------|----------------|</span>
 <span id="cb18-189"><a href="#cb18-189" aria-hidden="true" tabindex="-1"></a>| Standard Deviation | Spread of individual data values               | Single sample         | ❌ No                          |</span>
 <span id="cb18-190"><a href="#cb18-190" aria-hidden="true" tabindex="-1"></a>| Standard Error     | Spread of sample means across repeated samples | Sampling distribution | ✅ Yes                         |</span>
 <span id="cb18-191"><a href="#cb18-191" aria-hidden="true" tabindex="-1"></a></span>

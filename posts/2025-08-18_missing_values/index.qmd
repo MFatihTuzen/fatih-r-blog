@@ -1,8 +1,8 @@
 ---
 title: "Handling Missing Data in R: A Comprehensive Guide"
 author: M. Fatih Tüzen
-date: today
-categories: [R, Statistics, Data Analysis, Standard Deviation, Standard Error]
+date: "2025-08-18"
+categories: [R, Statistics, Data Analysis, Data Science, Data Preprocessing, Missing Data, Data Cleaning, Imputation]
 execute: 
   warning: false
   message: false
@@ -16,30 +16,32 @@ format:
     code-block-background: true
 ---
 
+![](missing_values.png){fig-align="center" width="85%"}
+
 ## Introduction
 
-Missing data is one of the most common challenges in data analysis and statistical modeling.\
-Whether the data originates from surveys, administrative registers, or clinical trials, it is almost inevitable that some values are absent. Ignoring this issue or handling it incorrectly can seriously bias results, reduce statistical power, and ultimately lead to misleading conclusions.
+Data preprocessing is a cornerstone of any data analysis or machine learning pipeline. Raw data rarely comes in a form ready for direct analysis — it often requires cleaning, transformation, normalization, and careful handling of anomalies. Among these preprocessing tasks, dealing with missing data stands out as one of the most critical and unavoidable challenges.
 
-In statistical notation, missing values are usually represented as **NA** (Not Available) in R.\
-However, not all missing values are created equal: some are missing completely at random, while others may follow systematic patterns. Before deciding how to handle missingness, one must carefully investigate its causes and implications.
+Missing values appear in virtually every domain: surveys may have skipped questions, administrative registers might contain incomplete records, and clinical trials can suffer from dropout patients. Ignoring these gaps or handling them naively does not just reduce the amount of usable information; it can also introduce bias, decrease statistical power, and ultimately compromise the validity of conclusions. In other words, missing data is not just an inconvenience — it is a methodological problem that demands rigorous attention.
+
+In statistical practice, missingness is often represented as `NA` (Not Available) in R. However, not all missing values are created equal. Some are missing completely at random, others depend on observed variables, and in some cases, the missingness itself carries meaningful information. Understanding these mechanisms is essential before deciding how to address them. This makes missing data imputation a fundamental part of the broader data preprocessing workflow, alongside tasks such as outlier detection, data normalization, and feature engineering.
 
 In this article, we will cover:
 
--   The theoretical foundations of missing data mechanisms (MCAR, MAR, MNAR).
+-    The theoretical foundations of missing data mechanisms (MCAR, MAR, MNAR).
 -   How to detect and visualize missing values in R.
 -   Different strategies for handling missingness, from simple imputation to advanced multiple imputation techniques.
--   A practical workflow using the **NHANES dataset**, widely used in health research, to demonstrate methods in R.
+-   A practical workflow using the NHANES dataset, widely used in health research, to demonstrate methods in R.
 -   Best practices, pitfalls, and recommendations for applied data science.
 
 We will use several R packages throughout this tutorial:
 
--   **tidyverse**: Data wrangling and visualization
+-    **tidyverse**: Data wrangling and visualization
 -   **naniar** and **VIM**: Tools for exploring and visualizing missing data
 -   **mice**: Multiple imputation by chained equations
 -   **missForest**: Random forest–based imputation for nonlinear data
 
-This structured approach will help you not only handle missing data but also understand the reasoning behind each method, ensuring that your analyses remain robust and reliable.
+By integrating missing data handling into the larger context of preprocessing, this structured approach will not only help you manage incomplete datasets effectively but also ensure that your entire analytical workflow remains **robust, transparent, and reliable**.
 
 ## NHANES Dataset
 
@@ -196,7 +198,7 @@ kable(by_age,    caption = "BMI missingness by Age band (%)")
 **Which methods are valid under which mechanism?**
 
 | Mechanism | Example (NHANES context)                             | Valid methods                                             | Notes                                    |
-|---------------|--------------------|----------------------|---------------|
+|-----------------|-------------------|---------------------|-----------------|
 | **MCAR**  | Random loss of `BMI` records                         | Complete-case, single imputation, MI                      | Unbiased but may waste data              |
 | **MAR**   | `BMI` missingness varies by observed `Age`, `Gender` | **Multiple Imputation (MICE)**, likelihood/EM, missForest | Include strong predictors of missingness |
 | **MNAR**  | People with very high `BMI` hide it                  | Sensitivity analysis, selection/pattern-mixture models    | MAR-based MI alone is biased             |
@@ -526,12 +528,12 @@ The function returns a list with two key elements:
 
 -   **NRMSE (Normalized Root Mean Squared Error):** `0.1789`
 
-    -    This value reflects the imputation error for continuous variables (e.g., `Age`, `BMI`, `BPSysAve`).
+    -   This value reflects the imputation error for continuous variables (e.g., `Age`, `BMI`, `BPSysAve`).
     -   Since it is normalized, values closer to **0** indicate better accuracy. Here, an error of \~0.18 suggests that the imputed values are quite close to the true (non-missing) values.
 
 -   **PFC (Proportion of Falsely Classified):** `0.0267`
 
-    -    This metric evaluates categorical variables (e.g., `Gender`, `Diabetes`).
+    -   This metric evaluates categorical variables (e.g., `Gender`, `Diabetes`).
     -   A value of \~0.027 means only about **2.7% of categorical imputations were misclassified**, which is a strong performance.
 
 ✅ **Interpretation:**\
@@ -554,7 +556,7 @@ The results indicate that `missForest` produced high-quality imputations: contin
 
 One critical distinction in handling missing data is **single imputation** vs. **multiple imputation (MI)**.
 
--    **Single imputation** (mean, median, regression, etc.) fills each missing value once. While simple, it **ignores uncertainty**, treating imputed values as if they were observed.
+-   **Single imputation** (mean, median, regression, etc.) fills each missing value once. While simple, it **ignores uncertainty**, treating imputed values as if they were observed.
 
 -   **Multiple imputation** generates **several plausible versions of the dataset** (e.g., 5–10). Each dataset is analyzed separately, and results are then combined (pooled). This approach accounts for **variability due to missingness** and produces more reliable inferences.
 
@@ -592,21 +594,21 @@ We applied three different approaches to handle missing BMI values in the `nhane
 
 **1. Complete-Case Analysis (CCA)**
 
--    **What we did:** We dropped all observations with missing values (`na.omit`).
+-   **What we did:** We dropped all observations with missing values (`na.omit`).
 
 -   **Result:**
 
-    -    **Coefficients:** Age (0.048), BPSysAve (0.068), DiabetesYes (+3.79), Gender slightly negative.
+    -   **Coefficients:** Age (0.048), BPSysAve (0.068), DiabetesYes (+3.79), Gender slightly negative.
 
     -   **Standard errors:** Relatively large because \~1500 observations were discarded.
 
     -   **R²:** 0.114 — fairly low.
 
--    **Takeaway:** CCA wastes data and may bias estimates if missingness is not MCAR (Missing Completely at Random).
+-   **Takeaway:** CCA wastes data and may bias estimates if missingness is not MCAR (Missing Completely at Random).
 
 **2. Single Imputation (Mean Substitution for BMI)**
 
--    **What we did:** Replaced missing BMI values with the mean BMI.
+-   **What we did:** Replaced missing BMI values with the mean BMI.
 
 -   **Result:**
 
@@ -616,11 +618,11 @@ We applied three different approaches to handle missing BMI values in the `nhane
 
     -   **Residual SE** decreased slightly (6.57).
 
--    **Takeaway:** Looks “better” because all observations are retained, but this approach **ignores imputation uncertainty** and artificially stabilizes estimates. Standard errors are underestimated, leading to overconfidence.
+-   **Takeaway:** Looks “better” because all observations are retained, but this approach **ignores imputation uncertainty** and artificially stabilizes estimates. Standard errors are underestimated, leading to overconfidence.
 
 **3. Multiple Imputation (MI with `mice`, m = 5, method = "pmm")**
 
--    **What we did:** Generated 5 imputed datasets using Predictive Mean Matching (PMM), fit the same model in each, and pooled results.
+-   **What we did:** Generated 5 imputed datasets using Predictive Mean Matching (PMM), fit the same model in each, and pooled results.
 
 -   **Result:**
 
@@ -630,19 +632,19 @@ We applied three different approaches to handle missing BMI values in the `nhane
 
     -   **Inference:** Despite differences in point estimates, the conclusions are more **statistically honest**.
 
--    **Takeaway:** MI balances efficiency (uses all data) and validity (acknowledges missingness uncertainty).
+-   **Takeaway:** MI balances efficiency (uses all data) and validity (acknowledges missingness uncertainty).
 
 **🔑 Overall Comparison**
 
 | Method                   | Keeps All Data        | Coefficients Similar?         | SE Adjusted for Uncertainty? | Main Issue               |
-|--------------------------|-----------------------|-------------------------------|------------------------------|--------------------------|
+|---------------|---------------|---------------|---------------|---------------|
 | Complete Case (CCA)      | ❌ (\~1500 rows lost) | Yes, but less precise         | ✅ (but biased if MAR/MNAR)  | Data loss, possible bias |
 | Single Imputation (SI)   | ✅                    | Similar to CCA                | ❌ Underestimated            | Overconfident inference  |
 | Multiple Imputation (MI) | ✅                    | Somewhat different (esp. Age) | ✅ Properly adjusted         | More computation needed  |
 
 **Interpretation:**
 
--    **Complete-case** drops too much data and risks bias.
+-   **Complete-case** drops too much data and risks bias.
 
 -   **Single imputation** keeps the data but gives *too much confidence* in results.
 
@@ -653,7 +655,7 @@ We applied three different approaches to handle missing BMI values in the `nhane
 ## Comparison of Common Imputation Methods
 
 | Method                                          | Description                                                        | Advantages                                        | Disadvantages                                    |
-|-------------------------------------------------|--------------------------------------------------------------------|---------------------------------------------------|--------------------------------------------------|
+|-----------------|---------------------|-----------------|-----------------|
 | Listwise Deletion                               | Removes all observations containing missing values                 | Very simple, quick to implement                   | Substantial data loss, potential bias            |
 | Mean / Median / Mode                            | Replaces missing values with a fixed statistic                     | Easy to apply, preserves sample size              | Reduces variance, distorts relationships         |
 | LOCF (Last Observation Carried Forward)         | Uses the last available value (mainly time series)                 | Useful in longitudinal data, preserves continuity | Ignores trends, underestimates variability       |
@@ -671,7 +673,7 @@ In practice:
 
 -   **Time series data** may rely on **LOCF or interpolation**.
 
--    **Complex survey or clinical datasets** typically benefit from advanced approaches like **MICE** or **missForest**, which better respect the multivariate nature of the data.
+-   **Complex survey or clinical datasets** typically benefit from advanced approaches like **MICE** or **missForest**, which better respect the multivariate nature of the data.
 
 Ultimately, the choice depends on the **data structure, missingness mechanism (MCAR, MAR, MNAR), and analytical goals**.
 
@@ -722,7 +724,7 @@ There is **no one-size-fits-all** solution for missing data. The right approach 
 
 ## References
 
--    Allison, P. D. (2001). *Missing Data*. Sage Publications.
+-   Allison, P. D. (2001). *Missing Data*. Sage Publications.
 
 -   Enders, C. K. (2010). *Applied Missing Data Analysis*. The Guilford Press.
 
