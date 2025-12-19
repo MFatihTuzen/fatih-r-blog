@@ -1,0 +1,2206 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="M. Fatih Tüzen">
+<meta name="dcterms.date" content="2025-12-19">
+
+<title>Outliers in Data Analysis: Detecting Extreme Values Before Modeling in R İstanbul Airbnb Data – A Statistician's R Notebook</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ffa9a6279353761231ec249df0a7fdd3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-24772959a0e306aba8d7698078628ce7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ffa9a6279353761231ec249df0a7fdd3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="floating nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">A Statistician’s R Notebook</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/MFatihTuzen"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/dr-m-fatih-t-2b2a4328/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-blogroll" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">BlogRoll</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-blogroll">    
+        <li>
+    <a class="dropdown-item" href="https://www.r-bloggers.com/">
+ <span class="dropdown-text">R-bloggers</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://community.rstudio.com/">
+ <span class="dropdown-text">R-Studio Community</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://rweekly.org/">
+ <span class="dropdown-text">R weekly</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://allisonhorst.com/allison-horst">
+ <span class="dropdown-text">Allison Horst</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://github.com/topics/r">
+ <span class="dropdown-text">Github R Topics</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <div class="quarto-title-block"><div><h1 class="title">Outliers in Data Analysis: Detecting Extreme Values Before Modeling in R İstanbul Airbnb Data</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+                                <div class="quarto-categories">
+                <div class="quarto-category">R</div>
+                <div class="quarto-category">Statistics</div>
+                <div class="quarto-category">Data Analysis</div>
+                <div class="quarto-category">Data Science</div>
+                <div class="quarto-category">Data Preprocessing</div>
+                <div class="quarto-category">Outliers</div>
+                <div class="quarto-category">Data Cleaning</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>M. Fatih Tüzen </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">December 19, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">1</span> Introduction</a></li>
+  <li><a href="#why-outliers-matter" id="toc-why-outliers-matter" class="nav-link" data-scroll-target="#why-outliers-matter"><span class="header-section-number">2</span> Why Outliers Matter</a></li>
+  <li><a href="#what-is-an-outlier" id="toc-what-is-an-outlier" class="nav-link" data-scroll-target="#what-is-an-outlier"><span class="header-section-number">3</span> What Is an Outlier?</a></li>
+  <li><a href="#the-dataset-inside-airbnb-listings-istanbul" id="toc-the-dataset-inside-airbnb-listings-istanbul" class="nav-link" data-scroll-target="#the-dataset-inside-airbnb-listings-istanbul"><span class="header-section-number">4</span> The Dataset: Inside Airbnb Listings (Istanbul)</a></li>
+  <li><a href="#visualizing-price-distributions-and-potential-outliers" id="toc-visualizing-price-distributions-and-potential-outliers" class="nav-link" data-scroll-target="#visualizing-price-distributions-and-potential-outliers"><span class="header-section-number">5</span> Visualizing Price Distributions and Potential Outliers</a></li>
+  <li><a href="#formal-outlier-detection-within-room-type" id="toc-formal-outlier-detection-within-room-type" class="nav-link" data-scroll-target="#formal-outlier-detection-within-room-type"><span class="header-section-number">6</span> Formal Outlier Detection Within Room Type</a></li>
+  <li><a href="#should-outliers-be-removed" id="toc-should-outliers-be-removed" class="nav-link" data-scroll-target="#should-outliers-be-removed"><span class="header-section-number">7</span> Should Outliers Be Removed?</a></li>
+  <li><a href="#final-remarks" id="toc-final-remarks" class="nav-link" data-scroll-target="#final-remarks"><span class="header-section-number">8</span> Final Remarks</a></li>
+  <li><a href="#references-and-further-reading" id="toc-references-and-further-reading" class="nav-link" data-scroll-target="#references-and-further-reading"><span class="header-section-number">9</span> References and Further Reading</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="index.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="outliers.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="484"></p>
+</figure>
+</div>
+<section id="introduction" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">1</span> Introduction</h2>
+<p>Data preprocessing is often presented as a sequence of technical steps. However, each preprocessing decision implicitly embeds a statistical assumption.</p>
+<p>In a previous article, I discussed how missing observations can bias analysis if they are ignored or handled improperly:</p>
+<p><a href="https://medium.com/r-evolution/handling-missing-data-in-r-a-comprehensive-guide-eca195eaead3"><strong>Handling Missing Data in R: A Comprehensive Guide</strong></a></p>
+<p>This article continues that discussion by focusing on <strong>outliers</strong>. Unlike missing values, outliers are observed data points. The challenge is not their absence, but their <em>extremeness</em>.</p>
+<p>Understanding whether an extreme value is informative or misleading is a crucial step before any modeling effort.</p>
+</section>
+<section id="why-outliers-matter" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="why-outliers-matter"><span class="header-section-number">2</span> Why Outliers Matter</h2>
+<p>Outliers can affect statistical analysis in several fundamental ways:</p>
+<ul>
+<li>They distort summary statistics such as the mean and standard deviation</li>
+<li>They can dominate parameter estimates in regression models</li>
+<li>They influence distance-based methods such as clustering</li>
+</ul>
+<p>More importantly, outliers force analysts to confront a key question:</p>
+<blockquote class="blockquote">
+<p>Are we observing rare but valid behavior, or a deviation from the assumed data-generating process?</p>
+</blockquote>
+</section>
+<section id="what-is-an-outlier" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="what-is-an-outlier"><span class="header-section-number">3</span> What Is an Outlier?</h2>
+<p>Informally, an outlier is an observation that appears unusually large or small relative to the rest of the data. Formally, an outlier is an observation that is inconsistent with the bulk of the data <strong>under a given statistical model</strong>. Outliers are therefore not absolute objects. They depend on assumptions about distribution, scale, and structure.</p>
+</section>
+<section id="the-dataset-inside-airbnb-listings-istanbul" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="the-dataset-inside-airbnb-listings-istanbul"><span class="header-section-number">4</span> The Dataset: Inside Airbnb Listings (Istanbul)</h2>
+<p>To demonstrate outlier detection methods, we will use <strong>Inside Airbnb</strong> listings data. Inside Airbnb is a mission-driven project that publishes datasets scraped from publicly available Airbnb listing pages and provides city-level downloads for research and analysis.</p>
+<p>In this article, we will work with the <strong>detailed listings</strong> file:</p>
+<ul>
+<li><code>listings.csv.gz</code> (detailed listing-level data; typically rich and feature-complete)</li>
+</ul>
+<p>You can download the dataset from the <a href="https://insideairbnb.com/get-the-data/">Inside Airbnb</a> “Get the Data” page (choose a city and download <em>Detailed Listings data</em>).</p>
+<section id="why-this-dataset-is-ideal-for-outlier-detection" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="why-this-dataset-is-ideal-for-outlier-detection"><span class="header-section-number">4.1</span> Why this dataset is ideal for outlier detection</h3>
+<p>Unlike many “clean” educational datasets, Airbnb listing data often contains <strong>genuinely extreme values</strong>, especially in <code>price</code>. These extremes are not necessarily errors—luxury properties exist—but they can heavily distort means, variances, and model estimates. That makes Airbnb listings a realistic and highly instructive dataset for outlier detection.</p>
+</section>
+<section id="variables-we-will-use" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="variables-we-will-use"><span class="header-section-number">4.2</span> Variables we will use</h3>
+<p>Although the Airbnb listings dataset contains many variables, this article focuses on a <strong>small, purpose-driven subset</strong>.</p>
+<p>Our primary variable of interest is:</p>
+<ul>
+<li><code>price</code> (converted to <code>price_num</code>): nightly listing price.<br>
+This variable is typically right-skewed and often contains extreme values, making it ideal for illustrating outlier detection methods.</li>
+</ul>
+<p>To provide context for interpreting extreme prices, we also retain a limited number of supporting variables:</p>
+<ul>
+<li><code>minimum_nights</code>: minimum stay requirement, which can occasionally take unusually large values</li>
+<li><code>number_of_reviews</code>: a proxy for listing activity and popularity, often zero-inflated</li>
+<li><code>room_type</code>: categorical variable indicating the type of accommodation</li>
+<li><code>neighbourhood_cleansed</code>: cleaned neighborhood label, useful for geographic context</li>
+</ul>
+<p>These additional variables are not used to <em>detect</em> outliers directly, but to <strong>interpret and explain</strong> them once identified.</p>
+</section>
+<section id="loading-the-data-in-r" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="loading-the-data-in-r"><span class="header-section-number">4.3</span> Loading the data in R</h3>
+<p>Below is an example using <strong>Istanbul</strong>. If you prefer a different city, replace the URL with the corresponding <code>listings.csv.gz</code> link from Inside Airbnb.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Example URL (Istanbul). You can get the latest link from Inside Airbnb "Get the Data".</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># The URL structure typically follows:</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># https://data.insideairbnb.com/turkey/marmara/istanbul/2025-09-29/data/listings.csv.gz</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>listings_raw <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"listings.csv.gz"</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>vars_keep <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">"id"</span>, <span class="st">"name"</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"price"</span>, <span class="st">"minimum_nights"</span>, <span class="st">"number_of_reviews"</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="st">"room_type"</span>, <span class="st">"neighbourhood_cleansed"</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>listings_small <span class="ot">&lt;-</span> listings_raw <span class="sc">%&gt;%</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">any_of</span>(vars_keep))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="inspecting-the-selected-variables" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="inspecting-the-selected-variables"><span class="header-section-number">4.4</span> Inspecting the selected variables</h3>
+<p>Before performing any transformation, it is important to inspect the data <strong>as it comes from the source</strong>. This allows us to understand variable types and identify potential issues early.</p>
+<p>Below, we examine only the variables selected for this article.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(listings_small)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 30,051
+Columns: 7
+$ id                     &lt;dbl&gt; 1.342043e+18, 1.342082e+18, 1.342211e+18, 1.342…
+$ name                   &lt;chr&gt; "Отдельная квартира на Фатих(Балат).", "Blue st…
+$ price                  &lt;chr&gt; "$2,290.00", "$1,101.00", "$3,430.00", "$3,178.…
+$ minimum_nights         &lt;dbl&gt; 5, 7, 2, 100, 1, 100, 1, 5, 2, 100, 100, 2, 100…
+$ number_of_reviews      &lt;dbl&gt; 4, 4, 26, 1, 2, 0, 41, 0, 19, 0, 0, 26, 0, 0, 1…
+$ room_type              &lt;chr&gt; "Entire home/apt", "Private room", "Entire home…
+$ neighbourhood_cleansed &lt;chr&gt; "Fatih", "Beyoglu", "Beyoglu", "Sisli", "Sisli"…</code></pre>
+</div>
+</div>
+<p>At this stage, notice in particular the <code>price</code> variable. Although it represents a numerical concept (nightly price), it is not stored as a numeric variable.</p>
+<p>Instead, <code>price</code> is typically read as a character string, often containing currency symbols and separators. This is common in datasets that originate from web scraping or user-facing platforms.</p>
+</section>
+<section id="why-we-need-to-convert-price-to-numeric" class="level3" data-number="4.5">
+<h3 data-number="4.5" class="anchored" data-anchor-id="why-we-need-to-convert-price-to-numeric"><span class="header-section-number">4.5</span> Why we need to convert <code>price</code> to numeric</h3>
+<p>Outlier detection methods such as boxplots, the IQR rule, and Z-scores require <strong>numeric input</strong>. As long as <code>price</code> is stored as a character variable, it cannot be used in quantitative analysis.</p>
+<p>More importantly, treating <code>price</code> as numeric is not just a technical requirement. It reflects a modeling decision: we explicitly state that this variable represents a measurable quantity on which arithmetic operations are meaningful.</p>
+</section>
+<section id="converting-price-to-a-numeric-variable" class="level3" data-number="4.6">
+<h3 data-number="4.6" class="anchored" data-anchor-id="converting-price-to-a-numeric-variable"><span class="header-section-number">4.6</span> Converting <code>price</code> to a numeric variable</h3>
+<p>To prepare the data for analysis, we remove non-numeric characters and convert <code>price</code> to a numeric variable, which we call <code>price_num</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>listings_small <span class="ot">&lt;-</span> listings_small <span class="sc">%&gt;%</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">price_num =</span> price <span class="sc">%&gt;%</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>           <span class="fu">str_replace_all</span>(<span class="st">"[^0-9.]"</span>, <span class="st">""</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">as.numeric</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>After the conversion, we can verify the result by inspecting basic summaries:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(listings_small<span class="sc">$</span>price_num)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+     80    1644    2538    5084    4108 4437598    4803 </code></pre>
+</div>
+</div>
+<p>At this point, <code>price_num</code> is ready for outlier detection and visualization. In the next section, we will use this variable to illustrate how extreme values can be identified using visual tools and formal statistical rules.</p>
+</section>
+</section>
+<section id="visualizing-price-distributions-and-potential-outliers" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="visualizing-price-distributions-and-potential-outliers"><span class="header-section-number">5</span> Visualizing Price Distributions and Potential Outliers</h2>
+<p>Before applying any formal outlier detection rule, it is good practice to explore the distribution of the variable visually. Visualization helps us understand the <em>shape</em>, <em>spread</em>, and <em>asymmetry</em> of the data, and often reveals extreme values immediately.</p>
+<p>In this section, we focus on the numeric price variable <code>price_num</code>.</p>
+<section id="a-first-attempt-why-the-raw-histogram-fails" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="a-first-attempt-why-the-raw-histogram-fails"><span class="header-section-number">5.1</span> A first attempt: why the raw histogram fails</h3>
+<p>A natural first step is to plot a histogram of nightly prices on the original scale.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(listings_small, <span class="fu">aes</span>(<span class="at">x =</span> price_num)) <span class="sc">+</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">40</span>, <span class="at">fill =</span> <span class="st">"#B0B0B0"</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> <span class="fu">label_number</span>(<span class="at">big.mark =</span> <span class="st">","</span>)) <span class="sc">+</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribution of Nightly Prices (raw scale)"</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Nightly price"</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Count"</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>This plot is technically correct, but analytically unhelpful.</p>
+<ul>
+<li><p>A small number of extremely expensive listings stretches the x-axis.</p></li>
+<li><p>The majority of observations are compressed near zero.</p></li>
+<li><p>As a result, the internal structure of the data becomes almost invisible.</p></li>
+</ul>
+<p>This is not a plotting mistake. It is a direct consequence of <strong>heavy right-skewness</strong>, which is common in price data. At this point, it is already clear that naive visualizations on the raw scale are insufficient.</p>
+</section>
+<section id="adding-context-prices-depend-on-room_type" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="adding-context-prices-depend-on-room_type"><span class="header-section-number">5.2</span> Adding context: prices depend on <code>room_type</code></h3>
+<p>Airbnb listings are not drawn from a single homogeneous market. A <em>shared room</em> and an <em>entire home/apt</em> represent fundamentally different accommodation types, and their prices should not be expected to follow the same distribution.</p>
+<p>If we ignore this context and search for outliers globally, we risk labeling valid group-level differences as anomalies. For this reason, we first examine how prices behave <strong>within each room type</strong>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>listings_small <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(room_type, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 2
+  room_type           n
+  &lt;chr&gt;           &lt;int&gt;
+1 Entire home/apt 20243
+2 Private room     9494
+3 Hotel room        157
+4 Shared room       157</code></pre>
+</div>
+</div>
+</section>
+<section id="price-distributions-by-room-type-log-scale" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="price-distributions-by-room-type-log-scale"><span class="header-section-number">5.3</span> Price distributions by room type (log scale)</h3>
+<p>To make the right tail interpretable without discarding extreme values, we visualize prices on a logarithmic scale and separate distributions by room type.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(listings_small, <span class="fu">aes</span>(<span class="at">x =</span> price_num)) <span class="sc">+</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">35</span>, <span class="at">fill =</span> <span class="st">"#4C72B0"</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">alpha =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">scale_x_log10</span>(</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="at">breaks =</span> <span class="fu">log_breaks</span>(<span class="at">n =</span> <span class="dv">6</span>),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="at">labels =</span> <span class="fu">label_number</span>(<span class="at">big.mark =</span> <span class="st">","</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">facet_wrap</span>(<span class="sc">~</span> room_type, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="at">title =</span> <span class="st">"Nightly Price Distributions by Room Type (log scale)"</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="at">subtitle =</span> <span class="st">"Log scale improves readability in heavily right-skewed price data"</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="at">x =</span> <span class="st">"Nightly price (log scale)"</span>,</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="at">y =</span> <span class="st">"Count"</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>This visualization reveals several important patterns:</p>
+<ul>
+<li><p>Each room type has its own characteristic price range.</p></li>
+<li><p>The extreme right tail becomes visible without overwhelming the plot.</p></li>
+<li><p>What appears as an “outlier” globally may be perfectly typical within a given room type</p></li>
+</ul>
+<p>At this stage, the notion of an outlier becomes <strong>context-dependent</strong> rather than absolute.</p>
+</section>
+<section id="boxplots-by-room-type-highlighting-potential-extremes" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="boxplots-by-room-type-highlighting-potential-extremes"><span class="header-section-number">5.4</span> Boxplots by room type: highlighting potential extremes</h3>
+<p>Histograms show overall shape, but boxplots are better suited for highlighting extreme observations. We again use a log scale to preserve readability.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(listings_small, <span class="fu">aes</span>(<span class="at">x =</span> room_type, <span class="at">y =</span> price_num)) <span class="sc">+</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">outlier.alpha =</span> <span class="fl">0.35</span>, <span class="at">fill =</span> <span class="st">"#DDDDDD"</span>) <span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">labels =</span> <span class="fu">label_number</span>(<span class="at">big.mark =</span> <span class="st">","</span>)) <span class="sc">+</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Nightly Prices by Room Type (boxplot, log scale)"</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Potential outliers are assessed within each room type"</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Room type"</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Nightly price (log scale)"</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">20</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>This plot makes a key point explicit:</p>
+<ul>
+<li><p>Outliers are flagged <strong>relative to their own room type</strong>, not the entire dataset.</p></li>
+<li><p>Extremely high prices within <em>shared rooms</em> are <strong>statistically more unusual</strong> than similarly high prices within <em>entire homes</em>, given the much narrower price distribution of shared rooms.</p></li>
+<li><p>Statistical outliers are candidates for further investigation, not automatic deletions.</p></li>
+</ul>
+</section>
+<section id="what-visual-exploration-tells-us" class="level3" data-number="5.5">
+<h3 data-number="5.5" class="anchored" data-anchor-id="what-visual-exploration-tells-us"><span class="header-section-number">5.5</span> What visual exploration tells us</h3>
+<p>From visual inspection alone, we can conclude that:</p>
+<ul>
+<li><p>Airbnb price data are highly right-skewed.</p></li>
+<li><p>Extreme values exist and strongly influence scale and summaries.</p></li>
+<li><p>Context (here, <code>room_type</code>) is essential for meaningful interpretation.</p></li>
+</ul>
+<p>These observations motivate the next step: formalizing outlier detection using statistical rules such as the <strong>IQR method</strong> and <strong>Z-scores</strong>, applied <em>within room types</em> rather than globally.</p>
+</section>
+</section>
+<section id="formal-outlier-detection-within-room-type" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="formal-outlier-detection-within-room-type"><span class="header-section-number">6</span> Formal Outlier Detection Within Room Type</h2>
+<p>Visual exploration suggested that nightly prices exhibit strong right-skewness and that extreme values should be interpreted within the context of <code>room_type</code>. In this section, we formalize that intuition using statistical outlier detection rules.</p>
+<p>Our goal is not to mechanically remove observations, but to <strong>identify and examine</strong> listings whose prices are unusually high relative to their own room type.</p>
+<section id="the-iqr-rule" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="the-iqr-rule"><span class="header-section-number">6.1</span> The IQR rule</h3>
+<p>The Interquartile Range (IQR) rule defines outliers based on the spread of the middle 50% of the data. For a given variable, the IQR is defined as:</p>
+<p><span class="math display">\[
+\text{IQR} = Q_3 - Q_1
+\]</span></p>
+<p>An observation is flagged as a potential outlier if it lies outside the interval:</p>
+<p><span class="math display">\[
+[ Q_1 - 1.5 \times \text{IQR}, \; Q_3 + 1.5 \times \text{IQR} ]
+\]</span></p>
+<p>Because the IQR relies on quantiles rather than the mean and standard deviation, it is relatively robust to skewed distributions—an important property for price data.</p>
+</section>
+<section id="applying-the-iqr-rule-within-each-room-type" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="applying-the-iqr-rule-within-each-room-type"><span class="header-section-number">6.2</span> Applying the IQR rule within each room type</h3>
+<p>Instead of computing a single global IQR, we apply the rule <strong>separately within each room type</strong>. This ensures that prices are evaluated relative to comparable listings.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>outliers_iqr <span class="ot">&lt;-</span> listings_small <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(room_type) <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Q1 =</span> <span class="fu">quantile</span>(price_num, <span class="fl">0.25</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Q3 =</span> <span class="fu">quantile</span>(price_num, <span class="fl">0.75</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">IQR_value =</span> Q3 <span class="sc">-</span> Q1,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">lower_bound =</span> Q1 <span class="sc">-</span> <span class="fl">1.5</span> <span class="sc">*</span> IQR_value,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">upper_bound =</span> Q3 <span class="sc">+</span> <span class="fl">1.5</span> <span class="sc">*</span> IQR_value,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">outlier_iqr =</span> price_num <span class="sc">&lt;</span> lower_bound <span class="sc">|</span> price_num <span class="sc">&gt;</span> upper_bound</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>At this stage, each listing is labeled according to whether its price is considered an outlier <em>within its own room type</em>.</p>
+</section>
+<section id="how-many-outliers-do-we-detect" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="how-many-outliers-do-we-detect"><span class="header-section-number">6.3</span> How many outliers do we detect?</h3>
+<p>Before inspecting individual listings, it is informative to summarize how many outliers are flagged in each group.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>outliers_iqr <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(room_type, outlier_iqr) <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(room_type, <span class="fu">desc</span>(outlier_iqr))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12 × 3
+   room_type       outlier_iqr     n
+   &lt;chr&gt;           &lt;lgl&gt;       &lt;int&gt;
+ 1 Entire home/apt TRUE         1458
+ 2 Entire home/apt FALSE       16616
+ 3 Entire home/apt NA           2169
+ 4 Hotel room      TRUE           17
+ 5 Hotel room      FALSE         106
+ 6 Hotel room      NA             34
+ 7 Private room    TRUE          441
+ 8 Private room    FALSE        6470
+ 9 Private room    NA           2583
+10 Shared room     TRUE            3
+11 Shared room     FALSE         137
+12 Shared room     NA             17</code></pre>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>This table shows that outliers are not evenly distributed across room types. Some categories naturally exhibit greater price dispersion, which leads to more listings being flagged as potential outliers. This reinforces the importance of <strong>group-aware detection</strong>.</p>
+</section>
+<section id="inspecting-extreme-cases-flagged-by-iqr" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="inspecting-extreme-cases-flagged-by-iqr"><span class="header-section-number">6.4</span> Inspecting extreme cases flagged by IQR</h3>
+<p>Statistical flags become meaningful only when we inspect the actual observations. Below, we list the most expensive listings flagged as outliers within each room type.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>top_price_outliers <span class="ot">&lt;-</span> outliers_iqr <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(outlier_iqr) <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(room_type) <span class="sc">%&gt;%</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(price_num)) <span class="sc">%&gt;%</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    room_type,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    price,</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    price_num,</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    minimum_nights,</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    number_of_reviews,</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    neighbourhood_cleansed,</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    name</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>top_price_outliers</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 18 × 7
+   room_type       price         price_num minimum_nights number_of_reviews
+   &lt;chr&gt;           &lt;chr&gt;             &lt;dbl&gt;          &lt;dbl&gt;             &lt;dbl&gt;
+ 1 Entire home/apt $4,437,598.00   4437598            100                14
+ 2 Entire home/apt $2,658,600.00   2658600            100                 3
+ 3 Entire home/apt $2,109,690.00   2109690            100                 0
+ 4 Entire home/apt $2,000,000.00   2000000            100                 0
+ 5 Entire home/apt $1,250,008.00   1250008            100                 0
+ 6 Hotel room      $2,439,497.00   2439497              1                 0
+ 7 Hotel room      $2,439,497.00   2439497              1                 0
+ 8 Hotel room      $2,439,497.00   2439497              1                 0
+ 9 Hotel room      $2,439,497.00   2439497              1                 0
+10 Hotel room      $2,433,427.00   2433427              1                 0
+11 Private room    $390,271.00      390271            365                 1
+12 Private room    $390,271.00      390271            365                 0
+13 Private room    $390,271.00      390271            365                 0
+14 Private room    $390,271.00      390271            100                 0
+15 Private room    $390,271.00      390271            100                 0
+16 Shared room     $7,221.00          7221              1                 0
+17 Shared room     $6,086.00          6086              1                 2
+18 Shared room     $5,841.00          5841            100                 0
+# ℹ 2 more variables: neighbourhood_cleansed &lt;chr&gt;, name &lt;chr&gt;</code></pre>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>At this point, the analysis moves from abstract rules to concrete questions:</p>
+<ul>
+<li><p>Are these listings luxury properties?</p></li>
+<li><p>Do they require unusually long minimum stays?</p></li>
+<li><p>Do they have very few (or no) reviews, suggesting new or inactive listings?</p></li>
+<li><p>Are they located in specific neighborhoods?</p></li>
+</ul>
+<p>The answers to these questions determine whether a flagged observation should be:</p>
+<ul>
+<li><p>kept and modeled explicitly,</p></li>
+<li><p>transformed (e.g., via log scaling),</p></li>
+<li><p>or excluded due to data quality concerns.</p></li>
+</ul>
+</section>
+<section id="z-scorebased-outlier-detection-concept-and-limitations" class="level3" data-number="6.5">
+<h3 data-number="6.5" class="anchored" data-anchor-id="z-scorebased-outlier-detection-concept-and-limitations"><span class="header-section-number">6.5</span> Z-score–based outlier detection: concept and limitations</h3>
+<p>In addition to IQR-based rules, outliers are often discussed using <strong>Z-scores</strong>. Because this method is widely taught and frequently applied, it is important to understand both how it works and when it can be misleading.</p>
+<section id="what-is-a-z-score" class="level4" data-number="6.5.1">
+<h4 data-number="6.5.1" class="anchored" data-anchor-id="what-is-a-z-score"><span class="header-section-number">6.5.1</span> What is a Z-score?</h4>
+<p>A Z-score measures how far an observation lies from the mean, expressed in units of standard deviation. For a single observation, the Z-score is defined as:</p>
+<p><span class="math display">\[
+z = \frac{x - \mu}{\sigma}
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(\mu\)</span> is the sample mean</li>
+<li><span class="math inline">\(\sigma\)</span> is the sample standard deviation</li>
+</ul>
+<p>Intuitively, the Z-score answers the question:</p>
+<blockquote class="blockquote">
+<p>“How many standard deviations away from the mean is this observation?”</p>
+</blockquote>
+<p>A common heuristic labels observations with</p>
+<p><span class="math display">\[
+|z| &gt; 3
+\]</span></p>
+<p>as potential outliers.</p>
+</section>
+<section id="what-does-the-z-score-assume" class="level4" data-number="6.5.2">
+<h4 data-number="6.5.2" class="anchored" data-anchor-id="what-does-the-z-score-assume"><span class="header-section-number">6.5.2</span> What does the Z-score assume?</h4>
+<p>Z-score–based detection implicitly relies on several assumptions:</p>
+<ul>
+<li>the distribution is approximately symmetric,</li>
+<li>the mean and standard deviation are meaningful summaries,</li>
+<li>extreme values do not dominate the estimation of <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span>.</li>
+</ul>
+<p>These assumptions are often reasonable for approximately normal data, but they are problematic for strongly skewed distributions.</p>
+</section>
+<section id="why-z-scores-are-problematic-for-price-data" class="level4" data-number="6.5.3">
+<h4 data-number="6.5.3" class="anchored" data-anchor-id="why-z-scores-are-problematic-for-price-data"><span class="header-section-number">6.5.3</span> Why Z-scores are problematic for price data</h4>
+<p>Airbnb prices are typically <strong>right-skewed</strong> with long upper tails. In such cases:</p>
+<ul>
+<li>extreme values inflate the mean,</li>
+<li>extreme values inflate the standard deviation,</li>
+<li>as a result, truly extreme observations may receive <em>moderate</em> Z-scores.</li>
+</ul>
+<p>This leads to a paradox: the very observations we want to detect reduce their own apparent extremeness. For this reason, Z-scores tend to <strong>under-detect</strong> outliers in heavily skewed economic data.</p>
+</section>
+<section id="applying-z-scores-within-each-room-type" class="level4" data-number="6.5.4">
+<h4 data-number="6.5.4" class="anchored" data-anchor-id="applying-z-scores-within-each-room-type"><span class="header-section-number">6.5.4</span> Applying Z-scores within each room type</h4>
+<p>Despite these limitations, Z-scores can still be informative when used carefully and comparatively. As with the IQR rule, we compute Z-scores <strong>within each room type</strong> to preserve contextual meaning.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>outliers_z <span class="ot">&lt;-</span> listings_small <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(room_type) <span class="sc">%&gt;%</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_price =</span> <span class="fu">mean</span>(price_num, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_price   =</span> <span class="fu">sd</span>(price_num, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">z_price    =</span> (price_num <span class="sc">-</span> mean_price) <span class="sc">/</span> sd_price,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">outlier_z  =</span> <span class="fu">abs</span>(z_price) <span class="sc">&gt;</span> <span class="dv">3</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="how-many-outliers-are-flagged-by-the-z-score-rule" class="level4" data-number="6.5.5">
+<h4 data-number="6.5.5" class="anchored" data-anchor-id="how-many-outliers-are-flagged-by-the-z-score-rule"><span class="header-section-number">6.5.5</span> How many outliers are flagged by the Z-score rule?</h4>
+<p>After computing Z-scores within each room type, we can summarize how many listings are flagged as outliers.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>outliers_z <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(room_type, outlier_z) <span class="sc">%&gt;%</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(room_type, <span class="fu">desc</span>(outlier_z))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12 × 3
+   room_type       outlier_z     n
+   &lt;chr&gt;           &lt;lgl&gt;     &lt;int&gt;
+ 1 Entire home/apt TRUE         24
+ 2 Entire home/apt FALSE     18050
+ 3 Entire home/apt NA         2169
+ 4 Hotel room      TRUE          5
+ 5 Hotel room      FALSE       118
+ 6 Hotel room      NA           34
+ 7 Private room    TRUE         26
+ 8 Private room    FALSE      6885
+ 9 Private room    NA         2583
+10 Shared room     TRUE          1
+11 Shared room     FALSE       139
+12 Shared room     NA           17</code></pre>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>In many Airbnb datasets, this table reveals a striking pattern:</p>
+<ul>
+<li><p>The number of Z-score–based outliers is <strong>much smaller</strong> than the number detected by the IQR rule.</p></li>
+<li><p>In some room types, no observations are flagged at all.</p></li>
+</ul>
+<p>This is a direct consequence of right-skewness: extreme prices inflate both the mean and the standard deviation, making Z-scores appear less extreme than expected.</p>
+</section>
+<section id="inspecting-listings-flagged-by-z-scores" class="level4" data-number="6.5.6">
+<h4 data-number="6.5.6" class="anchored" data-anchor-id="inspecting-listings-flagged-by-z-scores"><span class="header-section-number">6.5.6</span> Inspecting listings flagged by Z-scores</h4>
+<p>To understand what Z-scores actually flag as outliers, we inspect the most extreme listings according to their Z-score values.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>top_z_outliers <span class="ot">&lt;-</span> outliers_z <span class="sc">%&gt;%</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(outlier_z) <span class="sc">%&gt;%</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(room_type) <span class="sc">%&gt;%</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(<span class="fu">abs</span>(z_price))) <span class="sc">%&gt;%</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    room_type,</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    price,</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    price_num,</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    z_price,</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    minimum_nights,</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    number_of_reviews,</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    neighbourhood_cleansed,</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    name</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>top_z_outliers</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 16 × 8
+   room_type       price      price_num z_price minimum_nights number_of_reviews
+   &lt;chr&gt;           &lt;chr&gt;          &lt;dbl&gt;   &lt;dbl&gt;          &lt;dbl&gt;             &lt;dbl&gt;
+ 1 Entire home/apt $4,437,59…   4437598   92.9             100                14
+ 2 Entire home/apt $2,658,60…   2658600   55.6             100                 3
+ 3 Entire home/apt $2,109,69…   2109690   44.1             100                 0
+ 4 Entire home/apt $2,000,00…   2000000   41.8             100                 0
+ 5 Entire home/apt $1,250,00…   1250008   26.1             100                 0
+ 6 Hotel room      $2,439,49…   2439497    4.84              1                 0
+ 7 Hotel room      $2,439,49…   2439497    4.84              1                 0
+ 8 Hotel room      $2,439,49…   2439497    4.84              1                 0
+ 9 Hotel room      $2,439,49…   2439497    4.84              1                 0
+10 Hotel room      $2,433,42…   2433427    4.83              1                 0
+11 Private room    $390,271.…    390271   31.3             365                 1
+12 Private room    $390,271.…    390271   31.3             365                 0
+13 Private room    $390,271.…    390271   31.3             365                 0
+14 Private room    $390,271.…    390271   31.3             100                 0
+15 Private room    $390,271.…    390271   31.3             100                 0
+16 Shared room     $7,221.00       7221    3.65              1                 0
+# ℹ 2 more variables: neighbourhood_cleansed &lt;chr&gt;, name &lt;chr&gt;</code></pre>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>When compared to the IQR-based outliers, these listings are often:</p>
+<ul>
+<li><p>less extreme in absolute price,</p></li>
+<li><p>closer to the central mass of the distribution,</p></li>
+<li><p>dominated by a small number of room types.</p></li>
+</ul>
+<p>This confirms that Z-score–based detection tends to <strong>miss many extreme but valid prices</strong> in heavily skewed data.</p>
+</section>
+<section id="comparing-iqr-and-z-score-results" class="level4" data-number="6.5.7">
+<h4 data-number="6.5.7" class="anchored" data-anchor-id="comparing-iqr-and-z-score-results"><span class="header-section-number">6.5.7</span> Comparing IQR and Z-score results</h4>
+<p>Finally, we compare how many listings are flagged by each method.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>comparison_summary <span class="ot">&lt;-</span> outliers_iqr <span class="sc">%&gt;%</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, room_type, outlier_iqr) <span class="sc">%&gt;%</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    outliers_z <span class="sc">%&gt;%</span> <span class="fu">select</span>(id, outlier_z),</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="st">"id"</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(outlier_iqr, outlier_z)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>comparison_summary</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+  outlier_iqr outlier_z     n
+  &lt;lgl&gt;       &lt;lgl&gt;     &lt;int&gt;
+1 FALSE       FALSE     23329
+2 TRUE        FALSE      1863
+3 TRUE        TRUE         56
+4 NA          NA         4803</code></pre>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>This comparison highlights a key methodological insight:</p>
+<ul>
+<li><p>Many listings flagged by the IQR rule are <strong>not flagged</strong> by Z-scores.</p></li>
+<li><p>Listings flagged by Z-scores are almost always flagged by the IQR rule as well.</p></li>
+<li><p>The overlap is asymmetric.</p></li>
+</ul>
+<p>In other words, the Z-score rule is more conservative and may under-detect outliers when distributions are strongly skewed. This does not make Z-scores “wrong”, but it does limit their usefulness as a primary detection method for price data.</p>
+<p>In practice, Z-score–based flags often differ substantially from IQR-based flags. This difference is not an error—it reflects different assumptions.</p>
+<ul>
+<li><p>IQR-based methods rely on ranks and quantiles</p></li>
+<li><p>Z-score–based methods rely on moments (mean and variance)</p></li>
+</ul>
+<p>For heavily skewed price data, IQR-based detection is usually more reliable, while Z-scores should be interpreted as a <strong>supplementary diagnostic</strong> rather than a primary rule.</p>
+</section>
+</section>
+</section>
+<section id="should-outliers-be-removed" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="should-outliers-be-removed"><span class="header-section-number">7</span> Should Outliers Be Removed?</h2>
+<p>Detecting outliers does <strong>not</strong> imply that they should be automatically removed. Outlier detection is a diagnostic step, not a cleaning instruction.</p>
+<p>In the context of Airbnb price data, many extreme values correspond to luxury properties, large homes, or special accommodation types. Blindly removing such observations may erase precisely the information that makes the data interesting.</p>
+<p>Instead, several alternative strategies should be considered.</p>
+<section id="verify-and-understand-the-source-of-extremeness" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="verify-and-understand-the-source-of-extremeness"><span class="header-section-number">7.1</span> Verify and understand the source of extremeness</h3>
+<p>The first question should always be <em>why</em> an observation is extreme.</p>
+<ul>
+<li>Is the listing a luxury property?</li>
+<li>Does it belong to a specific <code>room_type</code>?</li>
+<li>Is it located in a high-demand neighborhood?</li>
+<li>Is it associated with unusual booking constraints (e.g., very high <code>minimum_nights</code>)?</li>
+</ul>
+<p>In many cases, extreme values are <strong>valid reflections of heterogeneity</strong>, not data errors.</p>
+</section>
+<section id="use-transformations-or-robust-methods" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="use-transformations-or-robust-methods"><span class="header-section-number">7.2</span> Use transformations or robust methods</h3>
+<p>When extreme values distort summaries or model estimates, removal is not the only option.</p>
+<p>Common alternatives include:</p>
+<ul>
+<li>transforming the response variable (e.g., log transformation of prices),</li>
+<li>using robust estimators that reduce sensitivity to extremes,</li>
+<li>modeling medians or quantiles instead of means.</li>
+</ul>
+<p>These approaches preserve information while reducing the influence of extreme observations.</p>
+</section>
+<section id="model-extremes-explicitly-when-relevant" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="model-extremes-explicitly-when-relevant"><span class="header-section-number">7.3</span> Model extremes explicitly when relevant</h3>
+<p>In some applications, outliers are not nuisances but the primary object of interest.</p>
+<p>Examples include:</p>
+<ul>
+<li>luxury market analysis,</li>
+<li>risk assessment,</li>
+<li>rare but high-impact events.</li>
+</ul>
+<p>In such cases, extreme observations should be modeled explicitly rather than suppressed.</p>
+</section>
+<section id="a-final-perspective" class="level3" data-number="7.4">
+<h3 data-number="7.4" class="anchored" data-anchor-id="a-final-perspective"><span class="header-section-number">7.4</span> A final perspective</h3>
+<p>Outliers are not merely statistical inconveniences. They often highlight structural differences, market segmentation, or meaningful departures from typical behavior.</p>
+<p>Understanding <em>why</em> an observation is extreme is frequently more informative than deleting it.</p>
+<p>In practice, thoughtful outlier handling requires a balance between statistical rules, domain knowledge, and modeling objectives.</p>
+</section>
+</section>
+<section id="final-remarks" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="final-remarks"><span class="header-section-number">8</span> Final Remarks</h2>
+<p>Outlier detection is a natural step in the data preprocessing workflow. It typically follows missing data analysis and precedes scaling, transformation, or model fitting.</p>
+<p>In this article, the focus was not on eliminating extreme values, but on <strong>understanding why they occur</strong>. Through visual exploration, context-aware analysis using <code>room_type</code>, and formal detection rules such as the IQR method and Z-scores, we demonstrated that extreme values are not noise by default.</p>
+<p>In many real-world datasets, especially those involving prices or economic behavior, extreme values reflect structural heterogeneity rather than data quality issues. Treating them blindly as errors risks discarding meaningful information.</p>
+<p>Outliers should therefore be approached as <strong>questions posed by the data</strong>: Why is this observation extreme? Does it represent a different regime, a rare event, or a distinct subgroup?</p>
+<p>Answering these questions requires a combination of statistical tools, domain knowledge, and clear analytical goals. When handled thoughtfully, outlier analysis enhances both the robustness and the interpretability of downstream models.</p>
+</section>
+<section id="references-and-further-reading" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="references-and-further-reading"><span class="header-section-number">9</span> References and Further Reading</h2>
+<ul>
+<li><p>Tukey, J. W. (1977). <em>Exploratory Data Analysis</em>. Addison-Wesley.<br>
+(Foundational reference for boxplots, IQR, and exploratory thinking.)</p></li>
+<li><p>Hastie, T., Tibshirani, R., Friedman, J. (2009). <em>The Elements of Statistical Learning</em>. Springer.<br>
+(Statistical foundations and the role of robust methods in modeling.)</p></li>
+<li><p>James, G., Witten, D., Hastie, T., Tibshirani, R. (2021). <em>An Introduction to Statistical Learning</em>. Springer.<br>
+(Accessible discussion of preprocessing, transformations, and practical modeling considerations.)</p></li>
+<li><p>NIST/SEMATECH e-Handbook of Statistical Methods – Outliers<br>
+<a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda35h.htm" class="uri">https://www.itl.nist.gov/div898/handbook/eda/section3/eda35h.htm</a><br>
+(Authoritative overview of outlier concepts and detection methods.)</p></li>
+<li><p>Wickham, H., Grolemund, G. (2017). <em>R for Data Science</em>. O’Reilly Media.<br>
+(Practical guidance on data exploration, visualization, and preprocessing workflows in R.)</p></li>
+<li><p>Inside Airbnb – Get the Data<br>
+<a href="https://insideairbnb.com/get-the-data/" class="uri">https://insideairbnb.com/get-the-data/</a><br>
+(Data source used in this article; city-level Airbnb listings data.)</p></li>
+<li><p>Wickham, H. (2016). <em>ggplot2: Elegant Graphics for Data Analysis</em>. Springer.<br>
+(Principles of layered graphics and effective visualization used throughout the article.)</p></li>
+</ul>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/mfatihtuzen\.netlify\.app");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<script src="https://utteranc.es/client.js" repo="MFatihTuzen/blogComments" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Outliers in Data Analysis: Detecting Extreme Values Before Modeling in R İstanbul Airbnb Data"</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "M. Fatih Tüzen"</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2025-12-19"</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> [R, Statistics, Data Analysis, Data Science, Data Preprocessing, Outliers, Inter Quartile Range, Z-Score, Data Cleaning]</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 2</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="co">    code-overflow: scroll</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a><span class="co">    code-block-background: true</span></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="co">  pdf:</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a><span class="al">![](outliers.png)</span>{fig-align="center" width="484"}</span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a><span class="fu">## Introduction</span></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>Data preprocessing is often presented as a sequence of technical steps. However, each preprocessing decision implicitly embeds a statistical assumption.</span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>In a previous article, I discussed how missing observations can bias analysis if they are ignored or handled improperly:</span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">**Handling Missing Data in R: A Comprehensive Guide**</span><span class="co">](https://medium.com/r-evolution/handling-missing-data-in-r-a-comprehensive-guide-eca195eaead3)</span></span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>This article continues that discussion by focusing on **outliers**. Unlike missing values, outliers are observed data points. The challenge is not their absence, but their *extremeness*.</span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>Understanding whether an extreme value is informative or misleading is a crucial step before any modeling effort.</span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a><span class="fu">## Why Outliers Matter</span></span>
+<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a>Outliers can affect statistical analysis in several fundamental ways:</span>
+<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-40"><a href="#cb24-40" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>They distort summary statistics such as the mean and standard deviation</span>
+<span id="cb24-41"><a href="#cb24-41" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>They can dominate parameter estimates in regression models</span>
+<span id="cb24-42"><a href="#cb24-42" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>They influence distance-based methods such as clustering</span>
+<span id="cb24-43"><a href="#cb24-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-44"><a href="#cb24-44" aria-hidden="true" tabindex="-1"></a>More importantly, outliers force analysts to confront a key question:</span>
+<span id="cb24-45"><a href="#cb24-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-46"><a href="#cb24-46" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Are we observing rare but valid behavior, or a deviation from the assumed data-generating process?</span></span>
+<span id="cb24-47"><a href="#cb24-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-48"><a href="#cb24-48" aria-hidden="true" tabindex="-1"></a><span class="fu">## What Is an Outlier?</span></span>
+<span id="cb24-49"><a href="#cb24-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-50"><a href="#cb24-50" aria-hidden="true" tabindex="-1"></a>Informally, an outlier is an observation that appears unusually large or small relative to the rest of the data. Formally, an outlier is an observation that is inconsistent with the bulk of the data **under a given statistical model**. Outliers are therefore not absolute objects. They depend on assumptions about distribution, scale, and structure.</span>
+<span id="cb24-51"><a href="#cb24-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-52"><a href="#cb24-52" aria-hidden="true" tabindex="-1"></a><span class="fu">## The Dataset: Inside Airbnb Listings (Istanbul)</span></span>
+<span id="cb24-53"><a href="#cb24-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-54"><a href="#cb24-54" aria-hidden="true" tabindex="-1"></a>To demonstrate outlier detection methods, we will use **Inside Airbnb** listings data. Inside Airbnb is a mission-driven project that publishes datasets scraped from publicly available Airbnb listing pages and provides city-level downloads for research and analysis.</span>
+<span id="cb24-55"><a href="#cb24-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-56"><a href="#cb24-56" aria-hidden="true" tabindex="-1"></a>In this article, we will work with the **detailed listings** file:</span>
+<span id="cb24-57"><a href="#cb24-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-58"><a href="#cb24-58" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`listings.csv.gz`</span> (detailed listing-level data; typically rich and feature-complete)</span>
+<span id="cb24-59"><a href="#cb24-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-60"><a href="#cb24-60" aria-hidden="true" tabindex="-1"></a>You can download the dataset from the <span class="co">[</span><span class="ot">Inside Airbnb</span><span class="co">](https://insideairbnb.com/get-the-data/)</span> “Get the Data” page (choose a city and download *Detailed Listings data*).</span>
+<span id="cb24-61"><a href="#cb24-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-62"><a href="#cb24-62" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this dataset is ideal for outlier detection</span></span>
+<span id="cb24-63"><a href="#cb24-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-64"><a href="#cb24-64" aria-hidden="true" tabindex="-1"></a>Unlike many “clean” educational datasets, Airbnb listing data often contains **genuinely extreme values**, especially in <span class="in">`price`</span>. These extremes are not necessarily errors—luxury properties exist—but they can heavily distort means, variances, and model estimates. That makes Airbnb listings a realistic and highly instructive dataset for outlier detection.</span>
+<span id="cb24-65"><a href="#cb24-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-66"><a href="#cb24-66" aria-hidden="true" tabindex="-1"></a><span class="fu">### Variables we will use</span></span>
+<span id="cb24-67"><a href="#cb24-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-68"><a href="#cb24-68" aria-hidden="true" tabindex="-1"></a>Although the Airbnb listings dataset contains many variables, this article focuses on a **small, purpose-driven subset**.</span>
+<span id="cb24-69"><a href="#cb24-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-70"><a href="#cb24-70" aria-hidden="true" tabindex="-1"></a>Our primary variable of interest is:</span>
+<span id="cb24-71"><a href="#cb24-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-72"><a href="#cb24-72" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`price`</span> (converted to <span class="in">`price_num`</span>): nightly listing price.\</span>
+<span id="cb24-73"><a href="#cb24-73" aria-hidden="true" tabindex="-1"></a>    This variable is typically right-skewed and often contains extreme values, making it ideal for illustrating outlier detection methods.</span>
+<span id="cb24-74"><a href="#cb24-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-75"><a href="#cb24-75" aria-hidden="true" tabindex="-1"></a>To provide context for interpreting extreme prices, we also retain a limited number of supporting variables:</span>
+<span id="cb24-76"><a href="#cb24-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-77"><a href="#cb24-77" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`minimum_nights`</span>: minimum stay requirement, which can occasionally take unusually large values</span>
+<span id="cb24-78"><a href="#cb24-78" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`number_of_reviews`</span>: a proxy for listing activity and popularity, often zero-inflated</span>
+<span id="cb24-79"><a href="#cb24-79" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`room_type`</span>: categorical variable indicating the type of accommodation</span>
+<span id="cb24-80"><a href="#cb24-80" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`neighbourhood_cleansed`</span>: cleaned neighborhood label, useful for geographic context</span>
+<span id="cb24-81"><a href="#cb24-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-82"><a href="#cb24-82" aria-hidden="true" tabindex="-1"></a>These additional variables are not used to *detect* outliers directly, but to **interpret and explain** them once identified.</span>
+<span id="cb24-83"><a href="#cb24-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-84"><a href="#cb24-84" aria-hidden="true" tabindex="-1"></a><span class="fu">### Loading the data in R</span></span>
+<span id="cb24-85"><a href="#cb24-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-86"><a href="#cb24-86" aria-hidden="true" tabindex="-1"></a>Below is an example using **Istanbul**. If you prefer a different city, replace the URL with the corresponding <span class="in">`listings.csv.gz`</span> link from Inside Airbnb.</span>
+<span id="cb24-87"><a href="#cb24-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-90"><a href="#cb24-90" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-91"><a href="#cb24-91" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb24-92"><a href="#cb24-92" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb24-93"><a href="#cb24-93" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb24-94"><a href="#cb24-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-95"><a href="#cb24-95" aria-hidden="true" tabindex="-1"></a><span class="co"># Example URL (Istanbul). You can get the latest link from Inside Airbnb "Get the Data".</span></span>
+<span id="cb24-96"><a href="#cb24-96" aria-hidden="true" tabindex="-1"></a><span class="co"># The URL structure typically follows:</span></span>
+<span id="cb24-97"><a href="#cb24-97" aria-hidden="true" tabindex="-1"></a><span class="co"># https://data.insideairbnb.com/turkey/marmara/istanbul/2025-09-29/data/listings.csv.gz</span></span>
+<span id="cb24-98"><a href="#cb24-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-99"><a href="#cb24-99" aria-hidden="true" tabindex="-1"></a>listings_raw <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb24-100"><a href="#cb24-100" aria-hidden="true" tabindex="-1"></a>  <span class="st">"listings.csv.gz"</span>,</span>
+<span id="cb24-101"><a href="#cb24-101" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb24-102"><a href="#cb24-102" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-103"><a href="#cb24-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-104"><a href="#cb24-104" aria-hidden="true" tabindex="-1"></a>vars_keep <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb24-105"><a href="#cb24-105" aria-hidden="true" tabindex="-1"></a>  <span class="st">"id"</span>, <span class="st">"name"</span>,</span>
+<span id="cb24-106"><a href="#cb24-106" aria-hidden="true" tabindex="-1"></a>  <span class="st">"price"</span>, <span class="st">"minimum_nights"</span>, <span class="st">"number_of_reviews"</span>,</span>
+<span id="cb24-107"><a href="#cb24-107" aria-hidden="true" tabindex="-1"></a>  <span class="st">"room_type"</span>, <span class="st">"neighbourhood_cleansed"</span></span>
+<span id="cb24-108"><a href="#cb24-108" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-109"><a href="#cb24-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-110"><a href="#cb24-110" aria-hidden="true" tabindex="-1"></a>listings_small <span class="ot">&lt;-</span> listings_raw <span class="sc">%&gt;%</span></span>
+<span id="cb24-111"><a href="#cb24-111" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">any_of</span>(vars_keep))</span>
+<span id="cb24-112"><a href="#cb24-112" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-113"><a href="#cb24-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-114"><a href="#cb24-114" aria-hidden="true" tabindex="-1"></a><span class="fu">### Inspecting the selected variables</span></span>
+<span id="cb24-115"><a href="#cb24-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-116"><a href="#cb24-116" aria-hidden="true" tabindex="-1"></a>Before performing any transformation, it is important to inspect the data **as it comes from the source**. This allows us to understand variable types and identify potential issues early.</span>
+<span id="cb24-117"><a href="#cb24-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-118"><a href="#cb24-118" aria-hidden="true" tabindex="-1"></a>Below, we examine only the variables selected for this article.</span>
+<span id="cb24-119"><a href="#cb24-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-122"><a href="#cb24-122" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-123"><a href="#cb24-123" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(listings_small)</span>
+<span id="cb24-124"><a href="#cb24-124" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-125"><a href="#cb24-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-126"><a href="#cb24-126" aria-hidden="true" tabindex="-1"></a>At this stage, notice in particular the <span class="in">`price`</span> variable. Although it represents a numerical concept (nightly price), it is not stored as a numeric variable.</span>
+<span id="cb24-127"><a href="#cb24-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-128"><a href="#cb24-128" aria-hidden="true" tabindex="-1"></a>Instead, <span class="in">`price`</span> is typically read as a character string, often containing currency symbols and separators. This is common in datasets that originate from web scraping or user-facing platforms.</span>
+<span id="cb24-129"><a href="#cb24-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-130"><a href="#cb24-130" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why we need to convert `price` to numeric</span></span>
+<span id="cb24-131"><a href="#cb24-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-132"><a href="#cb24-132" aria-hidden="true" tabindex="-1"></a>Outlier detection methods such as boxplots, the IQR rule, and Z-scores require **numeric input**. As long as <span class="in">`price`</span> is stored as a character variable, it cannot be used in quantitative analysis.</span>
+<span id="cb24-133"><a href="#cb24-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-134"><a href="#cb24-134" aria-hidden="true" tabindex="-1"></a>More importantly, treating <span class="in">`price`</span> as numeric is not just a technical requirement. It reflects a modeling decision: we explicitly state that this variable represents a measurable quantity on which arithmetic operations are meaningful.</span>
+<span id="cb24-135"><a href="#cb24-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-136"><a href="#cb24-136" aria-hidden="true" tabindex="-1"></a><span class="fu">### Converting `price` to a numeric variable</span></span>
+<span id="cb24-137"><a href="#cb24-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-138"><a href="#cb24-138" aria-hidden="true" tabindex="-1"></a>To prepare the data for analysis, we remove non-numeric characters and convert <span class="in">`price`</span> to a numeric variable, which we call <span class="in">`price_num`</span>.</span>
+<span id="cb24-139"><a href="#cb24-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-142"><a href="#cb24-142" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-143"><a href="#cb24-143" aria-hidden="true" tabindex="-1"></a>listings_small <span class="ot">&lt;-</span> listings_small <span class="sc">%&gt;%</span></span>
+<span id="cb24-144"><a href="#cb24-144" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">price_num =</span> price <span class="sc">%&gt;%</span></span>
+<span id="cb24-145"><a href="#cb24-145" aria-hidden="true" tabindex="-1"></a>           <span class="fu">str_replace_all</span>(<span class="st">"[^0-9.]"</span>, <span class="st">""</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb24-146"><a href="#cb24-146" aria-hidden="true" tabindex="-1"></a>           <span class="fu">as.numeric</span>())</span>
+<span id="cb24-147"><a href="#cb24-147" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-148"><a href="#cb24-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-149"><a href="#cb24-149" aria-hidden="true" tabindex="-1"></a>After the conversion, we can verify the result by inspecting basic summaries:</span>
+<span id="cb24-150"><a href="#cb24-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-153"><a href="#cb24-153" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-154"><a href="#cb24-154" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(listings_small<span class="sc">$</span>price_num)</span>
+<span id="cb24-155"><a href="#cb24-155" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-156"><a href="#cb24-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-157"><a href="#cb24-157" aria-hidden="true" tabindex="-1"></a>At this point, <span class="in">`price_num`</span> is ready for outlier detection and visualization. In the next section, we will use this variable to illustrate how extreme values can be identified using visual tools and formal statistical rules.</span>
+<span id="cb24-158"><a href="#cb24-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-159"><a href="#cb24-159" aria-hidden="true" tabindex="-1"></a><span class="fu">## Visualizing Price Distributions and Potential Outliers</span></span>
+<span id="cb24-160"><a href="#cb24-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-161"><a href="#cb24-161" aria-hidden="true" tabindex="-1"></a>Before applying any formal outlier detection rule, it is good practice to explore the distribution of the variable visually. Visualization helps us understand the *shape*, *spread*, and *asymmetry* of the data, and often reveals extreme values immediately.</span>
+<span id="cb24-162"><a href="#cb24-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-163"><a href="#cb24-163" aria-hidden="true" tabindex="-1"></a>In this section, we focus on the numeric price variable <span class="in">`price_num`</span>.</span>
+<span id="cb24-164"><a href="#cb24-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-165"><a href="#cb24-165" aria-hidden="true" tabindex="-1"></a><span class="fu">### A first attempt: why the raw histogram fails</span></span>
+<span id="cb24-166"><a href="#cb24-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-167"><a href="#cb24-167" aria-hidden="true" tabindex="-1"></a>A natural first step is to plot a histogram of nightly prices on the original scale.</span>
+<span id="cb24-168"><a href="#cb24-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-171"><a href="#cb24-171" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-172"><a href="#cb24-172" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb24-173"><a href="#cb24-173" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
+<span id="cb24-174"><a href="#cb24-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-175"><a href="#cb24-175" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(listings_small, <span class="fu">aes</span>(<span class="at">x =</span> price_num)) <span class="sc">+</span></span>
+<span id="cb24-176"><a href="#cb24-176" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">40</span>, <span class="at">fill =</span> <span class="st">"#B0B0B0"</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb24-177"><a href="#cb24-177" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> <span class="fu">label_number</span>(<span class="at">big.mark =</span> <span class="st">","</span>)) <span class="sc">+</span></span>
+<span id="cb24-178"><a href="#cb24-178" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb24-179"><a href="#cb24-179" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribution of Nightly Prices (raw scale)"</span>,</span>
+<span id="cb24-180"><a href="#cb24-180" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Nightly price"</span>,</span>
+<span id="cb24-181"><a href="#cb24-181" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Count"</span></span>
+<span id="cb24-182"><a href="#cb24-182" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb24-183"><a href="#cb24-183" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
+<span id="cb24-184"><a href="#cb24-184" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-185"><a href="#cb24-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-186"><a href="#cb24-186" aria-hidden="true" tabindex="-1"></a>**Interpretation**</span>
+<span id="cb24-187"><a href="#cb24-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-188"><a href="#cb24-188" aria-hidden="true" tabindex="-1"></a>This plot is technically correct, but analytically unhelpful.</span>
+<span id="cb24-189"><a href="#cb24-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-190"><a href="#cb24-190" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>A small number of extremely expensive listings stretches the x-axis.</span>
+<span id="cb24-191"><a href="#cb24-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-192"><a href="#cb24-192" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>The majority of observations are compressed near zero.</span>
+<span id="cb24-193"><a href="#cb24-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-194"><a href="#cb24-194" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>As a result, the internal structure of the data becomes almost invisible.</span>
+<span id="cb24-195"><a href="#cb24-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-196"><a href="#cb24-196" aria-hidden="true" tabindex="-1"></a>This is not a plotting mistake. It is a direct consequence of **heavy right-skewness**, which is common in price data. At this point, it is already clear that naive visualizations on the raw scale are insufficient.</span>
+<span id="cb24-197"><a href="#cb24-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-198"><a href="#cb24-198" aria-hidden="true" tabindex="-1"></a><span class="fu">### Adding context: prices depend on `room_type`</span></span>
+<span id="cb24-199"><a href="#cb24-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-200"><a href="#cb24-200" aria-hidden="true" tabindex="-1"></a>Airbnb listings are not drawn from a single homogeneous market. A *shared room* and an *entire home/apt* represent fundamentally different accommodation types, and their prices should not be expected to follow the same distribution.</span>
+<span id="cb24-201"><a href="#cb24-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-202"><a href="#cb24-202" aria-hidden="true" tabindex="-1"></a>If we ignore this context and search for outliers globally, we risk labeling valid group-level differences as anomalies. For this reason, we first examine how prices behave **within each room type**.</span>
+<span id="cb24-203"><a href="#cb24-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-206"><a href="#cb24-206" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-207"><a href="#cb24-207" aria-hidden="true" tabindex="-1"></a>listings_small <span class="sc">%&gt;%</span></span>
+<span id="cb24-208"><a href="#cb24-208" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(room_type, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-209"><a href="#cb24-209" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-210"><a href="#cb24-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-211"><a href="#cb24-211" aria-hidden="true" tabindex="-1"></a><span class="fu">### Price distributions by room type (log scale)</span></span>
+<span id="cb24-212"><a href="#cb24-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-213"><a href="#cb24-213" aria-hidden="true" tabindex="-1"></a>To make the right tail interpretable without discarding extreme values, we visualize prices on a logarithmic scale and separate distributions by room type.</span>
+<span id="cb24-214"><a href="#cb24-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-217"><a href="#cb24-217" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-218"><a href="#cb24-218" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(listings_small, <span class="fu">aes</span>(<span class="at">x =</span> price_num)) <span class="sc">+</span></span>
+<span id="cb24-219"><a href="#cb24-219" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">35</span>, <span class="at">fill =</span> <span class="st">"#4C72B0"</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">alpha =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb24-220"><a href="#cb24-220" aria-hidden="true" tabindex="-1"></a><span class="fu">scale_x_log10</span>(</span>
+<span id="cb24-221"><a href="#cb24-221" aria-hidden="true" tabindex="-1"></a><span class="at">breaks =</span> <span class="fu">log_breaks</span>(<span class="at">n =</span> <span class="dv">6</span>),</span>
+<span id="cb24-222"><a href="#cb24-222" aria-hidden="true" tabindex="-1"></a><span class="at">labels =</span> <span class="fu">label_number</span>(<span class="at">big.mark =</span> <span class="st">","</span>)</span>
+<span id="cb24-223"><a href="#cb24-223" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb24-224"><a href="#cb24-224" aria-hidden="true" tabindex="-1"></a><span class="fu">facet_wrap</span>(<span class="sc">~</span> room_type, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb24-225"><a href="#cb24-225" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(</span>
+<span id="cb24-226"><a href="#cb24-226" aria-hidden="true" tabindex="-1"></a><span class="at">title =</span> <span class="st">"Nightly Price Distributions by Room Type (log scale)"</span>,</span>
+<span id="cb24-227"><a href="#cb24-227" aria-hidden="true" tabindex="-1"></a><span class="at">subtitle =</span> <span class="st">"Log scale improves readability in heavily right-skewed price data"</span>,</span>
+<span id="cb24-228"><a href="#cb24-228" aria-hidden="true" tabindex="-1"></a><span class="at">x =</span> <span class="st">"Nightly price (log scale)"</span>,</span>
+<span id="cb24-229"><a href="#cb24-229" aria-hidden="true" tabindex="-1"></a><span class="at">y =</span> <span class="st">"Count"</span></span>
+<span id="cb24-230"><a href="#cb24-230" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb24-231"><a href="#cb24-231" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
+<span id="cb24-232"><a href="#cb24-232" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-233"><a href="#cb24-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-234"><a href="#cb24-234" aria-hidden="true" tabindex="-1"></a>**Interpretation**</span>
+<span id="cb24-235"><a href="#cb24-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-236"><a href="#cb24-236" aria-hidden="true" tabindex="-1"></a>This visualization reveals several important patterns:</span>
+<span id="cb24-237"><a href="#cb24-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-238"><a href="#cb24-238" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Each room type has its own characteristic price range.</span>
+<span id="cb24-239"><a href="#cb24-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-240"><a href="#cb24-240" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>The extreme right tail becomes visible without overwhelming the plot.</span>
+<span id="cb24-241"><a href="#cb24-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-242"><a href="#cb24-242" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>What appears as an “outlier” globally may be perfectly typical within a given room type</span>
+<span id="cb24-243"><a href="#cb24-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-244"><a href="#cb24-244" aria-hidden="true" tabindex="-1"></a>At this stage, the notion of an outlier becomes **context-dependent** rather than absolute.</span>
+<span id="cb24-245"><a href="#cb24-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-246"><a href="#cb24-246" aria-hidden="true" tabindex="-1"></a><span class="fu">### Boxplots by room type: highlighting potential extremes</span></span>
+<span id="cb24-247"><a href="#cb24-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-248"><a href="#cb24-248" aria-hidden="true" tabindex="-1"></a>Histograms show overall shape, but boxplots are better suited for highlighting extreme observations. We again use a log scale to preserve readability.</span>
+<span id="cb24-249"><a href="#cb24-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-252"><a href="#cb24-252" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-253"><a href="#cb24-253" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(listings_small, <span class="fu">aes</span>(<span class="at">x =</span> room_type, <span class="at">y =</span> price_num)) <span class="sc">+</span></span>
+<span id="cb24-254"><a href="#cb24-254" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">outlier.alpha =</span> <span class="fl">0.35</span>, <span class="at">fill =</span> <span class="st">"#DDDDDD"</span>) <span class="sc">+</span></span>
+<span id="cb24-255"><a href="#cb24-255" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">labels =</span> <span class="fu">label_number</span>(<span class="at">big.mark =</span> <span class="st">","</span>)) <span class="sc">+</span></span>
+<span id="cb24-256"><a href="#cb24-256" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb24-257"><a href="#cb24-257" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Nightly Prices by Room Type (boxplot, log scale)"</span>,</span>
+<span id="cb24-258"><a href="#cb24-258" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Potential outliers are assessed within each room type"</span>,</span>
+<span id="cb24-259"><a href="#cb24-259" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Room type"</span>,</span>
+<span id="cb24-260"><a href="#cb24-260" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Nightly price (log scale)"</span></span>
+<span id="cb24-261"><a href="#cb24-261" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb24-262"><a href="#cb24-262" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb24-263"><a href="#cb24-263" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">20</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb24-264"><a href="#cb24-264" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-265"><a href="#cb24-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-266"><a href="#cb24-266" aria-hidden="true" tabindex="-1"></a>**Interpretation**</span>
+<span id="cb24-267"><a href="#cb24-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-268"><a href="#cb24-268" aria-hidden="true" tabindex="-1"></a>This plot makes a key point explicit:</span>
+<span id="cb24-269"><a href="#cb24-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-270"><a href="#cb24-270" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Outliers are flagged **relative to their own room type**, not the entire dataset.</span>
+<span id="cb24-271"><a href="#cb24-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-272"><a href="#cb24-272" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Extremely high prices within *shared rooms* are **statistically more unusual** than similarly high prices within *entire homes*, given the much narrower price distribution of shared rooms.</span>
+<span id="cb24-273"><a href="#cb24-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-274"><a href="#cb24-274" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>Statistical outliers are candidates for further investigation, not automatic deletions.</span>
+<span id="cb24-275"><a href="#cb24-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-276"><a href="#cb24-276" aria-hidden="true" tabindex="-1"></a><span class="fu">### What visual exploration tells us</span></span>
+<span id="cb24-277"><a href="#cb24-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-278"><a href="#cb24-278" aria-hidden="true" tabindex="-1"></a>From visual inspection alone, we can conclude that:</span>
+<span id="cb24-279"><a href="#cb24-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-280"><a href="#cb24-280" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Airbnb price data are highly right-skewed.</span>
+<span id="cb24-281"><a href="#cb24-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-282"><a href="#cb24-282" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>Extreme values exist and strongly influence scale and summaries.</span>
+<span id="cb24-283"><a href="#cb24-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-284"><a href="#cb24-284" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>Context (here, <span class="in">`room_type`</span>) is essential for meaningful interpretation.</span>
+<span id="cb24-285"><a href="#cb24-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-286"><a href="#cb24-286" aria-hidden="true" tabindex="-1"></a>These observations motivate the next step: formalizing outlier detection using statistical rules such as the **IQR method** and **Z-scores**, applied *within room types* rather than globally.</span>
+<span id="cb24-287"><a href="#cb24-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-288"><a href="#cb24-288" aria-hidden="true" tabindex="-1"></a><span class="fu">## Formal Outlier Detection Within Room Type</span></span>
+<span id="cb24-289"><a href="#cb24-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-290"><a href="#cb24-290" aria-hidden="true" tabindex="-1"></a>Visual exploration suggested that nightly prices exhibit strong right-skewness and that extreme values should be interpreted within the context of <span class="in">`room_type`</span>. In this section, we formalize that intuition using statistical outlier detection rules.</span>
+<span id="cb24-291"><a href="#cb24-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-292"><a href="#cb24-292" aria-hidden="true" tabindex="-1"></a>Our goal is not to mechanically remove observations, but to **identify and examine** listings whose prices are unusually high relative to their own room type.</span>
+<span id="cb24-293"><a href="#cb24-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-294"><a href="#cb24-294" aria-hidden="true" tabindex="-1"></a><span class="fu">### The IQR rule</span></span>
+<span id="cb24-295"><a href="#cb24-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-296"><a href="#cb24-296" aria-hidden="true" tabindex="-1"></a>The Interquartile Range (IQR) rule defines outliers based on the spread of the middle 50% of the data. For a given variable, the IQR is defined as:</span>
+<span id="cb24-297"><a href="#cb24-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-298"><a href="#cb24-298" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb24-299"><a href="#cb24-299" aria-hidden="true" tabindex="-1"></a>\text{IQR} = Q_3 - Q_1</span>
+<span id="cb24-300"><a href="#cb24-300" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb24-301"><a href="#cb24-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-302"><a href="#cb24-302" aria-hidden="true" tabindex="-1"></a>An observation is flagged as a potential outlier if it lies outside the interval:</span>
+<span id="cb24-303"><a href="#cb24-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-304"><a href="#cb24-304" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb24-305"><a href="#cb24-305" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot"> Q_1 - 1.5 \times \text{IQR}, \; Q_3 + 1.5 \times \text{IQR} </span><span class="co">]</span></span>
+<span id="cb24-306"><a href="#cb24-306" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb24-307"><a href="#cb24-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-308"><a href="#cb24-308" aria-hidden="true" tabindex="-1"></a>Because the IQR relies on quantiles rather than the mean and standard deviation, it is relatively robust to skewed distributions—an important property for price data.</span>
+<span id="cb24-309"><a href="#cb24-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-310"><a href="#cb24-310" aria-hidden="true" tabindex="-1"></a><span class="fu">### Applying the IQR rule within each room type</span></span>
+<span id="cb24-311"><a href="#cb24-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-312"><a href="#cb24-312" aria-hidden="true" tabindex="-1"></a>Instead of computing a single global IQR, we apply the rule **separately within each room type**. This ensures that prices are evaluated relative to comparable listings.</span>
+<span id="cb24-313"><a href="#cb24-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-316"><a href="#cb24-316" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-317"><a href="#cb24-317" aria-hidden="true" tabindex="-1"></a>outliers_iqr <span class="ot">&lt;-</span> listings_small <span class="sc">%&gt;%</span></span>
+<span id="cb24-318"><a href="#cb24-318" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(room_type) <span class="sc">%&gt;%</span></span>
+<span id="cb24-319"><a href="#cb24-319" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb24-320"><a href="#cb24-320" aria-hidden="true" tabindex="-1"></a>    <span class="at">Q1 =</span> <span class="fu">quantile</span>(price_num, <span class="fl">0.25</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb24-321"><a href="#cb24-321" aria-hidden="true" tabindex="-1"></a>    <span class="at">Q3 =</span> <span class="fu">quantile</span>(price_num, <span class="fl">0.75</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb24-322"><a href="#cb24-322" aria-hidden="true" tabindex="-1"></a>    <span class="at">IQR_value =</span> Q3 <span class="sc">-</span> Q1,</span>
+<span id="cb24-323"><a href="#cb24-323" aria-hidden="true" tabindex="-1"></a>    <span class="at">lower_bound =</span> Q1 <span class="sc">-</span> <span class="fl">1.5</span> <span class="sc">*</span> IQR_value,</span>
+<span id="cb24-324"><a href="#cb24-324" aria-hidden="true" tabindex="-1"></a>    <span class="at">upper_bound =</span> Q3 <span class="sc">+</span> <span class="fl">1.5</span> <span class="sc">*</span> IQR_value,</span>
+<span id="cb24-325"><a href="#cb24-325" aria-hidden="true" tabindex="-1"></a>    <span class="at">outlier_iqr =</span> price_num <span class="sc">&lt;</span> lower_bound <span class="sc">|</span> price_num <span class="sc">&gt;</span> upper_bound</span>
+<span id="cb24-326"><a href="#cb24-326" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb24-327"><a href="#cb24-327" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb24-328"><a href="#cb24-328" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-329"><a href="#cb24-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-330"><a href="#cb24-330" aria-hidden="true" tabindex="-1"></a>At this stage, each listing is labeled according to whether its price is considered an outlier *within its own room type*.</span>
+<span id="cb24-331"><a href="#cb24-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-332"><a href="#cb24-332" aria-hidden="true" tabindex="-1"></a><span class="fu">### How many outliers do we detect?</span></span>
+<span id="cb24-333"><a href="#cb24-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-334"><a href="#cb24-334" aria-hidden="true" tabindex="-1"></a>Before inspecting individual listings, it is informative to summarize how many outliers are flagged in each group.</span>
+<span id="cb24-335"><a href="#cb24-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-338"><a href="#cb24-338" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-339"><a href="#cb24-339" aria-hidden="true" tabindex="-1"></a>outliers_iqr <span class="sc">%&gt;%</span></span>
+<span id="cb24-340"><a href="#cb24-340" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(room_type, outlier_iqr) <span class="sc">%&gt;%</span></span>
+<span id="cb24-341"><a href="#cb24-341" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(room_type, <span class="fu">desc</span>(outlier_iqr))</span>
+<span id="cb24-342"><a href="#cb24-342" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-343"><a href="#cb24-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-344"><a href="#cb24-344" aria-hidden="true" tabindex="-1"></a>**Interpretation**</span>
+<span id="cb24-345"><a href="#cb24-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-346"><a href="#cb24-346" aria-hidden="true" tabindex="-1"></a>This table shows that outliers are not evenly distributed across room types. Some categories naturally exhibit greater price dispersion, which leads to more listings being flagged as potential outliers. This reinforces the importance of **group-aware detection**.</span>
+<span id="cb24-347"><a href="#cb24-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-348"><a href="#cb24-348" aria-hidden="true" tabindex="-1"></a><span class="fu">### Inspecting extreme cases flagged by IQR</span></span>
+<span id="cb24-349"><a href="#cb24-349" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-350"><a href="#cb24-350" aria-hidden="true" tabindex="-1"></a>Statistical flags become meaningful only when we inspect the actual observations. Below, we list the most expensive listings flagged as outliers within each room type.</span>
+<span id="cb24-351"><a href="#cb24-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-354"><a href="#cb24-354" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-355"><a href="#cb24-355" aria-hidden="true" tabindex="-1"></a>top_price_outliers <span class="ot">&lt;-</span> outliers_iqr <span class="sc">%&gt;%</span></span>
+<span id="cb24-356"><a href="#cb24-356" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(outlier_iqr) <span class="sc">%&gt;%</span></span>
+<span id="cb24-357"><a href="#cb24-357" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(room_type) <span class="sc">%&gt;%</span></span>
+<span id="cb24-358"><a href="#cb24-358" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(price_num)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-359"><a href="#cb24-359" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb24-360"><a href="#cb24-360" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb24-361"><a href="#cb24-361" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb24-362"><a href="#cb24-362" aria-hidden="true" tabindex="-1"></a>    room_type,</span>
+<span id="cb24-363"><a href="#cb24-363" aria-hidden="true" tabindex="-1"></a>    price,</span>
+<span id="cb24-364"><a href="#cb24-364" aria-hidden="true" tabindex="-1"></a>    price_num,</span>
+<span id="cb24-365"><a href="#cb24-365" aria-hidden="true" tabindex="-1"></a>    minimum_nights,</span>
+<span id="cb24-366"><a href="#cb24-366" aria-hidden="true" tabindex="-1"></a>    number_of_reviews,</span>
+<span id="cb24-367"><a href="#cb24-367" aria-hidden="true" tabindex="-1"></a>    neighbourhood_cleansed,</span>
+<span id="cb24-368"><a href="#cb24-368" aria-hidden="true" tabindex="-1"></a>    name</span>
+<span id="cb24-369"><a href="#cb24-369" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb24-370"><a href="#cb24-370" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-371"><a href="#cb24-371" aria-hidden="true" tabindex="-1"></a>top_price_outliers</span>
+<span id="cb24-372"><a href="#cb24-372" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-373"><a href="#cb24-373" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-374"><a href="#cb24-374" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-375"><a href="#cb24-375" aria-hidden="true" tabindex="-1"></a>**Interpretation**</span>
+<span id="cb24-376"><a href="#cb24-376" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-377"><a href="#cb24-377" aria-hidden="true" tabindex="-1"></a>At this point, the analysis moves from abstract rules to concrete questions:</span>
+<span id="cb24-378"><a href="#cb24-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-379"><a href="#cb24-379" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Are these listings luxury properties?</span>
+<span id="cb24-380"><a href="#cb24-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-381"><a href="#cb24-381" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>Do they require unusually long minimum stays?</span>
+<span id="cb24-382"><a href="#cb24-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-383"><a href="#cb24-383" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>Do they have very few (or no) reviews, suggesting new or inactive listings?</span>
+<span id="cb24-384"><a href="#cb24-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-385"><a href="#cb24-385" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>Are they located in specific neighborhoods?</span>
+<span id="cb24-386"><a href="#cb24-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-387"><a href="#cb24-387" aria-hidden="true" tabindex="-1"></a>The answers to these questions determine whether a flagged observation should be:</span>
+<span id="cb24-388"><a href="#cb24-388" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-389"><a href="#cb24-389" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>kept and modeled explicitly,</span>
+<span id="cb24-390"><a href="#cb24-390" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-391"><a href="#cb24-391" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>transformed (e.g., via log scaling),</span>
+<span id="cb24-392"><a href="#cb24-392" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-393"><a href="#cb24-393" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>or excluded due to data quality concerns.</span>
+<span id="cb24-394"><a href="#cb24-394" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-395"><a href="#cb24-395" aria-hidden="true" tabindex="-1"></a><span class="fu">### Z-score–based outlier detection: concept and limitations</span></span>
+<span id="cb24-396"><a href="#cb24-396" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-397"><a href="#cb24-397" aria-hidden="true" tabindex="-1"></a>In addition to IQR-based rules, outliers are often discussed using **Z-scores**. Because this method is widely taught and frequently applied, it is important to understand both how it works and when it can be misleading.</span>
+<span id="cb24-398"><a href="#cb24-398" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-399"><a href="#cb24-399" aria-hidden="true" tabindex="-1"></a><span class="fu">#### What is a Z-score?</span></span>
+<span id="cb24-400"><a href="#cb24-400" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-401"><a href="#cb24-401" aria-hidden="true" tabindex="-1"></a>A Z-score measures how far an observation lies from the mean, expressed in units of standard deviation. For a single observation, the Z-score is defined as:</span>
+<span id="cb24-402"><a href="#cb24-402" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-403"><a href="#cb24-403" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb24-404"><a href="#cb24-404" aria-hidden="true" tabindex="-1"></a>z = \frac{x - \mu}{\sigma}</span>
+<span id="cb24-405"><a href="#cb24-405" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb24-406"><a href="#cb24-406" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-407"><a href="#cb24-407" aria-hidden="true" tabindex="-1"></a>where:</span>
+<span id="cb24-408"><a href="#cb24-408" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-409"><a href="#cb24-409" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>$\mu$ is the sample mean</span>
+<span id="cb24-410"><a href="#cb24-410" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>$\sigma$ is the sample standard deviation</span>
+<span id="cb24-411"><a href="#cb24-411" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-412"><a href="#cb24-412" aria-hidden="true" tabindex="-1"></a>Intuitively, the Z-score answers the question:</span>
+<span id="cb24-413"><a href="#cb24-413" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-414"><a href="#cb24-414" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; “How many standard deviations away from the mean is this observation?”</span></span>
+<span id="cb24-415"><a href="#cb24-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-416"><a href="#cb24-416" aria-hidden="true" tabindex="-1"></a>A common heuristic labels observations with</span>
+<span id="cb24-417"><a href="#cb24-417" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-418"><a href="#cb24-418" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb24-419"><a href="#cb24-419" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>z<span class="pp">|</span> &gt; 3</span>
+<span id="cb24-420"><a href="#cb24-420" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb24-421"><a href="#cb24-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-422"><a href="#cb24-422" aria-hidden="true" tabindex="-1"></a>as potential outliers.</span>
+<span id="cb24-423"><a href="#cb24-423" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-424"><a href="#cb24-424" aria-hidden="true" tabindex="-1"></a><span class="fu">#### What does the Z-score assume?</span></span>
+<span id="cb24-425"><a href="#cb24-425" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-426"><a href="#cb24-426" aria-hidden="true" tabindex="-1"></a>Z-score–based detection implicitly relies on several assumptions:</span>
+<span id="cb24-427"><a href="#cb24-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-428"><a href="#cb24-428" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>the distribution is approximately symmetric,</span>
+<span id="cb24-429"><a href="#cb24-429" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>the mean and standard deviation are meaningful summaries,</span>
+<span id="cb24-430"><a href="#cb24-430" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>extreme values do not dominate the estimation of $\mu$ and $\sigma$.</span>
+<span id="cb24-431"><a href="#cb24-431" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-432"><a href="#cb24-432" aria-hidden="true" tabindex="-1"></a>These assumptions are often reasonable for approximately normal data, but they are problematic for strongly skewed distributions.</span>
+<span id="cb24-433"><a href="#cb24-433" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-434"><a href="#cb24-434" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Why Z-scores are problematic for price data</span></span>
+<span id="cb24-435"><a href="#cb24-435" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-436"><a href="#cb24-436" aria-hidden="true" tabindex="-1"></a>Airbnb prices are typically **right-skewed** with long upper tails. In such cases:</span>
+<span id="cb24-437"><a href="#cb24-437" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-438"><a href="#cb24-438" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>extreme values inflate the mean,</span>
+<span id="cb24-439"><a href="#cb24-439" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>extreme values inflate the standard deviation,</span>
+<span id="cb24-440"><a href="#cb24-440" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>as a result, truly extreme observations may receive *moderate* Z-scores.</span>
+<span id="cb24-441"><a href="#cb24-441" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-442"><a href="#cb24-442" aria-hidden="true" tabindex="-1"></a>This leads to a paradox: the very observations we want to detect reduce their own apparent extremeness. For this reason, Z-scores tend to **under-detect** outliers in heavily skewed economic data.</span>
+<span id="cb24-443"><a href="#cb24-443" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-444"><a href="#cb24-444" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Applying Z-scores within each room type</span></span>
+<span id="cb24-445"><a href="#cb24-445" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-446"><a href="#cb24-446" aria-hidden="true" tabindex="-1"></a>Despite these limitations, Z-scores can still be informative when used carefully and comparatively. As with the IQR rule, we compute Z-scores **within each room type** to preserve contextual meaning.</span>
+<span id="cb24-447"><a href="#cb24-447" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-450"><a href="#cb24-450" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-451"><a href="#cb24-451" aria-hidden="true" tabindex="-1"></a>outliers_z <span class="ot">&lt;-</span> listings_small <span class="sc">%&gt;%</span></span>
+<span id="cb24-452"><a href="#cb24-452" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(room_type) <span class="sc">%&gt;%</span></span>
+<span id="cb24-453"><a href="#cb24-453" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb24-454"><a href="#cb24-454" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_price =</span> <span class="fu">mean</span>(price_num, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb24-455"><a href="#cb24-455" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_price   =</span> <span class="fu">sd</span>(price_num, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb24-456"><a href="#cb24-456" aria-hidden="true" tabindex="-1"></a>    <span class="at">z_price    =</span> (price_num <span class="sc">-</span> mean_price) <span class="sc">/</span> sd_price,</span>
+<span id="cb24-457"><a href="#cb24-457" aria-hidden="true" tabindex="-1"></a>    <span class="at">outlier_z  =</span> <span class="fu">abs</span>(z_price) <span class="sc">&gt;</span> <span class="dv">3</span></span>
+<span id="cb24-458"><a href="#cb24-458" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb24-459"><a href="#cb24-459" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb24-460"><a href="#cb24-460" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-461"><a href="#cb24-461" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-462"><a href="#cb24-462" aria-hidden="true" tabindex="-1"></a><span class="fu">#### How many outliers are flagged by the Z-score rule?</span></span>
+<span id="cb24-463"><a href="#cb24-463" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-464"><a href="#cb24-464" aria-hidden="true" tabindex="-1"></a>After computing Z-scores within each room type, we can summarize how many listings are flagged as outliers.</span>
+<span id="cb24-465"><a href="#cb24-465" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-468"><a href="#cb24-468" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-469"><a href="#cb24-469" aria-hidden="true" tabindex="-1"></a>outliers_z <span class="sc">%&gt;%</span></span>
+<span id="cb24-470"><a href="#cb24-470" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(room_type, outlier_z) <span class="sc">%&gt;%</span></span>
+<span id="cb24-471"><a href="#cb24-471" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(room_type, <span class="fu">desc</span>(outlier_z))</span>
+<span id="cb24-472"><a href="#cb24-472" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-473"><a href="#cb24-473" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-474"><a href="#cb24-474" aria-hidden="true" tabindex="-1"></a>**Interpretation**</span>
+<span id="cb24-475"><a href="#cb24-475" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-476"><a href="#cb24-476" aria-hidden="true" tabindex="-1"></a>In many Airbnb datasets, this table reveals a striking pattern:</span>
+<span id="cb24-477"><a href="#cb24-477" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-478"><a href="#cb24-478" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>The number of Z-score–based outliers is **much smaller** than the number detected by the IQR rule.</span>
+<span id="cb24-479"><a href="#cb24-479" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-480"><a href="#cb24-480" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>In some room types, no observations are flagged at all.</span>
+<span id="cb24-481"><a href="#cb24-481" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-482"><a href="#cb24-482" aria-hidden="true" tabindex="-1"></a>This is a direct consequence of right-skewness: extreme prices inflate both the mean and the standard deviation, making Z-scores appear less extreme than expected.</span>
+<span id="cb24-483"><a href="#cb24-483" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-484"><a href="#cb24-484" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Inspecting listings flagged by Z-scores</span></span>
+<span id="cb24-485"><a href="#cb24-485" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-486"><a href="#cb24-486" aria-hidden="true" tabindex="-1"></a>To understand what Z-scores actually flag as outliers, we inspect the most extreme listings according to their Z-score values.</span>
+<span id="cb24-487"><a href="#cb24-487" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-490"><a href="#cb24-490" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-491"><a href="#cb24-491" aria-hidden="true" tabindex="-1"></a>top_z_outliers <span class="ot">&lt;-</span> outliers_z <span class="sc">%&gt;%</span></span>
+<span id="cb24-492"><a href="#cb24-492" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(outlier_z) <span class="sc">%&gt;%</span></span>
+<span id="cb24-493"><a href="#cb24-493" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(room_type) <span class="sc">%&gt;%</span></span>
+<span id="cb24-494"><a href="#cb24-494" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(<span class="fu">abs</span>(z_price))) <span class="sc">%&gt;%</span></span>
+<span id="cb24-495"><a href="#cb24-495" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb24-496"><a href="#cb24-496" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb24-497"><a href="#cb24-497" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb24-498"><a href="#cb24-498" aria-hidden="true" tabindex="-1"></a>    room_type,</span>
+<span id="cb24-499"><a href="#cb24-499" aria-hidden="true" tabindex="-1"></a>    price,</span>
+<span id="cb24-500"><a href="#cb24-500" aria-hidden="true" tabindex="-1"></a>    price_num,</span>
+<span id="cb24-501"><a href="#cb24-501" aria-hidden="true" tabindex="-1"></a>    z_price,</span>
+<span id="cb24-502"><a href="#cb24-502" aria-hidden="true" tabindex="-1"></a>    minimum_nights,</span>
+<span id="cb24-503"><a href="#cb24-503" aria-hidden="true" tabindex="-1"></a>    number_of_reviews,</span>
+<span id="cb24-504"><a href="#cb24-504" aria-hidden="true" tabindex="-1"></a>    neighbourhood_cleansed,</span>
+<span id="cb24-505"><a href="#cb24-505" aria-hidden="true" tabindex="-1"></a>    name</span>
+<span id="cb24-506"><a href="#cb24-506" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb24-507"><a href="#cb24-507" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-508"><a href="#cb24-508" aria-hidden="true" tabindex="-1"></a>top_z_outliers</span>
+<span id="cb24-509"><a href="#cb24-509" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-510"><a href="#cb24-510" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-511"><a href="#cb24-511" aria-hidden="true" tabindex="-1"></a>**Interpretation**</span>
+<span id="cb24-512"><a href="#cb24-512" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-513"><a href="#cb24-513" aria-hidden="true" tabindex="-1"></a>When compared to the IQR-based outliers, these listings are often:</span>
+<span id="cb24-514"><a href="#cb24-514" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-515"><a href="#cb24-515" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>less extreme in absolute price,</span>
+<span id="cb24-516"><a href="#cb24-516" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-517"><a href="#cb24-517" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>closer to the central mass of the distribution,</span>
+<span id="cb24-518"><a href="#cb24-518" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-519"><a href="#cb24-519" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>dominated by a small number of room types.</span>
+<span id="cb24-520"><a href="#cb24-520" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-521"><a href="#cb24-521" aria-hidden="true" tabindex="-1"></a>This confirms that Z-score–based detection tends to **miss many extreme but valid prices** in heavily skewed data.</span>
+<span id="cb24-522"><a href="#cb24-522" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-523"><a href="#cb24-523" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Comparing IQR and Z-score results</span></span>
+<span id="cb24-524"><a href="#cb24-524" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-525"><a href="#cb24-525" aria-hidden="true" tabindex="-1"></a>Finally, we compare how many listings are flagged by each method.</span>
+<span id="cb24-526"><a href="#cb24-526" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-529"><a href="#cb24-529" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb24-530"><a href="#cb24-530" aria-hidden="true" tabindex="-1"></a>comparison_summary <span class="ot">&lt;-</span> outliers_iqr <span class="sc">%&gt;%</span></span>
+<span id="cb24-531"><a href="#cb24-531" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, room_type, outlier_iqr) <span class="sc">%&gt;%</span></span>
+<span id="cb24-532"><a href="#cb24-532" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb24-533"><a href="#cb24-533" aria-hidden="true" tabindex="-1"></a>    outliers_z <span class="sc">%&gt;%</span> <span class="fu">select</span>(id, outlier_z),</span>
+<span id="cb24-534"><a href="#cb24-534" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="st">"id"</span></span>
+<span id="cb24-535"><a href="#cb24-535" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb24-536"><a href="#cb24-536" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(outlier_iqr, outlier_z)</span>
+<span id="cb24-537"><a href="#cb24-537" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-538"><a href="#cb24-538" aria-hidden="true" tabindex="-1"></a>comparison_summary</span>
+<span id="cb24-539"><a href="#cb24-539" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-540"><a href="#cb24-540" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-541"><a href="#cb24-541" aria-hidden="true" tabindex="-1"></a>**Interpretation**</span>
+<span id="cb24-542"><a href="#cb24-542" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-543"><a href="#cb24-543" aria-hidden="true" tabindex="-1"></a>This comparison highlights a key methodological insight:</span>
+<span id="cb24-544"><a href="#cb24-544" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-545"><a href="#cb24-545" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>Many listings flagged by the IQR rule are **not flagged** by Z-scores.</span>
+<span id="cb24-546"><a href="#cb24-546" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-547"><a href="#cb24-547" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>Listings flagged by Z-scores are almost always flagged by the IQR rule as well.</span>
+<span id="cb24-548"><a href="#cb24-548" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-549"><a href="#cb24-549" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>The overlap is asymmetric.</span>
+<span id="cb24-550"><a href="#cb24-550" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-551"><a href="#cb24-551" aria-hidden="true" tabindex="-1"></a>In other words, the Z-score rule is more conservative and may under-detect outliers when distributions are strongly skewed. This does not make Z-scores “wrong”, but it does limit their usefulness as a primary detection method for price data.</span>
+<span id="cb24-552"><a href="#cb24-552" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-553"><a href="#cb24-553" aria-hidden="true" tabindex="-1"></a>In practice, Z-score–based flags often differ substantially from IQR-based flags. This difference is not an error—it reflects different assumptions.</span>
+<span id="cb24-554"><a href="#cb24-554" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-555"><a href="#cb24-555" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>IQR-based methods rely on ranks and quantiles</span>
+<span id="cb24-556"><a href="#cb24-556" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-557"><a href="#cb24-557" aria-hidden="true" tabindex="-1"></a><span class="ss">-    </span>Z-score–based methods rely on moments (mean and variance)</span>
+<span id="cb24-558"><a href="#cb24-558" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-559"><a href="#cb24-559" aria-hidden="true" tabindex="-1"></a>For heavily skewed price data, IQR-based detection is usually more reliable, while Z-scores should be interpreted as a **supplementary diagnostic** rather than a primary rule.</span>
+<span id="cb24-560"><a href="#cb24-560" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-561"><a href="#cb24-561" aria-hidden="true" tabindex="-1"></a><span class="fu">## Should Outliers Be Removed?</span></span>
+<span id="cb24-562"><a href="#cb24-562" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-563"><a href="#cb24-563" aria-hidden="true" tabindex="-1"></a>Detecting outliers does **not** imply that they should be automatically removed. Outlier detection is a diagnostic step, not a cleaning instruction.</span>
+<span id="cb24-564"><a href="#cb24-564" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-565"><a href="#cb24-565" aria-hidden="true" tabindex="-1"></a>In the context of Airbnb price data, many extreme values correspond to luxury properties, large homes, or special accommodation types. Blindly removing such observations may erase precisely the information that makes the data interesting.</span>
+<span id="cb24-566"><a href="#cb24-566" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-567"><a href="#cb24-567" aria-hidden="true" tabindex="-1"></a>Instead, several alternative strategies should be considered.</span>
+<span id="cb24-568"><a href="#cb24-568" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-569"><a href="#cb24-569" aria-hidden="true" tabindex="-1"></a><span class="fu">### Verify and understand the source of extremeness</span></span>
+<span id="cb24-570"><a href="#cb24-570" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-571"><a href="#cb24-571" aria-hidden="true" tabindex="-1"></a>The first question should always be *why* an observation is extreme.</span>
+<span id="cb24-572"><a href="#cb24-572" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-573"><a href="#cb24-573" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Is the listing a luxury property?</span>
+<span id="cb24-574"><a href="#cb24-574" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Does it belong to a specific <span class="in">`room_type`</span>?</span>
+<span id="cb24-575"><a href="#cb24-575" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Is it located in a high-demand neighborhood?</span>
+<span id="cb24-576"><a href="#cb24-576" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Is it associated with unusual booking constraints (e.g., very high <span class="in">`minimum_nights`</span>)?</span>
+<span id="cb24-577"><a href="#cb24-577" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-578"><a href="#cb24-578" aria-hidden="true" tabindex="-1"></a>In many cases, extreme values are **valid reflections of heterogeneity**, not data errors.</span>
+<span id="cb24-579"><a href="#cb24-579" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-580"><a href="#cb24-580" aria-hidden="true" tabindex="-1"></a><span class="fu">### Use transformations or robust methods</span></span>
+<span id="cb24-581"><a href="#cb24-581" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-582"><a href="#cb24-582" aria-hidden="true" tabindex="-1"></a>When extreme values distort summaries or model estimates, removal is not the only option.</span>
+<span id="cb24-583"><a href="#cb24-583" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-584"><a href="#cb24-584" aria-hidden="true" tabindex="-1"></a>Common alternatives include:</span>
+<span id="cb24-585"><a href="#cb24-585" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-586"><a href="#cb24-586" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>transforming the response variable (e.g., log transformation of prices),</span>
+<span id="cb24-587"><a href="#cb24-587" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>using robust estimators that reduce sensitivity to extremes,</span>
+<span id="cb24-588"><a href="#cb24-588" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>modeling medians or quantiles instead of means.</span>
+<span id="cb24-589"><a href="#cb24-589" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-590"><a href="#cb24-590" aria-hidden="true" tabindex="-1"></a>These approaches preserve information while reducing the influence of extreme observations.</span>
+<span id="cb24-591"><a href="#cb24-591" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-592"><a href="#cb24-592" aria-hidden="true" tabindex="-1"></a><span class="fu">### Model extremes explicitly when relevant</span></span>
+<span id="cb24-593"><a href="#cb24-593" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-594"><a href="#cb24-594" aria-hidden="true" tabindex="-1"></a>In some applications, outliers are not nuisances but the primary object of interest.</span>
+<span id="cb24-595"><a href="#cb24-595" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-596"><a href="#cb24-596" aria-hidden="true" tabindex="-1"></a>Examples include:</span>
+<span id="cb24-597"><a href="#cb24-597" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-598"><a href="#cb24-598" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>luxury market analysis,</span>
+<span id="cb24-599"><a href="#cb24-599" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>risk assessment,</span>
+<span id="cb24-600"><a href="#cb24-600" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>rare but high-impact events.</span>
+<span id="cb24-601"><a href="#cb24-601" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-602"><a href="#cb24-602" aria-hidden="true" tabindex="-1"></a>In such cases, extreme observations should be modeled explicitly rather than suppressed.</span>
+<span id="cb24-603"><a href="#cb24-603" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-604"><a href="#cb24-604" aria-hidden="true" tabindex="-1"></a><span class="fu">### A final perspective</span></span>
+<span id="cb24-605"><a href="#cb24-605" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-606"><a href="#cb24-606" aria-hidden="true" tabindex="-1"></a>Outliers are not merely statistical inconveniences. They often highlight structural differences, market segmentation, or meaningful departures from typical behavior.</span>
+<span id="cb24-607"><a href="#cb24-607" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-608"><a href="#cb24-608" aria-hidden="true" tabindex="-1"></a>Understanding *why* an observation is extreme is frequently more informative than deleting it.</span>
+<span id="cb24-609"><a href="#cb24-609" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-610"><a href="#cb24-610" aria-hidden="true" tabindex="-1"></a>In practice, thoughtful outlier handling requires a balance between statistical rules, domain knowledge, and modeling objectives.</span>
+<span id="cb24-611"><a href="#cb24-611" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-612"><a href="#cb24-612" aria-hidden="true" tabindex="-1"></a><span class="fu">## Final Remarks</span></span>
+<span id="cb24-613"><a href="#cb24-613" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-614"><a href="#cb24-614" aria-hidden="true" tabindex="-1"></a>Outlier detection is a natural step in the data preprocessing workflow. It typically follows missing data analysis and precedes scaling, transformation, or model fitting.</span>
+<span id="cb24-615"><a href="#cb24-615" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-616"><a href="#cb24-616" aria-hidden="true" tabindex="-1"></a>In this article, the focus was not on eliminating extreme values, but on **understanding why they occur**. Through visual exploration, context-aware analysis using <span class="in">`room_type`</span>, and formal detection rules such as the IQR method and Z-scores, we demonstrated that extreme values are not noise by default.</span>
+<span id="cb24-617"><a href="#cb24-617" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-618"><a href="#cb24-618" aria-hidden="true" tabindex="-1"></a>In many real-world datasets, especially those involving prices or economic behavior, extreme values reflect structural heterogeneity rather than data quality issues. Treating them blindly as errors risks discarding meaningful information.</span>
+<span id="cb24-619"><a href="#cb24-619" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-620"><a href="#cb24-620" aria-hidden="true" tabindex="-1"></a>Outliers should therefore be approached as **questions posed by the data**: Why is this observation extreme? Does it represent a different regime, a rare event, or a distinct subgroup?</span>
+<span id="cb24-621"><a href="#cb24-621" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-622"><a href="#cb24-622" aria-hidden="true" tabindex="-1"></a>Answering these questions requires a combination of statistical tools, domain knowledge, and clear analytical goals. When handled thoughtfully, outlier analysis enhances both the robustness and the interpretability of downstream models.</span>
+<span id="cb24-623"><a href="#cb24-623" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-624"><a href="#cb24-624" aria-hidden="true" tabindex="-1"></a><span class="fu">## References and Further Reading</span></span>
+<span id="cb24-625"><a href="#cb24-625" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-626"><a href="#cb24-626" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Tukey, J. W. (1977). *Exploratory Data Analysis*. Addison-Wesley.\</span>
+<span id="cb24-627"><a href="#cb24-627" aria-hidden="true" tabindex="-1"></a>    (Foundational reference for boxplots, IQR, and exploratory thinking.)</span>
+<span id="cb24-628"><a href="#cb24-628" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-629"><a href="#cb24-629" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Hastie, T., Tibshirani, R., Friedman, J. (2009). *The Elements of Statistical Learning*. Springer.\</span>
+<span id="cb24-630"><a href="#cb24-630" aria-hidden="true" tabindex="-1"></a>    (Statistical foundations and the role of robust methods in modeling.)</span>
+<span id="cb24-631"><a href="#cb24-631" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-632"><a href="#cb24-632" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>James, G., Witten, D., Hastie, T., Tibshirani, R. (2021). *An Introduction to Statistical Learning*. Springer.\</span>
+<span id="cb24-633"><a href="#cb24-633" aria-hidden="true" tabindex="-1"></a>    (Accessible discussion of preprocessing, transformations, and practical modeling considerations.)</span>
+<span id="cb24-634"><a href="#cb24-634" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-635"><a href="#cb24-635" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>NIST/SEMATECH e-Handbook of Statistical Methods – Outliers\</span>
+<span id="cb24-636"><a href="#cb24-636" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&lt;https://www.itl.nist.gov/div898/handbook/eda/section3/eda35h.htm&gt;</span>\</span>
+<span id="cb24-637"><a href="#cb24-637" aria-hidden="true" tabindex="-1"></a>    (Authoritative overview of outlier concepts and detection methods.)</span>
+<span id="cb24-638"><a href="#cb24-638" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-639"><a href="#cb24-639" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Wickham, H., Grolemund, G. (2017). *R for Data Science*. O’Reilly Media.\</span>
+<span id="cb24-640"><a href="#cb24-640" aria-hidden="true" tabindex="-1"></a>    (Practical guidance on data exploration, visualization, and preprocessing workflows in R.)</span>
+<span id="cb24-641"><a href="#cb24-641" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-642"><a href="#cb24-642" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Inside Airbnb – Get the Data\</span>
+<span id="cb24-643"><a href="#cb24-643" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&lt;https://insideairbnb.com/get-the-data/&gt;</span>\</span>
+<span id="cb24-644"><a href="#cb24-644" aria-hidden="true" tabindex="-1"></a>    (Data source used in this article; city-level Airbnb listings data.)</span>
+<span id="cb24-645"><a href="#cb24-645" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-646"><a href="#cb24-646" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Wickham, H. (2016). *ggplot2: Elegant Graphics for Data Analysis*. Springer.\</span>
+<span id="cb24-647"><a href="#cb24-647" aria-hidden="true" tabindex="-1"></a>    (Principles of layered graphics and effective visualization used throughout the article.)</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2023, M. Fatih Tüzen</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

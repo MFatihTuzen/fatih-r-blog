@@ -9,8 +9,1194 @@
 <link>https://mfatihtuzen.netlify.app/</link>
 <atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Blog posts about R and Statistics</description>
-<generator>quarto-1.6.39</generator>
-<lastBuildDate>Sun, 17 Aug 2025 21:00:00 GMT</lastBuildDate>
+<generator>quarto-1.8.25</generator>
+<lastBuildDate>Thu, 18 Dec 2025 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>Outliers in Data Analysis: Detecting Extreme Values Before Modeling in R İstanbul Airbnb Data</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2025-12-19_outliers/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-12-19_outliers/outliers.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="484"></p>
+</figure>
+</div>
+<section id="introduction" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">1</span> Introduction</h2>
+<p>Data preprocessing is often presented as a sequence of technical steps. However, each preprocessing decision implicitly embeds a statistical assumption.</p>
+<p>In a previous article, I discussed how missing observations can bias analysis if they are ignored or handled improperly:</p>
+<p><a href="https://medium.com/r-evolution/handling-missing-data-in-r-a-comprehensive-guide-eca195eaead3"><strong>Handling Missing Data in R: A Comprehensive Guide</strong></a></p>
+<p>This article continues that discussion by focusing on <strong>outliers</strong>. Unlike missing values, outliers are observed data points. The challenge is not their absence, but their <em>extremeness</em>.</p>
+<p>Understanding whether an extreme value is informative or misleading is a crucial step before any modeling effort.</p>
+</section>
+<section id="why-outliers-matter" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="why-outliers-matter"><span class="header-section-number">2</span> Why Outliers Matter</h2>
+<p>Outliers can affect statistical analysis in several fundamental ways:</p>
+<ul>
+<li>They distort summary statistics such as the mean and standard deviation</li>
+<li>They can dominate parameter estimates in regression models</li>
+<li>They influence distance-based methods such as clustering</li>
+</ul>
+<p>More importantly, outliers force analysts to confront a key question:</p>
+<blockquote class="blockquote">
+<p>Are we observing rare but valid behavior, or a deviation from the assumed data-generating process?</p>
+</blockquote>
+</section>
+<section id="what-is-an-outlier" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="what-is-an-outlier"><span class="header-section-number">3</span> What Is an Outlier?</h2>
+<p>Informally, an outlier is an observation that appears unusually large or small relative to the rest of the data. Formally, an outlier is an observation that is inconsistent with the bulk of the data <strong>under a given statistical model</strong>. Outliers are therefore not absolute objects. They depend on assumptions about distribution, scale, and structure.</p>
+</section>
+<section id="the-dataset-inside-airbnb-listings-istanbul" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="the-dataset-inside-airbnb-listings-istanbul"><span class="header-section-number">4</span> The Dataset: Inside Airbnb Listings (Istanbul)</h2>
+<p>To demonstrate outlier detection methods, we will use <strong>Inside Airbnb</strong> listings data. Inside Airbnb is a mission-driven project that publishes datasets scraped from publicly available Airbnb listing pages and provides city-level downloads for research and analysis.</p>
+<p>In this article, we will work with the <strong>detailed listings</strong> file:</p>
+<ul>
+<li><code>listings.csv.gz</code> (detailed listing-level data; typically rich and feature-complete)</li>
+</ul>
+<p>You can download the dataset from the <a href="https://insideairbnb.com/get-the-data/">Inside Airbnb</a> “Get the Data” page (choose a city and download <em>Detailed Listings data</em>).</p>
+<section id="why-this-dataset-is-ideal-for-outlier-detection" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="why-this-dataset-is-ideal-for-outlier-detection"><span class="header-section-number">4.1</span> Why this dataset is ideal for outlier detection</h3>
+<p>Unlike many “clean” educational datasets, Airbnb listing data often contains <strong>genuinely extreme values</strong>, especially in <code>price</code>. These extremes are not necessarily errors—luxury properties exist—but they can heavily distort means, variances, and model estimates. That makes Airbnb listings a realistic and highly instructive dataset for outlier detection.</p>
+</section>
+<section id="variables-we-will-use" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="variables-we-will-use"><span class="header-section-number">4.2</span> Variables we will use</h3>
+<p>Although the Airbnb listings dataset contains many variables, this article focuses on a <strong>small, purpose-driven subset</strong>.</p>
+<p>Our primary variable of interest is:</p>
+<ul>
+<li><code>price</code> (converted to <code>price_num</code>): nightly listing price.<br>
+This variable is typically right-skewed and often contains extreme values, making it ideal for illustrating outlier detection methods.</li>
+</ul>
+<p>To provide context for interpreting extreme prices, we also retain a limited number of supporting variables:</p>
+<ul>
+<li><code>minimum_nights</code>: minimum stay requirement, which can occasionally take unusually large values</li>
+<li><code>number_of_reviews</code>: a proxy for listing activity and popularity, often zero-inflated</li>
+<li><code>room_type</code>: categorical variable indicating the type of accommodation</li>
+<li><code>neighbourhood_cleansed</code>: cleaned neighborhood label, useful for geographic context</li>
+</ul>
+<p>These additional variables are not used to <em>detect</em> outliers directly, but to <strong>interpret and explain</strong> them once identified.</p>
+</section>
+<section id="loading-the-data-in-r" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="loading-the-data-in-r"><span class="header-section-number">4.3</span> Loading the data in R</h3>
+<p>Below is an example using <strong>Istanbul</strong>. If you prefer a different city, replace the URL with the corresponding <code>listings.csv.gz</code> link from Inside Airbnb.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(dplyr)</span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(readr)</span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(stringr)</span>
+<span id="cb1-4"></span>
+<span id="cb1-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Example URL (Istanbul). You can get the latest link from Inside Airbnb "Get the Data".</span></span>
+<span id="cb1-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The URL structure typically follows:</span></span>
+<span id="cb1-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># https://data.insideairbnb.com/turkey/marmara/istanbul/2025-09-29/data/listings.csv.gz</span></span>
+<span id="cb1-8"></span>
+<span id="cb1-9">listings_raw <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">read_csv</span>(</span>
+<span id="cb1-10">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"listings.csv.gz"</span>,</span>
+<span id="cb1-11">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">show_col_types =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span></span>
+<span id="cb1-12">)</span>
+<span id="cb1-13"></span>
+<span id="cb1-14">vars_keep <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(</span>
+<span id="cb1-15">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"id"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"name"</span>,</span>
+<span id="cb1-16">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"price"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"minimum_nights"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"number_of_reviews"</span>,</span>
+<span id="cb1-17">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"room_type"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"neighbourhood_cleansed"</span></span>
+<span id="cb1-18">)</span>
+<span id="cb1-19"></span>
+<span id="cb1-20">listings_small <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> listings_raw <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb1-21">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">any_of</span>(vars_keep))</span></code></pre></div></div>
+</div>
+</section>
+<section id="inspecting-the-selected-variables" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="inspecting-the-selected-variables"><span class="header-section-number">4.4</span> Inspecting the selected variables</h3>
+<p>Before performing any transformation, it is important to inspect the data <strong>as it comes from the source</strong>. This allows us to understand variable types and identify potential issues early.</p>
+<p>Below, we examine only the variables selected for this article.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">glimpse</span>(listings_small)</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 30,051
+Columns: 7
+$ id                     &lt;dbl&gt; 1.342043e+18, 1.342082e+18, 1.342211e+18, 1.342…
+$ name                   &lt;chr&gt; "Отдельная квартира на Фатих(Балат).", "Blue st…
+$ price                  &lt;chr&gt; "$2,290.00", "$1,101.00", "$3,430.00", "$3,178.…
+$ minimum_nights         &lt;dbl&gt; 5, 7, 2, 100, 1, 100, 1, 5, 2, 100, 100, 2, 100…
+$ number_of_reviews      &lt;dbl&gt; 4, 4, 26, 1, 2, 0, 41, 0, 19, 0, 0, 26, 0, 0, 1…
+$ room_type              &lt;chr&gt; "Entire home/apt", "Private room", "Entire home…
+$ neighbourhood_cleansed &lt;chr&gt; "Fatih", "Beyoglu", "Beyoglu", "Sisli", "Sisli"…</code></pre>
+</div>
+</div>
+<p>At this stage, notice in particular the <code>price</code> variable. Although it represents a numerical concept (nightly price), it is not stored as a numeric variable.</p>
+<p>Instead, <code>price</code> is typically read as a character string, often containing currency symbols and separators. This is common in datasets that originate from web scraping or user-facing platforms.</p>
+</section>
+<section id="why-we-need-to-convert-price-to-numeric" class="level3" data-number="4.5">
+<h3 data-number="4.5" class="anchored" data-anchor-id="why-we-need-to-convert-price-to-numeric"><span class="header-section-number">4.5</span> Why we need to convert <code>price</code> to numeric</h3>
+<p>Outlier detection methods such as boxplots, the IQR rule, and Z-scores require <strong>numeric input</strong>. As long as <code>price</code> is stored as a character variable, it cannot be used in quantitative analysis.</p>
+<p>More importantly, treating <code>price</code> as numeric is not just a technical requirement. It reflects a modeling decision: we explicitly state that this variable represents a measurable quantity on which arithmetic operations are meaningful.</p>
+</section>
+<section id="converting-price-to-a-numeric-variable" class="level3" data-number="4.6">
+<h3 data-number="4.6" class="anchored" data-anchor-id="converting-price-to-a-numeric-variable"><span class="header-section-number">4.6</span> Converting <code>price</code> to a numeric variable</h3>
+<p>To prepare the data for analysis, we remove non-numeric characters and convert <code>price</code> to a numeric variable, which we call <code>price_num</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">listings_small <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> listings_small <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb4-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">price_num =</span> price <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb4-3">           <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">str_replace_all</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"[^0-9.]"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb4-4">           <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.numeric</span>())</span></code></pre></div></div>
+</div>
+<p>After the conversion, we can verify the result by inspecting basic summaries:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summary</span>(listings_small<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>price_num)</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+     80    1644    2538    5084    4108 4437598    4803 </code></pre>
+</div>
+</div>
+<p>At this point, <code>price_num</code> is ready for outlier detection and visualization. In the next section, we will use this variable to illustrate how extreme values can be identified using visual tools and formal statistical rules.</p>
+</section>
+</section>
+<section id="visualizing-price-distributions-and-potential-outliers" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="visualizing-price-distributions-and-potential-outliers"><span class="header-section-number">5</span> Visualizing Price Distributions and Potential Outliers</h2>
+<p>Before applying any formal outlier detection rule, it is good practice to explore the distribution of the variable visually. Visualization helps us understand the <em>shape</em>, <em>spread</em>, and <em>asymmetry</em> of the data, and often reveals extreme values immediately.</p>
+<p>In this section, we focus on the numeric price variable <code>price_num</code>.</p>
+<section id="a-first-attempt-why-the-raw-histogram-fails" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="a-first-attempt-why-the-raw-histogram-fails"><span class="header-section-number">5.1</span> A first attempt: why the raw histogram fails</h3>
+<p>A natural first step is to plot a histogram of nightly prices on the original scale.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggplot2)</span>
+<span id="cb7-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(scales)</span>
+<span id="cb7-3"></span>
+<span id="cb7-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(listings_small, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> price_num)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_histogram</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bins =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#B0B0B0"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_x_continuous</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">labels =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">label_number</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">big.mark =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">","</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb7-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Distribution of Nightly Prices (raw scale)"</span>,</span>
+<span id="cb7-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Nightly price"</span>,</span>
+<span id="cb7-10">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Count"</span></span>
+<span id="cb7-11">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb7-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">13</span>)</span></code></pre></div></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-12-19_outliers/index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>This plot is technically correct, but analytically unhelpful.</p>
+<ul>
+<li><p>A small number of extremely expensive listings stretches the x-axis.</p></li>
+<li><p>The majority of observations are compressed near zero.</p></li>
+<li><p>As a result, the internal structure of the data becomes almost invisible.</p></li>
+</ul>
+<p>This is not a plotting mistake. It is a direct consequence of <strong>heavy right-skewness</strong>, which is common in price data. At this point, it is already clear that naive visualizations on the raw scale are insufficient.</p>
+</section>
+<section id="adding-context-prices-depend-on-room_type" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="adding-context-prices-depend-on-room_type"><span class="header-section-number">5.2</span> Adding context: prices depend on <code>room_type</code></h3>
+<p>Airbnb listings are not drawn from a single homogeneous market. A <em>shared room</em> and an <em>entire home/apt</em> represent fundamentally different accommodation types, and their prices should not be expected to follow the same distribution.</p>
+<p>If we ignore this context and search for outliers globally, we risk labeling valid group-level differences as anomalies. For this reason, we first examine how prices behave <strong>within each room type</strong>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">listings_small <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb8-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">count</span>(room_type, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sort =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 2
+  room_type           n
+  &lt;chr&gt;           &lt;int&gt;
+1 Entire home/apt 20243
+2 Private room     9494
+3 Hotel room        157
+4 Shared room       157</code></pre>
+</div>
+</div>
+</section>
+<section id="price-distributions-by-room-type-log-scale" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="price-distributions-by-room-type-log-scale"><span class="header-section-number">5.3</span> Price distributions by room type (log scale)</h3>
+<p>To make the right tail interpretable without discarding extreme values, we visualize prices on a logarithmic scale and separate distributions by room type.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(listings_small, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> price_num)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_histogram</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bins =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">35</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#4C72B0"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.9</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_x_log10</span>(</span>
+<span id="cb10-4"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">breaks =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">log_breaks</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>),</span>
+<span id="cb10-5"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">labels =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">label_number</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">big.mark =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">","</span>)</span>
+<span id="cb10-6">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">facet_wrap</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> room_type, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">scales =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"free_y"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb10-9"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Nightly Price Distributions by Room Type (log scale)"</span>,</span>
+<span id="cb10-10"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Log scale improves readability in heavily right-skewed price data"</span>,</span>
+<span id="cb10-11"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Nightly price (log scale)"</span>,</span>
+<span id="cb10-12"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Count"</span></span>
+<span id="cb10-13">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-14"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">13</span>)</span></code></pre></div></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-12-19_outliers/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>This visualization reveals several important patterns:</p>
+<ul>
+<li><p>Each room type has its own characteristic price range.</p></li>
+<li><p>The extreme right tail becomes visible without overwhelming the plot.</p></li>
+<li><p>What appears as an “outlier” globally may be perfectly typical within a given room type</p></li>
+</ul>
+<p>At this stage, the notion of an outlier becomes <strong>context-dependent</strong> rather than absolute.</p>
+</section>
+<section id="boxplots-by-room-type-highlighting-potential-extremes" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="boxplots-by-room-type-highlighting-potential-extremes"><span class="header-section-number">5.4</span> Boxplots by room type: highlighting potential extremes</h3>
+<p>Histograms show overall shape, but boxplots are better suited for highlighting extreme observations. We again use a log scale to preserve readability.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(listings_small, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> room_type, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> price_num)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb11-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_boxplot</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">outlier.alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.35</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#DDDDDD"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb11-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_y_log10</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">labels =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">label_number</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">big.mark =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">","</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb11-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb11-5">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Nightly Prices by Room Type (boxplot, log scale)"</span>,</span>
+<span id="cb11-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Potential outliers are assessed within each room type"</span>,</span>
+<span id="cb11-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Room type"</span>,</span>
+<span id="cb11-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Nightly price (log scale)"</span></span>
+<span id="cb11-9">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb11-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">13</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb11-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.text.x =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">angle =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">hjust =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>))</span></code></pre></div></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2025-12-19_outliers/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>This plot makes a key point explicit:</p>
+<ul>
+<li><p>Outliers are flagged <strong>relative to their own room type</strong>, not the entire dataset.</p></li>
+<li><p>Extremely high prices within <em>shared rooms</em> are <strong>statistically more unusual</strong> than similarly high prices within <em>entire homes</em>, given the much narrower price distribution of shared rooms.</p></li>
+<li><p>Statistical outliers are candidates for further investigation, not automatic deletions.</p></li>
+</ul>
+</section>
+<section id="what-visual-exploration-tells-us" class="level3" data-number="5.5">
+<h3 data-number="5.5" class="anchored" data-anchor-id="what-visual-exploration-tells-us"><span class="header-section-number">5.5</span> What visual exploration tells us</h3>
+<p>From visual inspection alone, we can conclude that:</p>
+<ul>
+<li><p>Airbnb price data are highly right-skewed.</p></li>
+<li><p>Extreme values exist and strongly influence scale and summaries.</p></li>
+<li><p>Context (here, <code>room_type</code>) is essential for meaningful interpretation.</p></li>
+</ul>
+<p>These observations motivate the next step: formalizing outlier detection using statistical rules such as the <strong>IQR method</strong> and <strong>Z-scores</strong>, applied <em>within room types</em> rather than globally.</p>
+</section>
+</section>
+<section id="formal-outlier-detection-within-room-type" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="formal-outlier-detection-within-room-type"><span class="header-section-number">6</span> Formal Outlier Detection Within Room Type</h2>
+<p>Visual exploration suggested that nightly prices exhibit strong right-skewness and that extreme values should be interpreted within the context of <code>room_type</code>. In this section, we formalize that intuition using statistical outlier detection rules.</p>
+<p>Our goal is not to mechanically remove observations, but to <strong>identify and examine</strong> listings whose prices are unusually high relative to their own room type.</p>
+<section id="the-iqr-rule" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="the-iqr-rule"><span class="header-section-number">6.1</span> The IQR rule</h3>
+<p>The Interquartile Range (IQR) rule defines outliers based on the spread of the middle 50% of the data. For a given variable, the IQR is defined as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctext%7BIQR%7D%20=%20Q_3%20-%20Q_1%0A"></p>
+<p>An observation is flagged as a potential outlier if it lies outside the interval:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5B%20Q_1%20-%201.5%20%5Ctimes%20%5Ctext%7BIQR%7D,%20%5C;%20Q_3%20+%201.5%20%5Ctimes%20%5Ctext%7BIQR%7D%20%5D%0A"></p>
+<p>Because the IQR relies on quantiles rather than the mean and standard deviation, it is relatively robust to skewed distributions—an important property for price data.</p>
+</section>
+<section id="applying-the-iqr-rule-within-each-room-type" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="applying-the-iqr-rule-within-each-room-type"><span class="header-section-number">6.2</span> Applying the IQR rule within each room type</h3>
+<p>Instead of computing a single global IQR, we apply the rule <strong>separately within each room type</strong>. This ensures that prices are evaluated relative to comparable listings.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1">outliers_iqr <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> listings_small <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb12-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">group_by</span>(room_type) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb12-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb12-4">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Q1 =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">quantile</span>(price_num, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.25</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>),</span>
+<span id="cb12-5">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Q3 =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">quantile</span>(price_num, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.75</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>),</span>
+<span id="cb12-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">IQR_value =</span> Q3 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> Q1,</span>
+<span id="cb12-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lower_bound =</span> Q1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> IQR_value,</span>
+<span id="cb12-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">upper_bound =</span> Q3 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> IQR_value,</span>
+<span id="cb12-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">outlier_iqr =</span> price_num <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> lower_bound <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|</span> price_num <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> upper_bound</span>
+<span id="cb12-10">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb12-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ungroup</span>()</span></code></pre></div></div>
+</div>
+<p>At this stage, each listing is labeled according to whether its price is considered an outlier <em>within its own room type</em>.</p>
+</section>
+<section id="how-many-outliers-do-we-detect" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="how-many-outliers-do-we-detect"><span class="header-section-number">6.3</span> How many outliers do we detect?</h3>
+<p>Before inspecting individual listings, it is informative to summarize how many outliers are flagged in each group.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1">outliers_iqr <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb13-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">count</span>(room_type, outlier_iqr) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb13-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">arrange</span>(room_type, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">desc</span>(outlier_iqr))</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12 × 3
+   room_type       outlier_iqr     n
+   &lt;chr&gt;           &lt;lgl&gt;       &lt;int&gt;
+ 1 Entire home/apt TRUE         1458
+ 2 Entire home/apt FALSE       16616
+ 3 Entire home/apt NA           2169
+ 4 Hotel room      TRUE           17
+ 5 Hotel room      FALSE         106
+ 6 Hotel room      NA             34
+ 7 Private room    TRUE          441
+ 8 Private room    FALSE        6470
+ 9 Private room    NA           2583
+10 Shared room     TRUE            3
+11 Shared room     FALSE         137
+12 Shared room     NA             17</code></pre>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>This table shows that outliers are not evenly distributed across room types. Some categories naturally exhibit greater price dispersion, which leads to more listings being flagged as potential outliers. This reinforces the importance of <strong>group-aware detection</strong>.</p>
+</section>
+<section id="inspecting-extreme-cases-flagged-by-iqr" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="inspecting-extreme-cases-flagged-by-iqr"><span class="header-section-number">6.4</span> Inspecting extreme cases flagged by IQR</h3>
+<p>Statistical flags become meaningful only when we inspect the actual observations. Below, we list the most expensive listings flagged as outliers within each room type.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1">top_price_outliers <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> outliers_iqr <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb15-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(outlier_iqr) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb15-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">group_by</span>(room_type) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb15-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">arrange</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">desc</span>(price_num)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb15-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice_head</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb15-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ungroup</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb15-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(</span>
+<span id="cb15-8">    room_type,</span>
+<span id="cb15-9">    price,</span>
+<span id="cb15-10">    price_num,</span>
+<span id="cb15-11">    minimum_nights,</span>
+<span id="cb15-12">    number_of_reviews,</span>
+<span id="cb15-13">    neighbourhood_cleansed,</span>
+<span id="cb15-14">    name</span>
+<span id="cb15-15">  )</span>
+<span id="cb15-16"></span>
+<span id="cb15-17">top_price_outliers</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 18 × 7
+   room_type       price         price_num minimum_nights number_of_reviews
+   &lt;chr&gt;           &lt;chr&gt;             &lt;dbl&gt;          &lt;dbl&gt;             &lt;dbl&gt;
+ 1 Entire home/apt $4,437,598.00   4437598            100                14
+ 2 Entire home/apt $2,658,600.00   2658600            100                 3
+ 3 Entire home/apt $2,109,690.00   2109690            100                 0
+ 4 Entire home/apt $2,000,000.00   2000000            100                 0
+ 5 Entire home/apt $1,250,008.00   1250008            100                 0
+ 6 Hotel room      $2,439,497.00   2439497              1                 0
+ 7 Hotel room      $2,439,497.00   2439497              1                 0
+ 8 Hotel room      $2,439,497.00   2439497              1                 0
+ 9 Hotel room      $2,439,497.00   2439497              1                 0
+10 Hotel room      $2,433,427.00   2433427              1                 0
+11 Private room    $390,271.00      390271            365                 1
+12 Private room    $390,271.00      390271            365                 0
+13 Private room    $390,271.00      390271            365                 0
+14 Private room    $390,271.00      390271            100                 0
+15 Private room    $390,271.00      390271            100                 0
+16 Shared room     $7,221.00          7221              1                 0
+17 Shared room     $6,086.00          6086              1                 2
+18 Shared room     $5,841.00          5841            100                 0
+# ℹ 2 more variables: neighbourhood_cleansed &lt;chr&gt;, name &lt;chr&gt;</code></pre>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>At this point, the analysis moves from abstract rules to concrete questions:</p>
+<ul>
+<li><p>Are these listings luxury properties?</p></li>
+<li><p>Do they require unusually long minimum stays?</p></li>
+<li><p>Do they have very few (or no) reviews, suggesting new or inactive listings?</p></li>
+<li><p>Are they located in specific neighborhoods?</p></li>
+</ul>
+<p>The answers to these questions determine whether a flagged observation should be:</p>
+<ul>
+<li><p>kept and modeled explicitly,</p></li>
+<li><p>transformed (e.g., via log scaling),</p></li>
+<li><p>or excluded due to data quality concerns.</p></li>
+</ul>
+</section>
+<section id="z-scorebased-outlier-detection-concept-and-limitations" class="level3" data-number="6.5">
+<h3 data-number="6.5" class="anchored" data-anchor-id="z-scorebased-outlier-detection-concept-and-limitations"><span class="header-section-number">6.5</span> Z-score–based outlier detection: concept and limitations</h3>
+<p>In addition to IQR-based rules, outliers are often discussed using <strong>Z-scores</strong>. Because this method is widely taught and frequently applied, it is important to understand both how it works and when it can be misleading.</p>
+<section id="what-is-a-z-score" class="level4" data-number="6.5.1">
+<h4 data-number="6.5.1" class="anchored" data-anchor-id="what-is-a-z-score"><span class="header-section-number">6.5.1</span> What is a Z-score?</h4>
+<p>A Z-score measures how far an observation lies from the mean, expressed in units of standard deviation. For a single observation, the Z-score is defined as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Az%20=%20%5Cfrac%7Bx%20-%20%5Cmu%7D%7B%5Csigma%7D%0A"></p>
+<p>where:</p>
+<ul>
+<li><img src="https://latex.codecogs.com/png.latex?%5Cmu"> is the sample mean</li>
+<li><img src="https://latex.codecogs.com/png.latex?%5Csigma"> is the sample standard deviation</li>
+</ul>
+<p>Intuitively, the Z-score answers the question:</p>
+<blockquote class="blockquote">
+<p>“How many standard deviations away from the mean is this observation?”</p>
+</blockquote>
+<p>A common heuristic labels observations with</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%7Cz%7C%20%3E%203%0A"></p>
+<p>as potential outliers.</p>
+</section>
+<section id="what-does-the-z-score-assume" class="level4" data-number="6.5.2">
+<h4 data-number="6.5.2" class="anchored" data-anchor-id="what-does-the-z-score-assume"><span class="header-section-number">6.5.2</span> What does the Z-score assume?</h4>
+<p>Z-score–based detection implicitly relies on several assumptions:</p>
+<ul>
+<li>the distribution is approximately symmetric,</li>
+<li>the mean and standard deviation are meaningful summaries,</li>
+<li>extreme values do not dominate the estimation of <img src="https://latex.codecogs.com/png.latex?%5Cmu"> and <img src="https://latex.codecogs.com/png.latex?%5Csigma">.</li>
+</ul>
+<p>These assumptions are often reasonable for approximately normal data, but they are problematic for strongly skewed distributions.</p>
+</section>
+<section id="why-z-scores-are-problematic-for-price-data" class="level4" data-number="6.5.3">
+<h4 data-number="6.5.3" class="anchored" data-anchor-id="why-z-scores-are-problematic-for-price-data"><span class="header-section-number">6.5.3</span> Why Z-scores are problematic for price data</h4>
+<p>Airbnb prices are typically <strong>right-skewed</strong> with long upper tails. In such cases:</p>
+<ul>
+<li>extreme values inflate the mean,</li>
+<li>extreme values inflate the standard deviation,</li>
+<li>as a result, truly extreme observations may receive <em>moderate</em> Z-scores.</li>
+</ul>
+<p>This leads to a paradox: the very observations we want to detect reduce their own apparent extremeness. For this reason, Z-scores tend to <strong>under-detect</strong> outliers in heavily skewed economic data.</p>
+</section>
+<section id="applying-z-scores-within-each-room-type" class="level4" data-number="6.5.4">
+<h4 data-number="6.5.4" class="anchored" data-anchor-id="applying-z-scores-within-each-room-type"><span class="header-section-number">6.5.4</span> Applying Z-scores within each room type</h4>
+<p>Despite these limitations, Z-scores can still be informative when used carefully and comparatively. As with the IQR rule, we compute Z-scores <strong>within each room type</strong> to preserve contextual meaning.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1">outliers_z <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> listings_small <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb17-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">group_by</span>(room_type) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb17-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb17-4">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean_price =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(price_num, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>),</span>
+<span id="cb17-5">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sd_price   =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sd</span>(price_num, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>),</span>
+<span id="cb17-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">z_price    =</span> (price_num <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> mean_price) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> sd_price,</span>
+<span id="cb17-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">outlier_z  =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">abs</span>(z_price) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span></span>
+<span id="cb17-8">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb17-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ungroup</span>()</span></code></pre></div></div>
+</div>
+</section>
+<section id="how-many-outliers-are-flagged-by-the-z-score-rule" class="level4" data-number="6.5.5">
+<h4 data-number="6.5.5" class="anchored" data-anchor-id="how-many-outliers-are-flagged-by-the-z-score-rule"><span class="header-section-number">6.5.5</span> How many outliers are flagged by the Z-score rule?</h4>
+<p>After computing Z-scores within each room type, we can summarize how many listings are flagged as outliers.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1">outliers_z <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb18-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">count</span>(room_type, outlier_z) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb18-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">arrange</span>(room_type, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">desc</span>(outlier_z))</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12 × 3
+   room_type       outlier_z     n
+   &lt;chr&gt;           &lt;lgl&gt;     &lt;int&gt;
+ 1 Entire home/apt TRUE         24
+ 2 Entire home/apt FALSE     18050
+ 3 Entire home/apt NA         2169
+ 4 Hotel room      TRUE          5
+ 5 Hotel room      FALSE       118
+ 6 Hotel room      NA           34
+ 7 Private room    TRUE         26
+ 8 Private room    FALSE      6885
+ 9 Private room    NA         2583
+10 Shared room     TRUE          1
+11 Shared room     FALSE       139
+12 Shared room     NA           17</code></pre>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>In many Airbnb datasets, this table reveals a striking pattern:</p>
+<ul>
+<li><p>The number of Z-score–based outliers is <strong>much smaller</strong> than the number detected by the IQR rule.</p></li>
+<li><p>In some room types, no observations are flagged at all.</p></li>
+</ul>
+<p>This is a direct consequence of right-skewness: extreme prices inflate both the mean and the standard deviation, making Z-scores appear less extreme than expected.</p>
+</section>
+<section id="inspecting-listings-flagged-by-z-scores" class="level4" data-number="6.5.6">
+<h4 data-number="6.5.6" class="anchored" data-anchor-id="inspecting-listings-flagged-by-z-scores"><span class="header-section-number">6.5.6</span> Inspecting listings flagged by Z-scores</h4>
+<p>To understand what Z-scores actually flag as outliers, we inspect the most extreme listings according to their Z-score values.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1">top_z_outliers <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> outliers_z <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb20-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(outlier_z) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb20-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">group_by</span>(room_type) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb20-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">arrange</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">desc</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">abs</span>(z_price))) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb20-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">slice_head</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb20-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ungroup</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb20-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(</span>
+<span id="cb20-8">    room_type,</span>
+<span id="cb20-9">    price,</span>
+<span id="cb20-10">    price_num,</span>
+<span id="cb20-11">    z_price,</span>
+<span id="cb20-12">    minimum_nights,</span>
+<span id="cb20-13">    number_of_reviews,</span>
+<span id="cb20-14">    neighbourhood_cleansed,</span>
+<span id="cb20-15">    name</span>
+<span id="cb20-16">  )</span>
+<span id="cb20-17"></span>
+<span id="cb20-18">top_z_outliers</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 16 × 8
+   room_type       price      price_num z_price minimum_nights number_of_reviews
+   &lt;chr&gt;           &lt;chr&gt;          &lt;dbl&gt;   &lt;dbl&gt;          &lt;dbl&gt;             &lt;dbl&gt;
+ 1 Entire home/apt $4,437,59…   4437598   92.9             100                14
+ 2 Entire home/apt $2,658,60…   2658600   55.6             100                 3
+ 3 Entire home/apt $2,109,69…   2109690   44.1             100                 0
+ 4 Entire home/apt $2,000,00…   2000000   41.8             100                 0
+ 5 Entire home/apt $1,250,00…   1250008   26.1             100                 0
+ 6 Hotel room      $2,439,49…   2439497    4.84              1                 0
+ 7 Hotel room      $2,439,49…   2439497    4.84              1                 0
+ 8 Hotel room      $2,439,49…   2439497    4.84              1                 0
+ 9 Hotel room      $2,439,49…   2439497    4.84              1                 0
+10 Hotel room      $2,433,42…   2433427    4.83              1                 0
+11 Private room    $390,271.…    390271   31.3             365                 1
+12 Private room    $390,271.…    390271   31.3             365                 0
+13 Private room    $390,271.…    390271   31.3             365                 0
+14 Private room    $390,271.…    390271   31.3             100                 0
+15 Private room    $390,271.…    390271   31.3             100                 0
+16 Shared room     $7,221.00       7221    3.65              1                 0
+# ℹ 2 more variables: neighbourhood_cleansed &lt;chr&gt;, name &lt;chr&gt;</code></pre>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>When compared to the IQR-based outliers, these listings are often:</p>
+<ul>
+<li><p>less extreme in absolute price,</p></li>
+<li><p>closer to the central mass of the distribution,</p></li>
+<li><p>dominated by a small number of room types.</p></li>
+</ul>
+<p>This confirms that Z-score–based detection tends to <strong>miss many extreme but valid prices</strong> in heavily skewed data.</p>
+</section>
+<section id="comparing-iqr-and-z-score-results" class="level4" data-number="6.5.7">
+<h4 data-number="6.5.7" class="anchored" data-anchor-id="comparing-iqr-and-z-score-results"><span class="header-section-number">6.5.7</span> Comparing IQR and Z-score results</h4>
+<p>Finally, we compare how many listings are flagged by each method.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1">comparison_summary <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> outliers_iqr <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb22-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(id, room_type, outlier_iqr) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb22-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">left_join</span>(</span>
+<span id="cb22-4">    outliers_z <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(id, outlier_z),</span>
+<span id="cb22-5">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"id"</span></span>
+<span id="cb22-6">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb22-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">count</span>(outlier_iqr, outlier_z)</span>
+<span id="cb22-8"></span>
+<span id="cb22-9">comparison_summary</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+  outlier_iqr outlier_z     n
+  &lt;lgl&gt;       &lt;lgl&gt;     &lt;int&gt;
+1 FALSE       FALSE     23329
+2 TRUE        FALSE      1863
+3 TRUE        TRUE         56
+4 NA          NA         4803</code></pre>
+</div>
+</div>
+<p><strong>Interpretation</strong></p>
+<p>This comparison highlights a key methodological insight:</p>
+<ul>
+<li><p>Many listings flagged by the IQR rule are <strong>not flagged</strong> by Z-scores.</p></li>
+<li><p>Listings flagged by Z-scores are almost always flagged by the IQR rule as well.</p></li>
+<li><p>The overlap is asymmetric.</p></li>
+</ul>
+<p>In other words, the Z-score rule is more conservative and may under-detect outliers when distributions are strongly skewed. This does not make Z-scores “wrong”, but it does limit their usefulness as a primary detection method for price data.</p>
+<p>In practice, Z-score–based flags often differ substantially from IQR-based flags. This difference is not an error—it reflects different assumptions.</p>
+<ul>
+<li><p>IQR-based methods rely on ranks and quantiles</p></li>
+<li><p>Z-score–based methods rely on moments (mean and variance)</p></li>
+</ul>
+<p>For heavily skewed price data, IQR-based detection is usually more reliable, while Z-scores should be interpreted as a <strong>supplementary diagnostic</strong> rather than a primary rule.</p>
+</section>
+</section>
+</section>
+<section id="should-outliers-be-removed" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="should-outliers-be-removed"><span class="header-section-number">7</span> Should Outliers Be Removed?</h2>
+<p>Detecting outliers does <strong>not</strong> imply that they should be automatically removed. Outlier detection is a diagnostic step, not a cleaning instruction.</p>
+<p>In the context of Airbnb price data, many extreme values correspond to luxury properties, large homes, or special accommodation types. Blindly removing such observations may erase precisely the information that makes the data interesting.</p>
+<p>Instead, several alternative strategies should be considered.</p>
+<section id="verify-and-understand-the-source-of-extremeness" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="verify-and-understand-the-source-of-extremeness"><span class="header-section-number">7.1</span> Verify and understand the source of extremeness</h3>
+<p>The first question should always be <em>why</em> an observation is extreme.</p>
+<ul>
+<li>Is the listing a luxury property?</li>
+<li>Does it belong to a specific <code>room_type</code>?</li>
+<li>Is it located in a high-demand neighborhood?</li>
+<li>Is it associated with unusual booking constraints (e.g., very high <code>minimum_nights</code>)?</li>
+</ul>
+<p>In many cases, extreme values are <strong>valid reflections of heterogeneity</strong>, not data errors.</p>
+</section>
+<section id="use-transformations-or-robust-methods" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="use-transformations-or-robust-methods"><span class="header-section-number">7.2</span> Use transformations or robust methods</h3>
+<p>When extreme values distort summaries or model estimates, removal is not the only option.</p>
+<p>Common alternatives include:</p>
+<ul>
+<li>transforming the response variable (e.g., log transformation of prices),</li>
+<li>using robust estimators that reduce sensitivity to extremes,</li>
+<li>modeling medians or quantiles instead of means.</li>
+</ul>
+<p>These approaches preserve information while reducing the influence of extreme observations.</p>
+</section>
+<section id="model-extremes-explicitly-when-relevant" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="model-extremes-explicitly-when-relevant"><span class="header-section-number">7.3</span> Model extremes explicitly when relevant</h3>
+<p>In some applications, outliers are not nuisances but the primary object of interest.</p>
+<p>Examples include:</p>
+<ul>
+<li>luxury market analysis,</li>
+<li>risk assessment,</li>
+<li>rare but high-impact events.</li>
+</ul>
+<p>In such cases, extreme observations should be modeled explicitly rather than suppressed.</p>
+</section>
+<section id="a-final-perspective" class="level3" data-number="7.4">
+<h3 data-number="7.4" class="anchored" data-anchor-id="a-final-perspective"><span class="header-section-number">7.4</span> A final perspective</h3>
+<p>Outliers are not merely statistical inconveniences. They often highlight structural differences, market segmentation, or meaningful departures from typical behavior.</p>
+<p>Understanding <em>why</em> an observation is extreme is frequently more informative than deleting it.</p>
+<p>In practice, thoughtful outlier handling requires a balance between statistical rules, domain knowledge, and modeling objectives.</p>
+</section>
+</section>
+<section id="final-remarks" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="final-remarks"><span class="header-section-number">8</span> Final Remarks</h2>
+<p>Outlier detection is a natural step in the data preprocessing workflow. It typically follows missing data analysis and precedes scaling, transformation, or model fitting.</p>
+<p>In this article, the focus was not on eliminating extreme values, but on <strong>understanding why they occur</strong>. Through visual exploration, context-aware analysis using <code>room_type</code>, and formal detection rules such as the IQR method and Z-scores, we demonstrated that extreme values are not noise by default.</p>
+<p>In many real-world datasets, especially those involving prices or economic behavior, extreme values reflect structural heterogeneity rather than data quality issues. Treating them blindly as errors risks discarding meaningful information.</p>
+<p>Outliers should therefore be approached as <strong>questions posed by the data</strong>: Why is this observation extreme? Does it represent a different regime, a rare event, or a distinct subgroup?</p>
+<p>Answering these questions requires a combination of statistical tools, domain knowledge, and clear analytical goals. When handled thoughtfully, outlier analysis enhances both the robustness and the interpretability of downstream models.</p>
+</section>
+<section id="references-and-further-reading" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="references-and-further-reading"><span class="header-section-number">9</span> References and Further Reading</h2>
+<ul>
+<li><p>Tukey, J. W. (1977). <em>Exploratory Data Analysis</em>. Addison-Wesley.<br>
+(Foundational reference for boxplots, IQR, and exploratory thinking.)</p></li>
+<li><p>Hastie, T., Tibshirani, R., Friedman, J. (2009). <em>The Elements of Statistical Learning</em>. Springer.<br>
+(Statistical foundations and the role of robust methods in modeling.)</p></li>
+<li><p>James, G., Witten, D., Hastie, T., Tibshirani, R. (2021). <em>An Introduction to Statistical Learning</em>. Springer.<br>
+(Accessible discussion of preprocessing, transformations, and practical modeling considerations.)</p></li>
+<li><p>NIST/SEMATECH e-Handbook of Statistical Methods – Outliers<br>
+<a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda35h.htm" class="uri">https://www.itl.nist.gov/div898/handbook/eda/section3/eda35h.htm</a><br>
+(Authoritative overview of outlier concepts and detection methods.)</p></li>
+<li><p>Wickham, H., Grolemund, G. (2017). <em>R for Data Science</em>. O’Reilly Media.<br>
+(Practical guidance on data exploration, visualization, and preprocessing workflows in R.)</p></li>
+<li><p>Inside Airbnb – Get the Data<br>
+<a href="https://insideairbnb.com/get-the-data/" class="uri">https://insideairbnb.com/get-the-data/</a><br>
+(Data source used in this article; city-level Airbnb listings data.)</p></li>
+<li><p>Wickham, H. (2016). <em>ggplot2: Elegant Graphics for Data Analysis</em>. Springer.<br>
+(Principles of layered graphics and effective visualization used throughout the article.)</p></li>
+</ul>
+
+
+<!-- -->
+
+</section>
+
+ ]]></description>
+  <category>R</category>
+  <category>Statistics</category>
+  <category>Data Analysis</category>
+  <category>Data Science</category>
+  <category>Data Preprocessing</category>
+  <category>Outliers</category>
+  <category>Inter Quartile Range</category>
+  <category>Z-Score</category>
+  <category>Data Cleaning</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2025-12-19_outliers/</guid>
+  <pubDate>Thu, 18 Dec 2025 21:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Handling Missing Data in R: A Comprehensive Guide</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>
@@ -18907,187 +20093,6 @@ font-style: inherit;">class</span>(z2)</span></code></pre></div>
   <guid>https://mfatihtuzen.netlify.app/posts/2023-09-25_data_types/</guid>
   <pubDate>Mon, 25 Sep 2023 21:00:00 GMT</pubDate>
   <media:content url="https://mfatihtuzen.netlify.app/posts/2023-09-25_data_types/blocks.jpg" medium="image" type="image/jpeg"/>
-</item>
-<item>
-  <title>A Gentle Introduction to R Programming</title>
-  <dc:creator>M. Fatih Tüzen</dc:creator>
-  <link>https://mfatihtuzen.netlify.app/posts/2023-08-15_r-intro/</link>
-  <description><![CDATA[ 
-
-
-
-
-
-<p>Hello everyone! For my first post on my blog, I would like to make an introduction about R. Before we start coding with R, it’s not a bad idea to know a little about this program and learn what we can do. I will try to answer questions such as why do we need R, how can I install R on my computer, what are the useful resources about R. So, let’s get started.</p>
-<section id="what-is-r" class="level2">
-<h2 class="anchored" data-anchor-id="what-is-r">What is R?</h2>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://mfatihtuzen.netlify.app/posts/2023-08-15_r-intro/RStudio-Ball.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="300"></p>
-</figure>
-</div>
-<p>R is a programming language and open-source software environment specifically designed for statistical computing and data analysis. It was created by <strong>R</strong>oss Ihaka and <strong>R</strong>obert Gentleman at the University of Auckland, New Zealand, in the early 1990s. R is widely used by statisticians, data analysts, researchers, and data scientists to manipulate, visualize, and analyze data.</p>
-<p>Key features and characteristics of R programming include:</p>
-<ol type="1">
-<li><p><strong>Statistical Analysis:</strong> R provides a wide range of statistical functions and libraries that enable users to perform various statistical analyses, including regression, hypothesis testing, clustering, and more.</p></li>
-<li><p><strong>Data Visualization:</strong> R offers powerful data visualization capabilities through packages like ggplot2, lattice, and base graphics. These packages allow users to create a wide variety of plots and charts to visualize their data.</p></li>
-<li><p><strong>Data Manipulation:</strong> R provides functions and libraries for cleaning, transforming, and manipulating data. The dplyr and tidyr packages are popular choices for data manipulation tasks.</p></li>
-<li><p><strong>Extensibility:</strong> Users can create and share their own functions, packages, and extensions, which contributes to the vibrant and active R community. This extensibility allows R to be adapted to various domains and applications.</p></li>
-<li><p><strong>Data Import and Export:</strong> R supports reading and writing data in various formats, including CSV, Excel, databases, and more. This flexibility makes it easy to work with data from different sources.</p></li>
-<li><p><strong>Interactive Environment:</strong> R provides an interactive environment where users can execute commands, scripts, and analyses step by step. This is particularly useful for exploring data and experimenting with different approaches.</p></li>
-<li><p><strong>Community and Packages:</strong> The R community has developed a vast ecosystem of packages that extend R’s functionality. <a href="https://cran.r-project.org/"><strong>CRAN</strong></a> (Comprehensive R Archive Network) is the central repository for R packages, where users can find and install packages for various tasks.</p></li>
-<li><p><strong>Scripting and Programming:</strong> R is a full-fledged programming language with support for control structures, loops, functions, and other programming constructs. This makes it suitable for both simple data analysis tasks and complex data science projects.</p></li>
-<li><p><strong>Open Source:</strong> R is released under an open-source license, which means that anyone can use, modify, and distribute the software. This openness has contributed to the growth and popularity of R in the data science community.</p></li>
-</ol>
-<p>R is commonly used in academia, research, and industries such as finance, healthcare, marketing, and more. Its flexibility, extensive packages, and active community support make it a valuable tool for a wide range of data-related tasks.</p>
-</section>
-<section id="why-should-i-use-r" class="level2">
-<h2 class="anchored" data-anchor-id="why-should-i-use-r">Why Should I Use R?</h2>
-<p>There are several compelling reasons to consider using R for your data analysis, statistical computing, and programming needs. Here are some key benefits of using R:</p>
-<ol type="1">
-<li><p><strong>Statistical Analysis:</strong> R was specifically designed for statistical analysis and provides a wide range of statistical functions, algorithms, and libraries. It’s an excellent choice for conducting complex statistical analyses, hypothesis testing, regression modeling, and more.</p></li>
-<li><p><strong>Data Visualization:</strong> R offers powerful data visualization capabilities through packages like ggplot2, which allow you to create customized and publication-quality visualizations. Visualizing data is crucial for understanding patterns, trends, and relationships.</p></li>
-<li><p><strong>Rich Ecosystem of Packages:</strong> R has a vibrant and active community that has developed thousands of packages to extend its functionality. These packages cover various domains, from machine learning and data manipulation to text analysis and bioinformatics.</p></li>
-<li><p><strong>Reproducibility:</strong> R promotes reproducible research by allowing you to write scripts that document your data analysis process step by step. This makes it easier to share your work with others and reproduce your results.</p></li>
-<li><p><strong>Community and Resources:</strong> R has a large and supportive community of users and experts who share their knowledge through forums, blogs, and tutorials. This community support can be invaluable when you encounter challenges.</p></li>
-<li><p><strong>Open Source:</strong> R is open-source software, meaning it’s free to use and open for anyone to modify and contribute to. This accessibility has led to its widespread adoption across academia, research, and industries.</p></li>
-<li><p><strong>Flexibility:</strong> R is a versatile programming language that supports both interactive analysis and script-based programming. It’s well-suited for a wide range of tasks, from exploratory data analysis to building complex data science models.</p></li>
-<li><p><strong>Integration with Other Tools:</strong> R can be integrated with other tools and platforms, such as databases, big data frameworks (like Hadoop and Spark), and APIs, allowing you to work with data from various sources.</p></li>
-<li><p><strong>Data Manipulation:</strong> Packages like dplyr and tidyr provide powerful tools for efficiently cleaning, transforming, and reshaping data, making data preparation easier and more efficient.</p></li>
-<li><p><strong>Academic and Research Use:</strong> R is widely used in academia and research, making it a valuable skill for students, researchers, and professionals in fields such as statistics, social sciences, and natural sciences.</p></li>
-<li><p><strong>Data Science and Machine Learning:</strong> R has a strong presence in the data science and machine learning communities. Packages like caret, randomForest, and xgboost provide tools for building predictive models.</p></li>
-<li><p><strong>Comprehensive Documentation:</strong> R provides comprehensive documentation and help resources, including function documentation, manuals, and online guides.</p></li>
-</ol>
-<p>Ultimately, the decision to use R depends on your specific needs, your familiarity with the language, and the types of analyses and projects you’re involved in. If you’re working with data analysis, statistics, or data science, R can be a powerful tool that empowers you to explore, analyze, and visualize data effectively.</p>
-</section>
-<section id="useful-resources-for-r-programming" class="level2">
-<h2 class="anchored" data-anchor-id="useful-resources-for-r-programming">Useful Resources for R Programming</h2>
-<p>There are numerous useful resources available for learning and mastering R programming. Whether you’re a beginner or an experienced user, these resources can help you enhance your R skills. My intention is to share resources that I think are useful and some of which I use myself, rather than advertising some people or organizations. Here’s a list of some valuable R programming resources:</p>
-<ol type="1">
-<li><p><strong>Online Courses and Tutorials:</strong></p>
-<ul>
-<li><p><a href="https://www.coursera.org/"><strong>Coursera</strong></a><strong>:</strong> Offers a variety of R programming courses, including “R Programming” by Johns Hopkins University.</p></li>
-<li><p><a href="https://www.edx.org/"><strong>edX</strong></a><strong>:</strong> Provides courses like “Introduction to R for Data Science” by Microsoft.</p></li>
-<li><p><a href="https://www.datacamp.com/"><strong>DataCamp</strong></a><strong>:</strong> Offers interactive R tutorials and courses for all skill levels.</p></li>
-<li><p><a href="https://education.rstudio.com/"><strong>RStudio Education</strong></a><strong>:</strong> Provides free and interactive tutorials on using R and RStudio.</p></li>
-</ul></li>
-<li><p><strong>Books:</strong></p>
-<ul>
-<li><p><a href="https://r4ds.hadley.nz/"><strong>“R for Data Science”</strong></a> by Hadley Wickham, Mine Çetinkaya-Rundel and Garrett Grolemund: A comprehensive guide to using R for data analysis and visualization.</p></li>
-<li><p><a href="https://adv-r.hadley.nz/"><strong>“Advanced R”</strong></a> by Hadley Wickham: Focuses on more advanced programming concepts and techniques in R.</p></li>
-<li><p><a href="https://r-graphics.org/"><strong>“R Graphics Cookbook”</strong></a> by Winston Chang: A guide to creating various types of visualizations using R.</p></li>
-<li><p><a href="https://www.bigbookofr.com/index.html"><strong>“Big Book of R”</strong></a>is an open source web page created by Oscar Baruffa. The page functions as an easy-to-navigate, one-stop shop by categorizing books on many topics prepared within the R programming language.</p></li>
-</ul></li>
-<li><p><strong>Online Communities and Forums:</strong></p>
-<ul>
-<li><p><a href="https://stackoverflow.com/"><strong>Stack Overflow</strong></a><strong>:</strong> A popular Q&amp;A platform where you can ask and answer R programming-related questions.</p></li>
-<li><p><a href="https://community.rstudio.com/"><strong>RStudio Community</strong></a><strong>:</strong> RStudio’s official forum for discussing R and RStudio-related topics.</p></li>
-<li><p><a href="https://www.reddit.com/"><strong>Reddit</strong></a><strong>:</strong> The r/rprogramming and r/rstats subreddits are great places for discussions and sharing R resources.</p></li>
-</ul></li>
-<li><p><strong>Blogs and Websites:</strong></p>
-<ul>
-<li><p><a href="https://www.r-bloggers.com/"><strong>R-bloggers</strong></a><strong>:</strong> Aggregates blog posts from various R bloggers, covering a wide range of topics.</p></li>
-<li><p><a href="https://community.rstudio.com/c/news/rstudio-blog/62"><strong>RStudio Blog</strong></a><strong>:</strong> The official blog of RStudio, featuring articles and tutorials on R and RStudio.</p></li>
-<li><p><a href="https://www.datacamp.com/blog"><strong>DataCamp Community Blog</strong></a><strong>:</strong> DataCamp is an online learning platform, and its community blog features numerous tutorials and articles on R programming, data science, and related topics.</p></li>
-<li><p><a href="https://www.tidyverse.org/blog/"><strong>Tidyverse Blog</strong></a>: If you’re a fan of the tidyverse packages (e.g., dplyr, ggplot2), you’ll find useful tips and updates on their blog.</p></li>
-<li><p><a href="https://github.com/"><strong>Github</strong></a> : GitHub is a web-based platform for version control and collaboration that is widely used by developers and teams for managing and sharing source code and other project-related files. It provides a range of features and tools for software development, including version control, code hosting, collaboration, issue tracking, pull requests, wiki and documentation, integration, community and social features. GitHub is widely used by both individual developers and large organizations for open-source and closed-source projects alike. It has become a central hub for software development, fostering collaboration and code sharing within the global developer community.</p></li>
-</ul>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Warning
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Please keep in mind that the availability and popularity of blogs can change, so it’s a good idea to explore these websites and also look for any new blogs or resources that may have emerged since my last update. Additionally, consider following R-related discussions and communities on social media platforms and forums like Stack Overflow for the latest information and discussions related to R programming.</p>
-</div>
-</div></li>
-<li><p><strong>Packages and Documentation:</strong></p>
-<ul>
-<li><p><a href="https://cran.r-project.org/"><strong>CRAN (Comprehensive R Archive Network)</strong></a><strong>:</strong> The central repository for R packages. You can find packages for various tasks and their documentation here.</p></li>
-<li><p><a href="https://www.rdocumentation.org/"><strong>RDocumentation</strong></a><strong>:</strong> Offers searchable documentation for R packages.</p></li>
-</ul>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Tip
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Remember that learning R programming is an ongoing process, so feel free to explore multiple resources and tailor your learning approach to your needs and interests. Apart from these, you can find many channels, communities or people to follow on YouTube and social media. Of course, artificial intelligence-supported chat engines such as chatGPT and Google Bard, which have become popular recently, are also very useful resources.</p>
-</div>
-</div></li>
-</ol>
-</section>
-<section id="installing-r-on-your-machine" class="level2">
-<h2 class="anchored" data-anchor-id="installing-r-on-your-machine">Installing R on your machine</h2>
-<p>In order to install R and RStudio on your computer, follow these steps:</p>
-<p><strong>Installing R:</strong></p>
-<ol type="1">
-<li><p><strong>Download R</strong>: Visit the official <a href="https://cran.r-project.org/mirrors.html">R website</a> and select a CRAN mirror near you.</p></li>
-<li><p><strong>Choose Your Operating System</strong>: Click on the appropriate link for your operating system (Windows, macOS, or Linux).</p>
-<ul>
-<li><p>For <strong>Windows</strong>: Download the “base” distribution.</p></li>
-<li><p>For <strong>macOS</strong>: Download the “pkg” file.</p></li>
-<li><p>For <strong>Linux</strong>: Follow the instructions for your specific distribution (e.g., Ubuntu, Debian, CentOS) provided on the CRAN website.</p></li>
-</ul></li>
-<li><p><strong>Install R</strong>:</p>
-<ul>
-<li><p>For <strong>Windows</strong>: Run the downloaded installer and follow the installation instructions.</p></li>
-<li><p>For <strong>macOS</strong>: Open the downloaded .pkg file and follow the installation instructions.</p></li>
-<li><p>For <strong>Linux</strong>: Follow the installation instructions for your specific Linux distribution.</p></li>
-</ul></li>
-</ol>
-<p>R has now been sucessfully installed on your Windows OS. Open the R GUI to start writing R codes.</p>
-<p><strong>Installing RStudio:</strong></p>
-<ol type="1">
-<li><p><strong>Download RStudio</strong>: Visit the official RStudio website <a href="https://www.rstudio.com/products/rstudio/download/">RStudio website</a> and select the appropriate version of RStudio Desktop for your operating system (Windows, macOS, or Linux).</p></li>
-<li><p><strong>Install RStudio</strong>:</p>
-<ul>
-<li><p>For <strong>Windows</strong>: Run the downloaded installer and follow the installation instructions.</p></li>
-<li><p>For <strong>macOS</strong>: Open the downloaded .dmg file and drag the RStudio application to your Applications folder.</p></li>
-<li><p>For <strong>Linux</strong>: Follow the installation instructions for your specific Linux distribution.</p></li>
-</ul></li>
-</ol>
-<p>RStudio is now successfully installed on your computer.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://mfatihtuzen.netlify.app/posts/2023-08-15_r-intro/RStudio.PNG" class="img-fluid quarto-figure quarto-figure-center figure-img" width="600"></p>
-</figure>
-</div>
-<p>Apart from R and Rstudio, you may also need to install Rtools. Rtools is a collection of software tools that are essential for building and compiling packages in the R programming language on Windows operating systems. Here are several reasons why you might need Rtools:</p>
-<ol type="1">
-<li><p><strong>Package Development</strong>: If you plan to develop R packages, you will need Rtools to compile and build those packages. R packages often contain C, C++, or Fortran code, which needs to be compiled into binary form to work with R.</p></li>
-<li><p><strong>Installing Binary Packages</strong>: Some R packages are only available in binary form on CRAN (Comprehensive R Archive Network). If you want to install these packages, you may need Rtools to help with package installation and compilation.</p></li>
-<li><p><strong>Using devtools</strong>: If you use the <code>devtools</code> package in R to develop or install packages from sources (e.g., GitHub repositories), Rtools is often required for the compilation of code.</p></li>
-<li><p><strong>External Dependencies</strong>: Certain R packages rely on external libraries and tools that are included in Rtools. Without Rtools, these packages may not be able to function correctly.</p></li>
-<li><p><strong>Custom Code</strong>: If you write custom R code that relies on compiled code in C, C++, or Fortran, you will need Rtools to compile and link your custom code with R.</p></li>
-<li><p><strong>Creating RMarkdown Documents</strong>: If you use RMarkdown to create documents that involve code chunks needing compilation, Rtools is required to compile these documents into their final format, such as PDF or HTML.</p></li>
-<li><p><strong>Data Analysis with Specific Packages</strong>: Some specialized packages in R, especially those dealing with high-performance computing or specific domains, may require Rtools as a prerequisite.</p></li>
-<li><p><strong>Building from Source</strong>: If you want to install R itself from source code rather than using a pre-built binary version, Rtools is necessary to compile and build R from source.</p></li>
-</ol>
-<p>In summary, Rtools is crucial for anyone working with R on Windows who intends to compile code, develop packages, or work with packages that rely on compiled code. It provides the necessary toolchain and dependencies for these tasks, ensuring that R functions correctly with code that needs to be compiled.</p>
-<p><strong>Installing RTools</strong></p>
-<ol type="1">
-<li><p>Download R Tools: Visit <a href="https://cran.r-project.org/bin/windows/Rtools/">RTools website</a> and download the RTools installer.</p></li>
-<li><p>After downloading has completed run the installer. Select the default options everywhere.</p></li>
-</ol>
-
-
-</section>
-
- ]]></description>
-  <category>R Programming</category>
-  <category>R Studio</category>
-  <guid>https://mfatihtuzen.netlify.app/posts/2023-08-15_r-intro/</guid>
-  <pubDate>Mon, 14 Aug 2023 21:00:00 GMT</pubDate>
-  <media:content url="https://mfatihtuzen.netlify.app/posts/2023-08-15_r-intro/RStudio-Ball.png" medium="image" type="image/png" height="144" width="144"/>
 </item>
 </channel>
 </rss>
