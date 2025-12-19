@@ -1,5 +1,5 @@
 ---
-title: "Outliers in Data Analysis: Detecting Extreme Values Before Modeling in R İstanbul Airbnb Data"
+title: "Outliers in Data Analysis: Detecting Extreme Values Before Modeling in R with İstanbul Airbnb Data"
 author: "M. Fatih Tüzen"
 date: "2025-12-19"
 categories: [R, Statistics, Data Analysis, Data Science, Data Preprocessing, Outliers, Inter Quartile Range, Z-Score, Data Cleaning]
@@ -178,11 +178,11 @@ ggplot(listings_small, aes(x = price_num)) +
 
 This plot is technically correct, but analytically unhelpful.
 
--    A small number of extremely expensive listings stretches the x-axis.
+-   A small number of extremely expensive listings stretches the x-axis.
 
--    The majority of observations are compressed near zero.
+-   The majority of observations are compressed near zero.
 
--    As a result, the internal structure of the data becomes almost invisible.
+-   As a result, the internal structure of the data becomes almost invisible.
 
 This is not a plotting mistake. It is a direct consequence of **heavy right-skewness**, which is common in price data. At this point, it is already clear that naive visualizations on the raw scale are insufficient.
 
@@ -224,9 +224,9 @@ This visualization reveals several important patterns:
 
 -   Each room type has its own characteristic price range.
 
--    The extreme right tail becomes visible without overwhelming the plot.
+-   The extreme right tail becomes visible without overwhelming the plot.
 
--    What appears as an “outlier” globally may be perfectly typical within a given room type
+-   What appears as an “outlier” globally may be perfectly typical within a given room type
 
 At this stage, the notion of an outlier becomes **context-dependent** rather than absolute.
 
@@ -256,7 +256,7 @@ This plot makes a key point explicit:
 
 -   Extremely high prices within *shared rooms* are **statistically more unusual** than similarly high prices within *entire homes*, given the much narrower price distribution of shared rooms.
 
--    Statistical outliers are candidates for further investigation, not automatic deletions.
+-   Statistical outliers are candidates for further investigation, not automatic deletions.
 
 ### What visual exploration tells us
 
@@ -264,9 +264,9 @@ From visual inspection alone, we can conclude that:
 
 -   Airbnb price data are highly right-skewed.
 
--    Extreme values exist and strongly influence scale and summaries.
+-   Extreme values exist and strongly influence scale and summaries.
 
--    Context (here, `room_type`) is essential for meaningful interpretation.
+-   Context (here, `room_type`) is essential for meaningful interpretation.
 
 These observations motivate the next step: formalizing outlier detection using statistical rules such as the **IQR method** and **Z-scores**, applied *within room types* rather than globally.
 
@@ -357,19 +357,19 @@ At this point, the analysis moves from abstract rules to concrete questions:
 
 -   Are these listings luxury properties?
 
--    Do they require unusually long minimum stays?
+-   Do they require unusually long minimum stays?
 
--    Do they have very few (or no) reviews, suggesting new or inactive listings?
+-   Do they have very few (or no) reviews, suggesting new or inactive listings?
 
--    Are they located in specific neighborhoods?
+-   Are they located in specific neighborhoods?
 
 The answers to these questions determine whether a flagged observation should be:
 
--    kept and modeled explicitly,
+-   kept and modeled explicitly,
 
--    transformed (e.g., via log scaling),
+-   transformed (e.g., via log scaling),
 
--    or excluded due to data quality concerns.
+-   or excluded due to data quality concerns.
 
 ### Z-score–based outlier detection: concept and limitations
 
@@ -450,9 +450,9 @@ outliers_z %>%
 
 In many Airbnb datasets, this table reveals a striking pattern:
 
--    The number of Z-score–based outliers is **much smaller** than the number detected by the IQR rule.
+-   The number of Z-score–based outliers is **much smaller** than the number detected by the IQR rule.
 
--    In some room types, no observations are flagged at all.
+-   In some room types, no observations are flagged at all.
 
 This is a direct consequence of right-skewness: extreme prices inflate both the mean and the standard deviation, making Z-scores appear less extreme than expected.
 
@@ -487,9 +487,9 @@ When compared to the IQR-based outliers, these listings are often:
 
 -   less extreme in absolute price,
 
--    closer to the central mass of the distribution,
+-   closer to the central mass of the distribution,
 
--    dominated by a small number of room types.
+-   dominated by a small number of room types.
 
 This confirms that Z-score–based detection tends to **miss many extreme but valid prices** in heavily skewed data.
 
@@ -514,19 +514,19 @@ comparison_summary
 
 This comparison highlights a key methodological insight:
 
--    Many listings flagged by the IQR rule are **not flagged** by Z-scores.
+-   Many listings flagged by the IQR rule are **not flagged** by Z-scores.
 
--    Listings flagged by Z-scores are almost always flagged by the IQR rule as well.
+-   Listings flagged by Z-scores are almost always flagged by the IQR rule as well.
 
--    The overlap is asymmetric.
+-   The overlap is asymmetric.
 
 In other words, the Z-score rule is more conservative and may under-detect outliers when distributions are strongly skewed. This does not make Z-scores “wrong”, but it does limit their usefulness as a primary detection method for price data.
 
 In practice, Z-score–based flags often differ substantially from IQR-based flags. This difference is not an error—it reflects different assumptions.
 
--    IQR-based methods rely on ranks and quantiles
+-   IQR-based methods rely on ranks and quantiles
 
--    Z-score–based methods rely on moments (mean and variance)
+-   Z-score–based methods rely on moments (mean and variance)
 
 For heavily skewed price data, IQR-based detection is usually more reliable, while Z-scores should be interpreted as a **supplementary diagnostic** rather than a primary rule.
 
