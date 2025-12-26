@@ -316,3 +316,8 @@ you have already crossed one of the most important thresholds in data analysis.
 
 For a complementary discussion, you may also find this article useful:\
 <https://medium.com/p/e730f4a84b3b>
+
+------------------------------------------------------------------------
+
+**Extended version on Medium:**\
+[https://medium.com/\@Fatih.Tuzen/understanding-data-import-and-export-in-r-working-with-csv-and-excel-files-6322e61049b2](https://medium.com/@Fatih.Tuzen/understanding-data-import-and-export-in-r-working-with-csv-and-excel-files-6322e61049b2)
