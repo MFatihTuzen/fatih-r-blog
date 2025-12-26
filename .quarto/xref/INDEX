@@ -95,5 +95,9 @@
   "posts/2025-12-19_outliers/index.qmd": {
     "index.html": "fae9ec26",
     "index.tex": "ed37836f"
+  },
+  "posts/2025-12-26_import_export/index.qmd": {
+    "index.html": "4d366b92",
+    "index.tex": "c5878d04"
   }
 }
