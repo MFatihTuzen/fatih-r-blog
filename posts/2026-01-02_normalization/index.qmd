@@ -50,14 +50,6 @@ In this article, normalization is treated as an integral part of the modeling st
 
 By combining conceptual discussion with practical R implementations, this guide aims to provide clear and principled answers to each of these questions.
 
-## Introduction
-
-Normalization (or more broadly, scaling) is often treated as a minor technical step in data preprocessing—something to be applied quickly and then forgotten. In practice, however, scaling is **not a technical detail but a modeling decision**. When the same dataset is processed using different scaling strategies, the behavior of many models changes substantially. Distances, similarity measures, penalty terms, and optimization paths are all affected. As a result, the nearest neighbors selected by KNN, the clusters formed by K-means, the principal components identified by PCA, and even the coefficients chosen by Ridge or Lasso regression can differ. Scaling does not merely “prepare” the data; it actively **shapes how a model interprets importance and structure**.
-
-More importantly, scaling is not universally beneficial. Applied in the wrong context, it can degrade model performance or, even worse, introduce subtle forms of data leakage that artificially inflate evaluation results. A common example is learning scaling parameters (such as means and standard deviations) from the entire dataset before splitting into training and test sets. This procedure allows information from the test set to leak into the training process, producing overly optimistic performance estimates. In such cases, the issue is not the scaling method itself, but **when and how it is applied**. Knowing how to call `scale()` in R is trivial; understanding *what to scale, when to scale it, and why* is not.
-
-In this article, normalization is treated as an integral part of the modeling strategy rather than a routine preprocessing step. We will address, step by step, the following questions: Why is normalization necessary? Should it always be applied? At what stage should it be performed—before or after the train–test split? Which scaling methods are commonly used, and in which contexts do they make sense? Should different data types be treated differently? Is scaling appropriate for all variables, including the target variable? By combining conceptual discussion with practical R implementations, this guide aims to provide clear and principled answers to each of these questions.
-
 ## Normalization vs. Standardization: Clearing Up the Terminology
 
 In both academic writing and everyday practice, the terms *normalization* and *standardization* are frequently used interchangeably. This loose usage is one of the main sources of confusion in data preprocessing. In reality, these terms refer to **different scaling strategies**, each with distinct assumptions, effects, and use cases. Before discussing when and how scaling should be applied, it is therefore essential to clarify what is actually meant by each approach.
@@ -99,7 +91,7 @@ The key takeaway is that normalization should be applied **with respect to the m
 ### When Is Normalization Needed? A Model-Based Decision Table
 
 | Model / Method                | Is Normalization Recommended? | Rationale                                                                |
-|-----------------|-----------------|-------------------------------------|
+|------------------|------------------|------------------------------------|
 | KNN                           | Yes                           | Distance calculations are scale-sensitive                                |
 | K-means                       | Yes                           | Cluster assignment depends on distances                                  |
 | PCA                           | Yes                           | Variance directions dominated by scale                                   |
