@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/2026-01-02_normalization/index.html",
       "/posts/2025-12-26_import_export/index.html",
       "/posts/2025-12-19_outliers/index.html",
       "/posts/2025-08-18_missing_values/index.html",

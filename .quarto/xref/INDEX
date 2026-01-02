@@ -99,5 +99,9 @@
   "posts/2025-12-26_import_export/index.qmd": {
     "index.html": "4d366b92",
     "index.tex": "c5878d04"
+  },
+  "posts/2026-01-02_normalization/index.qmd": {
+    "index.html": "21ba16e2",
+    "index.tex": "d7bf8c3f"
   }
 }
