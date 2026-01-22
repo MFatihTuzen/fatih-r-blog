@@ -1107,6 +1107,1455 @@ font-style: inherit;">12</span>)</span></code></pre></div></div>
   <pubDate>Wed, 21 Jan 2026 21:00:00 GMT</pubDate>
 </item>
 <item>
+  <title>Data Normalization in R: When, Why, and How to Scale Your Data Correctly</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2026-01-02_normalization/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2026-01-02_normalization/normalization.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="491"></p>
+</figure>
+</div>
+<section id="introduction" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">1</span> Introduction</h2>
+<p>This article is part of a broader series on <strong>data preprocessing in R</strong>. In earlier posts, we focused on two problems that quietly ruin analyses long before modeling begins: <strong>missing data</strong> and <strong>outliers</strong>. Both topics shared a common theme: preprocessing choices are not cosmetic; they change what the model is allowed to learn. In this installment, we move to the next decision point in the same pipeline: <strong>normalization (scaling)</strong>—often treated as “just a quick step,” but in practice a decisive modeling choice.</p>
+<blockquote class="blockquote">
+<p><strong>Related posts in this preprocessing series</strong></p>
+<ul>
+<li><p><em>Handling Missing Data in R: A Comprehensive Guide</em><br>
+<a href="https://medium.com/r-evolution/handling-missing-data-in-r-a-comprehensive-guide-eca195eaead3" class="uri">https://medium.com/r-evolution/handling-missing-data-in-r-a-comprehensive-guide-eca195eaead3</a></p></li>
+<li><p><em>Outliers in Data Analysis: Detecting Extreme Values Before Modeling in R</em><br>
+<a href="https://medium.com/r-evolution/outliers-in-data-analysis-detecting-extreme-values-before-modeling-in-r-with-i%CC%87stanbul-airbnb-data-3b37e9ee989e" class="uri">https://medium.com/r-evolution/outliers-in-data-analysis-detecting-extreme-values-before-modeling-in-r-with-i%CC%87stanbul-airbnb-data-3b37e9ee989e</a></p></li>
+</ul>
+</blockquote>
+<p>Normalization (or more broadly, scaling) is frequently presented as a minor technical adjustment—something to apply quickly and forget. In practice, scaling is not a technical detail but a modeling decision. When the same dataset is processed using different scaling strategies, the behavior of many models changes substantially. Distances, similarity measures, penalty terms, and optimization paths are all affected. As a result, the nearest neighbors selected by KNN, the clusters formed by K-means, the principal components identified by PCA, and even the coefficients chosen by Ridge or Lasso regression can differ. Scaling does not merely “prepare” the data; it actively shapes how a model interprets importance and structure.</p>
+<p>More importantly, scaling is not universally beneficial. Applied in the wrong context, it can degrade model performance or—worse—introduce subtle forms of <strong>data leakage</strong> that contaminate evaluation. A common example is learning scaling parameters (such as means and standard deviations) from the entire dataset before splitting into training and test sets. This procedure allows information from the test distribution to leak into the training process, producing performance estimates that cannot be trusted. In such cases, the issue is not the scaling method itself, but <strong>when and how</strong> it is applied. Knowing how to call <code>scale()</code> in R is trivial; understanding what to scale, when to scale it, and why is not.</p>
+<p>In this article, normalization is treated as an integral part of the modeling strategy rather than a routine preprocessing step. We will address, step by step, the following questions:</p>
+<ul>
+<li>Why is normalization necessary?</li>
+<li>Should it always be applied?</li>
+<li>At what stage should it be performed—before or after the train–test split?</li>
+<li>Which scaling methods are commonly used, and in which contexts do they make sense?</li>
+<li>Should different data types be treated differently?</li>
+<li>Is scaling appropriate for all variables, including the target variable?</li>
+</ul>
+<p>By combining conceptual discussion with practical R implementations, this guide aims to provide clear and principled answers to each of these questions.</p>
+</section>
+<section id="normalization-vs.-standardization-clearing-up-the-terminology" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="normalization-vs.-standardization-clearing-up-the-terminology"><span class="header-section-number">2</span> Normalization vs.&nbsp;Standardization: Clearing Up the Terminology</h2>
+<p>In both academic writing and everyday practice, the terms <em>normalization</em> and <em>standardization</em> are frequently used interchangeably. This loose usage is one of the main sources of confusion in data preprocessing. In reality, these terms refer to <strong>different scaling strategies</strong>, each with distinct assumptions, effects, and use cases. Before discussing when and how scaling should be applied, it is therefore essential to clarify what is actually meant by each approach.</p>
+<p><strong>Standardization</strong>, often referred to as <em>z-score scaling</em>, rescales a variable so that it has a mean of zero and a standard deviation of one. Formally, each observation is transformed by subtracting the sample mean and dividing by the sample standard deviation. In the R ecosystem, this logic is implemented in preprocessing tools such as <code>step_normalize()</code> from the <strong>recipes</strong> package. Standardization preserves the shape of the original distribution while putting variables on a comparable scale. It is particularly useful for models that are sensitive to the relative magnitude of predictors, such as linear models with regularization, support vector machines, and neural networks.</p>
+<p><strong>Normalization</strong>, in a stricter sense, often refers to <em>min–max scaling</em>. This approach rescales variables to lie within a fixed interval, most commonly [0,1]. Each value is transformed based on the minimum and maximum observed in the training data. Min–max scaling is easy to interpret and is frequently used in algorithms where bounded inputs are desirable. However, it is also more sensitive to extreme values, since a single outlier can heavily influence the scaling range.</p>
+<p>A third commonly used approach is <strong>robust scaling</strong>, which relies on the median and the interquartile range (IQR) instead of the mean and standard deviation. By construction, this method is less affected by outliers and heavy-tailed distributions. Robust scaling is especially useful in real-world datasets where extreme values are not errors but genuine observations. At the same time, it is not a universal solution; in some data structures, robust measures may become unstable or uninformative.</p>
+<p>The reason terminology becomes blurred in practice is simple: many practitioners use the word <em>normalization</em> as a generic label for “any kind of scaling.” As a result, two people may both say they normalized their data while having applied entirely different transformations. Throughout this article, we will avoid this ambiguity by explicitly stating which scaling method is used and why. This distinction is not pedantic—it is essential for understanding how scaling choices influence model behavior.</p>
+</section>
+<section id="why-is-normalization-necessary" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="why-is-normalization-necessary"><span class="header-section-number">3</span> Why Is Normalization Necessary?</h2>
+<p>The necessity of normalization becomes clear once we recognize that many modeling techniques do not operate on raw variable values directly, but on <strong>relationships derived from them</strong>—such as distances, similarities, penalties, or variance directions. When predictors are measured on different scales, these derived quantities can be dominated by variables with larger numerical ranges, regardless of their substantive importance. In such cases, the model does not learn from the data structure itself, but from arbitrary measurement units.</p>
+<p>This issue is most apparent in <strong>distance-based methods</strong> such as k-nearest neighbors (KNN) and K-means clustering. These algorithms rely explicitly on distance calculations, typically Euclidean distance. If one variable ranges between 0 and 1 while another ranges between 0 and 10,000, the latter will dominate the distance computation almost entirely. As a result, proximity is determined not by overall similarity but by the scale of a single variable. Normalization ensures that each predictor contributes to the distance metric in a balanced and interpretable way, allowing the algorithm to reflect genuine similarity rather than numerical magnitude.</p>
+<p>Normalization is equally critical in models that incorporate <strong>regularization</strong>, such as Ridge and Lasso regression. In these models, coefficients are penalized to control model complexity. However, the penalty term is directly tied to the scale of the predictors. If variables are not on comparable scales, the regularization mechanism will shrink coefficients unevenly, effectively penalizing some predictors more than others for reasons unrelated to their predictive relevance. Scaling aligns the predictors so that regularization operates as intended: as a constraint on model complexity rather than an artifact of measurement units.</p>
+<p>Other widely used techniques—including <strong>support vector machines (SVMs)</strong>, <strong>neural networks</strong>, and <strong>principal component analysis (PCA)</strong>—are also highly sensitive to scaling. In SVMs and neural networks, optimization procedures depend on gradients that are influenced by feature magnitudes, affecting both convergence speed and stability. In PCA, the directions of maximum variance are determined by the scale of the variables; without normalization, components may simply reflect variables with the largest variances rather than the most informative underlying structure. In all these cases, scaling is not an optional refinement but a prerequisite for meaningful model behavior.</p>
+<p>By contrast, <strong>tree-based models</strong> such as decision trees, random forests, and gradient boosting machines are generally invariant to monotonic transformations of individual predictors. Since splits are based on ordering rather than distance or magnitude, scaling is often unnecessary for these methods. Nevertheless, this does not imply that normalization is universally irrelevant in tree-based pipelines. Hybrid workflows—where tree-based models are combined with distance-based components, rule-based similarity measures, or downstream models sensitive to scale—may still require careful consideration of scaling choices. The key point is not that normalization should always be applied, but that it should be applied <strong>with respect to the assumptions of the modeling approach</strong>.</p>
+<p>From a broader perspective, normalization plays a central role in modern predictive modeling workflows. As emphasized in the predictive modeling literature, preprocessing steps are not independent of the model; they are part of the modeling strategy itself. Scaling decisions shape how information is represented and, ultimately, how learning takes place. Understanding <em>why</em> normalization is necessary is therefore a prerequisite for deciding <em>when</em> and <em>how</em> it should be applied—a topic we address next.</p>
+</section>
+<section id="should-normalization-always-be-applied" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="should-normalization-always-be-applied"><span class="header-section-number">4</span> Should Normalization Always Be Applied?</h2>
+<p>A natural question at this point is whether normalization should be applied by default in every modeling task. The short answer is <strong>no</strong>. Normalization is not a universally beneficial preprocessing step; its usefulness depends on the assumptions and internal mechanics of the chosen model. Applying scaling blindly can be as problematic as ignoring it altogether. What is needed is a <strong>decision framework</strong> that links model characteristics to preprocessing choices.</p>
+<p>For a large class of models, normalization is <strong>strongly recommended</strong>. This group includes distance-based methods such as k-nearest neighbors (KNN) and K-means clustering, as well as techniques like principal component analysis (PCA), support vector machines (SVMs), neural networks, and penalized regression models (Ridge, Lasso, Elastic Net). In all these cases, either distances, inner products, variance directions, or penalty terms play a central role. Without scaling, these mechanisms are dominated by variables with larger numerical ranges, leading to distorted learning behavior. For such models, normalization is not a refinement but a prerequisite for meaningful results.</p>
+<p>By contrast, normalization is <strong>generally unnecessary</strong> for tree-based models such as decision trees, random forests, and gradient boosting machines (e.g., XGBoost, GBM). These models rely on recursive binary splits based on variable ordering rather than on distances or magnitudes. Since monotonic transformations do not affect the relative ordering of values, scaling typically has no impact on model performance. As a result, normalization is often omitted in purely tree-based pipelines without any loss of effectiveness.</p>
+<p>Between these two extremes lies a set of models for which normalization is <strong>context-dependent</strong>. Ordinary linear regression, for example, does not require scaling for estimation itself, but normalization may still be useful for numerical stability, interpretability of coefficients, or comparability across predictors. Similarly, Naive Bayes models may or may not benefit from scaling depending on the assumed feature distributions and the types of variables involved. In these cases, the decision to normalize should be guided by the modeling objective rather than by a fixed rule.</p>
+<p>The key takeaway is that normalization should be applied <strong>with respect to the model’s assumptions</strong>, not as a default preprocessing habit. To make this decision explicit, Table 1 summarizes common modeling approaches and whether normalization is typically required.</p>
+<section id="when-is-normalization-needed-a-model-based-decision-table" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="when-is-normalization-needed-a-model-based-decision-table"><span class="header-section-number">4.1</span> When Is Normalization Needed? A Model-Based Decision Table</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 49%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model / Method</th>
+<th>Is Normalization Recommended?</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>KNN</td>
+<td>Yes</td>
+<td>Distance calculations are scale-sensitive</td>
+</tr>
+<tr class="even">
+<td>K-means</td>
+<td>Yes</td>
+<td>Cluster assignment depends on distances</td>
+</tr>
+<tr class="odd">
+<td>PCA</td>
+<td>Yes</td>
+<td>Variance directions dominated by scale</td>
+</tr>
+<tr class="even">
+<td>SVM</td>
+<td>Yes</td>
+<td>Optimization and margins depend on feature magnitude</td>
+</tr>
+<tr class="odd">
+<td>Neural Networks</td>
+<td>Yes</td>
+<td>Gradient-based optimization is scale-sensitive</td>
+</tr>
+<tr class="even">
+<td>Ridge / Lasso / Elastic Net</td>
+<td>Yes</td>
+<td>Penalty terms depend on predictor scale</td>
+</tr>
+<tr class="odd">
+<td>Linear Regression (OLS)</td>
+<td>Depends</td>
+<td>Not required for estimation, but useful for stability and interpretation</td>
+</tr>
+<tr class="even">
+<td>Naive Bayes</td>
+<td>Depends</td>
+<td>Depends on feature types and distributional assumptions</td>
+</tr>
+<tr class="odd">
+<td>Decision Trees</td>
+<td>No</td>
+<td>Split rules depend on ordering, not scale</td>
+</tr>
+<tr class="even">
+<td>Random Forest / GBM / XGBoost</td>
+<td>No</td>
+<td>Tree-based structure is scale-invariant</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="when-should-normalization-be-applied-before-or-after-the-traintest-split" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="when-should-normalization-be-applied-before-or-after-the-traintest-split"><span class="header-section-number">5</span> When Should Normalization Be Applied? Before or After the Train–Test Split?</h2>
+<p>This is the most critical question in the entire preprocessing workflow—and the point at which many otherwise sound analyses quietly go wrong. The issue is not <em>whether</em> normalization should be applied, but <strong>when</strong> it should be applied. At the center of this question lies a fundamental concept in predictive modeling: <strong>data leakage</strong>.</p>
+<p>Data leakage occurs when information from outside the training set is used, directly or indirectly, during model training. In the context of normalization, leakage typically arises when scaling parameters—such as means and standard deviations (for standardization) or minimum and maximum values (for min–max scaling)—are estimated using the full dataset before splitting into training and test sets. Although this may appear harmless, it allows information from the test set to influence the preprocessing step, leading to overly optimistic performance estimates.</p>
+<p>The correct principle is straightforward but non-negotiable:<br>
+<strong>scaling parameters must be learned exclusively from the training data</strong>.<br>
+Once learned, the <em>same transformation</em>—with fixed parameters—must be applied to the test set and to any future, unseen data. This ensures that the test set truly represents new information and that model evaluation reflects genuine generalization rather than procedural artifacts.</p>
+<p>This principle is central to modern modeling frameworks. In the <strong>tidymodels/recipes</strong> philosophy, preprocessing steps are <em>trained</em> on the training data and then <em>applied</em> consistently to all other datasets. Similarly, in the <strong>caret</strong> framework, preprocessing transformations are estimated from the training set and reused when predicting on new data. In both cases, preprocessing is treated as part of the model training process—not as an independent, preliminary operation.</p>
+<p>To see why this distinction matters, consider the following conceptual comparison.</p>
+<section id="an-illustrative-example-scaling-before-vs.-after-the-split" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="an-illustrative-example-scaling-before-vs.-after-the-split"><span class="header-section-number">5.1</span> An Illustrative Example: Scaling Before vs.&nbsp;After the Split</h3>
+<p>Suppose we have a dataset that we intend to split into training and test sets. We want to standardize a numeric predictor using z-score scaling.</p>
+<p><strong>Incorrect approach (scaling before the split):</strong></p>
+<ol type="1">
+<li><p>Compute the mean and standard deviation using the <em>entire dataset</em>.</p></li>
+<li><p>Standardize all observations using these global parameters.</p></li>
+<li><p>Split the scaled data into training and test sets.</p></li>
+<li><p>Train and evaluate the model.</p></li>
+</ol>
+<p>At first glance, this workflow seems efficient. However, the scaling parameters already incorporate information from the test set. The test data are no longer independent of the training process, even though they were not explicitly used to fit the model.</p>
+<p><strong>Correct approach (scaling after the split):</strong></p>
+<ol type="1">
+<li><p>Split the raw data into training and test sets.</p></li>
+<li><p>Compute scaling parameters (mean, standard deviation, etc.) <em>using only the training set</em>.</p></li>
+<li><p>Apply the learned transformation to the training set.</p></li>
+<li><p>Apply the <em>same</em> transformation to the test set.</p></li>
+<li><p>Train the model on the scaled training data and evaluate it on the scaled test data.</p></li>
+</ol>
+<p>In practice, these two approaches can lead to noticeably different evaluation results. Models trained using the incorrect workflow often appear to perform better on the test set—not because they generalize better, but because the preprocessing step has already “seen” the test data. This difference is especially pronounced in smaller datasets, in datasets with strong distributional differences between training and test splits, or when extreme values are present.</p>
+<p>The takeaway is unambiguous:</p>
+<blockquote class="blockquote">
+<p><strong>Split the data first.<br>
+Fit preprocessing steps on the training data.<br>
+Apply the same transformations to the training and test sets.</strong></p>
+</blockquote>
+<p>Any deviation from this sequence undermines the validity of model evaluation, regardless of how sophisticated the modeling technique may be.</p>
+</section>
+</section>
+<section id="common-normalization-methods-and-when-to-use-them" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="common-normalization-methods-and-when-to-use-them"><span class="header-section-number">6</span> Common Normalization Methods and When to Use Them</h2>
+<p>Normalization is not a single technique but a family of transformations, each designed to address a specific modeling concern. Choosing an appropriate method requires understanding <strong>what problem the transformation is solving</strong> and <strong>which assumptions it implicitly makes</strong>. In this section, we review the most commonly used scaling approaches, discuss their strengths and limitations, and clarify when each method is appropriate.</p>
+<section id="z-score-standardization" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="z-score-standardization"><span class="header-section-number">6.1</span> Z-score Standardization</h3>
+<p>Z-score standardization rescales a variable so that it has a mean of zero and a standard deviation of one. Each observation <img src="https://latex.codecogs.com/png.latex?x_i"> is transformed as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Az_i%20=%20%5Cfrac%7Bx_i%20-%20%5Cmu%7D%7B%5Csigma%7D,%0A"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?%5Cmu"> denotes the sample mean and <img src="https://latex.codecogs.com/png.latex?%5Csigma"> the sample standard deviation, both estimated <strong>from the training data only</strong>.</p>
+<p><strong>Advantages.</strong><br>
+Z-score standardization places variables on a comparable scale while preserving the shape of their original distributions. It is particularly suitable for models that rely on inner products, gradient-based optimization, or regularization (e.g., penalized linear models, SVMs, neural networks).</p>
+<p><strong>Limitations.</strong><br>
+A widespread misconception is that standardization assumes normally distributed data. This is incorrect. Z-score scaling does <strong>not</strong> require normality; it only uses the first two moments of the distribution. However, it is sensitive to extreme values: large outliers can inflate <img src="https://latex.codecogs.com/png.latex?%5Csigma">, thereby reducing the relative influence of most observations.</p>
+<p><strong>When to use.</strong><br>
+A strong default choice when predictors differ substantially in scale and when outliers are either absent or have already been treated.</p>
+<hr>
+</section>
+<section id="minmax-range-scaling" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="minmax-range-scaling"><span class="header-section-number">6.2</span> Min–Max (Range) Scaling</h3>
+<p>Min–max scaling rescales variables to a fixed interval, most commonly <img src="https://latex.codecogs.com/png.latex?%5B0,%201%5D">. The transformation is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ax_i%5E%7B*%7D%20=%20%5Cfrac%7Bx_i%20-%20%5Cmin(x)%7D%7B%5Cmax(x)%20-%20%5Cmin(x)%7D.%0A"></p>
+<p><strong>Advantages.</strong><br>
+Intuitive and ensures all transformed values lie within a predefined range. Often used when bounded inputs are desirable (e.g., some neural network settings).</p>
+<p><strong>Limitations.</strong><br>
+Highly sensitive to extreme values: a single outlier can stretch the range and compress most observations. Also, when applied to test or future data, transformed values may fall outside <img src="https://latex.codecogs.com/png.latex?%5B0,1%5D"> if they exceed the training-set min/max. This is expected and must be handled in deployment.</p>
+<p><strong>When to use.</strong><br>
+When input bounds are meaningful and the training data represent the likely range of future observations.</p>
+<hr>
+</section>
+<section id="robust-scaling-median-and-iqr" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="robust-scaling-median-and-iqr"><span class="header-section-number">6.3</span> Robust Scaling (Median and IQR)</h3>
+<p>Robust scaling replaces mean and standard deviation with the median and the interquartile range (IQR). The transformation is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ax_i%5E%7B*%7D%20=%20%5Cfrac%7Bx_i%20-%20%5Cmathrm%7Bmedian%7D(x)%7D%7B%5Cmathrm%7BIQR%7D(x)%7D,%0A"></p>
+<p>where:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathrm%7BIQR%7D(x)%20=%20Q_%7B0.75%7D%20-%20Q_%7B0.25%7D.%0A"></p>
+<p><strong>Advantages.</strong><br>
+Less affected by extreme values and heavy-tailed distributions; useful when outliers are meaningful rather than errors.</p>
+<p><strong>Limitations.</strong><br>
+Not universally stable. In highly concentrated variables, <img src="https://latex.codecogs.com/png.latex?%5Cmathrm%7BIQR%7D(x)"> (or related robust measures such as MAD) may be zero or extremely small, making the transformation unstable or undefined. This must be checked explicitly.</p>
+<p><strong>When to use.</strong><br>
+When outliers are present and structurally inherent, and you want scaling that is less sensitive to extremes.</p>
+<hr>
+</section>
+<section id="power-transformations-combined-with-scaling-boxcox-and-yeojohnson" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="power-transformations-combined-with-scaling-boxcox-and-yeojohnson"><span class="header-section-number">6.4</span> Power Transformations Combined with Scaling (Box–Cox and Yeo–Johnson)</h3>
+<p>Power transformations aim to stabilize variance and reduce skewness before scaling.</p>
+<p>The <strong>Box–Cox transformation</strong> (for strictly positive data) is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ax_i%5E%7B(%5Clambda)%7D%20=%0A%5Cbegin%7Bcases%7D%0A%5Cfrac%7Bx_i%5E%7B%5Clambda%7D%20-%201%7D%7B%5Clambda%7D,%20&amp;%20%5Clambda%20%5Cneq%200,%20%5C%5C%5C%5C%0A%5Clog(x_i),%20&amp;%20%5Clambda%20=%200.%0A%5Cend%7Bcases%7D%0A"></p>
+<p>The <strong>Yeo–Johnson transformation</strong> (allows zero and negative values) is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ax_i%5E%7B(%5Clambda)%7D%20=%0A%5Cbegin%7Bcases%7D%0A%5Cfrac%7B(x_i%20+%201)%5E%7B%5Clambda%7D%20-%201%7D%7B%5Clambda%7D,%20&amp;%20x_i%20%5Cge%200,%5C%20%5Clambda%20%5Cneq%200,%20%5C%5C%5C%5C%0A%5Clog(x_i%20+%201),%20&amp;%20x_i%20%5Cge%200,%5C%20%5Clambda%20=%200,%20%5C%5C%5C%5C%0A-%5Cfrac%7B(-x_i%20+%201)%5E%7B2%20-%20%5Clambda%7D%20-%201%7D%7B2%20-%20%5Clambda%7D,%20&amp;%20x_i%20%3C%200,%5C%20%5Clambda%20%5Cneq%202,%20%5C%5C%5C%5C%0A-%5Clog(-x_i%20+%201),%20&amp;%20x_i%20%3C%200,%5C%20%5Clambda%20=%202.%0A%5Cend%7Bcases%7D%0A"></p>
+<p><strong>Why combine with scaling?</strong><br>
+Power transformations modify distributional shape but do not put variables on a common scale. After applying Box–Cox or Yeo–Johnson, variables are typically centered and scaled.</p>
+<p><strong>Order matters.</strong><br>
+A practical default sequence is: <strong>power transformation → centering → scaling</strong>. Scaling before addressing skewness can weaken the effect of the transformation and complicate interpretation.</p>
+<p><strong>When to use.</strong><br>
+When strong skewness or heteroscedasticity is present and when model assumptions or optimization benefit from more symmetric distributions.</p>
+<hr>
+</section>
+<section id="choosing-a-method-no-single-best-answer" class="level3" data-number="6.5">
+<h3 data-number="6.5" class="anchored" data-anchor-id="choosing-a-method-no-single-best-answer"><span class="header-section-number">6.5</span> Choosing a Method: No Single Best Answer</h3>
+<p>There is no universally optimal normalization method. Each approach reflects a trade-off between robustness, interpretability, and sensitivity to data characteristics. The appropriate choice depends on the model, the data structure, and the modeling objective.</p>
+<blockquote class="blockquote">
+<p>The relevant question is not <em>“Which normalization method is best?”</em><br>
+but <em>“Which transformation aligns with my data and my model’s assumptions?”</em></p>
+</blockquote>
+</section>
+</section>
+<section id="do-different-data-types-require-different-scaling-strategies" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="do-different-data-types-require-different-scaling-strategies"><span class="header-section-number">7</span> Do Different Data Types Require Different Scaling Strategies?</h2>
+<p>Normalization decisions should never be made independently of data types. Different variable types carry different semantic meanings, and applying the same scaling strategy indiscriminately can lead to misleading representations or unnecessary transformations. A principled preprocessing workflow therefore begins by distinguishing between variable types and understanding how each interacts with scaling.</p>
+<section id="continuous-numeric-variables" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="continuous-numeric-variables"><span class="header-section-number">7.1</span> Continuous Numeric Variables</h3>
+<p>Continuous numeric variables are the primary candidates for normalization. When such variables are measured on different scales—such as income in thousands and proportions between 0 and 1—scaling is often essential for models that rely on distances, gradients, or regularization. Z-score standardization, min–max scaling, or robust scaling are all reasonable options, depending on the presence of outliers and the modeling objective.</p>
+<p>In practice, most normalization methods are designed with continuous variables in mind, and applying them here rarely raises conceptual concerns. The main decision revolves around <em>which</em> scaling method is most appropriate, not <em>whether</em> scaling should be applied at all.</p>
+<hr>
+</section>
+<section id="count-and-ordinal-numeric-variables" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="count-and-ordinal-numeric-variables"><span class="header-section-number">7.2</span> Count and Ordinal Numeric Variables</h3>
+<p>Some numeric variables are technically continuous in storage but conceptually represent counts or ordered categories. Examples include the number of visits, rankings, Likert-scale responses, or discrete event counts. Treating such variables as purely continuous can be problematic, especially when their distributions are highly skewed or bounded at zero.</p>
+<p>In these cases, applying a logarithmic or power transformation before scaling is often more appropriate than direct normalization. Power transformations can reduce skewness and stabilize variance, after which standardization or robust scaling may be applied. The key point is that <strong>the meaning of the variable matters</strong>: a difference of one unit in a count variable does not necessarily carry the same interpretation across its range.</p>
+<hr>
+</section>
+<section id="categorical-variables-factors-or-characters" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="categorical-variables-factors-or-characters"><span class="header-section-number">7.3</span> Categorical Variables (Factors or Characters)</h3>
+<p>Categorical variables should <strong>never</strong> be scaled directly. Their values represent qualitative categories rather than numerical magnitudes, and applying normalization to raw category codes is meaningless.</p>
+<p>When categorical variables are included in models that require numeric inputs, they must first be transformed using an encoding scheme such as one-hot (dummy) encoding. After encoding, the question of scaling arises again. In many cases, scaling encoded variables is unnecessary. However, in penalized regression models or distance-based methods, normalization of one-hot encoded variables may be beneficial to ensure that categorical and continuous predictors are treated on comparable scales.</p>
+<p>The important distinction is that scaling applies <strong>after encoding</strong>, not before, and only when the model’s assumptions justify it.</p>
+<hr>
+</section>
+<section id="binary-variables-01-indicators" class="level3" data-number="7.4">
+<h3 data-number="7.4" class="anchored" data-anchor-id="binary-variables-01-indicators"><span class="header-section-number">7.4</span> Binary Variables (0/1 Indicators)</h3>
+<p>Binary variables occupy a special position. Since they already lie on a fixed and interpretable scale, normalization is usually unnecessary and may even obscure interpretation. For many models, leaving binary indicators unchanged is the most transparent choice.</p>
+<p>That said, binary variables often enter preprocessing pipelines automatically when a rule such as “scale all numeric predictors” is applied. In such cases, standardization will transform a 0/1 variable into values centered around zero with unit variance. While this does not usually harm model performance, it changes the interpretation of coefficients and can complicate downstream analysis.</p>
+<p>This highlights an important practical lesson: automated preprocessing pipelines should be used with care. Even when a transformation is mathematically valid, it may not be conceptually desirable for all variable types.</p>
+<hr>
+</section>
+<section id="summary-scaling-depends-on-variable-meaning" class="level3" data-number="7.5">
+<h3 data-number="7.5" class="anchored" data-anchor-id="summary-scaling-depends-on-variable-meaning"><span class="header-section-number">7.5</span> Summary: Scaling Depends on Variable Meaning</h3>
+<p>The decision to normalize should always be guided by the <em>semantic role</em> of a variable, not merely by its storage type. Continuous measurements, counts, ordered responses, categorical indicators, and binary flags interact with scaling in fundamentally different ways. Effective preprocessing therefore requires more than applying a generic rule—it requires aligning transformations with the structure and meaning of the data.</p>
+</section>
+</section>
+<section id="should-all-variables-be-scaled" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="should-all-variables-be-scaled"><span class="header-section-number">8</span> Should All Variables Be Scaled?</h2>
+<p>A common mistake in preprocessing workflows is to treat normalization as a blanket operation applied to every variable in the dataset. In reality, <strong>not all variables should be scaled</strong>, and doing so indiscriminately can reduce interpretability or even introduce unintended distortions. Scaling decisions must therefore be made at the variable level, guided by both statistical and semantic considerations.</p>
+<section id="the-target-variable-y" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="the-target-variable-y"><span class="header-section-number">8.1</span> The Target Variable (y)</h3>
+<p>In most predictive modeling tasks, the target variable should <strong>not</strong> be normalized. Scaling the response does not improve model estimation and often complicates interpretation, particularly in regression settings where coefficients and predictions are expected to be expressed in the original units.</p>
+<p>There are, however, notable exceptions. In neural network regression or other optimization-heavy models, scaling the target variable can improve numerical stability and convergence behavior. In such cases, predictions must be transformed back to the original scale before evaluation and interpretation. Outside these specific contexts, leaving the target variable unchanged remains the standard and preferred practice.</p>
+<hr>
+</section>
+<section id="predictor-variables" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="predictor-variables"><span class="header-section-number">8.2</span> Predictor Variables</h3>
+<p>For predictor variables, scaling should be applied selectively rather than universally.</p>
+<section id="numeric-predictors-only" class="level4" data-number="8.2.1">
+<h4 data-number="8.2.1" class="anchored" data-anchor-id="numeric-predictors-only"><span class="header-section-number">8.2.1</span> Numeric Predictors Only</h4>
+<p>Normalization is meaningful only for numeric predictors. Applying scaling to non-numeric variables—either directly or implicitly through arbitrary numeric coding—has no conceptual justification. As discussed earlier, categorical variables must first be encoded, and even then, scaling is optional and model-dependent.</p>
+</section>
+<section id="excluding-non-informative-numeric-variables" class="level4" data-number="8.2.2">
+<h4 data-number="8.2.2" class="anchored" data-anchor-id="excluding-non-informative-numeric-variables"><span class="header-section-number">8.2.2</span> Excluding Non-informative Numeric Variables</h4>
+<p>Not all numeric variables carry meaningful quantitative information. Identifier variables such as IDs, account numbers, or arbitrary codes may be stored as numeric values but do not represent magnitudes or distances. Scaling such variables is meaningless and potentially harmful, as it introduces artificial structure where none exists. These variables should be excluded from the modeling process altogether, not merely from scaling.</p>
+</section>
+<section id="handling-low-variance-predictors" class="level4" data-number="8.2.3">
+<h4 data-number="8.2.3" class="anchored" data-anchor-id="handling-low-variance-predictors"><span class="header-section-number">8.2.3</span> Handling Low-Variance Predictors</h4>
+<p>Variables with extremely low or zero variance provide little to no information for modeling. Scaling such predictors does not solve the underlying problem; it merely rescales noise. In practice, low-variance and zero-variance predictors should be identified and removed <strong>before</strong> normalization.</p>
+<p>Many preprocessing frameworks formalize this step. For example, approaches based on the logic of zero-variance or near-zero-variance filtering (often referred to as <code>zv</code> or <code>nzv</code> steps) ensure that only informative predictors enter the scaling stage. This not only improves computational efficiency but also reduces the risk of numerical instability in downstream models.</p>
+<hr>
+</section>
+</section>
+<section id="a-practical-rule-of-thumb" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="a-practical-rule-of-thumb"><span class="header-section-number">8.3</span> A Practical Rule of Thumb</h3>
+<p>A disciplined preprocessing workflow follows a clear sequence:</p>
+<ol type="1">
+<li>Identify and remove non-informative variables (IDs, constants, near-constants).</li>
+<li>Select numeric predictors that represent meaningful quantities.</li>
+<li>Apply appropriate scaling only to this subset.</li>
+<li>Leave the target variable unscaled, unless there is a compelling model-specific reason to do otherwise.</li>
+</ol>
+<p>Scaling is most effective when it is <strong>deliberate and selective</strong>, not automatic. Treating normalization as a universal operation may simplify code, but it rarely leads to better models.</p>
+</section>
+</section>
+<section id="application-plan-in-r-data-and-modeling-scenario" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="application-plan-in-r-data-and-modeling-scenario"><span class="header-section-number">9</span> Application Plan in R: Data and Modeling Scenario</h2>
+<p>To demonstrate the practical implications of normalization decisions, we use the <strong>Ames Housing</strong> dataset, a well-known benchmark dataset designed for predictive modeling. The dataset contains <strong>2,930 observations</strong> and a rich set of predictors describing residential properties in Ames, Iowa. These predictors span multiple data types, including continuous numeric variables, discrete counts, ordinal ratings, and categorical features. This diversity makes the dataset particularly suitable for illustrating how scaling interacts with different variable types.</p>
+<p>The Ames Housing dataset is distributed within the <strong>modeldata</strong> package in the tidymodels ecosystem. It was explicitly curated for teaching and methodological demonstrations, ensuring a realistic but well-documented structure. The presence of variables measured on vastly different scales—such as living area, lot size, and quality scores—provides a natural setting for exploring the effects of normalization.</p>
+<section id="modeling-objective" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="modeling-objective"><span class="header-section-number">9.1</span> Modeling Objective</h3>
+<p>The primary goal of this application is <strong>not</strong> to optimize predictive performance, but to isolate and examine the impact of different normalization strategies. For this reason, the modeling task is intentionally kept simple. We focus on predicting the <strong>sale price of a house</strong> as a regression problem, using a fixed model specification across all experiments.</p>
+<p>The model itself serves merely as a vehicle for comparison. By holding the model constant and varying only the preprocessing strategy, we can attribute differences in performance and behavior directly to scaling decisions rather than to model complexity or tuning choices.</p>
+</section>
+<section id="scope-and-focus" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="scope-and-focus"><span class="header-section-number">9.2</span> Scope and Focus</h3>
+<p>Throughout the application section, the emphasis remains firmly on preprocessing:</p>
+<ul>
+<li>the same training–test split is used across all scenarios,</li>
+<li>the same set of predictors is retained,</li>
+<li>the same model structure is applied.</li>
+</ul>
+<p>Only the normalization strategy changes. This design allows us to answer a focused question:</p>
+<blockquote class="blockquote">
+<p><em>How much do scaling choices matter when everything else is kept equal?</em></p>
+</blockquote>
+<p>By structuring the analysis in this way, the results highlight normalization as an integral component of the modeling pipeline rather than a secondary technical detail.</p>
+<hr>
+</section>
+<section id="transition-to-implementation" class="level3" data-number="9.3">
+<h3 data-number="9.3" class="anchored" data-anchor-id="transition-to-implementation"><span class="header-section-number">9.3</span> Transition to Implementation</h3>
+<p>In the next section, we move from design to execution. We begin by defining a train–test split and establishing a baseline preprocessing workflow. From there, we introduce alternative normalization strategies and compare their effects using consistent evaluation criteria.</p>
+</section>
+<section id="data-access-and-availability" class="level3" data-number="9.4">
+<h3 data-number="9.4" class="anchored" data-anchor-id="data-access-and-availability"><span class="header-section-number">9.4</span> Data Access and Availability</h3>
+<p>The Ames Housing dataset used in this application is available through the <strong>modeldata</strong> package, which is part of the tidymodels ecosystem. No external download is required. Once the package is installed, the dataset can be accessed directly within R.</p>
+<p>The dataset is provided for educational and methodological purposes and is accompanied by detailed documentation. For reference, the official description is available at:</p>
+<p><a href="https://modeldata.tidymodels.org/reference/ames.html" class="uri">https://modeldata.tidymodels.org/reference/ames.html</a></p>
+<p>In the next section, we load the dataset directly from the package and proceed with the train–test split and preprocessing workflow.</p>
+</section>
+</section>
+<section id="implementation-in-r-split-baseline-and-the-cost-of-doing-it-wrong" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="implementation-in-r-split-baseline-and-the-cost-of-doing-it-wrong"><span class="header-section-number">10</span> Implementation in R: Split, Baseline, and the Cost of Doing It Wrong</h2>
+<p>In this section, we operationalize the key principle introduced earlier:</p>
+<blockquote class="blockquote">
+<p><strong>Split → fit preprocessing on train → apply to train/test</strong></p>
+</blockquote>
+<p>We use the Ames Housing dataset from the <code>modeldata</code> package (no external download required) and compare three pipelines using the <strong>same model</strong>:</p>
+<ol type="1">
+<li><strong>Baseline (no scaling)</strong></li>
+<li><strong>Incorrect scaling (data leakage)</strong>: scaling parameters learned from the full dataset</li>
+<li><strong>Correct scaling</strong>: scaling parameters learned from the training set only</li>
+</ol>
+<p>The goal is not to build the best possible model but to <strong>isolate the effect of scaling decisions</strong>.</p>
+<section id="setup-and-variable-selection" class="level3" data-number="10.1">
+<h3 data-number="10.1" class="anchored" data-anchor-id="setup-and-variable-selection"><span class="header-section-number">10.1</span> Setup and Variable Selection</h3>
+<p>Before defining any model, we clarify what we are modeling and why these variables are used.</p>
+<p><strong>Modeling goal.</strong><br>
+We treat <code>Sale_Price</code> as the target variable and build a regression model that predicts house sale prices based on a small set of numeric predictors. The purpose is not to maximize predictive accuracy, but to create a controlled environment where the effect of scaling choices is easy to observe.</p>
+<p><strong>Why a small subset of predictors?</strong><br>
+The Ames dataset contains many variables, including categorical and ordinal predictors. For the normalization demonstrations, we intentionally select a compact set of <strong>numeric</strong> features with clearly different measurement scales. This makes the consequences of scaling (and data leakage) more visible and easier to interpret.</p>
+<p><strong>Selected variables (interpretation).</strong></p>
+<ul>
+<li><p><code>Sale_Price</code>: sale price of the house (response variable).</p></li>
+<li><p><code>Gr_Liv_Area</code>: above-ground living area (a size-related continuous measure).</p></li>
+<li><p><code>Lot_Area</code>: lot size (typically much larger numeric range than living area).</p></li>
+<li><p><code>Year_Built</code>: construction year (a temporal numeric variable).</p></li>
+<li><p><code>Overall_Cond</code>: overall condition rating (an ordinal-like numeric score).</p></li>
+<li><p><code>Latitude</code>, <code>Longitude</code>: geographic coordinates capturing location effects.</p></li>
+</ul>
+<hr>
+</section>
+<section id="load-data-and-create-a-working-dataset" class="level3" data-number="10.2">
+<h3 data-number="10.2" class="anchored" data-anchor-id="load-data-and-create-a-working-dataset"><span class="header-section-number">10.2</span> Load Data and Create a Working Dataset</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidymodels)</span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(modeldata)</span>
+<span id="cb1-3"></span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data</span>(ames, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">package =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"modeldata"</span>)</span>
+<span id="cb1-5"></span>
+<span id="cb1-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2026</span>)</span>
+<span id="cb1-7"></span>
+<span id="cb1-8">ames_small <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> ames <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb1-9">  dplyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(</span>
+<span id="cb1-10">    Sale_Price,</span>
+<span id="cb1-11">    Gr_Liv_Area,</span>
+<span id="cb1-12">    Lot_Area,</span>
+<span id="cb1-13">    Year_Built,</span>
+<span id="cb1-14">    Overall_Cond,</span>
+<span id="cb1-15">    Latitude,</span>
+<span id="cb1-16">    Longitude</span>
+<span id="cb1-17">  )</span>
+<span id="cb1-18"></span>
+<span id="cb1-19"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Missing-value check within the selected columns</span></span>
+<span id="cb1-20">ames_small <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb1-21">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">across</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">everything</span>(), <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(.)))) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb1-22">  tidyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pivot_longer</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">everything</span>(), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">names_to =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"variable"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values_to =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"n_missing"</span>)</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 7 × 2
+  variable     n_missing
+  &lt;chr&gt;            &lt;int&gt;
+1 Sale_Price           0
+2 Gr_Liv_Area          0
+3 Lot_Area             0
+4 Year_Built           0
+5 Overall_Cond         0
+6 Latitude             0
+7 Longitude            0</code></pre>
+</div>
+</div>
+<p>This step constructs a clean working dataset (<code>ames_small</code>) and confirms whether missing values exist in the selected columns. For the comparisons in the next sections, it is important that the pipelines differ only by preprocessing choices (e.g., scaling), not by inconsistent handling of missing data.</p>
+</section>
+<section id="traintest-split-and-evaluation-setup" class="level3" data-number="10.3">
+<h3 data-number="10.3" class="anchored" data-anchor-id="traintest-split-and-evaluation-setup"><span class="header-section-number">10.3</span> Train–Test Split and Evaluation Setup</h3>
+<p>Before discussing scaling, we must establish a clean evaluation setup. The key idea is simple:</p>
+<blockquote class="blockquote">
+<p><strong>Split first. Then learn any preprocessing parameters from the training set only.</strong></p>
+</blockquote>
+<p>Without a proper train–test split, we cannot meaningfully talk about generalization, and any comparison involving normalization risks becoming misleading.</p>
+<hr>
+<section id="create-a-stratified-traintest-split" class="level4" data-number="10.3.1">
+<h4 data-number="10.3.1" class="anchored" data-anchor-id="create-a-stratified-traintest-split"><span class="header-section-number">10.3.1</span> Create a Stratified Train–Test Split</h4>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2026</span>)</span>
+<span id="cb3-2"></span>
+<span id="cb3-3">split_obj <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">initial_split</span>(ames_small, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">prop =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.80</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">strata =</span> Sale_Price)</span>
+<span id="cb3-4"></span>
+<span id="cb3-5">train_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">training</span>(split_obj)</span>
+<span id="cb3-6">test_data  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">testing</span>(split_obj)</span>
+<span id="cb3-7"></span>
+<span id="cb3-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(train_data)</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2342</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(test_data)</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 588</code></pre>
+</div>
+</div>
+<p><strong>What this does.</strong></p>
+<ul>
+<li><p><code>prop = 0.80</code> assigns roughly 80% of the data to training and 20% to testing.</p></li>
+<li><p><code>strata = Sale_Price</code> performs a <em>stratified</em> split based on the target variable.<br>
+This reduces the risk that the test set ends up with an atypical concentration of very low or very high prices—something that can easily happen with skewed targets like house prices.</p></li>
+</ul>
+<p><strong>How to interpret the output.</strong></p>
+<ul>
+<li>If the full dataset contains 2,930 observations, you should see approximately:</li>
+</ul>
+<pre><code>-    training: 2,342 rows
+
+-    test: 588 rows</code></pre>
+<p>This corresponds closely to the intended 80/20 split and indicates that no unintended row loss occurred during preprocessing.</p>
+</section>
+<section id="sanity-check-is-the-target-distribution-similar-across-splits" class="level4" data-number="10.3.2">
+<h4 data-number="10.3.2" class="anchored" data-anchor-id="sanity-check-is-the-target-distribution-similar-across-splits"><span class="header-section-number">10.3.2</span> Sanity Check: Is the Target Distribution Similar Across Splits?</h4>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bind_rows</span>(</span>
+<span id="cb8-2">  train_data <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">split =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"train"</span>),</span>
+<span id="cb8-3">  test_data  <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">split =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"test"</span>)</span>
+<span id="cb8-4">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb8-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> Sale_Price, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> split)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_histogram</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bins =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.7</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">facet_wrap</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> split, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">scales =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"free_y"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_manual</span>(</span>
+<span id="cb8-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">train =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#1f77b4"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">test =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#ff7f0e"</span>)</span>
+<span id="cb8-10">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb8-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Sale_Price distribution after train–test split"</span>,</span>
+<span id="cb8-13">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Sale_Price"</span>,</span>
+<span id="cb8-14">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Count"</span>,</span>
+<span id="cb8-15">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Data split"</span></span>
+<span id="cb8-16">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-17">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>()</span></code></pre></div></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2026-01-02_normalization/index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>What to look for.</strong></p>
+<ul>
+<li><p>Both distributions should be right-skewed with a similar central mass.</p></li>
+<li><p>There should be no strong imbalance where most expensive (or cheapest) homes appear in only one split.</p></li>
+</ul>
+<p>In the plot, the overall shapes are highly similar and the mid-range is well represented in both sets, indicating that stratification preserved the structure of the target variable across splits.</p>
+</section>
+<section id="optional-check-quick-summary-statistics" class="level4" data-number="10.3.3">
+<h4 data-number="10.3.3" class="anchored" data-anchor-id="optional-check-quick-summary-statistics"><span class="header-section-number">10.3.3</span> Optional Check: Quick Summary Statistics</h4>
+<p>This is a compact numerical confirmation of what the plot shows.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">train_summary <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> train_data <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb9-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise</span>(</span>
+<span id="cb9-3"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">split =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"train"</span>,</span>
+<span id="cb9-4"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">n</span>(),</span>
+<span id="cb9-5"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(Sale_Price),</span>
+<span id="cb9-6"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">median =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">median</span>(Sale_Price),</span>
+<span id="cb9-7"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sd =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sd</span>(Sale_Price),</span>
+<span id="cb9-8"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">min =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">min</span>(Sale_Price),</span>
+<span id="cb9-9"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">max =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">max</span>(Sale_Price)</span>
+<span id="cb9-10">)</span>
+<span id="cb9-11"></span>
+<span id="cb9-12">test_summary <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> test_data <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb9-13"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise</span>(</span>
+<span id="cb9-14"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">split =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"test"</span>,</span>
+<span id="cb9-15"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">n</span>(),</span>
+<span id="cb9-16"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(Sale_Price),</span>
+<span id="cb9-17"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">median =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">median</span>(Sale_Price),</span>
+<span id="cb9-18"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sd =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sd</span>(Sale_Price),</span>
+<span id="cb9-19"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">min =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">min</span>(Sale_Price),</span>
+<span id="cb9-20"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">max =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">max</span>(Sale_Price)</span>
+<span id="cb9-21">)</span>
+<span id="cb9-22"></span>
+<span id="cb9-23"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bind_rows</span>(train_summary, test_summary)</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 7
+  split     n    mean median     sd   min    max
+  &lt;chr&gt; &lt;int&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;  &lt;int&gt;
+1 train  2342 180447. 160000 79157. 12789 755000
+2 test    588 182185. 160500 82784. 35311 625000</code></pre>
+</div>
+</div>
+<p><strong>How to interpret this.</strong></p>
+<ul>
+<li><p>Small differences between train and test are expected.</p></li>
+<li><p>Large gaps—especially in the median—may indicate an unbalanced split.</p></li>
+</ul>
+<p>Your summaries show nearly identical means and medians (train: 180,447 / 160,000; test: 182,185 / 160,500) and similar standard deviations, supporting the conclusion that the split is well balanced. Differences in the maximum values are expected due to rare high-priced homes and do not indicate a problematic split.</p>
+<p>The train–test split is well balanced and suitable for downstream modeling. The test set can be treated as a genuine proxy for unseen data, allowing us to evaluate normalization strategies without confounding effects from an unbalanced split.</p>
+</section>
+</section>
+<section id="model-specification-a-scale-sensitive-baseline" class="level3" data-number="10.4">
+<h3 data-number="10.4" class="anchored" data-anchor-id="model-specification-a-scale-sensitive-baseline"><span class="header-section-number">10.4</span> Model Specification: A Scale-Sensitive Baseline</h3>
+<p>Before comparing different normalization strategies, we must fix the modeling component of the pipeline. This ensures that any performance differences observed later can be attributed to preprocessing choices rather than to changes in the model itself.</p>
+<p><strong>Why KNN Regression?</strong></p>
+<p>We deliberately choose <strong>k-nearest neighbors (KNN) regression</strong> for this demonstration. The reason is methodological, not practical.</p>
+<p>KNN is a <strong>distance-based algorithm</strong>: predictions are determined by the distances between observations in the feature space. As a result, KNN is highly sensitive to the scale of the predictors. Variables with larger numeric ranges can dominate distance calculations, even if they are not substantively more important.</p>
+<p>This property makes KNN an ideal diagnostic tool for studying the effects of scaling.</p>
+<hr>
+<section id="model-specification" class="level4" data-number="10.4.1">
+<h4 data-number="10.4.1" class="anchored" data-anchor-id="model-specification"><span class="header-section-number">10.4.1</span> Model Specification</h4>
+<p>We define a single KNN model that will be used in all subsequent scenarios.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1">knn_spec <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nearest_neighbor</span>(</span>
+<span id="cb11-2">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">neighbors =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>,</span>
+<span id="cb11-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">weight_func =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rectangular"</span></span>
+<span id="cb11-4">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb11-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_engine</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"kknn"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb11-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_mode</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"regression"</span>)</span></code></pre></div></div>
+</div>
+<p><strong>Commentary.</strong></p>
+<ul>
+<li><p>The number of neighbors is fixed at 15 to reduce variance while maintaining locality.</p></li>
+<li><p>No hyperparameter tuning is performed, as optimization is not the goal here.</p></li>
+<li><p>This model specification will remain unchanged across all preprocessing pipelines.</p></li>
+</ul>
+</section>
+</section>
+<section id="scenario-a-baseline-no-scaling" class="level3" data-number="10.5">
+<h3 data-number="10.5" class="anchored" data-anchor-id="scenario-a-baseline-no-scaling"><span class="header-section-number">10.5</span> Scenario A — Baseline: No Scaling</h3>
+<p>We begin with a baseline workflow in which <strong>no scaling is applied</strong>. This provides a reference point against which all normalized pipelines will be compared.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1">rec_none <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">recipe</span>(Sale_Price <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> ., <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> train_data)</span>
+<span id="cb12-2"></span>
+<span id="cb12-3">wf_none <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">workflow</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb12-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">add_recipe</span>(rec_none) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb12-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">add_model</span>(knn_spec)</span>
+<span id="cb12-6"></span>
+<span id="cb12-7">fit_none <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fit</span>(wf_none, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> train_data)</span></code></pre></div></div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><strong>Note on model engines.</strong><br>
+In the tidymodels ecosystem, model specifications are defined independently of the underlying computational engines. Although we specify the KNN model via <code>nearest_neighbor()</code>, the actual implementation is provided by the <code>kknn</code> package.</p>
+<p>If the package is not installed, fitting the model will fail. To proceed, install and load the required engine:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">install.packages</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"kknn"</span>)</span>
+<span id="cb13-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(kknn)</span></code></pre></div></div>
+<p>This separation between model specification and engine implementation is intentional and allows tidymodels to remain modular and extensible.</p>
+</blockquote>
+</div>
+</div>
+<section id="evaluate-on-the-test-set" class="level4" data-number="10.5.1">
+<h4 data-number="10.5.1" class="anchored" data-anchor-id="evaluate-on-the-test-set"><span class="header-section-number">10.5.1</span> <strong>Evaluate on the Test Set</strong></h4>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1">pred_none <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(fit_none, test_data) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb14-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bind_cols</span>(test_data <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> dplyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(Sale_Price))</span>
+<span id="cb14-3"></span>
+<span id="cb14-4">metrics_none <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> yardstick<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">metrics</span>(</span>
+<span id="cb14-5">pred_none,</span>
+<span id="cb14-6"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> Sale_Price,</span>
+<span id="cb14-7"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> .pred</span>
+<span id="cb14-8">)</span>
+<span id="cb14-9"></span>
+<span id="cb14-10">metrics_none</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard   35643.   
+2 rsq     standard       0.816
+3 mae     standard   23726.   </code></pre>
+</div>
+</div>
+</section>
+<section id="interpretation" class="level4" data-number="10.5.2">
+<h4 data-number="10.5.2" class="anchored" data-anchor-id="interpretation"><span class="header-section-number">10.5.2</span> Interpretation</h4>
+<p>These values are not “good” or “bad” in isolation; what matters is that they provide a <strong>stable reference</strong>. At this stage, the model operates on raw predictor scales. For a distance-based method like KNN, this implies:</p>
+<ul>
+<li><p>Predictors with larger numeric ranges (e.g., <code>Lot_Area</code>) can disproportionately influence distance calculations.</p></li>
+<li><p>Smaller-range variables (e.g., ordinal-like <code>Overall_Cond</code>) may contribute less than intended.</p></li>
+<li><p>The model’s behavior is therefore partially shaped by measurement units, not only by predictive structure.</p></li>
+</ul>
+<p>This is exactly why KNN is a useful diagnostic tool in a normalization-focused article: if scaling matters, we should see clear changes relative to this baseline once we introduce normalization.</p>
+<p>Next, we introduce scaling—but <strong>incorrectly</strong> on purpose. We will apply normalization <em>before</em> the train–test split (i.e., using information from the full dataset). This creates <strong>data leakage</strong> and can lead to deceptively improved test performance.</p>
+<p>After that, we will implement the correct workflow (fit scaling parameters on the training set only) and compare all scenarios side by side.</p>
+</section>
+</section>
+<section id="scenario-b-incorrect-normalization-data-leakage" class="level3" data-number="10.6">
+<h3 data-number="10.6" class="anchored" data-anchor-id="scenario-b-incorrect-normalization-data-leakage"><span class="header-section-number">10.6</span> Scenario B — Incorrect Normalization (Data Leakage)</h3>
+<p>In this scenario, we intentionally apply normalization <strong>the wrong way</strong>: we learn scaling parameters from the full dataset (including what will become the test set). This contaminates the evaluation because preprocessing has already “seen” information from the test distribution.</p>
+<p>The goal is not to recommend this approach, but to demonstrate how easily leakage can happen—and how it can artificially improve test metrics.</p>
+<section id="leakage-pipeline-normalize-using-full-data" class="level4" data-number="10.6.1">
+<h4 data-number="10.6.1" class="anchored" data-anchor-id="leakage-pipeline-normalize-using-full-data"><span class="header-section-number">10.6.1</span> Leakage Pipeline: Normalize Using Full Data</h4>
+<p>The <code>step_normalize()</code> operation applies only to numeric predictors. In our dataset, <code>Overall_Cond</code> is stored as a factor (ordinal-like category), so it must not be normalized directly.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1">rec_leak <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">recipe</span>(Sale_Price <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> ., <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> ames_small) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb16-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">step_normalize</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">all_numeric_predictors</span>())</span>
+<span id="cb16-3"></span>
+<span id="cb16-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># WRONG on purpose: prepping on full data (leakage), but now type-safe</span></span>
+<span id="cb16-5">prep_leak <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">prep</span>(rec_leak, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">training =</span> ames_small)</span>
+<span id="cb16-6"></span>
+<span id="cb16-7">train_leak <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bake</span>(prep_leak, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">new_data =</span> train_data)</span>
+<span id="cb16-8">test_leak  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bake</span>(prep_leak, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">new_data =</span> test_data)</span>
+<span id="cb16-9"></span>
+<span id="cb16-10">wf_leak <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">workflow</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb16-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">add_model</span>(knn_spec) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb16-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">add_formula</span>(Sale_Price <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> .)</span>
+<span id="cb16-13"></span>
+<span id="cb16-14">fit_leak <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fit</span>(wf_leak, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> train_leak)</span>
+<span id="cb16-15"></span>
+<span id="cb16-16">pred_leak <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(fit_leak, test_leak) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb16-17">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bind_cols</span>(test_leak <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> dplyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(Sale_Price))</span>
+<span id="cb16-18"></span>
+<span id="cb16-19">metrics_leak <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> yardstick<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">metrics</span>(pred_leak, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> Sale_Price, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> .pred)</span>
+<span id="cb16-20">metrics_leak</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard   37036.   
+2 rsq     standard       0.801
+3 mae     standard   24411.   </code></pre>
+</div>
+</div>
+</section>
+<section id="interpretation-1" class="level4" data-number="10.6.2">
+<h4 data-number="10.6.2" class="anchored" data-anchor-id="interpretation-1"><span class="header-section-number">10.6.2</span> Interpretation</h4>
+<p>The performance obtained under this scenario reflects the consequences of <strong>incorrect normalization with data leakage</strong>.</p>
+<p>Compared to the baseline (no scaling), all three metrics deteriorate. This indicates that learning normalization parameters from the full dataset does <strong>not</strong> automatically lead to better predictive performance. In this case, the leakage-induced transformation appears to distort the distance structure in a way that is unfavorable for KNN.</p>
+<p>This result is particularly instructive because it challenges a common misconception:<br>
+<strong>data leakage does not necessarily inflate performance metrics</strong>. Its effect depends on the interaction between the preprocessing step, the data distribution, and the model. What leakage <em>does</em> guarantee, however, is that the evaluation is no longer valid.</p>
+<p>Even if the metrics had improved under this scenario, they could not be trusted as estimates of out-of-sample performance. The test data would no longer represent genuinely unseen observations, since information from their distribution had already been incorporated during preprocessing.</p>
+<p>At this point, two important conclusions can be drawn:</p>
+<ol type="1">
+<li><p>Scaling decisions materially affect model behavior, especially for distance-based methods.</p></li>
+<li><p>The timing of scaling—<em>when</em> parameters are learned—is as critical as <em>whether</em> scaling is applied at all.</p></li>
+</ol>
+<p>In the next scenario, we apply normalization correctly by estimating scaling parameters using the training data only and then applying them unchanged to the test set. This will provide the only defensible estimate of generalization performance among the normalization strategies considered.</p>
+</section>
+</section>
+<section id="scenario-c-correct-normalization-train-only-scaling" class="level3" data-number="10.7">
+<h3 data-number="10.7" class="anchored" data-anchor-id="scenario-c-correct-normalization-train-only-scaling"><span class="header-section-number">10.7</span> Scenario C — Correct Normalization (Train-Only Scaling)</h3>
+<p>In this final preprocessing scenario, normalization parameters are learned <strong>exclusively from the training data</strong> and then applied consistently to both the training and test sets.</p>
+<p>This workflow adheres to the core principle of leakage-free modeling.</p>
+<section id="correct-pipeline-normalize-using-training-data-only" class="level4" data-number="10.7.1">
+<h4 data-number="10.7.1" class="anchored" data-anchor-id="correct-pipeline-normalize-using-training-data-only"><span class="header-section-number">10.7.1</span> Correct Pipeline: Normalize Using Training Data Only</h4>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1">rec_ok <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">recipe</span>(Sale_Price <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> ., <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> train_data) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb18-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">step_normalize</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">all_numeric_predictors</span>())</span>
+<span id="cb18-3"></span>
+<span id="cb18-4">wf_ok <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">workflow</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb18-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">add_recipe</span>(rec_ok) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb18-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">add_model</span>(knn_spec)</span>
+<span id="cb18-7"></span>
+<span id="cb18-8">fit_ok <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fit</span>(wf_ok, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> train_data)</span>
+<span id="cb18-9"></span>
+<span id="cb18-10">pred_ok <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(fit_ok, test_data) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb18-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bind_cols</span>(test_data <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> dplyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(Sale_Price))</span>
+<span id="cb18-12"></span>
+<span id="cb18-13">metrics_ok <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> yardstick<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">metrics</span>(pred_ok, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> Sale_Price, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> .pred)</span>
+<span id="cb18-14"></span>
+<span id="cb18-15">metrics_ok</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard   35643.   
+2 rsq     standard       0.816
+3 mae     standard   23726.   </code></pre>
+</div>
+</div>
+</section>
+<section id="interpretation-2" class="level4" data-number="10.7.2">
+<h4 data-number="10.7.2" class="anchored" data-anchor-id="interpretation-2"><span class="header-section-number">10.7.2</span> Interpretation</h4>
+<p>This scenario represents the <strong>correct normalization workflow</strong>, where scaling parameters are learned exclusively from the training data and then applied unchanged to the test set. The results are <strong>identical to the no-scaling baseline</strong>. This finding is highly informative.</p>
+<p>First, it confirms that normalization itself does not automatically improve model performance. When applied correctly, scaling does not inject additional information into the modeling process; it merely changes the representation of the data. If the underlying distance structure relevant for prediction is already dominated by certain predictors, scaling may have little to no effect on performance.</p>
+<p>Second, the contrast with the leakage scenario is crucial. In Scenario B, incorrect normalization degraded performance, while in this scenario, correct normalization restores the metrics to their baseline levels. This symmetry reinforces the core message of this article:<br>
+<strong>the validity of preprocessing matters more than the apparent gains it may produce.</strong></p>
+<p>Third, these results highlight an often-overlooked point: the impact of scaling is model- and data-dependent. For this particular subset of predictors and this KNN configuration, normalization neither helps nor harms when applied correctly. In other settings—different feature sets, different distance metrics, or different models—the effect could be substantial.</p>
+<p>The key takeaway is therefore not that scaling is unnecessary, but that it must be:</p>
+<p>applied deliberately,</p>
+<p>restricted to appropriate variables,</p>
+<p>and learned at the correct stage of the modeling workflow.</p>
+<p>With all three scenarios evaluated, we can now compare them side by side and distill the practical lessons they offer.</p>
+</section>
+</section>
+<section id="results-comparison" class="level3" data-number="10.8">
+<h3 data-number="10.8" class="anchored" data-anchor-id="results-comparison"><span class="header-section-number">10.8</span> Results Comparison</h3>
+<p>With all three scenarios evaluated, we now compare them side by side. Since the model and data split were held constant, any differences observed here are entirely attributable to preprocessing choices.</p>
+<section id="performance-summary" class="level4" data-number="10.8.1">
+<h4 data-number="10.8.1" class="anchored" data-anchor-id="performance-summary"><span class="header-section-number">10.8.1</span> Performance Summary</h4>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1">results_tbl <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> dplyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bind_rows</span>(</span>
+<span id="cb20-2">  metrics_none <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">scenario =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A — No Scaling"</span>),</span>
+<span id="cb20-3">  metrics_leak <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">scenario =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B — Incorrect Scaling (Leakage)"</span>),</span>
+<span id="cb20-4">  metrics_ok   <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">scenario =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C — Correct Scaling (Train-Only)"</span>)</span>
+<span id="cb20-5">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb20-6">  dplyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(scenario, .metric, .estimate) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb20-7">  tidyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pivot_wider</span>(</span>
+<span id="cb20-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">names_from =</span> .metric,</span>
+<span id="cb20-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values_from =</span> .estimate</span>
+<span id="cb20-10">  )</span>
+<span id="cb20-11"></span>
+<span id="cb20-12">results_tbl</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  scenario                           rmse   rsq    mae
+  &lt;chr&gt;                             &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+1 A — No Scaling                   35643. 0.816 23726.
+2 B — Incorrect Scaling (Leakage)  37036. 0.801 24411.
+3 C — Correct Scaling (Train-Only) 35643. 0.816 23726.</code></pre>
+</div>
+</div>
+<p>This table summarizes test-set performance across all scenarios.</p>
+<ul>
+<li><p><strong>Scenario A (No Scaling)</strong> serves as the baseline.</p></li>
+<li><p><strong>Scenario B (Incorrect Scaling with Leakage)</strong> shows degraded performance.</p></li>
+<li><p><strong>Scenario C (Correct Scaling)</strong> reproduces the baseline results exactly.</p></li>
+</ul>
+</section>
+<section id="visual-comparison-rmse" class="level4" data-number="10.8.2">
+<h4 data-number="10.8.2" class="anchored" data-anchor-id="visual-comparison-rmse"><span class="header-section-number">10.8.2</span> Visual Comparison (RMSE)</h4>
+<p>To make the differences easier to interpret, we visualize RMSE across scenarios.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1">results_tbl <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb22-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> scenario, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> rmse, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> scenario)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb22-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_col</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb22-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_fill_manual</span>(</span>
+<span id="cb22-5"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(</span>
+<span id="cb22-6"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A — No Scaling"</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#1f77b4"</span>,</span>
+<span id="cb22-7"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B — Incorrect Scaling (Leakage)"</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#d62728"</span>,</span>
+<span id="cb22-8"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C — Correct Scaling (Train-Only)"</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#2ca02c"</span></span>
+<span id="cb22-9">)</span>
+<span id="cb22-10">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb22-11"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb22-12"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"RMSE comparison across preprocessing scenarios"</span>,</span>
+<span id="cb22-13"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Preprocessing scenario"</span>,</span>
+<span id="cb22-14"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"RMSE"</span></span>
+<span id="cb22-15">) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb22-16"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb22-17"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span>)</span></code></pre></div></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2026-01-02_normalization/index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="interpretation-3" class="level4" data-number="10.8.3">
+<h4 data-number="10.8.3" class="anchored" data-anchor-id="interpretation-3"><span class="header-section-number">10.8.3</span> Interpretation</h4>
+<p>Several important conclusions emerge from this comparison.</p>
+<p>First, <strong>normalization does not inherently improve performance</strong>. When applied correctly (Scenario C), scaling neither improves nor degrades performance relative to the no-scaling baseline. This confirms that normalization is a representational transformation, not a source of predictive signal.</p>
+<p>Second, <strong>incorrect normalization can be harmful</strong>. Scenario B demonstrates that learning scaling parameters from the full dataset can distort the feature space in ways that negatively affect model behavior. Even more importantly, this scenario yields an invalid evaluation, regardless of whether the metrics appear better or worse.</p>
+<p>Third, these results reinforce a central theme of this article:<br>
+<strong>the correctness of the preprocessing workflow matters more than the choice of preprocessing method itself</strong>.</p>
+<p>In practice, this means that:</p>
+<ul>
+<li><p>scaling should be applied only when it aligns with the model’s assumptions,</p></li>
+<li><p>preprocessing parameters must be learned exclusively from training data,</p></li>
+<li><p>and any apparent performance gains should be scrutinized for potential leakage.</p></li>
+</ul>
+</section>
+</section>
+<section id="practical-takeaways-from-the-application" class="level3" data-number="10.9">
+<h3 data-number="10.9" class="anchored" data-anchor-id="practical-takeaways-from-the-application"><span class="header-section-number">10.9</span> Practical Takeaways from the Application</h3>
+<p>From this controlled experiment, we can distill three practical lessons:</p>
+<ol type="1">
+<li><p><strong>Do not expect normalization to be a silver bullet.</strong> Its impact depends on the model, the data, and the feature set.</p></li>
+<li><p><strong>Never compromise the train–test boundary.</strong> Leakage can invalidate results even when performance does not improve.</p></li>
+<li><p><strong>Treat preprocessing as part of the model.</strong> Decisions about scaling are modeling decisions, not technical afterthoughts.</p></li>
+</ol>
+<p>These lessons generalize beyond KNN and apply to any workflow involving scale-sensitive models and data transformations.</p>
+</section>
+</section>
+<section id="discussion-and-conclusion" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="discussion-and-conclusion"><span class="header-section-number">11</span> Discussion and Conclusion</h2>
+<p>Normalization is often introduced as a routine preprocessing step, applied almost reflexively before modeling. This article has argued—and demonstrated—that such a view is incomplete. Normalization is not a purely technical adjustment; it is a <strong>modeling decision</strong> whose consequences depend on the interaction between data, model assumptions, and evaluation design.</p>
+<p>From a theoretical perspective, scaling matters because many learning algorithms are sensitive to the relative magnitudes of predictors. Distance-based methods, regularized models, kernel methods, and optimization-driven algorithms implicitly encode assumptions about scale. Ignoring these assumptions can distort model behavior, while respecting them can improve stability and interpretability. At the same time, scaling does not create new information. It reshapes how existing information is represented.</p>
+<p>The empirical application using the Ames Housing dataset reinforced these points. By holding the model and data split constant and varying only the preprocessing strategy, we isolated the effect of normalization decisions. Three key findings emerged.</p>
+<p>First, <strong>normalization does not guarantee performance improvements</strong>. In the correct workflow, scaling reproduced the baseline results exactly. This confirms that normalization should not be expected to “fix” a model by itself. Its role is conditional and context-dependent.</p>
+<p>Second, <strong>incorrect normalization compromises validity</strong>. Learning scaling parameters from the full dataset—thereby introducing data leakage—altered model behavior and degraded performance in this example. More importantly, even if the metrics had improved, the evaluation would have been invalid. Leakage undermines the fundamental purpose of a test set: to approximate unseen data.</p>
+<p>Third, <strong>the timing of preprocessing is as important as the method chosen</strong>. The difference between valid and invalid evaluation hinged not on whether scaling was applied, but on <em>when</em> its parameters were learned. This distinction is often overlooked in practice, yet it is central to trustworthy modeling.</p>
+<p>Taken together, these results support a broader principle: preprocessing steps should be treated as integral components of the modeling pipeline, not as detached technical preliminaries. Decisions about normalization should be guided by model assumptions, data characteristics, and evaluation design—not by habit or generic checklists.</p>
+<p>In practical terms, this leads to a simple but robust rule:</p>
+<blockquote class="blockquote">
+<p><strong>Split the data first. Learn preprocessing parameters from the training set only. Apply the same transformations to all future data.</strong></p>
+</blockquote>
+<p>Normalization, when used deliberately and correctly, is a powerful tool. When applied mechanically or at the wrong stage, it can mislead. Understanding this distinction is essential for building models that are not only accurate, but also scientifically defensible.</p>
+<hr>
+</section>
+<section id="references" class="level2" data-number="12">
+<h2 data-number="12" class="anchored" data-anchor-id="references"><span class="header-section-number">12</span> References</h2>
+<ul>
+<li><p>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009).<br>
+<em>The Elements of Statistical Learning: Data Mining, Inference, and Prediction</em>. Springer.</p></li>
+<li><p>Kuhn, M., &amp; Johnson, K. (2013).<br>
+<em>Applied Predictive Modeling</em>. Springer.</p></li>
+<li><p>Kuhn, M., &amp; Wickham, H. (2023).<br>
+<em>Tidymodels: A Collection of Packages for Modeling and Machine Learning Using Tidyverse Principles</em>.<br>
+<a href="https://www.tidymodels.org/" class="uri">https://www.tidymodels.org/</a></p></li>
+<li><p>Tidymodels Recipes Documentation.<br>
+<a href="https://recipes.tidymodels.org/" class="uri">https://recipes.tidymodels.org/</a></p></li>
+<li><p>Kuhn, M. (Caret package documentation).<br>
+<a href="https://topepo.github.io/caret/" class="uri">https://topepo.github.io/caret/</a></p></li>
+<li><p>Modeldata package documentation (Ames Housing dataset).<br>
+<a href="https://modeldata.tidymodels.org/reference/ames.html" class="uri">https://modeldata.tidymodels.org/reference/ames.html</a></p></li>
+</ul>
+
+
+<!-- -->
+
+</section>
+
+ ]]></description>
+  <category>Data Preprocessing</category>
+  <category>R Programming</category>
+  <category>Data Science</category>
+  <category>Machine Learning</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2026-01-02_normalization/</guid>
+  <pubDate>Thu, 01 Jan 2026 21:00:00 GMT</pubDate>
+</item>
+<item>
   <title>Understanding Data Import and Export in R: Working with CSV and Excel Files</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>
   <link>https://mfatihtuzen.netlify.app/posts/2025-12-26_import_export/</link>
@@ -18094,1008 +19543,6 @@ font-style: inherit;">5</span>)</span></code></pre></div>
   <category>lists</category>
   <guid>https://mfatihtuzen.netlify.app/posts/2023-12-19_lists/</guid>
   <pubDate>Mon, 18 Dec 2023 21:00:00 GMT</pubDate>
-</item>
-<item>
-  <title>Understanding Matrices in R Programming</title>
-  <dc:creator>M. Fatih Tüzen</dc:creator>
-  <link>https://mfatihtuzen.netlify.app/posts/2023-11-20_matrices/</link>
-  <description><![CDATA[ 
-
-
-
-
-
-<section id="introduction" class="level2">
-<h2 class="anchored" data-anchor-id="introduction"><strong>Introduction</strong></h2>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><a href="https://www.vectorstock.com/royalty-free-vector/green-matrix-numbers-cyberspace-with-vector-24906241"><img src="https://mfatihtuzen.netlify.app/posts/2023-11-20_matrices/matrix.jpg" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="https://www.vectorstock.com/royalty-free-vector/green-matrix-numbers-cyberspace-with-vector-24906241"></a></p>
-</figure>
-</div>
-<figcaption>https://www.vectorstock.com/royalty-free-vector/green-matrix-numbers-cyberspace-with-vector-24906241</figcaption>
-</figure>
-</div>
-<p>Matrices are an essential data structure in R programming that allows for the manipulation and analysis of data in a two-dimensional format. Understanding their creation, manipulation, and linear algebra operations is crucial for handling complex data effectively. They provide a convenient way to store and work with data that can be represented as rows and columns. In this post, we will delve into the basics of creating, manipulating, and operating on matrices in R. Especially, we discuss how to perform basic algebraic operations such as matrix multiplication, transpose, finding eigenvalues. We also cover data wrangling operations such as matrix subsetting and column- and rowwise aggregation.</p>
-</section>
-<section id="creating-matrices-in-r" class="level2">
-<h2 class="anchored" data-anchor-id="creating-matrices-in-r">Creating Matrices in R</h2>
-<p>Matrices can be created and analyzed in a few different ways in R. One way is to create the matrix yourself. There are a few different ways you can do this.</p>
-<p>The <code>matrix(a, nrow = b, ncol = c)</code> command in R creates a matrix that repeats the element a in a matrix with b rows and c columns. A matrix can be manually created by using the <code>c()</code> command as well.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Creating a matrix including only 1's that are 2 by 3</span></span>
-<span id="cb1-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">matrix</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">ncol =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2] [,3]
-[1,]    1    1    1
-[2,]    1    1    1</code></pre>
-</div>
-</div>
-<p>If you want to create the following matrix:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AA=%5Cbegin%7Bbmatrix%7D%0A1&amp;2&amp;3%5C%5C%0A3&amp;6&amp;8%5C%5C%0A7&amp;8&amp;4%0A%5Cend%7Bbmatrix%7D%0A"></p>
-<p>you would do it like this:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">A <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">6</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">7</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>), <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">byrow =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">TRUE</span>)</span>
-<span id="cb3-2">A</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2] [,3]
-[1,]    1    2    3
-[2,]    3    6    8
-[3,]    7    8    4</code></pre>
-</div>
-</div>
-<p>It converted an atomic vector of length nine to a matrix with three rows. The number of columns was determined automatically (<code>ncol=3</code>&nbsp;could have been passed to get the same result). The option&nbsp;<code>byrow = TRUE</code>&nbsp;means that the rows of the matrix will be filled first. By default, the elements of the input vector are read column by column.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">6</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">7</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>), <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2] [,3]
-[1,]    1    3    7
-[2,]    2    6    8
-[3,]    3    8    4</code></pre>
-</div>
-</div>
-<p>Matrices can also be created by concatenating multiple vectors. <strong><code>rbind</code></strong> performs row-based bottom-to-bottom concatenation, while <strong><code>cbind</code></strong> performs column-based side-by-side concatenation.</p>
-<div class="callout callout-style-default callout-caution callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Caution
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Here it is important to make sure that the vectors have the same dimensions.</p>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">v1 <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">6</span>,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">8</span>,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>)</span>
-<span id="cb7-2">v2 <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">8</span>,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">7</span>,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>)</span>
-<span id="cb7-3">v3 <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">6</span>)</span>
-<span id="cb7-4">v4 <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">7</span>,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>)</span>
-<span id="cb7-5">m1 <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">cbind</span>(v1, v2, v3, v4)</span>
-<span id="cb7-6"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(m1)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     v1 v2 v3 v4
-[1,]  3  4  2  4
-[2,]  4  8  2  7
-[3,]  6  4  5  5
-[4,]  8  7  4  2
-[5,]  5  1  6  5</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">dim</span>(m1)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 5 4</code></pre>
-</div>
-</div>
-<p>In this example, 4 vectors with 5 observations are merged side by side with <strong><code>cbind</code></strong>. This results in a 5x4 matrix, which we call m1.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1">m2 <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rbind</span>(v1, v2, v3, v4)</span>
-<span id="cb11-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(m2)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>   [,1] [,2] [,3] [,4] [,5]
-v1    3    4    6    8    5
-v2    4    8    4    7    1
-v3    2    2    5    4    6
-v4    4    7    5    2    5</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">dim</span>(m2)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 4 5</code></pre>
-</div>
-</div>
-<p>With this example, 4 vectors are merged one below the other with <strong><code>rbind</code></strong>. As a result, a matrix of size 4x5, which we call m2, is obtained. We used <strong><code>dim</code></strong> function to learn dimension of matrices.</p>
-</section>
-<section id="accessing-and-modifying-elements" class="level2">
-<h2 class="anchored" data-anchor-id="accessing-and-modifying-elements"><strong>Accessing and Modifying Elements</strong></h2>
-<p>Accessing and modifying elements in a matrix is straightforward. Use the row and column indices to access specific elements and assign new values to modify elements.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Accessing the element in the second row and third column</span></span>
-<span id="cb15-2">m1[<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>] </span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>v3 
- 2 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Modifying the element at the specified position</span></span>
-<span id="cb17-2">m1[<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>] <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>  </span>
-<span id="cb17-3"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(m1)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     v1 v2 v3 v4
-[1,]  3  4  2  4
-[2,]  4  8 10  7
-[3,]  6  4  5  5
-[4,]  8  7  4  2
-[5,]  5  1  6  5</code></pre>
-</div>
-</div>
-<p>Also, rows and columns of matrices can be named by using <strong><code>colnames</code></strong> and <strong><code>rownames</code></strong> functions.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Naming columns with the first 4 letters</span></span>
-<span id="cb19-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">colnames</span>(m1) <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> LETTERS[<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>] </span>
-<span id="cb19-3">m1 </span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     A B  C D
-[1,] 3 4  2 4
-[2,] 4 8 10 7
-[3,] 6 4  5 5
-[4,] 8 7  4 2
-[5,] 5 1  6 5</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Naming rows with the last 5 letters</span></span>
-<span id="cb21-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rownames</span>(m1) <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">tail</span>(LETTERS,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>) </span>
-<span id="cb21-3">m1</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  A B  C D
-V 3 4  2 4
-W 4 8 10 7
-X 6 4  5 5
-Y 8 7  4 2
-Z 5 1  6 5</code></pre>
-</div>
-</div>
-</section>
-<section id="mathematical-operations" class="level2">
-<h2 class="anchored" data-anchor-id="mathematical-operations"><strong>Mathematical Operations</strong></h2>
-<p>Vectorised functions such as <strong>round</strong>, <strong>sqrt</strong>, <strong>abs</strong>, <strong>log</strong>,<strong>exp</strong> etc., operate on each matrix element.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1">A <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">6</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.15</span>,<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>)</span>
-<span id="cb23-2">A</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2] [,3]
-[1,] 0.15 0.45 0.75
-[2,] 0.30 0.60 0.90</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">sqrt</span>(A) <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># gets square root of every element in A</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>          [,1]      [,2]      [,3]
-[1,] 0.3872983 0.6708204 0.8660254
-[2,] 0.5477226 0.7745967 0.9486833</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">round</span>(A, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>) <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># rounds every element in A</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2] [,3]
-[1,]  0.1  0.4  0.8
-[2,]  0.3  0.6  0.9</code></pre>
-</div>
-</div>
-<p>Mathematical operations such as addition and subtraction can be performed on two or more matrices with the same dimensions. The operation performed here is elementwise.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1">A <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">matrix</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>,<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">nrow=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>)</span>
-<span id="cb29-2">B <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">matrix</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">8</span>,<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">nrow=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>)</span>
-<span id="cb29-3"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(A)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2]
-[1,]    1    3
-[2,]    2    4</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(B)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2]
-[1,]    5    7
-[2,]    6    8</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1">A <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> B  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># elementwise addition</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2]
-[1,]    6   10
-[2,]    8   12</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1">A <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> B  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># elementwise multiplication</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2]
-[1,]    5   21
-[2,]   12   32</code></pre>
-</div>
-</div>
-<p>They are simply the addition and multiplication of the corresponding elements of two given matrices. Also we can we can apply matrix-scalar operations. For example in the next example we squared every element in A.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb37" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1">A<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">^</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span> <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># the 2nd power of the A</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2]
-[1,]    1    9
-[2,]    4   16</code></pre>
-</div>
-</div>
-</section>
-<section id="aggregating-rows-and-columns" class="level2">
-<h2 class="anchored" data-anchor-id="aggregating-rows-and-columns"><strong>Aggregating rows and columns</strong></h2>
-<p>When we call an aggregation function on a matrix, it will reduce all elements to a single number.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb39" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">mean</span>(A) <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># get arithmetic mean of A</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 2.5</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">min</span>(A) <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># minimum of A</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1</code></pre>
-</div>
-</div>
-<p>We can also calculate sum or mean of each row/columns by using <strong><code>rowMeans</code></strong>, <strong><code>rowSums</code></strong>, <strong><code>colMeans</code></strong> and <strong><code>colSums</code></strong>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb43" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rowSums</span>(A) <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># sum of rows</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 4 6</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb45" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rowMeans</span>(A) <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># mean of rows</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 2 3</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb47" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">colSums</span>(A) <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># sum of columns</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 3 7</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb49" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">colMeans</span>(A) <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># mean of columns</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1.5 3.5</code></pre>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Tip
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>R provides the <strong><code>apply()</code></strong> function to apply functions to each row or column of a matrix. The arguments of the <strong><code>apply()</code></strong> function include the matrix, the margin (1 for rows, 2 for columns), and the function to be applied. The <strong><code>apply</code></strong> function can be used to summarise individual rows or columns in a matrix. So we call any aggregation function with <code>apply</code>.</p>
-<ul>
-<li><p><strong><code>apply</code></strong><code>(A, 1, f)</code> applies a given function <strong>f</strong> on each <em>row</em> of a matrix <code>A</code> (over the first axis),</p></li>
-<li><p><strong><code>apply</code></strong><code>(A, 2, f)</code> applies <strong>f</strong> on each <em>column</em> of <code>A</code> (over the second axis).</p></li>
-</ul>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb51" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Applying functions to matrices</span></span>
-<span id="cb51-2">row_sums <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">apply</span>(A, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, sum)  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Applying sum function to each row (margin = 1)</span></span>
-<span id="cb51-3"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(row_sums)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 4 6</code></pre>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="matrix-operations" class="level2">
-<h2 class="anchored" data-anchor-id="matrix-operations">Matrix Operations</h2>
-<section id="transpose-of-matrix" class="level3">
-<h3 class="anchored" data-anchor-id="transpose-of-matrix">Transpose of Matrix</h3>
-<p>The <strong>transpose</strong> of matrix, mathematically denoted with <img src="https://latex.codecogs.com/png.latex?A%5ET"> is available by using <strong><code>t()</code></strong> function.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb53" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1">A</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2]
-[1,]    1    3
-[2,]    2    4</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb55" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">t</span>(A) <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># transpose of A</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2]
-[1,]    1    2
-[2,]    3    4</code></pre>
-</div>
-</div>
-</section>
-<section id="matrix-calculation" class="level3">
-<h3 class="anchored" data-anchor-id="matrix-calculation">Matrix Calculation</h3>
-<p>When multiplying two matrices A and B, the number of columns in matrix A must be equal to the number of rows in matrix B. If A is of size m x n and B is of size n x p, then their product AB will be of size m x p.&nbsp;The individual elements of the resulting matrix are calculated by taking dot products of rows from matrix A and columns from matrix B.</p>
-<p>In R <strong><code>*</code></strong> performs elementwise multiplication. For what we call the (algebraic) matrix multiplication, we use the <strong><code>%*%</code></strong> operator. It can only be performed on two matrices of compatible sizes: the number of columns in the left matrix must match the number of rows in the right operand.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb57" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1">A <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span> ,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">9</span>), <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>) <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># create 2 by 3 matrix</span></span>
-<span id="cb57-2">B <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">6</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span> ,<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">7</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>), <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>) <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># create 3 by 2 matrix</span></span>
-<span id="cb57-3"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(A)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2] [,3]
-[1,]    1    5    4
-[2,]    3    3    9</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb59" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(B)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2]
-[1,]    6    7
-[2,]    2    8
-[3,]    4    4</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb61" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1">A <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">%*%</span> B <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># we get 2 by 2 matrix</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2]
-[1,]   32   63
-[2,]   60   81</code></pre>
-</div>
-</div>
-</section>
-<section id="determinant-of-matrix" class="level3">
-<h3 class="anchored" data-anchor-id="determinant-of-matrix">Determinant of Matrix</h3>
-<p>The determinant of a square matrix is a scalar value that represents some important properties of the matrix. In R programming, the <strong><code>det()</code></strong> function is used to calculate the determinant of a square matrix.</p>
-<p><strong>Understanding Determinant:</strong></p>
-<ol type="1">
-<li><p><strong>Square Matrices</strong>: The determinant is a property specific to square matrices, meaning the number of rows must equal the number of columns.</p></li>
-<li><p><strong>Geometric Interpretation</strong>: For a 2x2 matrix <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7B%7D%5Cleft%5B%5Cbegin%7Barray%7D%7Brrr%7Da%20&amp;%20b%20%5C%5Cc%20&amp;%20d%20%5Cend%7Barray%7D%5Cright%5D"> the determinant <img src="https://latex.codecogs.com/png.latex?ad-bc"> represents the scaling factor of the area spanned by vectors formed by the columns of the matrix. For higher-dimensional matrices, the determinant has a similar geometric interpretation related to volume and scaling in higher dimensions.</p></li>
-<li><p><strong>Invertibility</strong>: A matrix is invertible (has an inverse) if and only if its determinant is non-zero. If the determinant is zero, the matrix is singular and does not have an inverse.</p></li>
-</ol>
-<p>In R, the <strong><code>det()</code></strong> function computes the determinant of a square matrix.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb63" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a square matrix</span></span>
-<span id="cb63-2">A <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>), <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">ncol =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>)</span>
-<span id="cb63-3"></span>
-<span id="cb63-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Compute the determinant of the matrix</span></span>
-<span id="cb63-5"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">det</span>(A)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] -2</code></pre>
-</div>
-</div>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Important
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>It’s essential to note a few considerations:</p>
-<ul>
-<li><p><strong>Numerical Stability</strong>: Computing determinants of large matrices or matrices close to singularity (having a determinant close to zero) can lead to numerical instability due to rounding errors.</p></li>
-<li><p><strong>Complexity</strong>: The computational complexity of determinant calculation increases rapidly with matrix size, especially for algorithms like cofactor expansion or LU decomposition used internally.</p></li>
-<li><p><strong>Use in Linear Algebra</strong>: Determinants play a vital role in linear algebra, being used in solving systems of linear equations, calculating inverses of matrices, and understanding transformations and eigenvalues.</p></li>
-<li><p><strong>Singular Matrices</strong>: If the determinant of a square matrix is zero, it signifies that the matrix is singular and not invertible.</p></li>
-</ul>
-</div>
-</div>
-<p>Here’s an example that checks the determinant and its relation to matrix invertibility:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb65" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Check the determinant and invertibility of a matrix</span></span>
-<span id="cb65-2">det_A <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">det</span>(A)</span>
-<span id="cb65-3"></span>
-<span id="cb65-4"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">if</span> (det_A <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">!=</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>) {</span>
-<span id="cb65-5">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Matrix is invertible."</span>)</span>
-<span id="cb65-6">} <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">else</span> {</span>
-<span id="cb65-7">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Matrix is singular, not invertible."</span>)</span>
-<span id="cb65-8">}</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "Matrix is invertible."</code></pre>
-</div>
-</div>
-<p>Understanding determinants is crucial in various mathematical applications, especially in linear algebra and systems of equations, as they provide valuable information about the properties of matrices and their behavior in transformations and computations.</p>
-</section>
-<section id="inverse-of-matrix" class="level3">
-<h3 class="anchored" data-anchor-id="inverse-of-matrix">Inverse of Matrix</h3>
-<p><strong><code>solve()</code></strong> function is used to compute the inverse of a square matrix. The inverse of a matrix <img src="https://latex.codecogs.com/png.latex?A"> is denoted as <img src="https://latex.codecogs.com/png.latex?A%5E%7B-1%7D"> and has the property that when multiplied by the original matrix <strong><code>A</code></strong>, it yields the identity matrix <strong><code>I</code></strong>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb67" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(A)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2]
-[1,]    1    3
-[2,]    2    4</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb69" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Compute the inverse of the matrix</span></span>
-<span id="cb69-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">solve</span>(A)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2]
-[1,]   -2  1.5
-[2,]    1 -0.5</code></pre>
-</div>
-</div>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Important
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>It’s important to note a few things about matrix inversion:</p>
-<ol type="1">
-<li><p><strong>Square Matrices</strong>: The matrix must be square (i.e., the number of rows equals the number of columns) to have an inverse. Inverting a non-square matrix is not possible.</p></li>
-<li><p><strong>Determinant Non-Zero</strong>: The matrix must have a non-zero determinant for its inverse to exist. If the determinant is zero, the matrix is singular, and its inverse cannot be computed.</p></li>
-<li><p><strong>Errors and Numerical Stability</strong>: Inverting matrices can be sensitive to numerical precision and errors, especially for matrices that are close to singular or ill-conditioned. Rounding errors can affect the accuracy of the computed inverse.</p></li>
-</ol>
-<p>In practice, it’s essential to check the properties of the matrix, such as its determinant, before attempting to compute its inverse, especially when dealing with real-world data, as numerical issues can lead to unreliable results.</p>
-</div>
-</div>
-<p>Here’s an example that checks the determinant before computing the inverse:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb71" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Check the determinant before inverting the matrix</span></span>
-<span id="cb71-2">det_A <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">det</span>(A)</span>
-<span id="cb71-3"></span>
-<span id="cb71-4"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">if</span> (det_A <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">!=</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>) {</span>
-<span id="cb71-5">  inverse_matrix_A <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">solve</span>(A)</span>
-<span id="cb71-6">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(inverse_matrix_A)</span>
-<span id="cb71-7">} <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">else</span> {</span>
-<span id="cb71-8">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Matrix is singular, inverse does not exist."</span>)</span>
-<span id="cb71-9">}</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1] [,2]
-[1,]   -2  1.5
-[2,]    1 -0.5</code></pre>
-</div>
-</div>
-<p>Understanding matrix inversion is crucial in various fields like machine learning, optimization, and solving systems of linear equations, as it allows for the transformation of equations or operations involving matrices to simplify computations. However, always ensure that the matrix you’re working with satisfies the conditions for invertibility to avoid computational errors.</p>
-</section>
-<section id="eigenvalues-and-eigenvectors" class="level3">
-<h3 class="anchored" data-anchor-id="eigenvalues-and-eigenvectors">Eigenvalues and Eigenvectors</h3>
-<p>In R programming, eigenvalues and eigenvectors are fundamental concepts often computed using the <strong><code>eigen()</code></strong> function. These are important in various fields, including linear algebra, data analysis, signal processing, and machine learning.</p>
-<p><strong>Eigenvalues:</strong> They are scalar values that represent how a linear transformation (represented by a square matrix) behaves along its eigenvectors. For a square matrix A, an eigenvalue (<img src="https://latex.codecogs.com/png.latex?%5Clambda">) and its corresponding eigenvector (<img src="https://latex.codecogs.com/png.latex?v">) satisfy the equation <img src="https://latex.codecogs.com/png.latex?Av=%5Clambda%20v">. It essentially means that when the matrix A operates on the eigenvector <img src="https://latex.codecogs.com/png.latex?v">, the resulting vector is a scaled version of the original eigenvector <img src="https://latex.codecogs.com/png.latex?v">, scaled by the eigenvalue <img src="https://latex.codecogs.com/png.latex?%5Clambda">.</p>
-<p>In R, you can compute eigenvalues using the <strong><code>eigen()</code></strong> function.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb73" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a sample matrix</span></span>
-<span id="cb73-2">A <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>), <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">byrow =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">TRUE</span>)</span>
-<span id="cb73-3"></span>
-<span id="cb73-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Compute eigenvalues and eigenvectors</span></span>
-<span id="cb73-5">eig <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">eigen</span>(A)</span>
-<span id="cb73-6"></span>
-<span id="cb73-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Access eigenvalues</span></span>
-<span id="cb73-8">eigenvalues <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> eig<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>values</span>
-<span id="cb73-9"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(eigenvalues)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1]  4.372281 -1.372281</code></pre>
-</div>
-</div>
-<p><strong>Eigenvectors:</strong> They are non-zero vectors that are transformed only by a scalar factor when a linear transformation (represented by a matrix) is applied. Each eigenvalue has an associated eigenvector. Eigenvectors are important because they describe the directions along which the transformation represented by the matrix has a simple behavior, often stretching or compressing without changing direction.</p>
-<p>In R, after computing the eigenvalues using <strong><code>eigen()</code></strong>, you can access the corresponding eigenvectors using:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb75" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Access eigenvectors</span></span>
-<span id="cb75-2">eigenvectors <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> eig<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>vectors</span>
-<span id="cb75-3"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(eigenvectors)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>          [,1]       [,2]
-[1,] 0.9831134 -0.3488887
-[2,] 0.1829974  0.9371642</code></pre>
-</div>
-</div>
-<p>These eigenvalues and eigenvectors play a significant role in various applications, including principal component analysis (PCA), diagonalization of matrices, solving systems of differential equations, and more. They provide crucial insights into the behavior and characteristics of linear transformations represented by matrices.</p>
-</section>
-</section>
-<section id="conclusion" class="level2">
-<h2 class="anchored" data-anchor-id="conclusion"><strong>Conclusion</strong></h2>
-<p>Matrices are indeed useful and statisticians are used to working with them. However, in my daily work I try to use matrices as needed and prefer an approach based on data frames, because working with data frames makes it easier to use R’s advanced functional programming language capabilities. I plan to publish a post on data frames in the future, and in the conclusion of this post I would like to discuss the advantages and disadvantages of both matrices and data frames.</p>
-<p>In R programming, matrices and data frames serve different purposes, each with its own set of advantages and limitations.</p>
-<p><strong>Matrices:</strong></p>
-<p><em>Pros:</em></p>
-<ol type="1">
-<li><p><strong>Efficient for Numeric Operations:</strong> Matrices are optimized for numerical computations. If you’re working primarily with numeric data and need to perform matrix algebra, calculations tend to be faster with matrices compared to data frames.</p></li>
-<li><p><strong>Homogeneous Data:</strong> Matrices are homogeneous, meaning they store elements of the same data type (numeric, character, logical, etc.) throughout. This consistency simplifies some computations and analyses.</p></li>
-<li><p><strong>Mathematical Operations:</strong> Matrices are designed for linear algebra operations. Functions like matrix multiplication, transposition, and eigenvalue/eigenvector calculations are native to matrices in R.</p></li>
-</ol>
-<p><em>Cons:</em></p>
-<ol type="1">
-<li><p><strong>Lack of Flexibility:</strong> Matrices are restrictive when it comes to handling heterogeneous data or combining different data types within the same structure. They can only hold a single data type.</p></li>
-<li><p><strong>Row and Column Names:</strong> Matrices do not inherently support row or column names, which might be necessary for better data representation and interpretation.</p></li>
-</ol>
-<p><strong>Data Frames:</strong></p>
-<p><em>Pros:</em></p>
-<ol type="1">
-<li><p><strong>Heterogeneous Data:</strong> Data frames can store different types of data (numeric, character, factor, etc.) within the same structure. This flexibility allows for handling diverse datasets efficiently.</p></li>
-<li><p><strong>Row and Column Names:</strong> Data frames support row and column names, making it easier to reference specific rows or columns and improving data readability.</p></li>
-<li><p><strong>Data Manipulation and Analysis:</strong> R’s data manipulation libraries (e.g., dplyr, tidyr) are optimized for data frames. They offer a wide range of functions and operations tailored for efficient data manipulation, summarization, and analysis.</p></li>
-</ol>
-<p><em>Cons:</em></p>
-<ol type="1">
-<li><p><strong>Performance:</strong> Compared to matrices, data frames might have slower performance for numerical computations involving large datasets due to their heterogeneous nature and additional data structure overhead.</p></li>
-<li><p><strong>Overhead for Numeric Operations:</strong> While data frames are versatile for handling different types of data, when it comes to pure numeric computations or linear algebra operations, they might be less efficient than matrices.</p></li>
-</ol>
-<p>In summary, the choice between matrices and data frames in R depends on the nature of the data and the intended operations. If you’re working mainly with numeric data and require linear algebra operations, matrices might be more efficient. By understanding their creation, manipulation, operations, and application in advanced techniques like PCA, you can effectively handle complex data structures and perform sophisticated computations with ease. On the other hand, if you’re dealing with heterogeneous data and need more flexibility in data manipulation and analysis, data frames are a better choice. Often, data frames are preferred for general-purpose data handling and analysis due to their versatility, despite potential performance trade-offs for specific numerical operations.</p>
-
-
-</section>
-
- ]]></description>
-  <category>R Programming</category>
-  <category>data types</category>
-  <category>matrices</category>
-  <guid>https://mfatihtuzen.netlify.app/posts/2023-11-20_matrices/</guid>
-  <pubDate>Sun, 19 Nov 2023 21:00:00 GMT</pubDate>
 </item>
 </channel>
 </rss>

@@ -1,5 +1,7 @@
 ---
 title: "Data Normalization in R: When, Why, and How to Scale Your Data Correctly"
+author: "M. Fatih Tüzen"
+date: "2026-01-02"
 categories:
   - Data Preprocessing
   - R Programming
@@ -91,7 +93,7 @@ The key takeaway is that normalization should be applied **with respect to the m
 ### When Is Normalization Needed? A Model-Based Decision Table
 
 | Model / Method                | Is Normalization Recommended? | Rationale                                                                |
-|------------------|------------------|------------------------------------|
+|------------------|------------------|-----------------------------------|
 | KNN                           | Yes                           | Distance calculations are scale-sensitive                                |
 | K-means                       | Yes                           | Cluster assignment depends on distances                                  |
 | PCA                           | Yes                           | Variance directions dominated by scale                                   |
