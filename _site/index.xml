@@ -10,7 +10,1102 @@
 <atom:link href="https://mfatihtuzen.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Blog posts about R and Statistics</description>
 <generator>quarto-1.8.25</generator>
-<lastBuildDate>Thu, 25 Dec 2025 21:00:00 GMT</lastBuildDate>
+<lastBuildDate>Wed, 21 Jan 2026 21:00:00 GMT</lastBuildDate>
+<item>
+  <title>Data Leakage in R: Why Correct Evaluation Matters Even When Metrics Do Not Change</title>
+  <dc:creator>M. Fatih Tüzen</dc:creator>
+  <link>https://mfatihtuzen.netlify.app/posts/2026-01-22_data_leakage/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2026-01-22_data_leakage/dataleakage.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="504"></p>
+</figure>
+</div>
+<section id="introduction-why-this-topic-matters" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="introduction-why-this-topic-matters"><span class="header-section-number">1</span> Introduction – Why This Topic Matters</h2>
+<p>A model that performs exceptionally well on a test set is not necessarily a good model; in many cases, it is a warning sign. High accuracy or low error metrics are meaningful only if we understand <strong>how</strong> they were obtained. In real-world settings, models rarely encounter data generated under the same conditions as the training phase: data arrive sequentially, delays occur, missingness patterns change, and measurement errors accumulate. Under such conditions, impressive validation metrics can quickly lose their relevance.</p>
+<p>A common scenario in applied data science is deceptively familiar. During development, the model looks flawless: cross-validation results are stable, performance metrics are strong, and diagnostic plots inspire confidence. Once deployed, however, performance deteriorates—sometimes rapidly. Forecasts drift, classification decisions become unreliable, and stakeholders begin to question the entire modeling pipeline. While this failure is often attributed to distributional shift or concept drift, a more fundamental issue is frequently overlooked: <strong>the model was exposed, directly or indirectly, to information it would not have access to at prediction time</strong>.</p>
+<p>This phenomenon is known as <em>data leakage</em>. Importantly, data leakage is rarely the result of an obvious coding mistake. More often, it emerges from subtle flaws in experimental design, preprocessing order, or feature construction decisions made well before the model is fitted. As a result, leakage can silently inflate performance metrics, creating models that appear robust on paper but collapse in practice.<br>
+&gt; <em>“A model that performs perfectly on paper but fails miserably in practice is often a victim of data leakage.”</em></p>
+<p>In this article, we examine data leakage not as a technical curiosity, but as a structural threat to valid statistical modeling. We begin by clarifying what data leakage is—and what it is not—before demonstrating, using a real dataset and R-based workflows, how seemingly reasonable preprocessing choices can contaminate model evaluation. We then reconstruct the same analysis using a leakage-free pipeline, highlighting the practical and conceptual differences through numerical results and carefully designed visualizations.</p>
+</section>
+<section id="what-is-data-leakage" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="what-is-data-leakage"><span class="header-section-number">2</span> What Is Data Leakage?</h2>
+<p>At its core, <em>data leakage</em> occurs when information that would not be available at prediction time is inadvertently used during model training or evaluation. This information can enter the modeling pipeline in subtle ways—often long before a model is fitted—leading to overly optimistic performance estimates. The critical issue is not that the model “cheats,” but that the <strong>experimental setup allows future or target-related information to influence learning</strong>.</p>
+<p>Formally, consider a supervised learning problem where we aim to estimate a function:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Af%20:%20%5Cmathcal%7BX%7D%20%5Crightarrow%20%5Cmathcal%7BY%7D%0A"></p>
+<p>using a training set <img src="https://latex.codecogs.com/png.latex?(X_%7B%5Ctext%7Btrain%7D%7D,%20y_%7B%5Ctext%7Btrain%7D%7D)"> and evaluate it on a test set <img src="https://latex.codecogs.com/png.latex?(X_%7B%5Ctext%7Btest%7D%7D,%20y_%7B%5Ctext%7Btest%7D%7D)">. A valid evaluation assumes that <img src="https://latex.codecogs.com/png.latex?X_%7B%5Ctext%7Btest%7D%7D"> is generated independently of <img src="https://latex.codecogs.com/png.latex?y_%7B%5Ctext%7Btrain%7D%7D"> and that no function of <img src="https://latex.codecogs.com/png.latex?y_%7B%5Ctext%7Btest%7D%7D"> influences the training process. Data leakage violates this assumption by introducing a dependency—direct or indirect—between training and test information.</p>
+<section id="what-data-leakage-is-not" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="what-data-leakage-is-not"><span class="header-section-number">2.1</span> What Data Leakage Is <em>Not</em></h3>
+<p>Data leakage is often confused with other, related modeling issues. Clarifying these distinctions is essential.</p>
+<ul>
+<li><strong>Overfitting</strong> refers to a model learning noise or idiosyncrasies in the training data. While overfitted models generalize poorly, they do not necessarily rely on forbidden information.</li>
+<li><strong>Data snooping</strong> involves repeated testing and model selection on the same validation set. This inflates performance through selection bias, but the data themselves are not structurally contaminated.</li>
+<li><strong>Distribution shift</strong> (or concept drift) occurs when the data-generating process changes over time. This is a real-world phenomenon, not a methodological error.</li>
+</ul>
+<p>In contrast, <strong>data leakage is a violation of the temporal or logical boundary between training and prediction</strong>. It creates an artificial setting in which the model has access to information it should not logically possess.</p>
+</section>
+<section id="common-forms-of-data-leakage" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="common-forms-of-data-leakage"><span class="header-section-number">2.2</span> Common Forms of Data Leakage</h3>
+<p>Data leakage can be broadly categorized into three practical forms:</p>
+<ol type="1">
+<li><p><strong>Target Leakage</strong><br>
+Predictors encode information that is directly derived from, or strongly dependent on, the target variable. For example, constructing a feature using an outcome measured after the event being predicted.</p></li>
+<li><p><strong>Train–Test Contamination</strong><br>
+Information from the test set influences preprocessing steps such as scaling, imputation, or feature selection. This often happens when transformations are applied to the full dataset <em>before</em> splitting.</p></li>
+<li><p><strong>Temporal Leakage</strong><br>
+Future observations leak into the past, a particularly common issue in time series and forecasting contexts. Rolling averages, lag structures, or normalization computed using future data fall into this category.</p></li>
+</ol>
+</section>
+<section id="a-simple-conceptual-example" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="a-simple-conceptual-example"><span class="header-section-number">2.3</span> A Simple Conceptual Example</h3>
+<p>Suppose we aim to predict apartment prices using listing characteristics. If missing values in the price variable are imputed using the <em>global mean price computed over the entire dataset</em>, and the train–test split is performed afterward, then information from the test set has already influenced the training process. The model evaluation is no longer an honest simulation of future performance.</p>
+<p>This type of leakage is especially dangerous because it often produces <strong>stable and impressive metrics</strong>, giving practitioners a false sense of security. The model appears reliable not because it has learned a robust relationship, but because the evaluation framework itself is compromised.</p>
+<p>In the next section, we move from definitions to practice. Using a real dataset, we will deliberately construct a seemingly reasonable—but flawed—preprocessing pipeline and observe how data leakage manifests itself through inflated performance metrics.</p>
+</section>
+</section>
+<section id="common-sources-of-data-leakage-in-practice" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="common-sources-of-data-leakage-in-practice"><span class="header-section-number">3</span> Common Sources of Data Leakage in Practice</h2>
+<p>Data leakage rarely appears as an obvious error. In practice, it is often the result of <em>reasonable-looking preprocessing decisions</em> applied in the wrong order or under incorrect assumptions. This section outlines the most common sources of leakage encountered in applied statistical modeling and machine learning workflows, with a particular focus on preprocessing stages that precede model fitting.</p>
+<section id="leakage-during-data-preprocessing" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="leakage-during-data-preprocessing"><span class="header-section-number">3.1</span> Leakage During Data Preprocessing</h3>
+<p>One of the most frequent sources of data leakage occurs during data preprocessing. Operations such as centering, scaling, normalization, and missing-value imputation are often applied mechanically to the entire dataset before any data splitting takes place. While this approach may seem harmless, it implicitly allows information from the test set to influence transformations applied to the training data.</p>
+<p>For example, consider standardization using the sample mean <img src="https://latex.codecogs.com/png.latex?%5Cmu"> and standard deviation <img src="https://latex.codecogs.com/png.latex?%5Csigma">. If these quantities are computed using the full dataset rather than the training subset alone, then statistics derived from the test data directly affect the transformed training observations. As a result, the model is evaluated in an artificially favorable setting that will never occur in real-world prediction.</p>
+</section>
+<section id="leakage-through-feature-engineering" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="leakage-through-feature-engineering"><span class="header-section-number">3.2</span> Leakage Through Feature Engineering</h3>
+<p>Feature engineering is another common entry point for leakage, particularly when new variables are constructed using aggregated information. Group-level statistics—such as averages, frequencies, or ranks—can easily encode target-related information if computed without respecting the train–test boundary.</p>
+<p>A typical example involves creating neighborhood-level average prices in a housing dataset. If these averages are calculated using all available observations, including those later assigned to the test set, the resulting features implicitly incorporate information from unseen data. The model appears to generalize well, but only because future information has already been embedded in the predictors.</p>
+</section>
+<section id="leakage-from-improper-traintest-splitting" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="leakage-from-improper-traintest-splitting"><span class="header-section-number">3.3</span> Leakage from Improper Train–Test Splitting</h3>
+<p>In many workflows, data splitting is treated as a purely mechanical step. However, <em>when</em> and <em>how</em> the split is performed matters greatly. Random splits applied after preprocessing steps allow contamination to propagate silently. This issue is exacerbated in small or moderately sized datasets, where even minor information leakage can have a disproportionate effect on evaluation metrics.</p>
+<p>The fundamental principle is simple: <strong>any operation that learns from the data must be performed exclusively on the training set</strong>. The learned transformation can then be applied to the test set—but never re-estimated using it.</p>
+</section>
+<section id="temporal-leakage-in-time-dependent-data" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="temporal-leakage-in-time-dependent-data"><span class="header-section-number">3.4</span> Temporal Leakage in Time-Dependent Data</h3>
+<p>Time-dependent data introduce an additional and particularly dangerous form of leakage: temporal leakage. This occurs when future observations influence the representation of past data. Common examples include rolling statistics computed using symmetric windows, global normalization across time, or lagged features that unintentionally incorporate future values.</p>
+<p>In forecasting and time series analysis, such leakage violates the chronological ordering of information. The model effectively gains access to future states of the system, leading to performance estimates that are fundamentally invalid. Unlike random contamination, temporal leakage often produces extremely smooth and stable validation results—precisely because the future is partially known.</p>
+</section>
+<section id="why-these-issues-are-hard-to-detect" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="why-these-issues-are-hard-to-detect"><span class="header-section-number">3.5</span> Why These Issues Are Hard to Detect</h3>
+<p>What makes data leakage especially problematic is not its complexity, but its subtlety. Leakage-prone pipelines often run without errors, produce clean outputs, and yield impressive metrics. In many cases, the only warning sign is performance that seems <em>too consistent</em> or <em>too good to be true</em>.</p>
+<p>Crucially, standard validation techniques cannot detect leakage if the underlying data-generating assumptions have already been violated. Once contamination occurs, even rigorous cross-validation merely reinforces a flawed evaluation framework.</p>
+<p>In the next section, we will make these ideas concrete by constructing a deliberately flawed preprocessing pipeline using a real dataset. By examining the resulting performance metrics and visual diagnostics, we will observe how data leakage manifests itself in practice.</p>
+</section>
+</section>
+<section id="dataset-description-airbnb-listings-data" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="dataset-description-airbnb-listings-data"><span class="header-section-number">4</span> Dataset Description: Airbnb Listings Data</h2>
+<p>To demonstrate how data leakage arises in practice, we use a real-world dataset derived from Airbnb listings. The dataset is obtained from the publicly available <em>Inside Airbnb</em> project, which provides detailed, regularly updated information on short-term rental listings for major cities worldwide. In this study, we focus on the Istanbul listings, which offer a rich combination of numerical and categorical variables and exhibit common data quality issues encountered in applied modeling tasks.</p>
+<p>The Inside Airbnb project aims to support research, policy analysis, and public discussion by making scraped Airbnb data openly accessible. The dataset includes listing-level attributes such as pricing information, accommodation characteristics, host-related variables, and geographic identifiers. Due to its size, heterogeneity, and real-world imperfections, it provides an ideal setting for illustrating preprocessing pitfalls and evaluation errors.</p>
+<section id="data-source" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="data-source"><span class="header-section-number">4.1</span> Data Source</h3>
+<p>The data are publicly available at:</p>
+<blockquote class="blockquote">
+<p><a href="https://insideairbnb.com/get-the-data/" class="uri">https://insideairbnb.com/get-the-data/</a></p>
+</blockquote>
+<p>For reproducibility, the analysis in this article uses a snapshot of the Istanbul listings dataset downloaded directly from the source. While the exact number of observations may vary across releases, the structure and modeling challenges remain consistent across versions.</p>
+</section>
+<section id="target-variable-and-modeling-objective" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="target-variable-and-modeling-objective"><span class="header-section-number">4.2</span> Target Variable and Modeling Objective</h3>
+<p>Our primary modeling objective is to predict the <strong>listing price</strong> based on observable characteristics of the property and its location. The target variable, denoted by <img src="https://latex.codecogs.com/png.latex?y">, corresponds to the nightly price of a listing in local currency units.</p>
+<p>Price prediction in short-term rental data is a well-studied problem and serves as a natural example for illustrating data leakage. Importantly, price exhibits:</p>
+<ul>
+<li>strong right skewness,</li>
+<li>substantial heterogeneity across neighborhoods,</li>
+<li>sensitivity to aggregation and preprocessing choices.</li>
+</ul>
+<p>These properties make the variable particularly vulnerable to leakage through global transformations and improperly constructed features.</p>
+</section>
+<section id="predictor-variables" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="predictor-variables"><span class="header-section-number">4.3</span> Predictor Variables</h3>
+<p>The predictor set includes a mix of numerical and categorical variables commonly used in pricing models, such as:</p>
+<ul>
+<li>accommodation capacity (e.g., number of guests),</li>
+<li>room type and property type,</li>
+<li>neighborhood identifiers,</li>
+<li>availability-related measures,</li>
+<li>host characteristics.</li>
+</ul>
+<p>Several variables contain missing values, and many exhibit heavy-tailed distributions. These features necessitate preprocessing steps such as imputation, scaling, and transformation—precisely the stages where data leakage most often occurs.</p>
+</section>
+<section id="why-this-dataset-is-suitable-for-studying-data-leakage" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="why-this-dataset-is-suitable-for-studying-data-leakage"><span class="header-section-number">4.4</span> Why This Dataset Is Suitable for Studying Data Leakage</h3>
+<p>This dataset is especially well-suited for examining data leakage for three reasons. First, it requires nontrivial preprocessing to be usable for modeling, increasing the risk of incorrect transformation order. Second, it includes categorical groupings (such as neighborhoods) that invite aggregation-based feature engineering, a common source of target leakage. Third, its real-world origin ensures that modeling assumptions—such as stationarity, completeness, and clean measurement—are only approximately satisfied.</p>
+<p>By working with this dataset, we intentionally place ourselves in a realistic applied setting, where leakage is not an abstract concept but a tangible risk. In the next section, we construct a seemingly reasonable preprocessing pipeline that violates key evaluation principles, allowing us to observe how data leakage inflates model performance in practice.</p>
+</section>
+</section>
+<section id="a-naive-preprocessing-pipeline-and-why-it-is-wrong" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="a-naive-preprocessing-pipeline-and-why-it-is-wrong"><span class="header-section-number">5</span> A Naive Preprocessing Pipeline (And Why It Is Wrong)</h2>
+<p>At first glance, many preprocessing pipelines appear perfectly reasonable. Data are cleaned, missing values are handled, variables are scaled, and only then is the dataset split into training and test sets. This workflow is intuitive, easy to implement, and—most importantly—widely used. Unfortunately, it is also fundamentally flawed.</p>
+<p>In this section, we deliberately construct such a <em>naive pipeline</em> to illustrate how data leakage can arise without any obvious warning signs.</p>
+<section id="step-1-loading-and-preparing-the-data" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="step-1-loading-and-preparing-the-data"><span class="header-section-number">5.1</span> Step 1: Loading and Preparing the Data</h3>
+<p>We begin by loading the Airbnb listings data and selecting a subset of variables commonly used for price prediction. For simplicity, we focus on numerical predictors that require minimal encoding.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(rsample)</span>
+<span id="cb1-3"></span>
+<span id="cb1-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Load data (example assumes listings.csv from Inside Airbnb)</span></span>
+<span id="cb1-5">airbnb <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">read_csv</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"listings.csv"</span>)</span>
+<span id="cb1-6"></span>
+<span id="cb1-7">airbnb_model <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> airbnb <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb1-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(</span>
+<span id="cb1-9">    price,</span>
+<span id="cb1-10">    accommodates,</span>
+<span id="cb1-11">    bedrooms,</span>
+<span id="cb1-12">    bathrooms,</span>
+<span id="cb1-13">    minimum_nights,</span>
+<span id="cb1-14">    availability_365</span>
+<span id="cb1-15">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb1-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb1-17">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">price =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.numeric</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">str_remove_all</span>(price, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"[$,]"</span>))</span>
+<span id="cb1-18">  )</span></code></pre></div></div>
+</div>
+<p>At this stage, the dataset already contains missing values and variables with highly skewed distributions—a realistic and unavoidable situation in applied work.</p>
+</section>
+<section id="step-2-global-preprocessing-the-critical-mistake" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="step-2-global-preprocessing-the-critical-mistake"><span class="header-section-number">5.2</span> Step 2: Global Preprocessing (The Critical Mistake)</h3>
+<p>A common approach is to perform preprocessing <em>once</em> on the full dataset. Below, we impute missing values using the global mean and standardize all predictors using statistics computed from the entire dataset.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">airbnb_preprocessed <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> airbnb_model <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">across</span>(</span>
+<span id="cb2-3">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.cols =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>price,</span>
+<span id="cb2-4">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.fns  =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ifelse</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(.x), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(.x, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>), .x)</span>
+<span id="cb2-5">  )) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">across</span>(</span>
+<span id="cb2-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.cols =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>price,</span>
+<span id="cb2-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.fns  =</span> scale</span>
+<span id="cb2-9">  ))</span></code></pre></div></div>
+</div>
+<p>From a purely technical perspective, this code runs without errors and produces clean, well-behaved predictors. However, the preprocessing steps above implicitly use information from <em>all observations</em>, including those that will later be assigned to the test set.</p>
+<p>At this point, data leakage has already occurred.</p>
+</section>
+<section id="step-3-traintest-split-after-preprocessing" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="step-3-traintest-split-after-preprocessing"><span class="header-section-number">5.3</span> Step 3: Train–Test Split After Preprocessing</h3>
+<p>Next, we perform a random split of the preprocessed data into training and test sets.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span>
+<span id="cb3-2"></span>
+<span id="cb3-3">split <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">initial_split</span>(airbnb_preprocessed, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">prop =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span>)</span>
+<span id="cb3-4">train_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">training</span>(split)</span>
+<span id="cb3-5">test_data  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">testing</span>(split)</span></code></pre></div></div>
+</div>
+<p>Because the split is applied <em>after</em> preprocessing, the training data have been standardized and imputed using statistics influenced by the test data. The train–test boundary, while present in code, has already been violated in substance.</p>
+</section>
+<section id="step-4-model-fitting-and-evaluation" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="step-4-model-fitting-and-evaluation"><span class="header-section-number">5.4</span> Step 4: Model Fitting and Evaluation</h3>
+<p>We now fit a simple linear regression model using the training data and evaluate its predictive performance on the test set. At this stage, the goal is not to build an optimal model, but to assess how the <em>evaluation framework itself</em> can be compromised by data leakage.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Fit a linear regression model on the training data</span></span>
+<span id="cb4-2">model_naive <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lm</span>(price <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> ., <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> train_data)</span>
+<span id="cb4-3"></span>
+<span id="cb4-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Generate predictions for the test set</span></span>
+<span id="cb4-5">pred_test <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(model_naive, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">newdata =</span> test_data)</span></code></pre></div></div>
+</div>
+<p>To compute a supervised performance metric, we must restrict the evaluation to test observations for which the target variable is observed. Listings with missing prices cannot contribute to an error metric such as RMSE, as no ground truth is available.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create an evaluation dataset with observed targets only</span></span>
+<span id="cb5-2">eval_df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> test_data <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb5-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">transmute</span>(</span>
+<span id="cb5-4">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">price =</span> price,</span>
+<span id="cb5-5">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pred  =</span> pred_test</span>
+<span id="cb5-6">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb5-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(price), <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(pred))</span>
+<span id="cb5-8"></span>
+<span id="cb5-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Root Mean Squared Error</span></span>
+<span id="cb5-10">rmse_naive <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sqrt</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>((eval_df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>price <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> eval_df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>pred)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>))</span>
+<span id="cb5-11">rmse_naive</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 21213.69</code></pre>
+</div>
+</div>
+<p>The computed RMSE provides a single-point estimate of out-of-sample error under this evaluation setup. However, the absolute magnitude of this value is difficult to interpret in isolation because it depends on the scale and distribution of the target variable (price). More importantly for this article, the key concern is methodological: preprocessing steps were estimated using the full dataset before splitting, which compromises the train–test separation and can lead to overly optimistic performance estimates.</p>
+<p>In the next section, we will evaluate this suspicion more systematically by repeating the procedure across multiple random splits and inspecting the distribution of performance metrics.</p>
+</section>
+</section>
+<section id="detecting-data-leakage-repeated-splits-and-performance-distributions" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="detecting-data-leakage-repeated-splits-and-performance-distributions"><span class="header-section-number">6</span> Detecting Data Leakage: Repeated Splits and Performance Distributions</h2>
+<p>A single train–test split provides only a point estimate of model performance. To assess whether the suspiciously favorable evaluation observed earlier is a coincidence or a structural issue, we repeat the naive preprocessing and evaluation procedure across multiple random splits of the data. This allows us to examine the <em>distribution</em> of performance metrics rather than relying on a single value.</p>
+<section id="repeated-evaluation-under-the-naive-pipeline" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="repeated-evaluation-under-the-naive-pipeline"><span class="header-section-number">6.1</span> Repeated Evaluation Under the Naive Pipeline</h3>
+<p>We repeat the following steps multiple times: 1. Randomly split the data into training and test sets. 2. Fit the model on the training data. 3. Compute RMSE on the test data using observed targets only.</p>
+<p>Crucially, <strong>the same flawed preprocessing pipeline is retained</strong>, meaning that scaling and imputation are still performed on the full dataset prior to splitting.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span>
+<span id="cb7-2"></span>
+<span id="cb7-3">n_repeats <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span></span>
+<span id="cb7-4">rmse_values <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">numeric</span>(n_repeats)</span>
+<span id="cb7-5"></span>
+<span id="cb7-6"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq_len</span>(n_repeats)) {</span>
+<span id="cb7-7">  </span>
+<span id="cb7-8">  split_i <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">initial_split</span>(airbnb_preprocessed, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">prop =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span>)</span>
+<span id="cb7-9">  train_i <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">training</span>(split_i)</span>
+<span id="cb7-10">  test_i  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">testing</span>(split_i)</span>
+<span id="cb7-11">  </span>
+<span id="cb7-12">  model_i <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lm</span>(price <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> ., <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> train_i)</span>
+<span id="cb7-13">  pred_i  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(model_i, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">newdata =</span> test_i)</span>
+<span id="cb7-14">  </span>
+<span id="cb7-15">  eval_i <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(</span>
+<span id="cb7-16">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">price =</span> test_i<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>price,</span>
+<span id="cb7-17">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pred  =</span> pred_i</span>
+<span id="cb7-18">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb7-19">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(price), <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(pred))</span>
+<span id="cb7-20">  </span>
+<span id="cb7-21">  rmse_values[i] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sqrt</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>((eval_i<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>price <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> eval_i<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>pred)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>))</span>
+<span id="cb7-22">}</span>
+<span id="cb7-23"></span>
+<span id="cb7-24">rmse_df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(</span>
+<span id="cb7-25">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">iteration =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq_len</span>(n_repeats),</span>
+<span id="cb7-26">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">rmse      =</span> rmse_values</span>
+<span id="cb7-27">)</span></code></pre></div></div>
+</div>
+</section>
+<section id="inspecting-the-rmse-distribution" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="inspecting-the-rmse-distribution"><span class="header-section-number">6.2</span> Inspecting the RMSE Distribution</h3>
+<p>Rather than focusing on individual values, we now inspect the distribution of RMSE across repeated splits.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggplot2)</span>
+<span id="cb8-2"></span>
+<span id="cb8-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(rmse_df, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> rmse)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_histogram</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bins =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#4C72B0"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_vline</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xintercept =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(rmse_df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>rmse), </span>
+<span id="cb8-6">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linetype =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dashed"</span>, </span>
+<span id="cb8-7">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linewidth =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb8-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"RMSE Distribution Under Naive Preprocessing"</span>,</span>
+<span id="cb8-10">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Repeated random train–test splits"</span>,</span>
+<span id="cb8-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"RMSE"</span>,</span>
+<span id="cb8-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Count"</span></span>
+<span id="cb8-13">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)</span></code></pre></div></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2026-01-22_data_leakage/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="interpretation" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="interpretation"><span class="header-section-number">6.3</span> Interpretation</h3>
+<p>The RMSE values obtained across repeated random splits exhibit substantial variability, spanning a wide range rather than concentrating around a narrow interval. This degree of dispersion reflects the heterogeneity of the data and the sensitivity of the model to different training–test partitions.</p>
+<p>Importantly, this result highlights a key limitation of relying on a single train–test split: performance estimates can vary dramatically depending on how the data are partitioned. At this stage, the variability itself does not constitute evidence of data leakage. Instead, it establishes a baseline level of uncertainty against which alternative preprocessing strategies must be evaluated.</p>
+<p>In the following section, we will repeat the same experiment using a leakage-free preprocessing pipeline. By comparing the resulting RMSE distributions, we can assess whether improper preprocessing leads to systematically optimistic or distorted performance estimates.</p>
+</section>
+</section>
+<section id="a-leakage-free-preprocessing-pipeline" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="a-leakage-free-preprocessing-pipeline"><span class="header-section-number">7</span> A Leakage-Free Preprocessing Pipeline</h2>
+<p>To assess whether the previously observed behavior is driven by improper preprocessing, we now reconstruct the entire workflow using a leakage-free pipeline. The key principle is simple but fundamental: <strong>any transformation that learns from the data must be estimated using the training set only and then applied to the test set without re-estimation</strong>.</p>
+<section id="correct-order-of-operations" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="correct-order-of-operations"><span class="header-section-number">7.1</span> Correct Order of Operations</h3>
+<p>The leakage-free workflow follows this sequence:</p>
+<ol type="1">
+<li>Split the data into training and test sets.</li>
+<li>Estimate preprocessing parameters using the training data only.</li>
+<li>Apply the learned transformations to both training and test sets.</li>
+<li>Fit the model on the transformed training data.</li>
+<li>Evaluate performance on the transformed test data.</li>
+</ol>
+<p>This ordering mirrors real-world deployment, where future observations arrive without access to global dataset statistics.</p>
+</section>
+<section id="implementing-leakage-free-preprocessing-in-r" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="implementing-leakage-free-preprocessing-in-r"><span class="header-section-number">7.2</span> Implementing Leakage-Free Preprocessing in R</h3>
+<p>We begin by repeating the evaluation procedure across multiple random splits, as in the previous section. This time, however, preprocessing steps are learned exclusively from the training data.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span>
+<span id="cb9-2"></span>
+<span id="cb9-3">n_repeats <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span></span>
+<span id="cb9-4">rmse_correct <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">numeric</span>(n_repeats)</span>
+<span id="cb9-5"></span>
+<span id="cb9-6"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq_len</span>(n_repeats)) {</span>
+<span id="cb9-7">  </span>
+<span id="cb9-8">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Split first</span></span>
+<span id="cb9-9">  split_i <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">initial_split</span>(airbnb_model, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">prop =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span>)</span>
+<span id="cb9-10">  train_raw <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">training</span>(split_i)</span>
+<span id="cb9-11">  test_raw  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">testing</span>(split_i)</span>
+<span id="cb9-12">  </span>
+<span id="cb9-13">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Estimate preprocessing parameters on training data only</span></span>
+<span id="cb9-14">  train_processed <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> train_raw <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb9-15">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">across</span>(</span>
+<span id="cb9-16">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.cols =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>price,</span>
+<span id="cb9-17">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.fns  =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ifelse</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(.x), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(.x, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>), .x)</span>
+<span id="cb9-18">    ))</span>
+<span id="cb9-19">  </span>
+<span id="cb9-20">  scaling_params <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> train_processed <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb9-21">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">across</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>price, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean =</span> mean, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sd =</span> sd), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>))</span>
+<span id="cb9-22">  </span>
+<span id="cb9-23">  scale_train <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(x, m, s) {</span>
+<span id="cb9-24">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ifelse</span>(s <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, (x <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> m) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> s, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)</span>
+<span id="cb9-25">  }</span>
+<span id="cb9-26">  </span>
+<span id="cb9-27">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (v <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">names</span>(train_processed)[<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">names</span>(train_processed) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"price"</span>]) {</span>
+<span id="cb9-28">    m <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> scaling_params[[<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(v, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"_mean"</span>)]]</span>
+<span id="cb9-29">    s <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> scaling_params[[<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(v, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"_sd"</span>)]]</span>
+<span id="cb9-30">    </span>
+<span id="cb9-31">    train_processed[[v]] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_train</span>(train_processed[[v]], m, s)</span>
+<span id="cb9-32">  }</span>
+<span id="cb9-33">  </span>
+<span id="cb9-34">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Apply the same transformations to the test set</span></span>
+<span id="cb9-35">  test_processed <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> test_raw <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb9-36">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">across</span>(</span>
+<span id="cb9-37">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.cols =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>price,</span>
+<span id="cb9-38">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.fns  =</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ifelse</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(.x), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(train_raw[[<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cur_column</span>()]], <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>), .x)</span>
+<span id="cb9-39">    ))</span>
+<span id="cb9-40">  </span>
+<span id="cb9-41">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (v <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">names</span>(test_processed)[<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">names</span>(test_processed) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"price"</span>]) {</span>
+<span id="cb9-42">    m <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> scaling_params[[<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(v, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"_mean"</span>)]]</span>
+<span id="cb9-43">    s <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> scaling_params[[<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(v, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"_sd"</span>)]]</span>
+<span id="cb9-44">    </span>
+<span id="cb9-45">    test_processed[[v]] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_train</span>(test_processed[[v]], m, s)</span>
+<span id="cb9-46">  }</span>
+<span id="cb9-47">  </span>
+<span id="cb9-48">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Fit model</span></span>
+<span id="cb9-49">  model_i <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lm</span>(price <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> ., <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> train_processed)</span>
+<span id="cb9-50">  pred_i  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(model_i, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">newdata =</span> test_processed)</span>
+<span id="cb9-51">  </span>
+<span id="cb9-52">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Evaluate where target is observed</span></span>
+<span id="cb9-53">  eval_i <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(</span>
+<span id="cb9-54">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">price =</span> test_processed<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>price,</span>
+<span id="cb9-55">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pred  =</span> pred_i</span>
+<span id="cb9-56">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb9-57">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(price), <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(pred))</span>
+<span id="cb9-58">  </span>
+<span id="cb9-59">  rmse_correct[i] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sqrt</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>((eval_i<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>price <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> eval_i<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>pred)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>))</span>
+<span id="cb9-60">}</span>
+<span id="cb9-61"></span>
+<span id="cb9-62">rmse_correct_df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(</span>
+<span id="cb9-63">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">iteration =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq_len</span>(n_repeats),</span>
+<span id="cb9-64">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">rmse      =</span> rmse_correct</span>
+<span id="cb9-65">)</span></code></pre></div></div>
+</div>
+</section>
+<section id="comparing-performance-distributions" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="comparing-performance-distributions"><span class="header-section-number">7.3</span> Comparing Performance Distributions</h3>
+<p>We now compare RMSE distributions obtained under the naive and leakage-free preprocessing pipelines.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1">rmse_compare <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bind_rows</span>(</span>
+<span id="cb10-2">  rmse_df <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pipeline =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Naive preprocessing"</span>),</span>
+<span id="cb10-3">  rmse_correct_df <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pipeline =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Leakage-free preprocessing"</span>)</span>
+<span id="cb10-4">)</span>
+<span id="cb10-5"></span>
+<span id="cb10-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(rmse_compare, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> rmse, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> pipeline)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_histogram</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"identity"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.6</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bins =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(</span>
+<span id="cb10-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"RMSE Distributions Under Different Preprocessing Pipelines"</span>,</span>
+<span id="cb10-10">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Naive vs leakage-free evaluation"</span>,</span>
+<span id="cb10-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"RMSE"</span>,</span>
+<span id="cb10-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Count"</span></span>
+<span id="cb10-13">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)</span></code></pre></div></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://mfatihtuzen.netlify.app/posts/2026-01-22_data_leakage/index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="interpretation-1" class="level3" data-number="7.4">
+<h3 data-number="7.4" class="anchored" data-anchor-id="interpretation-1"><span class="header-section-number">7.4</span> Interpretation</h3>
+<p>The RMSE distributions obtained under the naive and leakage-free preprocessing pipelines are nearly indistinguishable. Across repeated random splits, both approaches yield similar ranges, central tendencies, and tail behavior. Visually, the two histograms largely overlap, causing the leakage-free distribution to be obscured in the combined plot; this overlap itself reflects the near-identical numerical behavior of the two pipelines under the present modeling setup.</p>
+<p>This result demonstrates an important but often overlooked point: data leakage does not always lead to dramatic or easily detectable performance inflation. In some settings—particularly with simple models and highly variable targets—the numerical impact of leakage may be minimal, even though the evaluation procedure remains theoretically flawed.</p>
+<p>Crucially, the absence of a visible performance gap does not validate the naive pipeline. Instead, it highlights the need to assess preprocessing decisions based on methodological correctness rather than empirical convenience. In other contexts, datasets, or modeling frameworks, the same mistake could lead to substantial and misleading performance gains.</p>
+</section>
+</section>
+<section id="conclusion" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">8</span> Conclusion</h2>
+<p>This article set out with a seemingly straightforward question: can data leakage lead to misleadingly strong model performance? The empirical results presented here suggest a more nuanced answer. In the examined setting—using a simple linear model and a highly heterogeneous real-world dataset—improper preprocessing did not result in dramatic or easily detectable performance inflation. Naive and leakage-free pipelines produced nearly identical error distributions.</p>
+<p>However, this outcome does not diminish the importance of data leakage. On the contrary, it highlights its most insidious characteristic: <strong>data leakage is dangerous precisely because it does not always announce itself through obvious performance gains</strong>. Evaluation metrics may remain unchanged, stable, or even reasonable, while the underlying logic of the evaluation has already been violated.</p>
+<p>The central lesson is therefore not about performance optimization, but about validity. Correct model evaluation is a matter of respecting information boundaries—temporal, logical, and structural—regardless of whether immediate numerical consequences are visible. Relying on empirically convenient shortcuts simply because they “seem to work” risks building pipelines that fail silently when transferred to new data, different models, or operational settings.</p>
+<p>Ultimately, data leakage should be treated as a methodological error, not a performance issue. Thinking carefully about preprocessing order, information flow, and evaluation design is not optional; it is a prerequisite for trustworthy statistical modeling.</p>
+</section>
+<section id="references" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="references"><span class="header-section-number">9</span> References</h2>
+<ul>
+<li><p>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). <em>The Elements of Statistical Learning: Data Mining, Inference, and Prediction</em> (2nd ed.). Springer.<br>
+<a href="https://doi.org/10.1007/978-0-387-84858-7" class="uri">https://doi.org/10.1007/978-0-387-84858-7</a></p></li>
+<li><p>Kuhn, M., &amp; Johnson, K. (2013). <em>Applied Predictive Modeling</em>. Springer.<br>
+<a href="https://doi.org/10.1007/978-1-4614-6849-3" class="uri">https://doi.org/10.1007/978-1-4614-6849-3</a></p></li>
+<li><p>Kuhn, M., &amp; Silge, J. (2022). <em>Tidy Modeling with R</em>. O’Reilly Media.<br>
+<a href="https://www.tmwr.org/" class="uri">https://www.tmwr.org/</a></p></li>
+<li><p>Scikit-learn documentation. (n.d.). <em>Common pitfalls in machine learning</em>.<br>
+<a href="https://scikit-learn.org/stable/common_pitfalls.html" class="uri">https://scikit-learn.org/stable/common_pitfalls.html</a></p></li>
+<li><p>Inside Airbnb. (n.d.). <em>Get the data</em>.<br>
+<a href="https://insideairbnb.com/get-the-data/" class="uri">https://insideairbnb.com/get-the-data/</a></p></li>
+</ul>
+
+
+<!-- -->
+
+</section>
+
+ ]]></description>
+  <category>Data Leakage</category>
+  <category>R Programming</category>
+  <category>Data Preprocessing</category>
+  <category>Model Evaluation</category>
+  <category>Statistical Learning</category>
+  <category>Machine Learning Pitfalls</category>
+  <category>Reproducible Research</category>
+  <guid>https://mfatihtuzen.netlify.app/posts/2026-01-22_data_leakage/</guid>
+  <pubDate>Wed, 21 Jan 2026 21:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Understanding Data Import and Export in R: Working with CSV and Excel Files</title>
   <dc:creator>M. Fatih Tüzen</dc:creator>
@@ -18001,1645 +19096,6 @@ font-style: inherit;">print</span>(eigenvectors)</span></code></pre></div>
   <category>matrices</category>
   <guid>https://mfatihtuzen.netlify.app/posts/2023-11-20_matrices/</guid>
   <pubDate>Sun, 19 Nov 2023 21:00:00 GMT</pubDate>
-</item>
-<item>
-  <title>Exploring Vectors in R Programming: The Fundamental Building Blocks</title>
-  <dc:creator>M. Fatih Tüzen</dc:creator>
-  <link>https://mfatihtuzen.netlify.app/posts/2023-10-03_vectors/</link>
-  <description><![CDATA[ 
-
-
-
-
-
-<section id="introduction" class="level2">
-<h2 class="anchored" data-anchor-id="introduction"><strong>Introduction</strong></h2>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://mfatihtuzen.netlify.app/posts/2023-10-03_vectors/atom.jpg" width="526" height="363" class="figure-img"></p>
-<figcaption>https://www.thoughtco.com/most-basic-building-block-of-matter-608358</figcaption>
-</figure>
-</div>
-<p>In the realm of R programming, vectors serve as the fundamental building blocks that underpin virtually every data analysis and manipulation task. Much like atoms are the smallest units of matter, vectors are the fundamental units of data in R. In this article, we will delve into the world of vectors in R programming, exploring their significance, applications, and some of the most commonly used functions that make them indispensable.</p>
-</section>
-<section id="what-is-a-vector" class="level2">
-<h2 class="anchored" data-anchor-id="what-is-a-vector"><strong>What is a Vector?</strong></h2>
-<p>In R, a vector is a fundamental data structure that can hold multiple elements of the same data type. These elements can be numbers, characters, logical values, or other types of data. Vectors are one-dimensional, meaning they consist of a single sequence of values. These vectors can be considered as the atomic units of data storage in R, forming the basis for more complex data structures like matrices, data frames, and lists. In essence, vectors are the elemental containers for data elements.</p>
-</section>
-<section id="importance-of-vectors" class="level2">
-<h2 class="anchored" data-anchor-id="importance-of-vectors"><strong>Importance of Vectors</strong></h2>
-<p>Vectors play a pivotal role in R programming for several reasons:</p>
-<ol type="1">
-<li><p><strong>Efficient Data Storage</strong>: Vectors efficiently store homogeneous data, saving memory and computational resources.</p></li>
-<li><p><strong>Vectorized Operations</strong>: One of the most powerful aspects of R is its ability to perform operations on entire vectors efficiently, a concept known as vectorization. R is designed for vectorized operations, meaning you can perform operations on entire vectors without the need for explicit loops. This makes code concise and faster.</p></li>
-<li><p><strong>Compatibility</strong>: Most R functions are designed to work with vectors, making them compatible with many data analysis and statistical techniques.</p></li>
-<li><p><strong>Simplicity</strong>: Using vectors simplifies code and promotes a more intuitive and readable coding style.</p></li>
-<li><p><strong>Interoperability</strong>: Vectors can be easily converted into other data structures, such as matrices or data frames, enhancing data manipulation capabilities.</p></li>
-</ol>
-</section>
-<section id="subsetting-and-indexing-vectors" class="level2">
-<h2 class="anchored" data-anchor-id="subsetting-and-indexing-vectors">Subsetting and Indexing Vectors</h2>
-<p>Subsetting and indexing are essential operations in R that allow you to access specific elements or subsets of elements from a vector. Subsetting refers to the process of selecting a portion of a vector based on specific conditions or positions. Indexing, on the other hand, refers to specifying the position or positions of the elements you want to access within the vector.</p>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Tip
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Square brackets (<strong><code>[ ]</code></strong>) is used to access and subset elements in vectors and other data structures like lists and matrices. It allows you to extract specific elements or subsets of elements from a vector.</p>
-</div>
-</div>
-<p>Let’s explore these concepts with interesting examples.</p>
-<section id="subsetting-vectors" class="level3">
-<h3 class="anchored" data-anchor-id="subsetting-vectors"><strong>Subsetting Vectors</strong></h3>
-<p><strong>Subsetting by Index</strong></p>
-<p>You can subset a vector by specifying the index positions of the elements you want to access.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a numeric vector</span></span>
-<span id="cb1-2">my_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">20</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">30</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">40</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">50</span>)</span>
-<span id="cb1-3"></span>
-<span id="cb1-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Subset the second and fourth elements</span></span>
-<span id="cb1-5">subset <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> my_vector[<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>)]</span>
-<span id="cb1-6"></span>
-<span id="cb1-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb1-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(subset)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 20 40</code></pre>
-</div>
-</div>
-<p><strong>Subsetting by Condition</strong></p>
-<p>You can subset a vector based on a condition using logical vectors.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a numeric vector</span></span>
-<span id="cb3-2">my_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">20</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">30</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">40</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">50</span>)</span>
-<span id="cb3-3"></span>
-<span id="cb3-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Subset values greater than 30</span></span>
-<span id="cb3-5">subset <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> my_vector[my_vector <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">30</span>]</span>
-<span id="cb3-6"></span>
-<span id="cb3-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb3-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(subset)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 40 50</code></pre>
-</div>
-</div>
-</section>
-<section id="indexing-vectors" class="level3">
-<h3 class="anchored" data-anchor-id="indexing-vectors"><strong>Indexing Vectors</strong></h3>
-<p><strong>Single Index</strong></p>
-<p>Access a single element by specifying its index.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a character vector</span></span>
-<span id="cb5-2">fruits <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"cherry"</span>)</span>
-<span id="cb5-3"></span>
-<span id="cb5-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Access the second element</span></span>
-<span id="cb5-5">fruit <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> fruits[<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>]</span>
-<span id="cb5-6"></span>
-<span id="cb5-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb5-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(fruit)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "banana"</code></pre>
-</div>
-</div>
-<p><strong>Multiple Indices</strong></p>
-<p>Access multiple elements by specifying multiple indices.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a numeric vector</span></span>
-<span id="cb7-2">numbers <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>)</span>
-<span id="cb7-3"></span>
-<span id="cb7-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Access the first and fourth elements</span></span>
-<span id="cb7-5">subset <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> numbers[<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>)]</span>
-<span id="cb7-6"></span>
-<span id="cb7-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb7-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(subset)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1 4</code></pre>
-</div>
-</div>
-<p><strong>Negative Indexing</strong></p>
-<p>Exclude elements by specifying negative indices.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a numeric vector</span></span>
-<span id="cb9-2">numbers <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>)</span>
-<span id="cb9-3"></span>
-<span id="cb9-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Exclude the second element</span></span>
-<span id="cb9-5">subset <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> numbers[<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>]</span>
-<span id="cb9-6"></span>
-<span id="cb9-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb9-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(subset)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1 3 4 5</code></pre>
-</div>
-</div>
-<p>These examples demonstrate how to subset and index vectors in R, allowing you to access specific elements or subsets of elements based on conditions, positions, or logical criteria. These operations are fundamental in data analysis and manipulation tasks in R.</p>
-</section>
-</section>
-<section id="most-used-functions-with-vectors" class="level2">
-<h2 class="anchored" data-anchor-id="most-used-functions-with-vectors"><strong>Most Used Functions with Vectors</strong></h2>
-<p>Let’s explore some commonly used functions when working with vectors in R.</p>
-<section id="c" class="level3">
-<h3 class="anchored" data-anchor-id="c"><strong><code>c()</code></strong></h3>
-<p><strong><code>c()</code></strong> function (short for “combine” or “concatenate”) is used for creating a new vector or combining multiple values or vectors into a single vector. It allows you to create a vector by listing its elements within the function.</p>
-<p><strong>1. Combining Numeric Values:</strong></p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Creating a numeric vector</span></span>
-<span id="cb11-2">numeric_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>)</span>
-<span id="cb11-3"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(numeric_vector)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1 2 3 4 5</code></pre>
-</div>
-</div>
-<p><strong>2. Combining Character Strings:</strong></p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Creating a character vector</span></span>
-<span id="cb13-2">character_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"cherry"</span>)</span>
-<span id="cb13-3"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(character_vector)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "apple"  "banana" "cherry"</code></pre>
-</div>
-</div>
-<p><strong>3. Combining Different Data Types (Implicit Coercion):</strong></p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Combining numeric and character values</span></span>
-<span id="cb15-2"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Numeric values are coerced to character.</span></span>
-<span id="cb15-3">mixed_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"two"</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"four"</span>)</span>
-<span id="cb15-4"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">class</span>(mixed_vector)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "character"</code></pre>
-</div>
-</div>
-<p><strong>4. Combining Vectors Recursively:</strong></p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Creating nested vectors and combining them recursively</span></span>
-<span id="cb17-2"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># The nested vectors are flattened into a single vector.</span></span>
-<span id="cb17-3">nested_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>), <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>, <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">6</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">7</span>)))</span>
-<span id="cb17-4"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(nested_vector)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1 2 3 4 5 6 7</code></pre>
-</div>
-</div>
-</section>
-<section id="seq" class="level3">
-<h3 class="anchored" data-anchor-id="seq"><strong><code>seq()</code></strong></h3>
-<p>In R, the <strong><code>seq()</code></strong> function is used to generate sequences of numbers or other objects. It allows you to create a sequence of values with specified starting and ending points, increments, and other parameters. The <strong><code>seq()</code></strong> function is quite versatile and can be used to generate sequences of integers, real numbers, or even character strings.</p>
-<p>Here is the basic syntax of the <strong><code>seq()</code></strong> function:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">seq</span>(from, to, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">by =</span> (to <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span> from)<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span>(length.out <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>), <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">length.out =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">NULL</span>)</span></code></pre></div>
-</div>
-<ul>
-<li><p><strong><code>from</code></strong>: The starting point of the sequence.</p></li>
-<li><p><strong><code>to</code></strong>: The ending point of the sequence.</p></li>
-<li><p><strong><code>by</code></strong>: The interval between values in the sequence. It is an optional parameter. If not specified, R calculates it based on the <strong><code>from</code></strong>, <strong><code>to</code></strong>, and <strong><code>length.out</code></strong> parameters.</p></li>
-<li><p><strong><code>length.out</code></strong>: The desired length of the sequence. It is an optional parameter. If provided, R calculates the <strong><code>by</code></strong> parameter based on the desired length.</p></li>
-</ul>
-<p>Here are some examples to illustrate how to use the <strong><code>seq()</code></strong> function:</p>
-<ol type="1">
-<li><strong>Generating a Sequence of Integers</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a sequence of integers from 1 to 10</span></span>
-<span id="cb20-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code> [1]  1  2  3  4  5  6  7  8  9 10</code></pre>
-</div>
-</div>
-<ol start="2" type="1">
-<li><strong>Generating a Sequence of Real Numbers with a Specified Increment</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a sequence of real numbers from 0 to 1 with an increment of 0.2</span></span>
-<span id="cb22-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">by =</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.2</span>)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.0 0.2 0.4 0.6 0.8 1.0</code></pre>
-</div>
-</div>
-<ol start="3" type="1">
-<li><strong>Generating a Sequence with a Specified Length</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a sequence of 5 values from 2 to 10</span></span>
-<span id="cb24-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">length.out =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1]  2  4  6  8 10</code></pre>
-</div>
-</div>
-<ol start="4" type="1">
-<li><strong>Generating a Sequence in Reverse Order</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a sequence of integers from 10 to 1 in reverse order</span></span>
-<span id="cb26-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code> [1] 10  9  8  7  6  5  4  3  2  1</code></pre>
-</div>
-</div>
-<p>The <strong><code>seq()</code></strong> function is very useful for creating sequences of values that you can use for various purposes, such as creating sequences for plotting, generating data for simulations, or defining custom sequences for indexing elements in vectors or data frames.</p>
-</section>
-<section id="rep" class="level3">
-<h3 class="anchored" data-anchor-id="rep"><code>rep()</code></h3>
-<p>In R, the <strong><code>rep()</code></strong> function is used to replicate or repeat values to create vectors or arrays of repeated elements. It allows you to duplicate a value or a set of values a specified number of times to form a larger vector or matrix. The <strong><code>rep()</code></strong> function is quite flexible and can be used to repeat both individual elements and entire vectors or lists.</p>
-<p>Here’s the basic syntax of the <strong><code>rep()</code></strong> function:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rep</span>(x, times, each, length.out)</span></code></pre></div>
-</div>
-<ul>
-<li><p><strong><code>x</code></strong>: The value(s) or vector(s) that you want to repeat.</p></li>
-<li><p><strong><code>times</code></strong>: An integer specifying how many times <strong><code>x</code></strong> should be repeated. If you provide a vector for <strong><code>x</code></strong>, each element of the vector will be repeated <strong><code>times</code></strong> times.</p></li>
-<li><p><strong><code>each</code></strong>: An integer specifying how many times each element of <strong><code>x</code></strong> (if it’s a vector) should be repeated before moving on to the next element. This is an optional parameter.</p></li>
-<li><p><strong><code>length.out</code></strong>: An integer specifying the desired length of the result. This is an optional parameter, and it can be used instead of <strong><code>times</code></strong> and <strong><code>each</code></strong> to determine the number of repetitions.</p></li>
-</ul>
-<p>Here are some examples to illustrate how to use the <strong><code>rep()</code></strong> function:</p>
-<ol type="1">
-<li><strong>Replicating a Single Value</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Repeat the value 3, four times</span></span>
-<span id="cb29-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rep</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">times =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 3 3 3 3</code></pre>
-</div>
-</div>
-<ol start="2" type="1">
-<li><strong>Replicating Elements of a Vector</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a vector</span></span>
-<span id="cb31-2">my_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"A"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"B"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"C"</span>)</span>
-<span id="cb31-3"></span>
-<span id="cb31-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Repeat each element of the vector 2 times</span></span>
-<span id="cb31-5"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rep</span>(my_vector, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">each =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "A" "A" "B" "B" "C" "C"</code></pre>
-</div>
-</div>
-<ol start="3" type="1">
-<li><strong>Replicating Elements of a Vector with Different Frequencies</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Repeat each element of the vector with different frequencies</span></span>
-<span id="cb33-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rep</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"A"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"B"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"C"</span>), <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">times =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>))</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "A" "A" "A" "B" "B" "C" "C" "C" "C"</code></pre>
-</div>
-</div>
-<ol start="4" type="1">
-<li><strong>Controlling the Length of the Result</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Repeat the values from 1 to 3 to create a vector of length 10</span></span>
-<span id="cb35-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rep</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">length.out =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code> [1] 1 2 3 1 2 3 1 2 3 1</code></pre>
-</div>
-</div>
-<p>The <strong><code>rep()</code></strong> function is useful for tasks like creating data for simulations, repeating elements for plotting, and constructing vectors and matrices with specific patterns or repetitions.</p>
-</section>
-<section id="length" class="level3">
-<h3 class="anchored" data-anchor-id="length"><code>length()</code></h3>
-<p>In R, the <strong><code>length()</code></strong> function is used to determine the number of elements in a vector. It returns an integer value representing the length of the vector. The <strong><code>length()</code></strong> function is straightforward to use and provides a quick way to check the number of elements in a vector.</p>
-<p>Here’s the basic syntax of the <strong><code>length()</code></strong> function for vectors:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb37" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">length</span>(x)</span></code></pre></div>
-</div>
-<ul>
-<li><strong><code>x</code></strong>: The vector for which you want to find the length.</li>
-</ul>
-<p>Here’s an example of how to use the <strong><code>length()</code></strong> function with vectors:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb38" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a numeric vector</span></span>
-<span id="cb38-2">numeric_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>)</span>
-<span id="cb38-3"></span>
-<span id="cb38-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Use the length() function to find the length of the vector</span></span>
-<span id="cb38-5"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">length</span>(numeric_vector)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 5</code></pre>
-</div>
-</div>
-<p>The <strong><code>length()</code></strong> function is particularly useful when you need to perform operations or make decisions based on the size or length of a vector. It is commonly used in control structures like loops to ensure that you iterate through the entire vector or to dynamically adjust the length of vectors in your code.</p>
-</section>
-<section id="unique" class="level3">
-<h3 class="anchored" data-anchor-id="unique"><code>unique()</code></h3>
-<p>The <strong><code>unique()</code></strong> function is used to extract the unique elements from a vector, returning a new vector containing only the distinct values found in the original vector. It is a convenient way to identify and remove duplicate values from a vector.</p>
-<p>Here’s the basic syntax of the <strong><code>unique()</code></strong> function:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb40" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">unique</span>(x)</span></code></pre></div>
-</div>
-<ul>
-<li><strong><code>x</code></strong>: The vector from which you want to extract unique elements.</li>
-</ul>
-<p>Here’s an example of how to use the <strong><code>unique()</code></strong> function with a vector:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a vector with duplicate values</span></span>
-<span id="cb41-2">my_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>)</span>
-<span id="cb41-3"></span>
-<span id="cb41-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Use the unique() function to extract unique elements</span></span>
-<span id="cb41-5"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">unique</span>(my_vector)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1 2 3 4 5</code></pre>
-</div>
-</div>
-<p>In this example, the <strong><code>unique()</code></strong> function is applied to the <strong><code>my_vector</code></strong>, and it returns a new vector containing only the unique values, removing duplicates. The order of the unique values in the result is the same as their order of appearance in the original vector.</p>
-<p>The <strong><code>unique()</code></strong> function is particularly useful when dealing with data preprocessing or data cleaning tasks, where you need to identify and handle duplicate values in a dataset. It’s also helpful when you want to generate a list of unique categories or distinct values from a categorical variable.</p>
-</section>
-<section id="duplicated" class="level3">
-<h3 class="anchored" data-anchor-id="duplicated"><code>duplicated()</code></h3>
-<p>The <strong><code>duplicated()</code></strong> function in R is a handy tool for identifying and working with duplicate elements in a vector. It returns a logical vector of the same length as the input vector, indicating whether each element in the vector is duplicated or not. You can also use the <strong><code>fromLast</code></strong> argument to control the direction of the search for duplicates.</p>
-<p>Here’s the detailed syntax of the <strong><code>duplicated()</code></strong> function:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb43" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">duplicated</span>(x, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">fromLast =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">FALSE</span>)</span></code></pre></div>
-</div>
-<ul>
-<li><p><strong><code>x</code></strong>: The vector in which you want to identify duplicate elements.</p></li>
-<li><p><strong><code>fromLast</code></strong>: An optional logical parameter (default is <strong><code>FALSE</code></strong>). If set to <strong><code>TRUE</code></strong>, it considers duplicates from the last occurrence of each element instead of the first.</p></li>
-</ul>
-<p>Now, let’s dive into some interesting examples to understand how the <strong><code>duplicated()</code></strong> function works:</p>
-<ol type="1">
-<li><strong>Identifying Duplicate Values</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb44" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a vector with duplicate values</span></span>
-<span id="cb44-2">my_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>)</span>
-<span id="cb44-3"></span>
-<span id="cb44-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Use the duplicated() function to identify duplicate elements</span></span>
-<span id="cb44-5">duplicates <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">duplicated</span>(my_vector)</span>
-<span id="cb44-6"></span>
-<span id="cb44-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb44-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(duplicates)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] FALSE FALSE  TRUE FALSE FALSE  TRUE FALSE</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb46" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Get the values that are duplicated</span></span>
-<span id="cb46-2">duplicated_values <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> my_vector[duplicates]</span>
-<span id="cb46-3"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(duplicated_values)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 2 4</code></pre>
-</div>
-</div>
-<p>In this example, <strong><code>duplicates</code></strong> is a logical vector indicating whether each element in <strong><code>my_vector</code></strong> is duplicated. <strong><code>TRUE</code></strong> indicates duplication, and <strong><code>FALSE</code></strong> indicates uniqueness. We then extract the duplicated values using indexing.</p>
-<p><strong>Identifying Duplicates from the Last Occurrence</strong></p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb48" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a vector with duplicate values</span></span>
-<span id="cb48-2">my_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>)</span>
-<span id="cb48-3"></span>
-<span id="cb48-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Use the duplicated() function to identify duplicates from the last occurrence</span></span>
-<span id="cb48-5">duplicates_last <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">duplicated</span>(my_vector, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">fromLast =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">TRUE</span>)</span>
-<span id="cb48-6"></span>
-<span id="cb48-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb48-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(duplicates_last)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb50" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Get the values that are duplicated from the last occurrence</span></span>
-<span id="cb50-2">duplicated_values_last <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> my_vector[duplicates_last]</span>
-<span id="cb50-3"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(duplicated_values_last)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 2 4</code></pre>
-</div>
-</div>
-<p>By setting <strong><code>fromLast = TRUE</code></strong>, we identify duplicates based on their last occurrence in the vector.</p>
-<ol start="3" type="1">
-<li><strong>Removing Duplicate Values from a Vector</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb52" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a vector with duplicate values</span></span>
-<span id="cb52-2">my_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>)</span>
-<span id="cb52-3"></span>
-<span id="cb52-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Use the `!` operator to negate the duplicated values and get unique values</span></span>
-<span id="cb52-5">unique_values <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> my_vector[<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">!</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">duplicated</span>(my_vector)]</span>
-<span id="cb52-6"></span>
-<span id="cb52-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the unique values</span></span>
-<span id="cb52-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(unique_values)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1 2 3 4 5</code></pre>
-</div>
-</div>
-<p>In this example, we use the <strong><code>!</code></strong> operator to negate the result of <strong><code>duplicated()</code></strong> to get unique values in the vector.</p>
-<ol start="4" type="1">
-<li><strong>Identifying Duplicates in a Character Vector</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb54" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a character vector with duplicate strings</span></span>
-<span id="cb54-2">my_strings <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"cherry"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"banana"</span>)</span>
-<span id="cb54-3"></span>
-<span id="cb54-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Use the duplicated() function to identify duplicate strings</span></span>
-<span id="cb54-5">duplicates_strings <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">duplicated</span>(my_strings)</span>
-<span id="cb54-6"></span>
-<span id="cb54-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb54-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(duplicates_strings)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] FALSE FALSE  TRUE FALSE  TRUE</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb56" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Get the duplicated strings</span></span>
-<span id="cb56-2">duplicated_strings <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> my_strings[duplicates_strings]</span>
-<span id="cb56-3"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(duplicated_strings)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "apple"  "banana"</code></pre>
-</div>
-</div>
-<p>The <strong><code>duplicated()</code></strong> function can also be used with character vectors to identify duplicate strings.</p>
-<p>These examples illustrate how the <strong><code>duplicated()</code></strong> function can be used to identify and work with duplicate elements in a vector, which is useful for data cleaning, analysis, and other data manipulation tasks in R.</p>
-</section>
-<section id="sort" class="level3">
-<h3 class="anchored" data-anchor-id="sort"><code>sort()</code></h3>
-<p>the <strong><code>sort()</code></strong> function is used to sort the elements of a vector in either ascending or descending order. It is a fundamental function for arranging and organizing data. The <strong><code>sort()</code></strong> function can be applied to various types of vectors, including numeric, character, and factor vectors.</p>
-<p>Here’s the basic syntax of the <strong><code>sort()</code></strong> function:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb58" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">sort</span>(x, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">decreasing =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">FALSE</span>)</span></code></pre></div>
-</div>
-<ul>
-<li><p><strong><code>x</code></strong>: The vector that you want to sort.</p></li>
-<li><p><strong><code>decreasing</code></strong>: An optional logical parameter (default is <strong><code>FALSE</code></strong>). If set to <strong><code>TRUE</code></strong>, the vector is sorted in descending order; if <strong><code>FALSE</code></strong>, it’s sorted in ascending order.</p></li>
-</ul>
-<p>Now, let’s explore the <strong><code>sort()</code></strong> function with some interesting examples:</p>
-<ol type="1">
-<li><strong>Sorting a Numeric Vector in Ascending Order</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb59" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a numeric vector</span></span>
-<span id="cb59-2">numeric_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>)</span>
-<span id="cb59-3"></span>
-<span id="cb59-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Sort the vector in ascending order</span></span>
-<span id="cb59-5">sorted_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">sort</span>(numeric_vector)</span>
-<span id="cb59-6"></span>
-<span id="cb59-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb59-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1 2 3 5 8</code></pre>
-</div>
-</div>
-<p>In this example, <strong><code>sorted_vector</code></strong> contains the elements of <strong><code>numeric_vector</code></strong> sorted in ascending order.</p>
-<ol start="2" type="1">
-<li><strong>Sorting a Character Vector in Alphabetical Order</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb61" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a character vector</span></span>
-<span id="cb61-2">character_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"cherry"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"date"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"grape"</span>)</span>
-<span id="cb61-3"></span>
-<span id="cb61-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Sort the vector in alphabetical order</span></span>
-<span id="cb61-5">sorted_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">sort</span>(character_vector)</span>
-<span id="cb61-6"></span>
-<span id="cb61-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb61-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "apple"  "banana" "cherry" "date"   "grape" </code></pre>
-</div>
-</div>
-<p>Here, <strong><code>sorted_vector</code></strong> contains the elements of <strong><code>character_vector</code></strong> sorted in alphabetical order.</p>
-<ol start="3" type="1">
-<li><strong>Sorting in Descending Order</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb63" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a numeric vector</span></span>
-<span id="cb63-2">numeric_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>)</span>
-<span id="cb63-3"></span>
-<span id="cb63-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Sort the vector in descending order</span></span>
-<span id="cb63-5">sorted_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">sort</span>(numeric_vector, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">decreasing =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">TRUE</span>)</span>
-<span id="cb63-6"></span>
-<span id="cb63-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb63-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 8 5 3 2 1</code></pre>
-</div>
-</div>
-<p>By setting <strong><code>decreasing = TRUE</code></strong>, we sort <strong><code>numeric_vector</code></strong> in descending order.</p>
-<ol start="4" type="1">
-<li><strong>Sorting a Factor Vector</strong></li>
-</ol>
-<p>In R, a “factor” is a data type that represents categorical or discrete data. Factors are used to store and manage categorical variables in a more efficient and meaningful way. Categorical variables are variables that take on a limited, fixed set of values or levels, such as “yes” or “no,” “low,” “medium,” or “high,” or “red,” “green,” or “blue.” In R, Factors are created using the <strong><code>factor()</code></strong> function.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>I am planning to write a post about the factors soon.</p>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb65" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a factor vector</span></span>
-<span id="cb65-2">factor_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">factor</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"high"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"low"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"medium"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"low"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"high"</span>))</span>
-<span id="cb65-3"></span>
-<span id="cb65-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Sort the factor vector in alphabetical order</span></span>
-<span id="cb65-5">sorted_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">sort</span>(factor_vector)</span>
-<span id="cb65-6"></span>
-<span id="cb65-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb65-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] high   high   low    low    medium
-Levels: high low medium</code></pre>
-</div>
-</div>
-<p>The <strong><code>sort()</code></strong> function can also be used with factor vectors, where it sorts the levels in alphabetical order.</p>
-<ol start="5" type="1">
-<li><strong>Sorting with Indexing</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb67" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a numeric vector</span></span>
-<span id="cb67-2">numeric_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">8</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>)</span>
-<span id="cb67-3"></span>
-<span id="cb67-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Sort the vector in ascending order and store the index order</span></span>
-<span id="cb67-5">sorted_indices <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">order</span>(numeric_vector)</span>
-<span id="cb67-6">sorted_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> numeric_vector[sorted_indices]</span>
-<span id="cb67-7"></span>
-<span id="cb67-8"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb67-9"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(sorted_vector)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1 2 3 5 8</code></pre>
-</div>
-</div>
-<p>In this example, we use the <strong><code>order()</code></strong> function to obtain the index order needed to sort <strong><code>numeric_vector</code></strong> in ascending order. We then use this index order for sorting the vector.</p>
-<p>The <strong><code>sort()</code></strong> function is a versatile tool for sorting vectors in R, and it is a fundamental part of data analysis and manipulation. It can be applied to various data types, and you can control the sorting order with the <strong><code>decreasing</code></strong> parameter.</p>
-</section>
-<section id="which" class="level3">
-<h3 class="anchored" data-anchor-id="which"><code>which()</code></h3>
-<p>The <strong><code>which()</code></strong> function is used to identify the indices of elements in a vector that satisfy a specified condition. It returns a vector of indices where the condition is <strong><code>TRUE</code></strong>.</p>
-<p>Here’s the basic syntax of the <strong><code>which()</code></strong> function:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb69" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">which</span>(x, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">arr.ind =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">FALSE</span>)</span></code></pre></div>
-</div>
-<ul>
-<li><p><strong><code>x</code></strong>: The vector in which you want to find indices based on a condition.</p></li>
-<li><p><strong><code>arr.ind</code></strong>: An optional logical parameter (default is <strong><code>FALSE</code></strong>). If set to <strong><code>TRUE</code></strong>, the function returns an array of indices with dimensions corresponding to <strong><code>x</code></strong>. This is typically used when <strong><code>x</code></strong> is a multi-dimensional array.</p></li>
-</ul>
-<p>Now, let’s explore the <strong><code>which()</code></strong> function with some interesting examples:</p>
-<ol type="1">
-<li><strong>Finding Indices of Elements Greater Than a Threshold</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb70" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a numeric vector</span></span>
-<span id="cb70-2">my_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">15</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">8</span>)</span>
-<span id="cb70-3"></span>
-<span id="cb70-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Find indices where values are greater than 8</span></span>
-<span id="cb70-5">indices_greater_than_8 <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">which</span>(my_vector <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">8</span>)</span>
-<span id="cb70-6"></span>
-<span id="cb70-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb70-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(indices_greater_than_8)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1 3</code></pre>
-</div>
-</div>
-<p>In this example, <strong><code>indices_greater_than_8</code></strong> contains the indices where elements in <strong><code>my_vector</code></strong> are greater than 8.</p>
-<ol start="2" type="1">
-<li><strong>Finding Indices of Missing Values (NA)</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb72" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a vector with missing values (NA)</span></span>
-<span id="cb72-2">my_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">NA</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>, <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">NA</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">8</span>)</span>
-<span id="cb72-3"></span>
-<span id="cb72-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Find indices of missing values</span></span>
-<span id="cb72-5">indices_of_na <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">which</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">is.na</span>(my_vector))</span>
-<span id="cb72-6"></span>
-<span id="cb72-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb72-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(indices_of_na)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 2 4</code></pre>
-</div>
-</div>
-<p>Here, <strong><code>indices_of_na</code></strong> contains the indices where <strong><code>my_vector</code></strong> has missing values (NA).</p>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Tip
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The <strong><code>is.na()</code></strong> function in R is used to identify missing values (NAs) in a vector or a data frame. It returns a logical vector or data frame of the same shape as the input, where each element is <strong><code>TRUE</code></strong> if the corresponding element in the input is <strong><code>NA</code></strong>, and <strong><code>FALSE</code></strong> otherwise.</p>
-</div>
-</div>
-<ol start="3" type="1">
-<li><strong>Finding Indices of Specific Values</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb74" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a character vector</span></span>
-<span id="cb74-2">my_vector <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"cherry"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"apple"</span>)</span>
-<span id="cb74-3"></span>
-<span id="cb74-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Find indices where values are "banana"</span></span>
-<span id="cb74-5">indices_banana <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">which</span>(my_vector <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"banana"</span>)</span>
-<span id="cb74-6"></span>
-<span id="cb74-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb74-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(indices_banana)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 2 4</code></pre>
-</div>
-</div>
-<p>Here, <strong><code>indices_banana</code></strong> contains the indices where elements in <strong><code>my_vector</code></strong> are equal to “banana.”</p>
-<p>The <strong><code>which()</code></strong> function is versatile and can be used for various purposes, such as identifying specific elements, locating missing values, and finding indices based on custom conditions. It’s a valuable tool for data analysis and manipulation in R.</p>
-</section>
-<section id="paste" class="level3">
-<h3 class="anchored" data-anchor-id="paste"><code>paste()</code></h3>
-<p>The <strong><code>paste()</code></strong> function is used to concatenate (combine) character vectors element-wise into a single character vector. It allows you to join strings or character elements together with the option to specify a separator or collapse them without any separator. The basic syntax of the <strong><code>paste()</code></strong> function is as follows:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb76" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">paste</span>(..., <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">sep =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">" "</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">collapse =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">NULL</span>)</span></code></pre></div>
-</div>
-<ul>
-<li><p><strong><code>...</code></strong>: One or more character vectors or objects to be combined.</p></li>
-<li><p><strong><code>sep</code></strong>: A character string that specifies the separator to be used between the concatenated elements. The default is a space.</p></li>
-<li><p><strong><code>collapse</code></strong>: An optional character string that specifies a separator to be used when collapsing the concatenated elements into a single string. If <strong><code>collapse</code></strong> is not specified, the result will be a character vector.</p></li>
-</ul>
-<p>Now, let’s explore the <strong><code>paste()</code></strong> function with some interesting examples:</p>
-<ol type="1">
-<li><strong>Concatenating Character Vectors with Default Separator</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb77" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create two character vectors</span></span>
-<span id="cb77-2">first_names <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"John"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Alice"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Bob"</span>)</span>
-<span id="cb77-3">last_names <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Doe"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Smith"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Johnson"</span>)</span>
-<span id="cb77-4"></span>
-<span id="cb77-5"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Use paste() to concatenate them with the default separator (space)</span></span>
-<span id="cb77-6">full_names <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">paste</span>(first_names, last_names)</span>
-<span id="cb77-7"></span>
-<span id="cb77-8"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb77-9"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(full_names)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "John Doe"    "Alice Smith" "Bob Johnson"</code></pre>
-</div>
-</div>
-<p>In this example, the <strong><code>paste()</code></strong> function concatenates <strong><code>first_names</code></strong> and <strong><code>last_names</code></strong> with the default separator, which is a space.</p>
-<ol start="2" type="1">
-<li><strong>Specifying a Custom Separator</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb79" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a character vector</span></span>
-<span id="cb79-2">fruits <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"cherry"</span>)</span>
-<span id="cb79-3"></span>
-<span id="cb79-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Use paste() with a custom separator (comma and space)</span></span>
-<span id="cb79-5">fruits_list <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">paste</span>(fruits, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">collapse =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">", "</span>)</span>
-<span id="cb79-6"></span>
-<span id="cb79-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb79-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(fruits_list)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "apple, banana, cherry"</code></pre>
-</div>
-</div>
-<p>Here, we concatenate the elements in the <strong><code>fruits</code></strong> vector with a custom separator, which is a comma followed by a space.</p>
-<ol start="3" type="1">
-<li><strong>Combining Numeric and Character Values</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb81" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a numeric vector and a character vector</span></span>
-<span id="cb81-2">prices <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>)</span>
-<span id="cb81-3">fruits <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"apple"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"banana"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"cherry"</span>)</span>
-<span id="cb81-4"></span>
-<span id="cb81-5"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Use paste() to combine them</span></span>
-<span id="cb81-6">item_description <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">paste</span>(prices, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"USD -"</span>, fruits)</span>
-<span id="cb81-7"></span>
-<span id="cb81-8"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb81-9"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(item_description)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "10 USD - apple" "5 USD - banana" "3 USD - cherry"</code></pre>
-</div>
-</div>
-<p>In this example, we combine numeric values from the <strong><code>prices</code></strong> vector with character values from the <strong><code>fruits</code></strong> vector using <strong><code>paste()</code></strong>.</p>
-<ol start="4" type="1">
-<li><strong>Collapsing a Character Vector</strong></li>
-</ol>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb83" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a character vector</span></span>
-<span id="cb83-2">sentence <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"This"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"is"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"an"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"example"</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"sentence"</span>)</span>
-<span id="cb83-3"></span>
-<span id="cb83-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Use paste() to collapse the vector into a single string</span></span>
-<span id="cb83-5">collapsed_sentence <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">paste</span>(sentence, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">collapse =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">" "</span>)</span>
-<span id="cb83-6"></span>
-<span id="cb83-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print the result</span></span>
-<span id="cb83-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">print</span>(collapsed_sentence)</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "This is an example sentence"</code></pre>
-</div>
-</div>
-<p>Here, we use <strong><code>paste()</code></strong> to collapse the elements of the <strong><code>sentence</code></strong> vector into a single string with spaces between words.</p>
-<p>The <strong><code>paste()</code></strong> function is versatile and useful for various data manipulation tasks, such as creating custom labels, formatting output, and constructing complex strings from component parts. It allows you to combine character vectors in a flexible way.</p>
-</section>
-</section>
-<section id="conclusion" class="level2">
-<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
-<p>Of course, there are many functions that can be used with vectors and other data structures. You can even create your own functions when you learn how to write functions. I tried to explain some basic and frequently used functions here in order not to make the post too long.</p>
-<p>In conclusion, vectors are the fundamental building blocks of data in R programming, akin to atoms in the world of matter. They are versatile, efficient, and indispensable for a wide range of data analysis tasks. By understanding their importance and mastering the use of vector-related functions, you can unlock the full potential of R for your data manipulation and analysis endeavors.</p>
-
-
-</section>
-
- ]]></description>
-  <category>R Programming</category>
-  <category>data types</category>
-  <category>vectors</category>
-  <guid>https://mfatihtuzen.netlify.app/posts/2023-10-03_vectors/</guid>
-  <pubDate>Mon, 02 Oct 2023 21:00:00 GMT</pubDate>
 </item>
 </channel>
 </rss>

@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="M. Fatih Tüzen">
+<meta name="dcterms.date" content="2026-01-22">
+
+<title>Data Leakage in R: Why Correct Evaluation Matters Even When Metrics Do Not Change – A Statistician’s R Notebook</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-ffa9a6279353761231ec249df0a7fdd3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-24772959a0e306aba8d7698078628ce7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-ffa9a6279353761231ec249df0a7fdd3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="floating nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">A Statistician’s R Notebook</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/MFatihTuzen"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/dr-m-fatih-t-2b2a4328/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-blogroll" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">BlogRoll</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-blogroll">    
+        <li>
+    <a class="dropdown-item" href="https://www.r-bloggers.com/">
+ <span class="dropdown-text">R-bloggers</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://community.rstudio.com/">
+ <span class="dropdown-text">R-Studio Community</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://rweekly.org/">
+ <span class="dropdown-text">R weekly</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://allisonhorst.com/allison-horst">
+ <span class="dropdown-text">Allison Horst</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://github.com/topics/r">
+ <span class="dropdown-text">Github R Topics</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <div class="quarto-title-block"><div><h1 class="title">Data Leakage in R: Why Correct Evaluation Matters Even When Metrics Do Not Change</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+                                <div class="quarto-categories">
+                <div class="quarto-category">Data Leakage</div>
+                <div class="quarto-category">R Programming</div>
+                <div class="quarto-category">Data Preprocessing</div>
+                <div class="quarto-category">Model Evaluation</div>
+                <div class="quarto-category">Statistical Learning</div>
+                <div class="quarto-category">Machine Learning Pitfalls</div>
+                <div class="quarto-category">Reproducible Research</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>M. Fatih Tüzen </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">January 22, 2026</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction-why-this-topic-matters" id="toc-introduction-why-this-topic-matters" class="nav-link active" data-scroll-target="#introduction-why-this-topic-matters"><span class="header-section-number">1</span> Introduction – Why This Topic Matters</a></li>
+  <li><a href="#what-is-data-leakage" id="toc-what-is-data-leakage" class="nav-link" data-scroll-target="#what-is-data-leakage"><span class="header-section-number">2</span> What Is Data Leakage?</a>
+  <ul>
+  <li><a href="#what-data-leakage-is-not" id="toc-what-data-leakage-is-not" class="nav-link" data-scroll-target="#what-data-leakage-is-not"><span class="header-section-number">2.1</span> What Data Leakage Is <em>Not</em></a></li>
+  <li><a href="#common-forms-of-data-leakage" id="toc-common-forms-of-data-leakage" class="nav-link" data-scroll-target="#common-forms-of-data-leakage"><span class="header-section-number">2.2</span> Common Forms of Data Leakage</a></li>
+  <li><a href="#a-simple-conceptual-example" id="toc-a-simple-conceptual-example" class="nav-link" data-scroll-target="#a-simple-conceptual-example"><span class="header-section-number">2.3</span> A Simple Conceptual Example</a></li>
+  </ul></li>
+  <li><a href="#common-sources-of-data-leakage-in-practice" id="toc-common-sources-of-data-leakage-in-practice" class="nav-link" data-scroll-target="#common-sources-of-data-leakage-in-practice"><span class="header-section-number">3</span> Common Sources of Data Leakage in Practice</a>
+  <ul>
+  <li><a href="#leakage-during-data-preprocessing" id="toc-leakage-during-data-preprocessing" class="nav-link" data-scroll-target="#leakage-during-data-preprocessing"><span class="header-section-number">3.1</span> Leakage During Data Preprocessing</a></li>
+  <li><a href="#leakage-through-feature-engineering" id="toc-leakage-through-feature-engineering" class="nav-link" data-scroll-target="#leakage-through-feature-engineering"><span class="header-section-number">3.2</span> Leakage Through Feature Engineering</a></li>
+  <li><a href="#leakage-from-improper-traintest-splitting" id="toc-leakage-from-improper-traintest-splitting" class="nav-link" data-scroll-target="#leakage-from-improper-traintest-splitting"><span class="header-section-number">3.3</span> Leakage from Improper Train–Test Splitting</a></li>
+  <li><a href="#temporal-leakage-in-time-dependent-data" id="toc-temporal-leakage-in-time-dependent-data" class="nav-link" data-scroll-target="#temporal-leakage-in-time-dependent-data"><span class="header-section-number">3.4</span> Temporal Leakage in Time-Dependent Data</a></li>
+  <li><a href="#why-these-issues-are-hard-to-detect" id="toc-why-these-issues-are-hard-to-detect" class="nav-link" data-scroll-target="#why-these-issues-are-hard-to-detect"><span class="header-section-number">3.5</span> Why These Issues Are Hard to Detect</a></li>
+  </ul></li>
+  <li><a href="#dataset-description-airbnb-listings-data" id="toc-dataset-description-airbnb-listings-data" class="nav-link" data-scroll-target="#dataset-description-airbnb-listings-data"><span class="header-section-number">4</span> Dataset Description: Airbnb Listings Data</a>
+  <ul>
+  <li><a href="#data-source" id="toc-data-source" class="nav-link" data-scroll-target="#data-source"><span class="header-section-number">4.1</span> Data Source</a></li>
+  <li><a href="#target-variable-and-modeling-objective" id="toc-target-variable-and-modeling-objective" class="nav-link" data-scroll-target="#target-variable-and-modeling-objective"><span class="header-section-number">4.2</span> Target Variable and Modeling Objective</a></li>
+  <li><a href="#predictor-variables" id="toc-predictor-variables" class="nav-link" data-scroll-target="#predictor-variables"><span class="header-section-number">4.3</span> Predictor Variables</a></li>
+  <li><a href="#why-this-dataset-is-suitable-for-studying-data-leakage" id="toc-why-this-dataset-is-suitable-for-studying-data-leakage" class="nav-link" data-scroll-target="#why-this-dataset-is-suitable-for-studying-data-leakage"><span class="header-section-number">4.4</span> Why This Dataset Is Suitable for Studying Data Leakage</a></li>
+  </ul></li>
+  <li><a href="#a-naive-preprocessing-pipeline-and-why-it-is-wrong" id="toc-a-naive-preprocessing-pipeline-and-why-it-is-wrong" class="nav-link" data-scroll-target="#a-naive-preprocessing-pipeline-and-why-it-is-wrong"><span class="header-section-number">5</span> A Naive Preprocessing Pipeline (And Why It Is Wrong)</a>
+  <ul>
+  <li><a href="#step-1-loading-and-preparing-the-data" id="toc-step-1-loading-and-preparing-the-data" class="nav-link" data-scroll-target="#step-1-loading-and-preparing-the-data"><span class="header-section-number">5.1</span> Step 1: Loading and Preparing the Data</a></li>
+  <li><a href="#step-2-global-preprocessing-the-critical-mistake" id="toc-step-2-global-preprocessing-the-critical-mistake" class="nav-link" data-scroll-target="#step-2-global-preprocessing-the-critical-mistake"><span class="header-section-number">5.2</span> Step 2: Global Preprocessing (The Critical Mistake)</a></li>
+  <li><a href="#step-3-traintest-split-after-preprocessing" id="toc-step-3-traintest-split-after-preprocessing" class="nav-link" data-scroll-target="#step-3-traintest-split-after-preprocessing"><span class="header-section-number">5.3</span> Step 3: Train–Test Split After Preprocessing</a></li>
+  <li><a href="#step-4-model-fitting-and-evaluation" id="toc-step-4-model-fitting-and-evaluation" class="nav-link" data-scroll-target="#step-4-model-fitting-and-evaluation"><span class="header-section-number">5.4</span> Step 4: Model Fitting and Evaluation</a></li>
+  </ul></li>
+  <li><a href="#detecting-data-leakage-repeated-splits-and-performance-distributions" id="toc-detecting-data-leakage-repeated-splits-and-performance-distributions" class="nav-link" data-scroll-target="#detecting-data-leakage-repeated-splits-and-performance-distributions"><span class="header-section-number">6</span> Detecting Data Leakage: Repeated Splits and Performance Distributions</a>
+  <ul>
+  <li><a href="#repeated-evaluation-under-the-naive-pipeline" id="toc-repeated-evaluation-under-the-naive-pipeline" class="nav-link" data-scroll-target="#repeated-evaluation-under-the-naive-pipeline"><span class="header-section-number">6.1</span> Repeated Evaluation Under the Naive Pipeline</a></li>
+  <li><a href="#inspecting-the-rmse-distribution" id="toc-inspecting-the-rmse-distribution" class="nav-link" data-scroll-target="#inspecting-the-rmse-distribution"><span class="header-section-number">6.2</span> Inspecting the RMSE Distribution</a></li>
+  <li><a href="#interpretation" id="toc-interpretation" class="nav-link" data-scroll-target="#interpretation"><span class="header-section-number">6.3</span> Interpretation</a></li>
+  </ul></li>
+  <li><a href="#a-leakage-free-preprocessing-pipeline" id="toc-a-leakage-free-preprocessing-pipeline" class="nav-link" data-scroll-target="#a-leakage-free-preprocessing-pipeline"><span class="header-section-number">7</span> A Leakage-Free Preprocessing Pipeline</a>
+  <ul>
+  <li><a href="#correct-order-of-operations" id="toc-correct-order-of-operations" class="nav-link" data-scroll-target="#correct-order-of-operations"><span class="header-section-number">7.1</span> Correct Order of Operations</a></li>
+  <li><a href="#implementing-leakage-free-preprocessing-in-r" id="toc-implementing-leakage-free-preprocessing-in-r" class="nav-link" data-scroll-target="#implementing-leakage-free-preprocessing-in-r"><span class="header-section-number">7.2</span> Implementing Leakage-Free Preprocessing in R</a></li>
+  <li><a href="#comparing-performance-distributions" id="toc-comparing-performance-distributions" class="nav-link" data-scroll-target="#comparing-performance-distributions"><span class="header-section-number">7.3</span> Comparing Performance Distributions</a></li>
+  <li><a href="#interpretation-1" id="toc-interpretation-1" class="nav-link" data-scroll-target="#interpretation-1"><span class="header-section-number">7.4</span> Interpretation</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">8</span> Conclusion</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">9</span> References</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="index.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="dataleakage.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="504"></p>
+</figure>
+</div>
+<section id="introduction-why-this-topic-matters" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="introduction-why-this-topic-matters"><span class="header-section-number">1</span> Introduction – Why This Topic Matters</h2>
+<p>A model that performs exceptionally well on a test set is not necessarily a good model; in many cases, it is a warning sign. High accuracy or low error metrics are meaningful only if we understand <strong>how</strong> they were obtained. In real-world settings, models rarely encounter data generated under the same conditions as the training phase: data arrive sequentially, delays occur, missingness patterns change, and measurement errors accumulate. Under such conditions, impressive validation metrics can quickly lose their relevance.</p>
+<p>A common scenario in applied data science is deceptively familiar. During development, the model looks flawless: cross-validation results are stable, performance metrics are strong, and diagnostic plots inspire confidence. Once deployed, however, performance deteriorates—sometimes rapidly. Forecasts drift, classification decisions become unreliable, and stakeholders begin to question the entire modeling pipeline. While this failure is often attributed to distributional shift or concept drift, a more fundamental issue is frequently overlooked: <strong>the model was exposed, directly or indirectly, to information it would not have access to at prediction time</strong>.</p>
+<p>This phenomenon is known as <em>data leakage</em>. Importantly, data leakage is rarely the result of an obvious coding mistake. More often, it emerges from subtle flaws in experimental design, preprocessing order, or feature construction decisions made well before the model is fitted. As a result, leakage can silently inflate performance metrics, creating models that appear robust on paper but collapse in practice.<br>
+&gt; <em>“A model that performs perfectly on paper but fails miserably in practice is often a victim of data leakage.”</em></p>
+<p>In this article, we examine data leakage not as a technical curiosity, but as a structural threat to valid statistical modeling. We begin by clarifying what data leakage is—and what it is not—before demonstrating, using a real dataset and R-based workflows, how seemingly reasonable preprocessing choices can contaminate model evaluation. We then reconstruct the same analysis using a leakage-free pipeline, highlighting the practical and conceptual differences through numerical results and carefully designed visualizations.</p>
+</section>
+<section id="what-is-data-leakage" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="what-is-data-leakage"><span class="header-section-number">2</span> What Is Data Leakage?</h2>
+<p>At its core, <em>data leakage</em> occurs when information that would not be available at prediction time is inadvertently used during model training or evaluation. This information can enter the modeling pipeline in subtle ways—often long before a model is fitted—leading to overly optimistic performance estimates. The critical issue is not that the model “cheats,” but that the <strong>experimental setup allows future or target-related information to influence learning</strong>.</p>
+<p>Formally, consider a supervised learning problem where we aim to estimate a function:</p>
+<p><span class="math display">\[
+f : \mathcal{X} \rightarrow \mathcal{Y}
+\]</span></p>
+<p>using a training set <span class="math inline">\((X_{\text{train}}, y_{\text{train}})\)</span> and evaluate it on a test set <span class="math inline">\((X_{\text{test}}, y_{\text{test}})\)</span>. A valid evaluation assumes that <span class="math inline">\(X_{\text{test}}\)</span> is generated independently of <span class="math inline">\(y_{\text{train}}\)</span> and that no function of <span class="math inline">\(y_{\text{test}}\)</span> influences the training process. Data leakage violates this assumption by introducing a dependency—direct or indirect—between training and test information.</p>
+<section id="what-data-leakage-is-not" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="what-data-leakage-is-not"><span class="header-section-number">2.1</span> What Data Leakage Is <em>Not</em></h3>
+<p>Data leakage is often confused with other, related modeling issues. Clarifying these distinctions is essential.</p>
+<ul>
+<li><strong>Overfitting</strong> refers to a model learning noise or idiosyncrasies in the training data. While overfitted models generalize poorly, they do not necessarily rely on forbidden information.</li>
+<li><strong>Data snooping</strong> involves repeated testing and model selection on the same validation set. This inflates performance through selection bias, but the data themselves are not structurally contaminated.</li>
+<li><strong>Distribution shift</strong> (or concept drift) occurs when the data-generating process changes over time. This is a real-world phenomenon, not a methodological error.</li>
+</ul>
+<p>In contrast, <strong>data leakage is a violation of the temporal or logical boundary between training and prediction</strong>. It creates an artificial setting in which the model has access to information it should not logically possess.</p>
+</section>
+<section id="common-forms-of-data-leakage" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="common-forms-of-data-leakage"><span class="header-section-number">2.2</span> Common Forms of Data Leakage</h3>
+<p>Data leakage can be broadly categorized into three practical forms:</p>
+<ol type="1">
+<li><p><strong>Target Leakage</strong><br>
+Predictors encode information that is directly derived from, or strongly dependent on, the target variable. For example, constructing a feature using an outcome measured after the event being predicted.</p></li>
+<li><p><strong>Train–Test Contamination</strong><br>
+Information from the test set influences preprocessing steps such as scaling, imputation, or feature selection. This often happens when transformations are applied to the full dataset <em>before</em> splitting.</p></li>
+<li><p><strong>Temporal Leakage</strong><br>
+Future observations leak into the past, a particularly common issue in time series and forecasting contexts. Rolling averages, lag structures, or normalization computed using future data fall into this category.</p></li>
+</ol>
+</section>
+<section id="a-simple-conceptual-example" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="a-simple-conceptual-example"><span class="header-section-number">2.3</span> A Simple Conceptual Example</h3>
+<p>Suppose we aim to predict apartment prices using listing characteristics. If missing values in the price variable are imputed using the <em>global mean price computed over the entire dataset</em>, and the train–test split is performed afterward, then information from the test set has already influenced the training process. The model evaluation is no longer an honest simulation of future performance.</p>
+<p>This type of leakage is especially dangerous because it often produces <strong>stable and impressive metrics</strong>, giving practitioners a false sense of security. The model appears reliable not because it has learned a robust relationship, but because the evaluation framework itself is compromised.</p>
+<p>In the next section, we move from definitions to practice. Using a real dataset, we will deliberately construct a seemingly reasonable—but flawed—preprocessing pipeline and observe how data leakage manifests itself through inflated performance metrics.</p>
+</section>
+</section>
+<section id="common-sources-of-data-leakage-in-practice" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="common-sources-of-data-leakage-in-practice"><span class="header-section-number">3</span> Common Sources of Data Leakage in Practice</h2>
+<p>Data leakage rarely appears as an obvious error. In practice, it is often the result of <em>reasonable-looking preprocessing decisions</em> applied in the wrong order or under incorrect assumptions. This section outlines the most common sources of leakage encountered in applied statistical modeling and machine learning workflows, with a particular focus on preprocessing stages that precede model fitting.</p>
+<section id="leakage-during-data-preprocessing" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="leakage-during-data-preprocessing"><span class="header-section-number">3.1</span> Leakage During Data Preprocessing</h3>
+<p>One of the most frequent sources of data leakage occurs during data preprocessing. Operations such as centering, scaling, normalization, and missing-value imputation are often applied mechanically to the entire dataset before any data splitting takes place. While this approach may seem harmless, it implicitly allows information from the test set to influence transformations applied to the training data.</p>
+<p>For example, consider standardization using the sample mean <span class="math inline">\(\mu\)</span> and standard deviation <span class="math inline">\(\sigma\)</span>. If these quantities are computed using the full dataset rather than the training subset alone, then statistics derived from the test data directly affect the transformed training observations. As a result, the model is evaluated in an artificially favorable setting that will never occur in real-world prediction.</p>
+</section>
+<section id="leakage-through-feature-engineering" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="leakage-through-feature-engineering"><span class="header-section-number">3.2</span> Leakage Through Feature Engineering</h3>
+<p>Feature engineering is another common entry point for leakage, particularly when new variables are constructed using aggregated information. Group-level statistics—such as averages, frequencies, or ranks—can easily encode target-related information if computed without respecting the train–test boundary.</p>
+<p>A typical example involves creating neighborhood-level average prices in a housing dataset. If these averages are calculated using all available observations, including those later assigned to the test set, the resulting features implicitly incorporate information from unseen data. The model appears to generalize well, but only because future information has already been embedded in the predictors.</p>
+</section>
+<section id="leakage-from-improper-traintest-splitting" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="leakage-from-improper-traintest-splitting"><span class="header-section-number">3.3</span> Leakage from Improper Train–Test Splitting</h3>
+<p>In many workflows, data splitting is treated as a purely mechanical step. However, <em>when</em> and <em>how</em> the split is performed matters greatly. Random splits applied after preprocessing steps allow contamination to propagate silently. This issue is exacerbated in small or moderately sized datasets, where even minor information leakage can have a disproportionate effect on evaluation metrics.</p>
+<p>The fundamental principle is simple: <strong>any operation that learns from the data must be performed exclusively on the training set</strong>. The learned transformation can then be applied to the test set—but never re-estimated using it.</p>
+</section>
+<section id="temporal-leakage-in-time-dependent-data" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="temporal-leakage-in-time-dependent-data"><span class="header-section-number">3.4</span> Temporal Leakage in Time-Dependent Data</h3>
+<p>Time-dependent data introduce an additional and particularly dangerous form of leakage: temporal leakage. This occurs when future observations influence the representation of past data. Common examples include rolling statistics computed using symmetric windows, global normalization across time, or lagged features that unintentionally incorporate future values.</p>
+<p>In forecasting and time series analysis, such leakage violates the chronological ordering of information. The model effectively gains access to future states of the system, leading to performance estimates that are fundamentally invalid. Unlike random contamination, temporal leakage often produces extremely smooth and stable validation results—precisely because the future is partially known.</p>
+</section>
+<section id="why-these-issues-are-hard-to-detect" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="why-these-issues-are-hard-to-detect"><span class="header-section-number">3.5</span> Why These Issues Are Hard to Detect</h3>
+<p>What makes data leakage especially problematic is not its complexity, but its subtlety. Leakage-prone pipelines often run without errors, produce clean outputs, and yield impressive metrics. In many cases, the only warning sign is performance that seems <em>too consistent</em> or <em>too good to be true</em>.</p>
+<p>Crucially, standard validation techniques cannot detect leakage if the underlying data-generating assumptions have already been violated. Once contamination occurs, even rigorous cross-validation merely reinforces a flawed evaluation framework.</p>
+<p>In the next section, we will make these ideas concrete by constructing a deliberately flawed preprocessing pipeline using a real dataset. By examining the resulting performance metrics and visual diagnostics, we will observe how data leakage manifests itself in practice.</p>
+</section>
+</section>
+<section id="dataset-description-airbnb-listings-data" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="dataset-description-airbnb-listings-data"><span class="header-section-number">4</span> Dataset Description: Airbnb Listings Data</h2>
+<p>To demonstrate how data leakage arises in practice, we use a real-world dataset derived from Airbnb listings. The dataset is obtained from the publicly available <em>Inside Airbnb</em> project, which provides detailed, regularly updated information on short-term rental listings for major cities worldwide. In this study, we focus on the Istanbul listings, which offer a rich combination of numerical and categorical variables and exhibit common data quality issues encountered in applied modeling tasks.</p>
+<p>The Inside Airbnb project aims to support research, policy analysis, and public discussion by making scraped Airbnb data openly accessible. The dataset includes listing-level attributes such as pricing information, accommodation characteristics, host-related variables, and geographic identifiers. Due to its size, heterogeneity, and real-world imperfections, it provides an ideal setting for illustrating preprocessing pitfalls and evaluation errors.</p>
+<section id="data-source" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="data-source"><span class="header-section-number">4.1</span> Data Source</h3>
+<p>The data are publicly available at:</p>
+<blockquote class="blockquote">
+<p><a href="https://insideairbnb.com/get-the-data/" class="uri">https://insideairbnb.com/get-the-data/</a></p>
+</blockquote>
+<p>For reproducibility, the analysis in this article uses a snapshot of the Istanbul listings dataset downloaded directly from the source. While the exact number of observations may vary across releases, the structure and modeling challenges remain consistent across versions.</p>
+</section>
+<section id="target-variable-and-modeling-objective" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="target-variable-and-modeling-objective"><span class="header-section-number">4.2</span> Target Variable and Modeling Objective</h3>
+<p>Our primary modeling objective is to predict the <strong>listing price</strong> based on observable characteristics of the property and its location. The target variable, denoted by <span class="math inline">\(y\)</span>, corresponds to the nightly price of a listing in local currency units.</p>
+<p>Price prediction in short-term rental data is a well-studied problem and serves as a natural example for illustrating data leakage. Importantly, price exhibits:</p>
+<ul>
+<li>strong right skewness,</li>
+<li>substantial heterogeneity across neighborhoods,</li>
+<li>sensitivity to aggregation and preprocessing choices.</li>
+</ul>
+<p>These properties make the variable particularly vulnerable to leakage through global transformations and improperly constructed features.</p>
+</section>
+<section id="predictor-variables" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="predictor-variables"><span class="header-section-number">4.3</span> Predictor Variables</h3>
+<p>The predictor set includes a mix of numerical and categorical variables commonly used in pricing models, such as:</p>
+<ul>
+<li>accommodation capacity (e.g., number of guests),</li>
+<li>room type and property type,</li>
+<li>neighborhood identifiers,</li>
+<li>availability-related measures,</li>
+<li>host characteristics.</li>
+</ul>
+<p>Several variables contain missing values, and many exhibit heavy-tailed distributions. These features necessitate preprocessing steps such as imputation, scaling, and transformation—precisely the stages where data leakage most often occurs.</p>
+</section>
+<section id="why-this-dataset-is-suitable-for-studying-data-leakage" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="why-this-dataset-is-suitable-for-studying-data-leakage"><span class="header-section-number">4.4</span> Why This Dataset Is Suitable for Studying Data Leakage</h3>
+<p>This dataset is especially well-suited for examining data leakage for three reasons. First, it requires nontrivial preprocessing to be usable for modeling, increasing the risk of incorrect transformation order. Second, it includes categorical groupings (such as neighborhoods) that invite aggregation-based feature engineering, a common source of target leakage. Third, its real-world origin ensures that modeling assumptions—such as stationarity, completeness, and clean measurement—are only approximately satisfied.</p>
+<p>By working with this dataset, we intentionally place ourselves in a realistic applied setting, where leakage is not an abstract concept but a tangible risk. In the next section, we construct a seemingly reasonable preprocessing pipeline that violates key evaluation principles, allowing us to observe how data leakage inflates model performance in practice.</p>
+</section>
+</section>
+<section id="a-naive-preprocessing-pipeline-and-why-it-is-wrong" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="a-naive-preprocessing-pipeline-and-why-it-is-wrong"><span class="header-section-number">5</span> A Naive Preprocessing Pipeline (And Why It Is Wrong)</h2>
+<p>At first glance, many preprocessing pipelines appear perfectly reasonable. Data are cleaned, missing values are handled, variables are scaled, and only then is the dataset split into training and test sets. This workflow is intuitive, easy to implement, and—most importantly—widely used. Unfortunately, it is also fundamentally flawed.</p>
+<p>In this section, we deliberately construct such a <em>naive pipeline</em> to illustrate how data leakage can arise without any obvious warning signs.</p>
+<section id="step-1-loading-and-preparing-the-data" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="step-1-loading-and-preparing-the-data"><span class="header-section-number">5.1</span> Step 1: Loading and Preparing the Data</h3>
+<p>We begin by loading the Airbnb listings data and selecting a subset of variables commonly used for price prediction. For simplicity, we focus on numerical predictors that require minimal encoding.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rsample)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data (example assumes listings.csv from Inside Airbnb)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>airbnb <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"listings.csv"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>airbnb_model <span class="ot">&lt;-</span> airbnb <span class="sc">%&gt;%</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    price,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    accommodates,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    bedrooms,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    bathrooms,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    minimum_nights,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    availability_365</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">price =</span> <span class="fu">as.numeric</span>(<span class="fu">str_remove_all</span>(price, <span class="st">"[$,]"</span>))</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>At this stage, the dataset already contains missing values and variables with highly skewed distributions—a realistic and unavoidable situation in applied work.</p>
+</section>
+<section id="step-2-global-preprocessing-the-critical-mistake" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="step-2-global-preprocessing-the-critical-mistake"><span class="header-section-number">5.2</span> Step 2: Global Preprocessing (The Critical Mistake)</h3>
+<p>A common approach is to perform preprocessing <em>once</em> on the full dataset. Below, we impute missing values using the global mean and standardize all predictors using statistics computed from the entire dataset.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>airbnb_preprocessed <span class="ot">&lt;-</span> airbnb_model <span class="sc">%&gt;%</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">.cols =</span> <span class="sc">-</span>price,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">.fns  =</span> <span class="sc">~</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(.x), <span class="fu">mean</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), .x)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">.cols =</span> <span class="sc">-</span>price,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">.fns  =</span> scale</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  ))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>From a purely technical perspective, this code runs without errors and produces clean, well-behaved predictors. However, the preprocessing steps above implicitly use information from <em>all observations</em>, including those that will later be assigned to the test set.</p>
+<p>At this point, data leakage has already occurred.</p>
+</section>
+<section id="step-3-traintest-split-after-preprocessing" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="step-3-traintest-split-after-preprocessing"><span class="header-section-number">5.3</span> Step 3: Train–Test Split After Preprocessing</h3>
+<p>Next, we perform a random split of the preprocessed data into training and test sets.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(airbnb_preprocessed, <span class="at">prop =</span> <span class="fl">0.8</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>train_data <span class="ot">&lt;-</span> <span class="fu">training</span>(split)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>test_data  <span class="ot">&lt;-</span> <span class="fu">testing</span>(split)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Because the split is applied <em>after</em> preprocessing, the training data have been standardized and imputed using statistics influenced by the test data. The train–test boundary, while present in code, has already been violated in substance.</p>
+</section>
+<section id="step-4-model-fitting-and-evaluation" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="step-4-model-fitting-and-evaluation"><span class="header-section-number">5.4</span> Step 4: Model Fitting and Evaluation</h3>
+<p>We now fit a simple linear regression model using the training data and evaluate its predictive performance on the test set. At this stage, the goal is not to build an optimal model, but to assess how the <em>evaluation framework itself</em> can be compromised by data leakage.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit a linear regression model on the training data</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>model_naive <span class="ot">&lt;-</span> <span class="fu">lm</span>(price <span class="sc">~</span> ., <span class="at">data =</span> train_data)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate predictions for the test set</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>pred_test <span class="ot">&lt;-</span> <span class="fu">predict</span>(model_naive, <span class="at">newdata =</span> test_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>To compute a supervised performance metric, we must restrict the evaluation to test observations for which the target variable is observed. Listings with missing prices cannot contribute to an error metric such as RMSE, as no ground truth is available.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create an evaluation dataset with observed targets only</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>eval_df <span class="ot">&lt;-</span> test_data <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">price =</span> price,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred  =</span> pred_test</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(price), <span class="sc">!</span><span class="fu">is.na</span>(pred))</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Root Mean Squared Error</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>rmse_naive <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((eval_df<span class="sc">$</span>price <span class="sc">-</span> eval_df<span class="sc">$</span>pred)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>rmse_naive</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 21213.69</code></pre>
+</div>
+</div>
+<p>The computed RMSE provides a single-point estimate of out-of-sample error under this evaluation setup. However, the absolute magnitude of this value is difficult to interpret in isolation because it depends on the scale and distribution of the target variable (price). More importantly for this article, the key concern is methodological: preprocessing steps were estimated using the full dataset before splitting, which compromises the train–test separation and can lead to overly optimistic performance estimates.</p>
+<p>In the next section, we will evaluate this suspicion more systematically by repeating the procedure across multiple random splits and inspecting the distribution of performance metrics.</p>
+</section>
+</section>
+<section id="detecting-data-leakage-repeated-splits-and-performance-distributions" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="detecting-data-leakage-repeated-splits-and-performance-distributions"><span class="header-section-number">6</span> Detecting Data Leakage: Repeated Splits and Performance Distributions</h2>
+<p>A single train–test split provides only a point estimate of model performance. To assess whether the suspiciously favorable evaluation observed earlier is a coincidence or a structural issue, we repeat the naive preprocessing and evaluation procedure across multiple random splits of the data. This allows us to examine the <em>distribution</em> of performance metrics rather than relying on a single value.</p>
+<section id="repeated-evaluation-under-the-naive-pipeline" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="repeated-evaluation-under-the-naive-pipeline"><span class="header-section-number">6.1</span> Repeated Evaluation Under the Naive Pipeline</h3>
+<p>We repeat the following steps multiple times: 1. Randomly split the data into training and test sets. 2. Fit the model on the training data. 3. Compute RMSE on the test data using observed targets only.</p>
+<p>Crucially, <strong>the same flawed preprocessing pipeline is retained</strong>, meaning that scaling and imputation are still performed on the full dataset prior to splitting.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>n_repeats <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>rmse_values <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_repeats)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(n_repeats)) {</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  split_i <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(airbnb_preprocessed, <span class="at">prop =</span> <span class="fl">0.8</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  train_i <span class="ot">&lt;-</span> <span class="fu">training</span>(split_i)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  test_i  <span class="ot">&lt;-</span> <span class="fu">testing</span>(split_i)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  model_i <span class="ot">&lt;-</span> <span class="fu">lm</span>(price <span class="sc">~</span> ., <span class="at">data =</span> train_i)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  pred_i  <span class="ot">&lt;-</span> <span class="fu">predict</span>(model_i, <span class="at">newdata =</span> test_i)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  eval_i <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">price =</span> test_i<span class="sc">$</span>price,</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred  =</span> pred_i</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(price), <span class="sc">!</span><span class="fu">is.na</span>(pred))</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  rmse_values[i] <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((eval_i<span class="sc">$</span>price <span class="sc">-</span> eval_i<span class="sc">$</span>pred)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>rmse_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">iteration =</span> <span class="fu">seq_len</span>(n_repeats),</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">rmse      =</span> rmse_values</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="inspecting-the-rmse-distribution" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="inspecting-the-rmse-distribution"><span class="header-section-number">6.2</span> Inspecting the RMSE Distribution</h3>
+<p>Rather than focusing on individual values, we now inspect the distribution of RMSE across repeated splits.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(rmse_df, <span class="fu">aes</span>(<span class="at">x =</span> rmse)) <span class="sc">+</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">15</span>, <span class="at">fill =</span> <span class="st">"#4C72B0"</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">mean</span>(rmse_df<span class="sc">$</span>rmse), </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">linetype =</span> <span class="st">"dashed"</span>, </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"RMSE Distribution Under Naive Preprocessing"</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Repeated random train–test splits"</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"RMSE"</span>,</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Count"</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="interpretation" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="interpretation"><span class="header-section-number">6.3</span> Interpretation</h3>
+<p>The RMSE values obtained across repeated random splits exhibit substantial variability, spanning a wide range rather than concentrating around a narrow interval. This degree of dispersion reflects the heterogeneity of the data and the sensitivity of the model to different training–test partitions.</p>
+<p>Importantly, this result highlights a key limitation of relying on a single train–test split: performance estimates can vary dramatically depending on how the data are partitioned. At this stage, the variability itself does not constitute evidence of data leakage. Instead, it establishes a baseline level of uncertainty against which alternative preprocessing strategies must be evaluated.</p>
+<p>In the following section, we will repeat the same experiment using a leakage-free preprocessing pipeline. By comparing the resulting RMSE distributions, we can assess whether improper preprocessing leads to systematically optimistic or distorted performance estimates.</p>
+</section>
+</section>
+<section id="a-leakage-free-preprocessing-pipeline" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="a-leakage-free-preprocessing-pipeline"><span class="header-section-number">7</span> A Leakage-Free Preprocessing Pipeline</h2>
+<p>To assess whether the previously observed behavior is driven by improper preprocessing, we now reconstruct the entire workflow using a leakage-free pipeline. The key principle is simple but fundamental: <strong>any transformation that learns from the data must be estimated using the training set only and then applied to the test set without re-estimation</strong>.</p>
+<section id="correct-order-of-operations" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="correct-order-of-operations"><span class="header-section-number">7.1</span> Correct Order of Operations</h3>
+<p>The leakage-free workflow follows this sequence:</p>
+<ol type="1">
+<li>Split the data into training and test sets.</li>
+<li>Estimate preprocessing parameters using the training data only.</li>
+<li>Apply the learned transformations to both training and test sets.</li>
+<li>Fit the model on the transformed training data.</li>
+<li>Evaluate performance on the transformed test data.</li>
+</ol>
+<p>This ordering mirrors real-world deployment, where future observations arrive without access to global dataset statistics.</p>
+</section>
+<section id="implementing-leakage-free-preprocessing-in-r" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="implementing-leakage-free-preprocessing-in-r"><span class="header-section-number">7.2</span> Implementing Leakage-Free Preprocessing in R</h3>
+<p>We begin by repeating the evaluation procedure across multiple random splits, as in the previous section. This time, however, preprocessing steps are learned exclusively from the training data.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>n_repeats <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>rmse_correct <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_repeats)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(n_repeats)) {</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Split first</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  split_i <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(airbnb_model, <span class="at">prop =</span> <span class="fl">0.8</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  train_raw <span class="ot">&lt;-</span> <span class="fu">training</span>(split_i)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  test_raw  <span class="ot">&lt;-</span> <span class="fu">testing</span>(split_i)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Estimate preprocessing parameters on training data only</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  train_processed <span class="ot">&lt;-</span> train_raw <span class="sc">%&gt;%</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="fu">across</span>(</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">.cols =</span> <span class="sc">-</span>price,</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">.fns  =</span> <span class="sc">~</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(.x), <span class="fu">mean</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), .x)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    ))</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  scaling_params <span class="ot">&lt;-</span> train_processed <span class="sc">%&gt;%</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="sc">-</span>price, <span class="fu">list</span>(<span class="at">mean =</span> mean, <span class="at">sd =</span> sd), <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  scale_train <span class="ot">&lt;-</span> <span class="cf">function</span>(x, m, s) {</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ifelse</span>(s <span class="sc">&gt;</span> <span class="dv">0</span>, (x <span class="sc">-</span> m) <span class="sc">/</span> s, <span class="dv">0</span>)</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (v <span class="cf">in</span> <span class="fu">names</span>(train_processed)[<span class="fu">names</span>(train_processed) <span class="sc">!=</span> <span class="st">"price"</span>]) {</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    m <span class="ot">&lt;-</span> scaling_params[[<span class="fu">paste0</span>(v, <span class="st">"_mean"</span>)]]</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    s <span class="ot">&lt;-</span> scaling_params[[<span class="fu">paste0</span>(v, <span class="st">"_sd"</span>)]]</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    train_processed[[v]] <span class="ot">&lt;-</span> <span class="fu">scale_train</span>(train_processed[[v]], m, s)</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Apply the same transformations to the test set</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>  test_processed <span class="ot">&lt;-</span> test_raw <span class="sc">%&gt;%</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="fu">across</span>(</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>      <span class="at">.cols =</span> <span class="sc">-</span>price,</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>      <span class="at">.fns  =</span> <span class="sc">~</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(.x), <span class="fu">mean</span>(train_raw[[<span class="fu">cur_column</span>()]], <span class="at">na.rm =</span> <span class="cn">TRUE</span>), .x)</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    ))</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (v <span class="cf">in</span> <span class="fu">names</span>(test_processed)[<span class="fu">names</span>(test_processed) <span class="sc">!=</span> <span class="st">"price"</span>]) {</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>    m <span class="ot">&lt;-</span> scaling_params[[<span class="fu">paste0</span>(v, <span class="st">"_mean"</span>)]]</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>    s <span class="ot">&lt;-</span> scaling_params[[<span class="fu">paste0</span>(v, <span class="st">"_sd"</span>)]]</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>    test_processed[[v]] <span class="ot">&lt;-</span> <span class="fu">scale_train</span>(test_processed[[v]], m, s)</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Fit model</span></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>  model_i <span class="ot">&lt;-</span> <span class="fu">lm</span>(price <span class="sc">~</span> ., <span class="at">data =</span> train_processed)</span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>  pred_i  <span class="ot">&lt;-</span> <span class="fu">predict</span>(model_i, <span class="at">newdata =</span> test_processed)</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Evaluate where target is observed</span></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>  eval_i <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">price =</span> test_processed<span class="sc">$</span>price,</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred  =</span> pred_i</span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(price), <span class="sc">!</span><span class="fu">is.na</span>(pred))</span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>  rmse_correct[i] <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((eval_i<span class="sc">$</span>price <span class="sc">-</span> eval_i<span class="sc">$</span>pred)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>rmse_correct_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>  <span class="at">iteration =</span> <span class="fu">seq_len</span>(n_repeats),</span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>  <span class="at">rmse      =</span> rmse_correct</span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="comparing-performance-distributions" class="level3" data-number="7.3">
+<h3 data-number="7.3" class="anchored" data-anchor-id="comparing-performance-distributions"><span class="header-section-number">7.3</span> Comparing Performance Distributions</h3>
+<p>We now compare RMSE distributions obtained under the naive and leakage-free preprocessing pipelines.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>rmse_compare <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  rmse_df <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">pipeline =</span> <span class="st">"Naive preprocessing"</span>),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  rmse_correct_df <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">pipeline =</span> <span class="st">"Leakage-free preprocessing"</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(rmse_compare, <span class="fu">aes</span>(<span class="at">x =</span> rmse, <span class="at">fill =</span> pipeline)) <span class="sc">+</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">position =</span> <span class="st">"identity"</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">bins =</span> <span class="dv">15</span>) <span class="sc">+</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"RMSE Distributions Under Different Preprocessing Pipelines"</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Naive vs leakage-free evaluation"</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"RMSE"</span>,</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Count"</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="interpretation-1" class="level3" data-number="7.4">
+<h3 data-number="7.4" class="anchored" data-anchor-id="interpretation-1"><span class="header-section-number">7.4</span> Interpretation</h3>
+<p>The RMSE distributions obtained under the naive and leakage-free preprocessing pipelines are nearly indistinguishable. Across repeated random splits, both approaches yield similar ranges, central tendencies, and tail behavior. Visually, the two histograms largely overlap, causing the leakage-free distribution to be obscured in the combined plot; this overlap itself reflects the near-identical numerical behavior of the two pipelines under the present modeling setup.</p>
+<p>This result demonstrates an important but often overlooked point: data leakage does not always lead to dramatic or easily detectable performance inflation. In some settings—particularly with simple models and highly variable targets—the numerical impact of leakage may be minimal, even though the evaluation procedure remains theoretically flawed.</p>
+<p>Crucially, the absence of a visible performance gap does not validate the naive pipeline. Instead, it highlights the need to assess preprocessing decisions based on methodological correctness rather than empirical convenience. In other contexts, datasets, or modeling frameworks, the same mistake could lead to substantial and misleading performance gains.</p>
+</section>
+</section>
+<section id="conclusion" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">8</span> Conclusion</h2>
+<p>This article set out with a seemingly straightforward question: can data leakage lead to misleadingly strong model performance? The empirical results presented here suggest a more nuanced answer. In the examined setting—using a simple linear model and a highly heterogeneous real-world dataset—improper preprocessing did not result in dramatic or easily detectable performance inflation. Naive and leakage-free pipelines produced nearly identical error distributions.</p>
+<p>However, this outcome does not diminish the importance of data leakage. On the contrary, it highlights its most insidious characteristic: <strong>data leakage is dangerous precisely because it does not always announce itself through obvious performance gains</strong>. Evaluation metrics may remain unchanged, stable, or even reasonable, while the underlying logic of the evaluation has already been violated.</p>
+<p>The central lesson is therefore not about performance optimization, but about validity. Correct model evaluation is a matter of respecting information boundaries—temporal, logical, and structural—regardless of whether immediate numerical consequences are visible. Relying on empirically convenient shortcuts simply because they “seem to work” risks building pipelines that fail silently when transferred to new data, different models, or operational settings.</p>
+<p>Ultimately, data leakage should be treated as a methodological error, not a performance issue. Thinking carefully about preprocessing order, information flow, and evaluation design is not optional; it is a prerequisite for trustworthy statistical modeling.</p>
+</section>
+<section id="references" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="references"><span class="header-section-number">9</span> References</h2>
+<ul>
+<li><p>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). <em>The Elements of Statistical Learning: Data Mining, Inference, and Prediction</em> (2nd ed.). Springer.<br>
+<a href="https://doi.org/10.1007/978-0-387-84858-7" class="uri">https://doi.org/10.1007/978-0-387-84858-7</a></p></li>
+<li><p>Kuhn, M., &amp; Johnson, K. (2013). <em>Applied Predictive Modeling</em>. Springer.<br>
+<a href="https://doi.org/10.1007/978-1-4614-6849-3" class="uri">https://doi.org/10.1007/978-1-4614-6849-3</a></p></li>
+<li><p>Kuhn, M., &amp; Silge, J. (2022). <em>Tidy Modeling with R</em>. O’Reilly Media.<br>
+<a href="https://www.tmwr.org/" class="uri">https://www.tmwr.org/</a></p></li>
+<li><p>Scikit-learn documentation. (n.d.). <em>Common pitfalls in machine learning</em>.<br>
+<a href="https://scikit-learn.org/stable/common_pitfalls.html" class="uri">https://scikit-learn.org/stable/common_pitfalls.html</a></p></li>
+<li><p>Inside Airbnb. (n.d.). <em>Get the data</em>.<br>
+<a href="https://insideairbnb.com/get-the-data/" class="uri">https://insideairbnb.com/get-the-data/</a></p></li>
+</ul>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/mfatihtuzen\.netlify\.app");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<script src="https://utteranc.es/client.js" repo="MFatihTuzen/blogComments" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Data Leakage in R: Why Correct Evaluation Matters Even When Metrics Do Not Change"</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "M. Fatih Tüzen"</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2026-01-22"</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">  - Data Leakage</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">  - R Programming</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">  - Data Preprocessing</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">  - Model Evaluation</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">  - Statistical Learning</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">  - Machine Learning Pitfalls</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">  - Reproducible Research</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 4</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="co">    code-overflow: scroll</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="co">    code-block-background: true</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="co">  pdf:</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a><span class="al">![](dataleakage.png)</span>{fig-align="center" width="504"}</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a><span class="fu">## Introduction – Why This Topic Matters</span></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>A model that performs exceptionally well on a test set is not necessarily a good model; in many cases, it is a warning sign. High accuracy or low error metrics are meaningful only if we understand **how** they were obtained. In real-world settings, models rarely encounter data generated under the same conditions as the training phase: data arrive sequentially, delays occur, missingness patterns change, and measurement errors accumulate. Under such conditions, impressive validation metrics can quickly lose their relevance.</span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>A common scenario in applied data science is deceptively familiar. During development, the model looks flawless: cross-validation results are stable, performance metrics are strong, and diagnostic plots inspire confidence. Once deployed, however, performance deteriorates—sometimes rapidly. Forecasts drift, classification decisions become unreliable, and stakeholders begin to question the entire modeling pipeline. While this failure is often attributed to distributional shift or concept drift, a more fundamental issue is frequently overlooked: **the model was exposed, directly or indirectly, to information it would not have access to at prediction time**.</span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>This phenomenon is known as *data leakage*. Importantly, data leakage is rarely the result of an obvious coding mistake. More often, it emerges from subtle flaws in experimental design, preprocessing order, or feature construction decisions made well before the model is fitted. As a result, leakage can silently inflate performance metrics, creating models that appear robust on paper but collapse in practice.\</span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a><span class="sc">\&gt;</span> *“A model that performs perfectly on paper but fails miserably in practice is often a victim of data leakage.”*</span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>In this article, we examine data leakage not as a technical curiosity, but as a structural threat to valid statistical modeling. We begin by clarifying what data leakage is—and what it is not—before demonstrating, using a real dataset and R-based workflows, how seemingly reasonable preprocessing choices can contaminate model evaluation. We then reconstruct the same analysis using a leakage-free pipeline, highlighting the practical and conceptual differences through numerical results and carefully designed visualizations.</span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a><span class="fu">## What Is Data Leakage?</span></span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>At its core, *data leakage* occurs when information that would not be available at prediction time is inadvertently used during model training or evaluation. This information can enter the modeling pipeline in subtle ways—often long before a model is fitted—leading to overly optimistic performance estimates. The critical issue is not that the model “cheats,” but that the **experimental setup allows future or target-related information to influence learning**.</span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>Formally, consider a supervised learning problem where we aim to estimate a function:</span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>f : \mathcal{X} \rightarrow \mathcal{Y}</span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>using a training set $(X_{\text{train}}, y_{\text{train}})$ and evaluate it on a test set $(X_{\text{test}}, y_{\text{test}})$. A valid evaluation assumes that $X_{\text{test}}$ is generated independently of $y_{\text{train}}$ and that no function of $y_{\text{test}}$ influences the training process. Data leakage violates this assumption by introducing a dependency—direct or indirect—between training and test information.</span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a><span class="fu">### What Data Leakage Is *Not*</span></span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a>Data leakage is often confused with other, related modeling issues. Clarifying these distinctions is essential.</span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Overfitting** refers to a model learning noise or idiosyncrasies in the training data. While overfitted models generalize poorly, they do not necessarily rely on forbidden information.</span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Data snooping** involves repeated testing and model selection on the same validation set. This inflates performance through selection bias, but the data themselves are not structurally contaminated.</span>
+<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Distribution shift** (or concept drift) occurs when the data-generating process changes over time. This is a real-world phenomenon, not a methodological error.</span>
+<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a>In contrast, **data leakage is a violation of the temporal or logical boundary between training and prediction**. It creates an artificial setting in which the model has access to information it should not logically possess.</span>
+<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a><span class="fu">### Common Forms of Data Leakage</span></span>
+<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a>Data leakage can be broadly categorized into three practical forms:</span>
+<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>**Target Leakage**\</span>
+<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a>    Predictors encode information that is directly derived from, or strongly dependent on, the target variable. For example, constructing a feature using an outcome measured after the event being predicted.</span>
+<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>**Train–Test Contamination**\</span>
+<span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a>    Information from the test set influences preprocessing steps such as scaling, imputation, or feature selection. This often happens when transformations are applied to the full dataset *before* splitting.</span>
+<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>**Temporal Leakage**\</span>
+<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a>    Future observations leak into the past, a particularly common issue in time series and forecasting contexts. Rolling averages, lag structures, or normalization computed using future data fall into this category.</span>
+<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a><span class="fu">### A Simple Conceptual Example</span></span>
+<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a>Suppose we aim to predict apartment prices using listing characteristics. If missing values in the price variable are imputed using the *global mean price computed over the entire dataset*, and the train–test split is performed afterward, then information from the test set has already influenced the training process. The model evaluation is no longer an honest simulation of future performance.</span>
+<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a>This type of leakage is especially dangerous because it often produces **stable and impressive metrics**, giving practitioners a false sense of security. The model appears reliable not because it has learned a robust relationship, but because the evaluation framework itself is compromised.</span>
+<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-83"><a href="#cb11-83" aria-hidden="true" tabindex="-1"></a>In the next section, we move from definitions to practice. Using a real dataset, we will deliberately construct a seemingly reasonable—but flawed—preprocessing pipeline and observe how data leakage manifests itself through inflated performance metrics.</span>
+<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-85"><a href="#cb11-85" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common Sources of Data Leakage in Practice</span></span>
+<span id="cb11-86"><a href="#cb11-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-87"><a href="#cb11-87" aria-hidden="true" tabindex="-1"></a>Data leakage rarely appears as an obvious error. In practice, it is often the result of *reasonable-looking preprocessing decisions* applied in the wrong order or under incorrect assumptions. This section outlines the most common sources of leakage encountered in applied statistical modeling and machine learning workflows, with a particular focus on preprocessing stages that precede model fitting.</span>
+<span id="cb11-88"><a href="#cb11-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-89"><a href="#cb11-89" aria-hidden="true" tabindex="-1"></a><span class="fu">### Leakage During Data Preprocessing</span></span>
+<span id="cb11-90"><a href="#cb11-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-91"><a href="#cb11-91" aria-hidden="true" tabindex="-1"></a>One of the most frequent sources of data leakage occurs during data preprocessing. Operations such as centering, scaling, normalization, and missing-value imputation are often applied mechanically to the entire dataset before any data splitting takes place. While this approach may seem harmless, it implicitly allows information from the test set to influence transformations applied to the training data.</span>
+<span id="cb11-92"><a href="#cb11-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-93"><a href="#cb11-93" aria-hidden="true" tabindex="-1"></a>For example, consider standardization using the sample mean $\mu$ and standard deviation $\sigma$. If these quantities are computed using the full dataset rather than the training subset alone, then statistics derived from the test data directly affect the transformed training observations. As a result, the model is evaluated in an artificially favorable setting that will never occur in real-world prediction.</span>
+<span id="cb11-94"><a href="#cb11-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-95"><a href="#cb11-95" aria-hidden="true" tabindex="-1"></a><span class="fu">### Leakage Through Feature Engineering</span></span>
+<span id="cb11-96"><a href="#cb11-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-97"><a href="#cb11-97" aria-hidden="true" tabindex="-1"></a>Feature engineering is another common entry point for leakage, particularly when new variables are constructed using aggregated information. Group-level statistics—such as averages, frequencies, or ranks—can easily encode target-related information if computed without respecting the train–test boundary.</span>
+<span id="cb11-98"><a href="#cb11-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-99"><a href="#cb11-99" aria-hidden="true" tabindex="-1"></a>A typical example involves creating neighborhood-level average prices in a housing dataset. If these averages are calculated using all available observations, including those later assigned to the test set, the resulting features implicitly incorporate information from unseen data. The model appears to generalize well, but only because future information has already been embedded in the predictors.</span>
+<span id="cb11-100"><a href="#cb11-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-101"><a href="#cb11-101" aria-hidden="true" tabindex="-1"></a><span class="fu">### Leakage from Improper Train–Test Splitting</span></span>
+<span id="cb11-102"><a href="#cb11-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-103"><a href="#cb11-103" aria-hidden="true" tabindex="-1"></a>In many workflows, data splitting is treated as a purely mechanical step. However, *when* and *how* the split is performed matters greatly. Random splits applied after preprocessing steps allow contamination to propagate silently. This issue is exacerbated in small or moderately sized datasets, where even minor information leakage can have a disproportionate effect on evaluation metrics.</span>
+<span id="cb11-104"><a href="#cb11-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-105"><a href="#cb11-105" aria-hidden="true" tabindex="-1"></a>The fundamental principle is simple: **any operation that learns from the data must be performed exclusively on the training set**. The learned transformation can then be applied to the test set—but never re-estimated using it.</span>
+<span id="cb11-106"><a href="#cb11-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-107"><a href="#cb11-107" aria-hidden="true" tabindex="-1"></a><span class="fu">### Temporal Leakage in Time-Dependent Data</span></span>
+<span id="cb11-108"><a href="#cb11-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-109"><a href="#cb11-109" aria-hidden="true" tabindex="-1"></a>Time-dependent data introduce an additional and particularly dangerous form of leakage: temporal leakage. This occurs when future observations influence the representation of past data. Common examples include rolling statistics computed using symmetric windows, global normalization across time, or lagged features that unintentionally incorporate future values.</span>
+<span id="cb11-110"><a href="#cb11-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-111"><a href="#cb11-111" aria-hidden="true" tabindex="-1"></a>In forecasting and time series analysis, such leakage violates the chronological ordering of information. The model effectively gains access to future states of the system, leading to performance estimates that are fundamentally invalid. Unlike random contamination, temporal leakage often produces extremely smooth and stable validation results—precisely because the future is partially known.</span>
+<span id="cb11-112"><a href="#cb11-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-113"><a href="#cb11-113" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why These Issues Are Hard to Detect</span></span>
+<span id="cb11-114"><a href="#cb11-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-115"><a href="#cb11-115" aria-hidden="true" tabindex="-1"></a>What makes data leakage especially problematic is not its complexity, but its subtlety. Leakage-prone pipelines often run without errors, produce clean outputs, and yield impressive metrics. In many cases, the only warning sign is performance that seems *too consistent* or *too good to be true*.</span>
+<span id="cb11-116"><a href="#cb11-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-117"><a href="#cb11-117" aria-hidden="true" tabindex="-1"></a>Crucially, standard validation techniques cannot detect leakage if the underlying data-generating assumptions have already been violated. Once contamination occurs, even rigorous cross-validation merely reinforces a flawed evaluation framework.</span>
+<span id="cb11-118"><a href="#cb11-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-119"><a href="#cb11-119" aria-hidden="true" tabindex="-1"></a>In the next section, we will make these ideas concrete by constructing a deliberately flawed preprocessing pipeline using a real dataset. By examining the resulting performance metrics and visual diagnostics, we will observe how data leakage manifests itself in practice.</span>
+<span id="cb11-120"><a href="#cb11-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-121"><a href="#cb11-121" aria-hidden="true" tabindex="-1"></a><span class="fu">## Dataset Description: Airbnb Listings Data</span></span>
+<span id="cb11-122"><a href="#cb11-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-123"><a href="#cb11-123" aria-hidden="true" tabindex="-1"></a>To demonstrate how data leakage arises in practice, we use a real-world dataset derived from Airbnb listings. The dataset is obtained from the publicly available *Inside Airbnb* project, which provides detailed, regularly updated information on short-term rental listings for major cities worldwide. In this study, we focus on the Istanbul listings, which offer a rich combination of numerical and categorical variables and exhibit common data quality issues encountered in applied modeling tasks.</span>
+<span id="cb11-124"><a href="#cb11-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-125"><a href="#cb11-125" aria-hidden="true" tabindex="-1"></a>The Inside Airbnb project aims to support research, policy analysis, and public discussion by making scraped Airbnb data openly accessible. The dataset includes listing-level attributes such as pricing information, accommodation characteristics, host-related variables, and geographic identifiers. Due to its size, heterogeneity, and real-world imperfections, it provides an ideal setting for illustrating preprocessing pitfalls and evaluation errors.</span>
+<span id="cb11-126"><a href="#cb11-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-127"><a href="#cb11-127" aria-hidden="true" tabindex="-1"></a><span class="fu">### Data Source</span></span>
+<span id="cb11-128"><a href="#cb11-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-129"><a href="#cb11-129" aria-hidden="true" tabindex="-1"></a>The data are publicly available at:</span>
+<span id="cb11-130"><a href="#cb11-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-131"><a href="#cb11-131" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; </span><span class="ot">&lt;https://insideairbnb.com/get-the-data/&gt;</span></span>
+<span id="cb11-132"><a href="#cb11-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-133"><a href="#cb11-133" aria-hidden="true" tabindex="-1"></a>For reproducibility, the analysis in this article uses a snapshot of the Istanbul listings dataset downloaded directly from the source. While the exact number of observations may vary across releases, the structure and modeling challenges remain consistent across versions.</span>
+<span id="cb11-134"><a href="#cb11-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-135"><a href="#cb11-135" aria-hidden="true" tabindex="-1"></a><span class="fu">### Target Variable and Modeling Objective</span></span>
+<span id="cb11-136"><a href="#cb11-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-137"><a href="#cb11-137" aria-hidden="true" tabindex="-1"></a>Our primary modeling objective is to predict the **listing price** based on observable characteristics of the property and its location. The target variable, denoted by $y$, corresponds to the nightly price of a listing in local currency units.</span>
+<span id="cb11-138"><a href="#cb11-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-139"><a href="#cb11-139" aria-hidden="true" tabindex="-1"></a>Price prediction in short-term rental data is a well-studied problem and serves as a natural example for illustrating data leakage. Importantly, price exhibits:</span>
+<span id="cb11-140"><a href="#cb11-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-141"><a href="#cb11-141" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>strong right skewness,</span>
+<span id="cb11-142"><a href="#cb11-142" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>substantial heterogeneity across neighborhoods,</span>
+<span id="cb11-143"><a href="#cb11-143" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>sensitivity to aggregation and preprocessing choices.</span>
+<span id="cb11-144"><a href="#cb11-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-145"><a href="#cb11-145" aria-hidden="true" tabindex="-1"></a>These properties make the variable particularly vulnerable to leakage through global transformations and improperly constructed features.</span>
+<span id="cb11-146"><a href="#cb11-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-147"><a href="#cb11-147" aria-hidden="true" tabindex="-1"></a><span class="fu">### Predictor Variables</span></span>
+<span id="cb11-148"><a href="#cb11-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-149"><a href="#cb11-149" aria-hidden="true" tabindex="-1"></a>The predictor set includes a mix of numerical and categorical variables commonly used in pricing models, such as:</span>
+<span id="cb11-150"><a href="#cb11-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-151"><a href="#cb11-151" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>accommodation capacity (e.g., number of guests),</span>
+<span id="cb11-152"><a href="#cb11-152" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>room type and property type,</span>
+<span id="cb11-153"><a href="#cb11-153" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>neighborhood identifiers,</span>
+<span id="cb11-154"><a href="#cb11-154" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>availability-related measures,</span>
+<span id="cb11-155"><a href="#cb11-155" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>host characteristics.</span>
+<span id="cb11-156"><a href="#cb11-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-157"><a href="#cb11-157" aria-hidden="true" tabindex="-1"></a>Several variables contain missing values, and many exhibit heavy-tailed distributions. These features necessitate preprocessing steps such as imputation, scaling, and transformation—precisely the stages where data leakage most often occurs.</span>
+<span id="cb11-158"><a href="#cb11-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-159"><a href="#cb11-159" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why This Dataset Is Suitable for Studying Data Leakage</span></span>
+<span id="cb11-160"><a href="#cb11-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-161"><a href="#cb11-161" aria-hidden="true" tabindex="-1"></a>This dataset is especially well-suited for examining data leakage for three reasons. First, it requires nontrivial preprocessing to be usable for modeling, increasing the risk of incorrect transformation order. Second, it includes categorical groupings (such as neighborhoods) that invite aggregation-based feature engineering, a common source of target leakage. Third, its real-world origin ensures that modeling assumptions—such as stationarity, completeness, and clean measurement—are only approximately satisfied.</span>
+<span id="cb11-162"><a href="#cb11-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-163"><a href="#cb11-163" aria-hidden="true" tabindex="-1"></a>By working with this dataset, we intentionally place ourselves in a realistic applied setting, where leakage is not an abstract concept but a tangible risk. In the next section, we construct a seemingly reasonable preprocessing pipeline that violates key evaluation principles, allowing us to observe how data leakage inflates model performance in practice.</span>
+<span id="cb11-164"><a href="#cb11-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-165"><a href="#cb11-165" aria-hidden="true" tabindex="-1"></a><span class="fu">## A Naive Preprocessing Pipeline (And Why It Is Wrong)</span></span>
+<span id="cb11-166"><a href="#cb11-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-167"><a href="#cb11-167" aria-hidden="true" tabindex="-1"></a>At first glance, many preprocessing pipelines appear perfectly reasonable. Data are cleaned, missing values are handled, variables are scaled, and only then is the dataset split into training and test sets. This workflow is intuitive, easy to implement, and—most importantly—widely used. Unfortunately, it is also fundamentally flawed.</span>
+<span id="cb11-168"><a href="#cb11-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-169"><a href="#cb11-169" aria-hidden="true" tabindex="-1"></a>In this section, we deliberately construct such a *naive pipeline* to illustrate how data leakage can arise without any obvious warning signs.</span>
+<span id="cb11-170"><a href="#cb11-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-171"><a href="#cb11-171" aria-hidden="true" tabindex="-1"></a><span class="fu">### Step 1: Loading and Preparing the Data</span></span>
+<span id="cb11-172"><a href="#cb11-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-173"><a href="#cb11-173" aria-hidden="true" tabindex="-1"></a>We begin by loading the Airbnb listings data and selecting a subset of variables commonly used for price prediction. For simplicity, we focus on numerical predictors that require minimal encoding.</span>
+<span id="cb11-174"><a href="#cb11-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-177"><a href="#cb11-177" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-178"><a href="#cb11-178" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb11-179"><a href="#cb11-179" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rsample)</span>
+<span id="cb11-180"><a href="#cb11-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-181"><a href="#cb11-181" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data (example assumes listings.csv from Inside Airbnb)</span></span>
+<span id="cb11-182"><a href="#cb11-182" aria-hidden="true" tabindex="-1"></a>airbnb <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"listings.csv"</span>)</span>
+<span id="cb11-183"><a href="#cb11-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-184"><a href="#cb11-184" aria-hidden="true" tabindex="-1"></a>airbnb_model <span class="ot">&lt;-</span> airbnb <span class="sc">%&gt;%</span></span>
+<span id="cb11-185"><a href="#cb11-185" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb11-186"><a href="#cb11-186" aria-hidden="true" tabindex="-1"></a>    price,</span>
+<span id="cb11-187"><a href="#cb11-187" aria-hidden="true" tabindex="-1"></a>    accommodates,</span>
+<span id="cb11-188"><a href="#cb11-188" aria-hidden="true" tabindex="-1"></a>    bedrooms,</span>
+<span id="cb11-189"><a href="#cb11-189" aria-hidden="true" tabindex="-1"></a>    bathrooms,</span>
+<span id="cb11-190"><a href="#cb11-190" aria-hidden="true" tabindex="-1"></a>    minimum_nights,</span>
+<span id="cb11-191"><a href="#cb11-191" aria-hidden="true" tabindex="-1"></a>    availability_365</span>
+<span id="cb11-192"><a href="#cb11-192" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-193"><a href="#cb11-193" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb11-194"><a href="#cb11-194" aria-hidden="true" tabindex="-1"></a>    <span class="at">price =</span> <span class="fu">as.numeric</span>(<span class="fu">str_remove_all</span>(price, <span class="st">"[$,]"</span>))</span>
+<span id="cb11-195"><a href="#cb11-195" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb11-196"><a href="#cb11-196" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-197"><a href="#cb11-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-198"><a href="#cb11-198" aria-hidden="true" tabindex="-1"></a>At this stage, the dataset already contains missing values and variables with highly skewed distributions—a realistic and unavoidable situation in applied work.</span>
+<span id="cb11-199"><a href="#cb11-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-200"><a href="#cb11-200" aria-hidden="true" tabindex="-1"></a><span class="fu">### Step 2: Global Preprocessing (The Critical Mistake)</span></span>
+<span id="cb11-201"><a href="#cb11-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-202"><a href="#cb11-202" aria-hidden="true" tabindex="-1"></a>A common approach is to perform preprocessing *once* on the full dataset. Below, we impute missing values using the global mean and standardize all predictors using statistics computed from the entire dataset.</span>
+<span id="cb11-203"><a href="#cb11-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-206"><a href="#cb11-206" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-207"><a href="#cb11-207" aria-hidden="true" tabindex="-1"></a>airbnb_preprocessed <span class="ot">&lt;-</span> airbnb_model <span class="sc">%&gt;%</span></span>
+<span id="cb11-208"><a href="#cb11-208" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(</span>
+<span id="cb11-209"><a href="#cb11-209" aria-hidden="true" tabindex="-1"></a>    <span class="at">.cols =</span> <span class="sc">-</span>price,</span>
+<span id="cb11-210"><a href="#cb11-210" aria-hidden="true" tabindex="-1"></a>    <span class="at">.fns  =</span> <span class="sc">~</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(.x), <span class="fu">mean</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), .x)</span>
+<span id="cb11-211"><a href="#cb11-211" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
+<span id="cb11-212"><a href="#cb11-212" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(</span>
+<span id="cb11-213"><a href="#cb11-213" aria-hidden="true" tabindex="-1"></a>    <span class="at">.cols =</span> <span class="sc">-</span>price,</span>
+<span id="cb11-214"><a href="#cb11-214" aria-hidden="true" tabindex="-1"></a>    <span class="at">.fns  =</span> scale</span>
+<span id="cb11-215"><a href="#cb11-215" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb11-216"><a href="#cb11-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-217"><a href="#cb11-217" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-218"><a href="#cb11-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-219"><a href="#cb11-219" aria-hidden="true" tabindex="-1"></a>From a purely technical perspective, this code runs without errors and produces clean, well-behaved predictors. However, the preprocessing steps above implicitly use information from *all observations*, including those that will later be assigned to the test set.</span>
+<span id="cb11-220"><a href="#cb11-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-221"><a href="#cb11-221" aria-hidden="true" tabindex="-1"></a>At this point, data leakage has already occurred.</span>
+<span id="cb11-222"><a href="#cb11-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-223"><a href="#cb11-223" aria-hidden="true" tabindex="-1"></a><span class="fu">### Step 3: Train–Test Split After Preprocessing</span></span>
+<span id="cb11-224"><a href="#cb11-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-225"><a href="#cb11-225" aria-hidden="true" tabindex="-1"></a>Next, we perform a random split of the preprocessed data into training and test sets.</span>
+<span id="cb11-226"><a href="#cb11-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-229"><a href="#cb11-229" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-230"><a href="#cb11-230" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb11-231"><a href="#cb11-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-232"><a href="#cb11-232" aria-hidden="true" tabindex="-1"></a>split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(airbnb_preprocessed, <span class="at">prop =</span> <span class="fl">0.8</span>)</span>
+<span id="cb11-233"><a href="#cb11-233" aria-hidden="true" tabindex="-1"></a>train_data <span class="ot">&lt;-</span> <span class="fu">training</span>(split)</span>
+<span id="cb11-234"><a href="#cb11-234" aria-hidden="true" tabindex="-1"></a>test_data  <span class="ot">&lt;-</span> <span class="fu">testing</span>(split)</span>
+<span id="cb11-235"><a href="#cb11-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-236"><a href="#cb11-236" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-237"><a href="#cb11-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-238"><a href="#cb11-238" aria-hidden="true" tabindex="-1"></a>Because the split is applied *after* preprocessing, the training data have been standardized and imputed using statistics influenced by the test data. The train–test boundary, while present in code, has already been violated in substance.</span>
+<span id="cb11-239"><a href="#cb11-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-240"><a href="#cb11-240" aria-hidden="true" tabindex="-1"></a><span class="fu">### Step 4: Model Fitting and Evaluation</span></span>
+<span id="cb11-241"><a href="#cb11-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-242"><a href="#cb11-242" aria-hidden="true" tabindex="-1"></a>We now fit a simple linear regression model using the training data and evaluate its predictive performance on the test set. At this stage, the goal is not to build an optimal model, but to assess how the *evaluation framework itself* can be compromised by data leakage.</span>
+<span id="cb11-243"><a href="#cb11-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-246"><a href="#cb11-246" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-247"><a href="#cb11-247" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit a linear regression model on the training data</span></span>
+<span id="cb11-248"><a href="#cb11-248" aria-hidden="true" tabindex="-1"></a>model_naive <span class="ot">&lt;-</span> <span class="fu">lm</span>(price <span class="sc">~</span> ., <span class="at">data =</span> train_data)</span>
+<span id="cb11-249"><a href="#cb11-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-250"><a href="#cb11-250" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate predictions for the test set</span></span>
+<span id="cb11-251"><a href="#cb11-251" aria-hidden="true" tabindex="-1"></a>pred_test <span class="ot">&lt;-</span> <span class="fu">predict</span>(model_naive, <span class="at">newdata =</span> test_data)</span>
+<span id="cb11-252"><a href="#cb11-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-253"><a href="#cb11-253" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-254"><a href="#cb11-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-255"><a href="#cb11-255" aria-hidden="true" tabindex="-1"></a>To compute a supervised performance metric, we must restrict the evaluation to test observations for which the target variable is observed. Listings with missing prices cannot contribute to an error metric such as RMSE, as no ground truth is available.</span>
+<span id="cb11-256"><a href="#cb11-256" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-259"><a href="#cb11-259" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-260"><a href="#cb11-260" aria-hidden="true" tabindex="-1"></a><span class="co"># Create an evaluation dataset with observed targets only</span></span>
+<span id="cb11-261"><a href="#cb11-261" aria-hidden="true" tabindex="-1"></a>eval_df <span class="ot">&lt;-</span> test_data <span class="sc">%&gt;%</span></span>
+<span id="cb11-262"><a href="#cb11-262" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb11-263"><a href="#cb11-263" aria-hidden="true" tabindex="-1"></a>    <span class="at">price =</span> price,</span>
+<span id="cb11-264"><a href="#cb11-264" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred  =</span> pred_test</span>
+<span id="cb11-265"><a href="#cb11-265" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-266"><a href="#cb11-266" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(price), <span class="sc">!</span><span class="fu">is.na</span>(pred))</span>
+<span id="cb11-267"><a href="#cb11-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-268"><a href="#cb11-268" aria-hidden="true" tabindex="-1"></a><span class="co"># Root Mean Squared Error</span></span>
+<span id="cb11-269"><a href="#cb11-269" aria-hidden="true" tabindex="-1"></a>rmse_naive <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((eval_df<span class="sc">$</span>price <span class="sc">-</span> eval_df<span class="sc">$</span>pred)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb11-270"><a href="#cb11-270" aria-hidden="true" tabindex="-1"></a>rmse_naive</span>
+<span id="cb11-271"><a href="#cb11-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-272"><a href="#cb11-272" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-273"><a href="#cb11-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-274"><a href="#cb11-274" aria-hidden="true" tabindex="-1"></a>The computed RMSE provides a single-point estimate of out-of-sample error under this evaluation setup. However, the absolute magnitude of this value is difficult to interpret in isolation because it depends on the scale and distribution of the target variable (price). More importantly for this article, the key concern is methodological: preprocessing steps were estimated using the full dataset before splitting, which compromises the train–test separation and can lead to overly optimistic performance estimates.</span>
+<span id="cb11-275"><a href="#cb11-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-276"><a href="#cb11-276" aria-hidden="true" tabindex="-1"></a>In the next section, we will evaluate this suspicion more systematically by repeating the procedure across multiple random splits and inspecting the distribution of performance metrics.</span>
+<span id="cb11-277"><a href="#cb11-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-278"><a href="#cb11-278" aria-hidden="true" tabindex="-1"></a><span class="fu">## Detecting Data Leakage: Repeated Splits and Performance Distributions</span></span>
+<span id="cb11-279"><a href="#cb11-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-280"><a href="#cb11-280" aria-hidden="true" tabindex="-1"></a>A single train–test split provides only a point estimate of model performance. To assess whether the suspiciously favorable evaluation observed earlier is a coincidence or a structural issue, we repeat the naive preprocessing and evaluation procedure across multiple random splits of the data. This allows us to examine the *distribution* of performance metrics rather than relying on a single value.</span>
+<span id="cb11-281"><a href="#cb11-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-282"><a href="#cb11-282" aria-hidden="true" tabindex="-1"></a><span class="fu">### Repeated Evaluation Under the Naive Pipeline</span></span>
+<span id="cb11-283"><a href="#cb11-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-284"><a href="#cb11-284" aria-hidden="true" tabindex="-1"></a>We repeat the following steps multiple times: 1. Randomly split the data into training and test sets. 2. Fit the model on the training data. 3. Compute RMSE on the test data using observed targets only.</span>
+<span id="cb11-285"><a href="#cb11-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-286"><a href="#cb11-286" aria-hidden="true" tabindex="-1"></a>Crucially, **the same flawed preprocessing pipeline is retained**, meaning that scaling and imputation are still performed on the full dataset prior to splitting.</span>
+<span id="cb11-287"><a href="#cb11-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-290"><a href="#cb11-290" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-291"><a href="#cb11-291" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb11-292"><a href="#cb11-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-293"><a href="#cb11-293" aria-hidden="true" tabindex="-1"></a>n_repeats <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb11-294"><a href="#cb11-294" aria-hidden="true" tabindex="-1"></a>rmse_values <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_repeats)</span>
+<span id="cb11-295"><a href="#cb11-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-296"><a href="#cb11-296" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(n_repeats)) {</span>
+<span id="cb11-297"><a href="#cb11-297" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-298"><a href="#cb11-298" aria-hidden="true" tabindex="-1"></a>  split_i <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(airbnb_preprocessed, <span class="at">prop =</span> <span class="fl">0.8</span>)</span>
+<span id="cb11-299"><a href="#cb11-299" aria-hidden="true" tabindex="-1"></a>  train_i <span class="ot">&lt;-</span> <span class="fu">training</span>(split_i)</span>
+<span id="cb11-300"><a href="#cb11-300" aria-hidden="true" tabindex="-1"></a>  test_i  <span class="ot">&lt;-</span> <span class="fu">testing</span>(split_i)</span>
+<span id="cb11-301"><a href="#cb11-301" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-302"><a href="#cb11-302" aria-hidden="true" tabindex="-1"></a>  model_i <span class="ot">&lt;-</span> <span class="fu">lm</span>(price <span class="sc">~</span> ., <span class="at">data =</span> train_i)</span>
+<span id="cb11-303"><a href="#cb11-303" aria-hidden="true" tabindex="-1"></a>  pred_i  <span class="ot">&lt;-</span> <span class="fu">predict</span>(model_i, <span class="at">newdata =</span> test_i)</span>
+<span id="cb11-304"><a href="#cb11-304" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-305"><a href="#cb11-305" aria-hidden="true" tabindex="-1"></a>  eval_i <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb11-306"><a href="#cb11-306" aria-hidden="true" tabindex="-1"></a>    <span class="at">price =</span> test_i<span class="sc">$</span>price,</span>
+<span id="cb11-307"><a href="#cb11-307" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred  =</span> pred_i</span>
+<span id="cb11-308"><a href="#cb11-308" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-309"><a href="#cb11-309" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(price), <span class="sc">!</span><span class="fu">is.na</span>(pred))</span>
+<span id="cb11-310"><a href="#cb11-310" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-311"><a href="#cb11-311" aria-hidden="true" tabindex="-1"></a>  rmse_values[i] <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((eval_i<span class="sc">$</span>price <span class="sc">-</span> eval_i<span class="sc">$</span>pred)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb11-312"><a href="#cb11-312" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-313"><a href="#cb11-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-314"><a href="#cb11-314" aria-hidden="true" tabindex="-1"></a>rmse_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb11-315"><a href="#cb11-315" aria-hidden="true" tabindex="-1"></a>  <span class="at">iteration =</span> <span class="fu">seq_len</span>(n_repeats),</span>
+<span id="cb11-316"><a href="#cb11-316" aria-hidden="true" tabindex="-1"></a>  <span class="at">rmse      =</span> rmse_values</span>
+<span id="cb11-317"><a href="#cb11-317" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-318"><a href="#cb11-318" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-319"><a href="#cb11-319" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-320"><a href="#cb11-320" aria-hidden="true" tabindex="-1"></a><span class="fu">### Inspecting the RMSE Distribution</span></span>
+<span id="cb11-321"><a href="#cb11-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-322"><a href="#cb11-322" aria-hidden="true" tabindex="-1"></a>Rather than focusing on individual values, we now inspect the distribution of RMSE across repeated splits.</span>
+<span id="cb11-323"><a href="#cb11-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-326"><a href="#cb11-326" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-327"><a href="#cb11-327" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb11-328"><a href="#cb11-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-329"><a href="#cb11-329" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(rmse_df, <span class="fu">aes</span>(<span class="at">x =</span> rmse)) <span class="sc">+</span></span>
+<span id="cb11-330"><a href="#cb11-330" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">15</span>, <span class="at">fill =</span> <span class="st">"#4C72B0"</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb11-331"><a href="#cb11-331" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">mean</span>(rmse_df<span class="sc">$</span>rmse), </span>
+<span id="cb11-332"><a href="#cb11-332" aria-hidden="true" tabindex="-1"></a>             <span class="at">linetype =</span> <span class="st">"dashed"</span>, </span>
+<span id="cb11-333"><a href="#cb11-333" aria-hidden="true" tabindex="-1"></a>             <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb11-334"><a href="#cb11-334" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb11-335"><a href="#cb11-335" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"RMSE Distribution Under Naive Preprocessing"</span>,</span>
+<span id="cb11-336"><a href="#cb11-336" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Repeated random train–test splits"</span>,</span>
+<span id="cb11-337"><a href="#cb11-337" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"RMSE"</span>,</span>
+<span id="cb11-338"><a href="#cb11-338" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Count"</span></span>
+<span id="cb11-339"><a href="#cb11-339" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb11-340"><a href="#cb11-340" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span>
+<span id="cb11-341"><a href="#cb11-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-342"><a href="#cb11-342" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-343"><a href="#cb11-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-344"><a href="#cb11-344" aria-hidden="true" tabindex="-1"></a><span class="fu">### Interpretation</span></span>
+<span id="cb11-345"><a href="#cb11-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-346"><a href="#cb11-346" aria-hidden="true" tabindex="-1"></a>The RMSE values obtained across repeated random splits exhibit substantial variability, spanning a wide range rather than concentrating around a narrow interval. This degree of dispersion reflects the heterogeneity of the data and the sensitivity of the model to different training–test partitions.</span>
+<span id="cb11-347"><a href="#cb11-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-348"><a href="#cb11-348" aria-hidden="true" tabindex="-1"></a>Importantly, this result highlights a key limitation of relying on a single train–test split: performance estimates can vary dramatically depending on how the data are partitioned. At this stage, the variability itself does not constitute evidence of data leakage. Instead, it establishes a baseline level of uncertainty against which alternative preprocessing strategies must be evaluated.</span>
+<span id="cb11-349"><a href="#cb11-349" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-350"><a href="#cb11-350" aria-hidden="true" tabindex="-1"></a>In the following section, we will repeat the same experiment using a leakage-free preprocessing pipeline. By comparing the resulting RMSE distributions, we can assess whether improper preprocessing leads to systematically optimistic or distorted performance estimates.</span>
+<span id="cb11-351"><a href="#cb11-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-352"><a href="#cb11-352" aria-hidden="true" tabindex="-1"></a><span class="fu">## A Leakage-Free Preprocessing Pipeline</span></span>
+<span id="cb11-353"><a href="#cb11-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-354"><a href="#cb11-354" aria-hidden="true" tabindex="-1"></a>To assess whether the previously observed behavior is driven by improper preprocessing, we now reconstruct the entire workflow using a leakage-free pipeline. The key principle is simple but fundamental: **any transformation that learns from the data must be estimated using the training set only and then applied to the test set without re-estimation**.</span>
+<span id="cb11-355"><a href="#cb11-355" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-356"><a href="#cb11-356" aria-hidden="true" tabindex="-1"></a><span class="fu">### Correct Order of Operations</span></span>
+<span id="cb11-357"><a href="#cb11-357" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-358"><a href="#cb11-358" aria-hidden="true" tabindex="-1"></a>The leakage-free workflow follows this sequence:</span>
+<span id="cb11-359"><a href="#cb11-359" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-360"><a href="#cb11-360" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Split the data into training and test sets.</span>
+<span id="cb11-361"><a href="#cb11-361" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Estimate preprocessing parameters using the training data only.</span>
+<span id="cb11-362"><a href="#cb11-362" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Apply the learned transformations to both training and test sets.</span>
+<span id="cb11-363"><a href="#cb11-363" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span>Fit the model on the transformed training data.</span>
+<span id="cb11-364"><a href="#cb11-364" aria-hidden="true" tabindex="-1"></a><span class="ss">5.  </span>Evaluate performance on the transformed test data.</span>
+<span id="cb11-365"><a href="#cb11-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-366"><a href="#cb11-366" aria-hidden="true" tabindex="-1"></a>This ordering mirrors real-world deployment, where future observations arrive without access to global dataset statistics.</span>
+<span id="cb11-367"><a href="#cb11-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-368"><a href="#cb11-368" aria-hidden="true" tabindex="-1"></a><span class="fu">### Implementing Leakage-Free Preprocessing in R</span></span>
+<span id="cb11-369"><a href="#cb11-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-370"><a href="#cb11-370" aria-hidden="true" tabindex="-1"></a>We begin by repeating the evaluation procedure across multiple random splits, as in the previous section. This time, however, preprocessing steps are learned exclusively from the training data.</span>
+<span id="cb11-371"><a href="#cb11-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-374"><a href="#cb11-374" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-375"><a href="#cb11-375" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb11-376"><a href="#cb11-376" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-377"><a href="#cb11-377" aria-hidden="true" tabindex="-1"></a>n_repeats <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb11-378"><a href="#cb11-378" aria-hidden="true" tabindex="-1"></a>rmse_correct <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_repeats)</span>
+<span id="cb11-379"><a href="#cb11-379" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-380"><a href="#cb11-380" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(n_repeats)) {</span>
+<span id="cb11-381"><a href="#cb11-381" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-382"><a href="#cb11-382" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Split first</span></span>
+<span id="cb11-383"><a href="#cb11-383" aria-hidden="true" tabindex="-1"></a>  split_i <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(airbnb_model, <span class="at">prop =</span> <span class="fl">0.8</span>)</span>
+<span id="cb11-384"><a href="#cb11-384" aria-hidden="true" tabindex="-1"></a>  train_raw <span class="ot">&lt;-</span> <span class="fu">training</span>(split_i)</span>
+<span id="cb11-385"><a href="#cb11-385" aria-hidden="true" tabindex="-1"></a>  test_raw  <span class="ot">&lt;-</span> <span class="fu">testing</span>(split_i)</span>
+<span id="cb11-386"><a href="#cb11-386" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-387"><a href="#cb11-387" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Estimate preprocessing parameters on training data only</span></span>
+<span id="cb11-388"><a href="#cb11-388" aria-hidden="true" tabindex="-1"></a>  train_processed <span class="ot">&lt;-</span> train_raw <span class="sc">%&gt;%</span></span>
+<span id="cb11-389"><a href="#cb11-389" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="fu">across</span>(</span>
+<span id="cb11-390"><a href="#cb11-390" aria-hidden="true" tabindex="-1"></a>      <span class="at">.cols =</span> <span class="sc">-</span>price,</span>
+<span id="cb11-391"><a href="#cb11-391" aria-hidden="true" tabindex="-1"></a>      <span class="at">.fns  =</span> <span class="sc">~</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(.x), <span class="fu">mean</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), .x)</span>
+<span id="cb11-392"><a href="#cb11-392" aria-hidden="true" tabindex="-1"></a>    ))</span>
+<span id="cb11-393"><a href="#cb11-393" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-394"><a href="#cb11-394" aria-hidden="true" tabindex="-1"></a>  scaling_params <span class="ot">&lt;-</span> train_processed <span class="sc">%&gt;%</span></span>
+<span id="cb11-395"><a href="#cb11-395" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="sc">-</span>price, <span class="fu">list</span>(<span class="at">mean =</span> mean, <span class="at">sd =</span> sd), <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb11-396"><a href="#cb11-396" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-397"><a href="#cb11-397" aria-hidden="true" tabindex="-1"></a>  scale_train <span class="ot">&lt;-</span> <span class="cf">function</span>(x, m, s) {</span>
+<span id="cb11-398"><a href="#cb11-398" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ifelse</span>(s <span class="sc">&gt;</span> <span class="dv">0</span>, (x <span class="sc">-</span> m) <span class="sc">/</span> s, <span class="dv">0</span>)</span>
+<span id="cb11-399"><a href="#cb11-399" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb11-400"><a href="#cb11-400" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-401"><a href="#cb11-401" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (v <span class="cf">in</span> <span class="fu">names</span>(train_processed)[<span class="fu">names</span>(train_processed) <span class="sc">!=</span> <span class="st">"price"</span>]) {</span>
+<span id="cb11-402"><a href="#cb11-402" aria-hidden="true" tabindex="-1"></a>    m <span class="ot">&lt;-</span> scaling_params[[<span class="fu">paste0</span>(v, <span class="st">"_mean"</span>)]]</span>
+<span id="cb11-403"><a href="#cb11-403" aria-hidden="true" tabindex="-1"></a>    s <span class="ot">&lt;-</span> scaling_params[[<span class="fu">paste0</span>(v, <span class="st">"_sd"</span>)]]</span>
+<span id="cb11-404"><a href="#cb11-404" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-405"><a href="#cb11-405" aria-hidden="true" tabindex="-1"></a>    train_processed[[v]] <span class="ot">&lt;-</span> <span class="fu">scale_train</span>(train_processed[[v]], m, s)</span>
+<span id="cb11-406"><a href="#cb11-406" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb11-407"><a href="#cb11-407" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-408"><a href="#cb11-408" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Apply the same transformations to the test set</span></span>
+<span id="cb11-409"><a href="#cb11-409" aria-hidden="true" tabindex="-1"></a>  test_processed <span class="ot">&lt;-</span> test_raw <span class="sc">%&gt;%</span></span>
+<span id="cb11-410"><a href="#cb11-410" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="fu">across</span>(</span>
+<span id="cb11-411"><a href="#cb11-411" aria-hidden="true" tabindex="-1"></a>      <span class="at">.cols =</span> <span class="sc">-</span>price,</span>
+<span id="cb11-412"><a href="#cb11-412" aria-hidden="true" tabindex="-1"></a>      <span class="at">.fns  =</span> <span class="sc">~</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(.x), <span class="fu">mean</span>(train_raw[[<span class="fu">cur_column</span>()]], <span class="at">na.rm =</span> <span class="cn">TRUE</span>), .x)</span>
+<span id="cb11-413"><a href="#cb11-413" aria-hidden="true" tabindex="-1"></a>    ))</span>
+<span id="cb11-414"><a href="#cb11-414" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-415"><a href="#cb11-415" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (v <span class="cf">in</span> <span class="fu">names</span>(test_processed)[<span class="fu">names</span>(test_processed) <span class="sc">!=</span> <span class="st">"price"</span>]) {</span>
+<span id="cb11-416"><a href="#cb11-416" aria-hidden="true" tabindex="-1"></a>    m <span class="ot">&lt;-</span> scaling_params[[<span class="fu">paste0</span>(v, <span class="st">"_mean"</span>)]]</span>
+<span id="cb11-417"><a href="#cb11-417" aria-hidden="true" tabindex="-1"></a>    s <span class="ot">&lt;-</span> scaling_params[[<span class="fu">paste0</span>(v, <span class="st">"_sd"</span>)]]</span>
+<span id="cb11-418"><a href="#cb11-418" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-419"><a href="#cb11-419" aria-hidden="true" tabindex="-1"></a>    test_processed[[v]] <span class="ot">&lt;-</span> <span class="fu">scale_train</span>(test_processed[[v]], m, s)</span>
+<span id="cb11-420"><a href="#cb11-420" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb11-421"><a href="#cb11-421" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-422"><a href="#cb11-422" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Fit model</span></span>
+<span id="cb11-423"><a href="#cb11-423" aria-hidden="true" tabindex="-1"></a>  model_i <span class="ot">&lt;-</span> <span class="fu">lm</span>(price <span class="sc">~</span> ., <span class="at">data =</span> train_processed)</span>
+<span id="cb11-424"><a href="#cb11-424" aria-hidden="true" tabindex="-1"></a>  pred_i  <span class="ot">&lt;-</span> <span class="fu">predict</span>(model_i, <span class="at">newdata =</span> test_processed)</span>
+<span id="cb11-425"><a href="#cb11-425" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-426"><a href="#cb11-426" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Evaluate where target is observed</span></span>
+<span id="cb11-427"><a href="#cb11-427" aria-hidden="true" tabindex="-1"></a>  eval_i <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb11-428"><a href="#cb11-428" aria-hidden="true" tabindex="-1"></a>    <span class="at">price =</span> test_processed<span class="sc">$</span>price,</span>
+<span id="cb11-429"><a href="#cb11-429" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred  =</span> pred_i</span>
+<span id="cb11-430"><a href="#cb11-430" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-431"><a href="#cb11-431" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(price), <span class="sc">!</span><span class="fu">is.na</span>(pred))</span>
+<span id="cb11-432"><a href="#cb11-432" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-433"><a href="#cb11-433" aria-hidden="true" tabindex="-1"></a>  rmse_correct[i] <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((eval_i<span class="sc">$</span>price <span class="sc">-</span> eval_i<span class="sc">$</span>pred)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb11-434"><a href="#cb11-434" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-435"><a href="#cb11-435" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-436"><a href="#cb11-436" aria-hidden="true" tabindex="-1"></a>rmse_correct_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb11-437"><a href="#cb11-437" aria-hidden="true" tabindex="-1"></a>  <span class="at">iteration =</span> <span class="fu">seq_len</span>(n_repeats),</span>
+<span id="cb11-438"><a href="#cb11-438" aria-hidden="true" tabindex="-1"></a>  <span class="at">rmse      =</span> rmse_correct</span>
+<span id="cb11-439"><a href="#cb11-439" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-440"><a href="#cb11-440" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-441"><a href="#cb11-441" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-442"><a href="#cb11-442" aria-hidden="true" tabindex="-1"></a><span class="fu">### Comparing Performance Distributions</span></span>
+<span id="cb11-443"><a href="#cb11-443" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-444"><a href="#cb11-444" aria-hidden="true" tabindex="-1"></a>We now compare RMSE distributions obtained under the naive and leakage-free preprocessing pipelines.</span>
+<span id="cb11-445"><a href="#cb11-445" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-448"><a href="#cb11-448" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-449"><a href="#cb11-449" aria-hidden="true" tabindex="-1"></a>rmse_compare <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb11-450"><a href="#cb11-450" aria-hidden="true" tabindex="-1"></a>  rmse_df <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">pipeline =</span> <span class="st">"Naive preprocessing"</span>),</span>
+<span id="cb11-451"><a href="#cb11-451" aria-hidden="true" tabindex="-1"></a>  rmse_correct_df <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">pipeline =</span> <span class="st">"Leakage-free preprocessing"</span>)</span>
+<span id="cb11-452"><a href="#cb11-452" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-453"><a href="#cb11-453" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-454"><a href="#cb11-454" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(rmse_compare, <span class="fu">aes</span>(<span class="at">x =</span> rmse, <span class="at">fill =</span> pipeline)) <span class="sc">+</span></span>
+<span id="cb11-455"><a href="#cb11-455" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">position =</span> <span class="st">"identity"</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">bins =</span> <span class="dv">15</span>) <span class="sc">+</span></span>
+<span id="cb11-456"><a href="#cb11-456" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb11-457"><a href="#cb11-457" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"RMSE Distributions Under Different Preprocessing Pipelines"</span>,</span>
+<span id="cb11-458"><a href="#cb11-458" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Naive vs leakage-free evaluation"</span>,</span>
+<span id="cb11-459"><a href="#cb11-459" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"RMSE"</span>,</span>
+<span id="cb11-460"><a href="#cb11-460" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Count"</span></span>
+<span id="cb11-461"><a href="#cb11-461" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb11-462"><a href="#cb11-462" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span>
+<span id="cb11-463"><a href="#cb11-463" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-464"><a href="#cb11-464" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-465"><a href="#cb11-465" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-466"><a href="#cb11-466" aria-hidden="true" tabindex="-1"></a><span class="fu">### Interpretation</span></span>
+<span id="cb11-467"><a href="#cb11-467" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-468"><a href="#cb11-468" aria-hidden="true" tabindex="-1"></a>The RMSE distributions obtained under the naive and leakage-free preprocessing pipelines are nearly indistinguishable. Across repeated random splits, both approaches yield similar ranges, central tendencies, and tail behavior. Visually, the two histograms largely overlap, causing the leakage-free distribution to be obscured in the combined plot; this overlap itself reflects the near-identical numerical behavior of the two pipelines under the present modeling setup.</span>
+<span id="cb11-469"><a href="#cb11-469" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-470"><a href="#cb11-470" aria-hidden="true" tabindex="-1"></a>This result demonstrates an important but often overlooked point: data leakage does not always lead to dramatic or easily detectable performance inflation. In some settings—particularly with simple models and highly variable targets—the numerical impact of leakage may be minimal, even though the evaluation procedure remains theoretically flawed.</span>
+<span id="cb11-471"><a href="#cb11-471" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-472"><a href="#cb11-472" aria-hidden="true" tabindex="-1"></a>Crucially, the absence of a visible performance gap does not validate the naive pipeline. Instead, it highlights the need to assess preprocessing decisions based on methodological correctness rather than empirical convenience. In other contexts, datasets, or modeling frameworks, the same mistake could lead to substantial and misleading performance gains.</span>
+<span id="cb11-473"><a href="#cb11-473" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-474"><a href="#cb11-474" aria-hidden="true" tabindex="-1"></a><span class="fu">## Conclusion</span></span>
+<span id="cb11-475"><a href="#cb11-475" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-476"><a href="#cb11-476" aria-hidden="true" tabindex="-1"></a>This article set out with a seemingly straightforward question: can data leakage lead to misleadingly strong model performance? The empirical results presented here suggest a more nuanced answer. In the examined setting—using a simple linear model and a highly heterogeneous real-world dataset—improper preprocessing did not result in dramatic or easily detectable performance inflation. Naive and leakage-free pipelines produced nearly identical error distributions.</span>
+<span id="cb11-477"><a href="#cb11-477" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-478"><a href="#cb11-478" aria-hidden="true" tabindex="-1"></a>However, this outcome does not diminish the importance of data leakage. On the contrary, it highlights its most insidious characteristic: **data leakage is dangerous precisely because it does not always announce itself through obvious performance gains**. Evaluation metrics may remain unchanged, stable, or even reasonable, while the underlying logic of the evaluation has already been violated.</span>
+<span id="cb11-479"><a href="#cb11-479" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-480"><a href="#cb11-480" aria-hidden="true" tabindex="-1"></a>The central lesson is therefore not about performance optimization, but about validity. Correct model evaluation is a matter of respecting information boundaries—temporal, logical, and structural—regardless of whether immediate numerical consequences are visible. Relying on empirically convenient shortcuts simply because they “seem to work” risks building pipelines that fail silently when transferred to new data, different models, or operational settings.</span>
+<span id="cb11-481"><a href="#cb11-481" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-482"><a href="#cb11-482" aria-hidden="true" tabindex="-1"></a>Ultimately, data leakage should be treated as a methodological error, not a performance issue. Thinking carefully about preprocessing order, information flow, and evaluation design is not optional; it is a prerequisite for trustworthy statistical modeling.</span>
+<span id="cb11-483"><a href="#cb11-483" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-484"><a href="#cb11-484" aria-hidden="true" tabindex="-1"></a><span class="fu">## References</span></span>
+<span id="cb11-485"><a href="#cb11-485" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-486"><a href="#cb11-486" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). *The Elements of Statistical Learning: Data Mining, Inference, and Prediction* (2nd ed.). Springer.\</span>
+<span id="cb11-487"><a href="#cb11-487" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&lt;https://doi.org/10.1007/978-0-387-84858-7&gt;</span></span>
+<span id="cb11-488"><a href="#cb11-488" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-489"><a href="#cb11-489" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Kuhn, M., &amp; Johnson, K. (2013). *Applied Predictive Modeling*. Springer.\</span>
+<span id="cb11-490"><a href="#cb11-490" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&lt;https://doi.org/10.1007/978-1-4614-6849-3&gt;</span></span>
+<span id="cb11-491"><a href="#cb11-491" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-492"><a href="#cb11-492" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Kuhn, M., &amp; Silge, J. (2022). *Tidy Modeling with R*. O’Reilly Media.\</span>
+<span id="cb11-493"><a href="#cb11-493" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&lt;https://www.tmwr.org/&gt;</span></span>
+<span id="cb11-494"><a href="#cb11-494" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-495"><a href="#cb11-495" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Scikit-learn documentation. (n.d.). *Common pitfalls in machine learning*.\</span>
+<span id="cb11-496"><a href="#cb11-496" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&lt;https://scikit-learn.org/stable/common_pitfalls.html&gt;</span></span>
+<span id="cb11-497"><a href="#cb11-497" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-498"><a href="#cb11-498" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Inside Airbnb. (n.d.). *Get the data*.\</span>
+<span id="cb11-499"><a href="#cb11-499" aria-hidden="true" tabindex="-1"></a>    <span class="ot">&lt;https://insideairbnb.com/get-the-data/&gt;</span></span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2023, M. Fatih Tüzen</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
