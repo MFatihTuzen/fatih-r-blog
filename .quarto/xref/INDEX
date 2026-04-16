@@ -107,5 +107,9 @@
   "posts/2026-01-22_data_leakage/index.qmd": {
     "index.html": "949a12c0",
     "index.tex": "424d3b58"
+  },
+  "posts/2026-04-16_timeseries_stationary/index.qmd": {
+    "index.html": "c0fbec06",
+    "index.tex": "fece947d"
   }
 }
