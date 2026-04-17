@@ -346,10 +346,8 @@ The real question, therefore, is not “Should I difference?” but rather:\
 
 ## A compact comparison
 
-## A compact comparison
-
 | Series version        | What it represents               | Typical issue                    | When it helps (and when it does not)                         |
-|-----------------|-----------------|-----------------|----------------------|
+|-----------------|-----------------|-----------------|---------------------|
 | CPI level             | The price index itself           | Strong trend, likely unit root   | Poor starting point for stationary modeling                  |
 | First difference      | Absolute period-to-period change | Still scale-dependent            | Reduces trend, but interpretation remains limited            |
 | Log difference        | Approximate proportional change  | May still show volatility bursts | More suitable for modeling inflation-type dynamics           |

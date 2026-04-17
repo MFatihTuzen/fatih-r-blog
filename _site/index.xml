@@ -840,15 +840,12 @@ we start with a problematic series, diagnose the issue visually, apply a transfo
 </section>
 <section id="a-compact-comparison" class="level2" data-number="12">
 <h2 data-number="12" class="anchored" data-anchor-id="a-compact-comparison"><span class="header-section-number">12</span> A compact comparison</h2>
-</section>
-<section id="a-compact-comparison-1" class="level2" data-number="13">
-<h2 data-number="13" class="anchored" data-anchor-id="a-compact-comparison-1"><span class="header-section-number">13</span> A compact comparison</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 23%">
 <col style="width: 23%">
 <col style="width: 23%">
-<col style="width: 30%">
+<col style="width: 29%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -886,8 +883,8 @@ we start with a problematic series, diagnose the issue visually, apply a transfo
 </tbody>
 </table>
 </section>
-<section id="common-mistakes" class="level2" data-number="14">
-<h2 data-number="14" class="anchored" data-anchor-id="common-mistakes"><span class="header-section-number">14</span> Common mistakes</h2>
+<section id="common-mistakes" class="level2" data-number="13">
+<h2 data-number="13" class="anchored" data-anchor-id="common-mistakes"><span class="header-section-number">13</span> Common mistakes</h2>
 <p>Most mistakes in time series analysis are not computational — they are conceptual.</p>
 <p><strong>Mistake 1: fitting models directly to raw levels because the plot “looks smooth.”</strong><br>
 Smoothness is not stationarity. A strong trend can produce visually smooth series that are statistically problematic.</p>
@@ -900,18 +897,18 @@ In the case of CPI, the focus is typically on inflation, not the index level its
 <p>Taken together, these mistakes point to a simple lesson:<br>
 <strong>time series analysis is not about applying steps — it is about making informed choices.</strong></p>
 </section>
-<section id="final-thoughts" class="level2" data-number="15">
-<h2 data-number="15" class="anchored" data-anchor-id="final-thoughts"><span class="header-section-number">15</span> Final thoughts</h2>
+<section id="final-thoughts" class="level2" data-number="14">
+<h2 data-number="14" class="anchored" data-anchor-id="final-thoughts"><span class="header-section-number">14</span> Final thoughts</h2>
 <p>Most time series models do not fail because we cannot estimate them. They fail because we model the wrong object.</p>
 <p>The raw CPI series is a clear reminder that not every observed series is ready for modeling. A trending index is rarely an appropriate input for a stationary model. Once we difference — and especially log-difference — the data, the series becomes more interpretable, more stable, and much closer to the type of process that classical time series methods are designed to handle.</p>
 <p>So before asking whether your model is sophisticated enough, ask a more fundamental question:</p>
 <p><strong>Am I modeling a stable process — or just chasing drift?</strong></p>
 <p>In many cases, the answer to this question matters far more than whether you choose AR(1), ARIMA(1,1,1), or any other fashionable specification.</p>
 </section>
-<section id="references-and-further-reading" class="level2" data-number="16">
-<h2 data-number="16" class="anchored" data-anchor-id="references-and-further-reading"><span class="header-section-number">16</span> References and further reading</h2>
-<section id="data-sources" class="level3" data-number="16.1">
-<h3 data-number="16.1" class="anchored" data-anchor-id="data-sources"><span class="header-section-number">16.1</span> Data sources</h3>
+<section id="references-and-further-reading" class="level2" data-number="15">
+<h2 data-number="15" class="anchored" data-anchor-id="references-and-further-reading"><span class="header-section-number">15</span> References and further reading</h2>
+<section id="data-sources" class="level3" data-number="15.1">
+<h3 data-number="15.1" class="anchored" data-anchor-id="data-sources"><span class="header-section-number">15.1</span> Data sources</h3>
 <ul>
 <li><p>FRED, Federal Reserve Bank of St.&nbsp;Louis. <em>Consumer Price Index for All Urban Consumers: All Items (CPIAUCSL).</em><br>
 <a href="https://fred.stlouisfed.org/series/CPIAUCSL" class="uri">https://fred.stlouisfed.org/series/CPIAUCSL</a></p></li>
@@ -920,8 +917,8 @@ In the case of CPI, the focus is typically on inflation, not the index level its
 </ul>
 <hr>
 </section>
-<section id="core-time-series-references" class="level3" data-number="16.2">
-<h3 data-number="16.2" class="anchored" data-anchor-id="core-time-series-references"><span class="header-section-number">16.2</span> Core time series references</h3>
+<section id="core-time-series-references" class="level3" data-number="15.2">
+<h3 data-number="15.2" class="anchored" data-anchor-id="core-time-series-references"><span class="header-section-number">15.2</span> Core time series references</h3>
 <ul>
 <li><p>Box, G. E. P., Jenkins, G. M., Reinsel, G. C., &amp; Ljung, G. M. (2015). <em>Time Series Analysis: Forecasting and Control.</em> Wiley.</p></li>
 <li><p>Hyndman, R. J., &amp; Athanasopoulos, G. (2021). <em>Forecasting: Principles and Practice (3rd ed.).</em><br>
@@ -930,24 +927,24 @@ In the case of CPI, the focus is typically on inflation, not the index level its
 </ul>
 <hr>
 </section>
-<section id="stationarity-and-unit-root-testing" class="level3" data-number="16.3">
-<h3 data-number="16.3" class="anchored" data-anchor-id="stationarity-and-unit-root-testing"><span class="header-section-number">16.3</span> Stationarity and unit root testing</h3>
+<section id="stationarity-and-unit-root-testing" class="level3" data-number="15.3">
+<h3 data-number="15.3" class="anchored" data-anchor-id="stationarity-and-unit-root-testing"><span class="header-section-number">15.3</span> Stationarity and unit root testing</h3>
 <ul>
 <li><p>Dickey, D. A., &amp; Fuller, W. A. (1979). <em>Distribution of the estimators for autoregressive time series with a unit root.</em> Journal of the American Statistical Association.</p></li>
 <li><p>Said, S. E., &amp; Dickey, D. A. (1984). <em>Testing for unit roots in autoregressive-moving average models of unknown order.</em> Biometrika.</p></li>
 </ul>
 <hr>
 </section>
-<section id="transformations-and-interpretation" class="level3" data-number="16.4">
-<h3 data-number="16.4" class="anchored" data-anchor-id="transformations-and-interpretation"><span class="header-section-number">16.4</span> Transformations and interpretation</h3>
+<section id="transformations-and-interpretation" class="level3" data-number="15.4">
+<h3 data-number="15.4" class="anchored" data-anchor-id="transformations-and-interpretation"><span class="header-section-number">15.4</span> Transformations and interpretation</h3>
 <ul>
 <li><p>Stock, J. H., &amp; Watson, M. W. (2019). <em>Introduction to Econometrics.</em> Pearson.</p></li>
 <li><p>Tsay, R. S. (2010). <em>Analysis of Financial Time Series.</em> Wiley.</p></li>
 </ul>
 <hr>
 </section>
-<section id="practical-r-resources" class="level3" data-number="16.5">
-<h3 data-number="16.5" class="anchored" data-anchor-id="practical-r-resources"><span class="header-section-number">16.5</span> Practical R resources</h3>
+<section id="practical-r-resources" class="level3" data-number="15.5">
+<h3 data-number="15.5" class="anchored" data-anchor-id="practical-r-resources"><span class="header-section-number">15.5</span> Practical R resources</h3>
 <ul>
 <li><p>R Core Team. <em>R: A Language and Environment for Statistical Computing.</em><br>
 <a href="https://www.r-project.org/" class="uri">https://www.r-project.org/</a></p></li>
@@ -956,8 +953,8 @@ In the case of CPI, the focus is typically on inflation, not the index level its
 </ul>
 <hr>
 </section>
-<section id="suggested-next-steps-for-readers" class="level3" data-number="16.6">
-<h3 data-number="16.6" class="anchored" data-anchor-id="suggested-next-steps-for-readers"><span class="header-section-number">16.6</span> Suggested next steps for readers</h3>
+<section id="suggested-next-steps-for-readers" class="level3" data-number="15.6">
+<h3 data-number="15.6" class="anchored" data-anchor-id="suggested-next-steps-for-readers"><span class="header-section-number">15.6</span> Suggested next steps for readers</h3>
 <p>If you want to go deeper, consider exploring:</p>
 <ul>
 <li>Unit root tests beyond ADF (KPSS, Phillips–Perron)</li>
