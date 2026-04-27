@@ -1,0 +1,5 @@
+[[redirects]]
+  from = "/*"
+  to = "https://mfatihtuzen.github.io/:splat"
+  status = 301
+  force = true
